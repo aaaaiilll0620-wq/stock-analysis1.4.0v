@@ -233,7 +233,8 @@ st.sidebar.subheader("🔑 FinMind 存取")
 user_token = st.sidebar.text_input(
     "你的 FinMind API token", value="", type="password",
     help="即時『個股分析/多檔排行』會用『你自己的』token 打 FinMind,額度算你的、不共用、"
-         "也不會寫入伺服器。留空=匿名 (每日額度極低,可能查不到)。『綜合分選股』分頁免 token。")
+         "也不會寫入伺服器。留空=匿名 (每小時 300 次,且雲端為共用 IP、尖峰易被分光)。"
+         "『綜合分選股』分頁免 token。")
 if user_token:
     st.sidebar.caption("✅ 已使用你的 token (額度算你的)")
 else:
@@ -249,8 +250,8 @@ tab_one, tab_rank, tab_screen, tab_help = st.tabs(
 with tab_one:
     if not user_token:
         st.info("即時個股分析會打 FinMind API。請在左側貼上『你自己的 FinMind token』"
-                "(額度算你的),或改用免 token 的『綜合分選股』分頁。未貼 token 將以匿名模式嘗試,"
-                "額度極低、常會失敗。")
+                "(額度算你的),或改用免 token 的『綜合分選股』分頁。未貼 token 會以匿名模式嘗試 "
+                "(每小時 300 次、FinMind 以 IP 計;雲端部署為共用 IP,尖峰常被同 IP 流量分光而失敗)。")
     codes_raw = st.text_input("股票代號 (可多檔,空白/逗號分隔)", value="2330")
     if st.button("分析", type="primary"):
         codes = parse_codes(codes_raw)
@@ -406,8 +407,10 @@ with tab_help:
     with st.expander("額度限制與常見問題"):
         st.markdown(
             "**各身分的 API 額度(大致)**\n"
-            "- **不貼 token(匿名)**:每小時額度極低,即時分頁常會抓不到資料 → 建議改用免 token 的『綜合分選股』分頁。\n"
-            "- **免費註冊會員**:每小時約 **600 次**請求,個人研究用綽綽有餘。\n"
+            "- **不貼 token(匿名)**:每小時 **300 次**(FinMind 以 IP 計算)。雲端部署對外是"
+            "**共用 IP**,這 300 次是整台伺服器共用、會被同 IP 的其他流量一起吃掉,尖峰時很容易"
+            "抓不到資料 → 建議貼自己的 token,或改用免 token 的『綜合分選股』分頁。\n"
+            "- **免費註冊會員**:每小時約 **600 次**請求,以帳號計算、跟 IP 無關,不會被別人分掉,個人研究用綽綽有餘。\n"
             "- **贊助 / Sponsor 方案**:每小時上限更高,適合大量掃描;詳見官網贊助方案。\n\n"
             "**常見問題**\n"
             "- *貼了 token 還是抓不到?* 先確認 token 有沒有整串複製到、帳號 Email 是否已完成驗證;"
