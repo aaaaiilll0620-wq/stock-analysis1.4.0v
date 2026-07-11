@@ -179,6 +179,37 @@ def screen_universe(mode: str, min_composite: int, ratings: tuple, min_conf: int
     return df
 
 
+@st.cache_data(show_spinner=False)
+def watchlist_names():
+    """從 watchlist.txt 解析 {代號: 股名}，供『綜合分選股』把快取內 name==代號 的
+    舊資料回填成正確股名 (例 2330 → 台積電)。檔案不存在/解析失敗 → 回傳空 dict。
+    格式:代號後第一個 token 當股名,可含 '#' 註解符 ('2330  台積電' 或 '2330  # 台積電')。"""
+    path = os.path.join(_ROOT, "watchlist.txt")
+    names: dict = {}
+    if not os.path.exists(path):
+        return names
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split()
+                code = parts[0].strip().upper()
+                if not code or code.startswith("#"):
+                    continue
+                rest = line[len(parts[0]):].strip()
+                if rest.startswith("#"):
+                    rest = rest.lstrip("#").strip()
+                if rest:
+                    nm = rest.split()[0].strip()
+                    if nm and not nm.startswith("#"):
+                        names[code] = nm
+    except Exception:
+        pass
+    return names
+
+
 def parse_codes(raw: str):
     for sep in ("，", ",", "、", ";", "；", "\n"):
         raw = raw.replace(sep, " ")
@@ -325,6 +356,12 @@ with tab_screen:
         ratings = st.multiselect("限定評級 (不選 = 全部)", list(RATING_STYLE.keys()), default=[])
 
         df = screen_universe(mode, min_comp, tuple(ratings), min_conf, top)
+        # 名稱回填:舊快取的 name 欄可能等於代號,用 watchlist.txt 的股名覆蓋 (例 2330 → 台積電)。
+        if df is not None and not df.empty and "stock_id" in df.columns and "name" in df.columns:
+            _nmap = watchlist_names()
+            if _nmap:
+                df = df.copy()
+                df["name"] = [_nmap.get(str(sid), nm) for sid, nm in zip(df["stock_id"], df["name"])]
         if df is None or df.empty:
             st.info("沒有符合條件的個股 —— 放寬門檻或評級再試。")
         else:

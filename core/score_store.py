@@ -222,7 +222,8 @@ def build_scores(symbols: Optional[Sequence[str]] = None,
     print(f"開始建 scores:{n} 檔 × {len(modes)} 模式 {modes}  快取:{data_cache.CACHE_DIR}/{DATASET}")
     for i, sym in enumerate(symbols, 1):
         bundle = cached_fetch_history(sym, refresh=refresh)
-        bundle.name = names.get(sym, sym)
+        # 名稱優先用傳入的對照表 (build_cache 從 watchlist.txt 解析),再退回 bundle 原名、最後才用代號。
+        bundle.name = names.get(sym) or getattr(bundle, "name", "") or sym
         aod = as_of or _latest_as_of(bundle)
         if aod is None:
             skipped.append(sym)

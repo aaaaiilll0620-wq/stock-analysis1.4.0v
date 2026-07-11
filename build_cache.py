@@ -63,6 +63,37 @@ def load_watchlist(path=None):
     return codes or None
 
 
+def load_watchlist_names(path=None):
+    """讀 watchlist.txt → 回傳 {代號: 股名} 對照表 (供 scores 快取顯示正確名稱)。
+    格式:代號後面接的第一個 token 視為股名;可有 '#' 註解符 (例 '2330  台積電'
+         或 '2330  # 台積電' 都會解析出『台積電』)。沒寫名稱的代號不列入。
+    檔案不存在或解析失敗 → 回傳 {} (呼叫端會退回以代號當名稱)。"""
+    path = path or os.path.join(project_root, "watchlist.txt")
+    names = {}
+    if not os.path.exists(path):
+        return names
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split()
+                code = parts[0].strip().upper()
+                if not code or code.startswith("#"):
+                    continue
+                rest = line[len(parts[0]):].strip()   # 代號之後的整段
+                if rest.startswith("#"):               # 去掉註解符號 '#'
+                    rest = rest.lstrip("#").strip()
+                if rest:
+                    name = rest.split()[0].strip()     # 取第一個 token 當股名
+                    if name and not name.startswith("#"):
+                        names[code] = name
+    except Exception as e:
+        print(f"(watchlist.txt 名稱解析失敗,名稱將以代號代替:{e})")
+    return names
+
+
 def _load_pool():
     """預設清單來源:優先 watchlist.txt,沒有就回退回測分散化測試池。"""
     codes = load_watchlist()
@@ -140,9 +171,12 @@ def screen_demo():
 
 
 def build_scores_demo(symbols, modes=None, refresh=False):
-    """用五維綜合分建立 / 更新 scores 快取 (讀本機原始快取,0 API)。"""
+    """用五維綜合分建立 / 更新 scores 快取 (讀本機原始快取,0 API)。
+    會從 watchlist.txt 讀入 {代號: 股名},讓 scores 快取存正確股名 (例 2330 → 台積電),
+    避免『綜合分選股』頁的名稱欄跟代號一樣。"""
     from core import score_store
-    return score_store.build_scores(symbols=symbols, modes=modes, refresh=refresh)
+    names = load_watchlist_names()
+    return score_store.build_scores(symbols=symbols, modes=modes, refresh=refresh, names=names)
 
 
 def screen_composite_demo(mode="balanced"):
