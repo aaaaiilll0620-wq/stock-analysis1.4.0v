@@ -1,11 +1,15 @@
 # Streamlit Community Cloud 依賴 (台股四維度決策系統 app.py)
 # 依 app 的實際 import 圖列出;matplotlib 只在回測繪圖用、app 不需要,故不列 (要跑回測繪圖再自行加)。
-streamlit
-pandas
-numpy
-altair
-duckdb
-pyarrow            # pandas 讀寫 parquet 快取所需
-FinMind            # 即時個股分析的資料來源 (訪客用自己的 token)
-python-dotenv      # 本機 .env 讀 token;雲端用 secrets
-tqdm               # main.py 進度條 (選用,列出以對齊本機行為)
+#
+# ⚠️ 已鎖定版本 (2026-07):雲端「未鎖版本」會裝當下最新 numpy 2.x,與舊 ABI 編譯的
+#    套件不相容,導致啟動後跑到 C 層時 Segmentation fault(整個程序被系統砍掉、無 Python traceback)。
+#    鎖住這組互相相容的版本即可避免;日後要升級請整組一起測。
+streamlit==1.37.1
+pandas==2.2.2
+numpy==1.26.4         # 關鍵:鎖在 1.x,避開 numpy 2.0 的 ABI 破壞 (segfault 主因)
+altair==5.3.0
+duckdb==1.0.0
+pyarrow==16.1.0       # pandas 讀寫 parquet 快取所需
+FinMind               # 即時個股分析的資料來源 (訪客用自己的 token);沿用相容的最新版
+python-dotenv==1.0.1  # 本機 .env 讀 token;雲端用 secrets
+tqdm==4.66.5          # main.py 進度條 (選用,列出以對齊本機行為)
