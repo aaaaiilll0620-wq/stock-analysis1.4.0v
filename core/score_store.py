@@ -34,7 +34,8 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import pandas as pd
 
 from core import data_cache
-from core.backtest import cached_fetch_history, build_pit_stockdata, HistoryBundle
+from core.backtest import cached_fetch_history, build_pit_stockdata, HistoryBundle, load_benchmark
+from core.regime import classify_regime
 from core.fundamentals import FundamentalEngine
 from core.valuation import ValuationEngine
 from core.scoring_manager import ScoringManager
@@ -54,7 +55,7 @@ COLUMNS = [
     "fundamental", "valuation", "technical", "momentum", "whale",
     "valuation_status", "quality_flag",
     "price", "sector", "data_confidence",
-    "dyn_weight", "weights_version", "built_at",
+    "dyn_weight", "regime", "weights_version", "built_at",
 ]
 
 
@@ -97,6 +98,34 @@ def _check_mode(mode: str) -> None:
         raise ValueError(f"未知模式 {mode!r};可用:{list(ScoringManager.MODES)}")
 
 
+# ------------------------------------------------------------------------------
+# 市場 Regime (與回測同一套):用 0050 快取逐 as_of 判多空,空頭時 scores 自動轉防守權重。
+#   基準快取缺 0050 → 一律回 None (advisor 不調整),不影響建庫。
+# ------------------------------------------------------------------------------
+_REGIME_BENCHMARK = "0050"
+_bench_state: dict = {"bundle": None, "tried": False}
+_regime_by_asof: Dict[str, Optional[str]] = {}
+
+
+def _regime_at(as_of: Optional[str]) -> Optional[str]:
+    if not as_of:
+        return None
+    if not _bench_state["tried"]:
+        _bench_state["tried"] = True
+        try:
+            b = load_benchmark(_REGIME_BENCHMARK)
+            if b is not None and getattr(b, "price", None) is not None and not b.price.empty:
+                _bench_state["bundle"] = b
+        except Exception as e:
+            logger.warning(f"regime 基準 {_REGIME_BENCHMARK} 載入失敗,scores 以中性權重建庫: {e}")
+    if _bench_state["bundle"] is None:
+        return None
+    key = str(as_of)
+    if key not in _regime_by_asof:
+        _regime_by_asof[key] = classify_regime(_bench_state["bundle"].price, key)
+    return _regime_by_asof[key]
+
+
 def _f(x) -> Optional[float]:
     """安全轉 float (None / 轉不動 → None)。"""
     try:
@@ -125,6 +154,7 @@ def score_row(bundle: HistoryBundle, as_of: str, mode: str, engines=None) -> Opt
         fund_res = fund.evaluate(vars(stock))
         val_res = val.evaluate(vars(stock))
         score = scorer.calculate_score(stock)
+        advisor.current_regime = _regime_at(as_of)        # 與回測同步:空頭自動轉防守權重
         advisor.advise(stock, fund_res, val_res, score)   # in-place 補齊 composite/rating/五維
     except Exception as e:
         logger.warning(f"[{bundle.symbol}] {as_of} {mode} 評分失敗: {e}")
@@ -148,6 +178,7 @@ def score_row(bundle: HistoryBundle, as_of: str, mode: str, engines=None) -> Opt
         "sector": getattr(stock, "sector_category", ""),
         "data_confidence": _f(score.data_confidence),
         "dyn_weight": bool(getattr(score, "_dynamic_weight", False)),
+        "regime": advisor.current_regime or "neutral",
         "weights_version": _weights_version(mode),
         "built_at": pd.Timestamp.utcnow().isoformat(),
     }

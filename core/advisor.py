@@ -46,6 +46,8 @@ class InvestmentAdvisor:
         self.min_score = min_score
         self.mode_weights = mode_weights or dict(self.DEFAULT_MODE_WEIGHTS)
         self.mode_name = mode_name
+        # 【市場 Regime】由回測/計分迴圈逐 as_of 設定 ('bull'/'neutral'/'bear');None → 不調整權重。
+        self.current_regime = None
         # 依模式調整「嚴格度」:保守更早示警超買/追高、要求更強籌碼確認;積極更容許突破追高
         profile = {
             "conservative": dict(rsi_overbought=65.0, rsi_extreme=72.0, bias_chase=12.0, chip_min=45.0),
@@ -99,6 +101,12 @@ class InvestmentAdvisor:
             "whale": chip_bucket,
         }
         mw = self.mode_weights
+        # 【市場 Regime 層】空頭段自動降動能/技術、加重基本面 (乘數在 core.regime;current_regime
+        #   由回測/計分迴圈逐 as_of 設定,None → 不調整)。在 per-stock 動態權重之前先套市場層級調整。
+        if getattr(self, "current_regime", None):
+            from core.regime import regime_multipliers
+            _mult = regime_multipliers(self.current_regime)
+            mw = {k: float(v) * float(_mult.get(k, 1.0)) for k, v in mw.items()}
         wsum = sum(max(0.0, float(mw.get(k, 0.0))) for k in buckets)
         if wsum <= 0:
             mw = self.DEFAULT_MODE_WEIGHTS

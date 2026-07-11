@@ -476,6 +476,8 @@ def main():
                         help="走本機快取但先補抓增量到最新 (少量 API)")
     parser.add_argument("--live", action="store_true",
                         help="強制即時抓 FinMind 全歷史 (會大量 API);預設走本機快取 0 API")
+    parser.add_argument("--no-regime", action="store_true",
+                        help="關閉市場 regime 動態權重 (A/B 對照:預設開啟,空頭段自動降動能加重基本面)")
     parser.add_argument("--interactive", action="store_true", help="強制互動輸入代號")
     parser.add_argument("--export", default=None, choices=["xlsx"],
                         help="標準回測後把排行匯出成美化 Excel")
@@ -505,6 +507,7 @@ def main():
     symbols = parse_symbols(" ".join(args.symbols)) if args.symbols else []
     bt = build_backtester(symbols, args.mode,
                           use_cache=use_cache, refresh=args.cache_refresh)
+    bt.use_regime = not args.no_regime      # 市場 regime 動態權重 (預設開;--no-regime 關閉做對照)
     action = ("optimize" if args.optimize else "validate" if args.validate
               else "neutral" if args.neutral else "ranked" if args.ranked
               else "cycle" if args.cycle else "attribution" if args.attribution

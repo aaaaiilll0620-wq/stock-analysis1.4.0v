@@ -567,6 +567,29 @@ class Backtester:
             mode_weights=ScoringManager.MODES[mode].get("composite_weights"),
             mode_name=mode,
         )
+        # 【市場 Regime】用基準 (0050) 逐 as_of 判斷多頭/空頭 → 空頭降動能加重基本面。
+        #   use_regime=False 可完全關閉 (A/B 對照);benchmark 快取無資料時自動退回不調整。
+        self.use_regime = True
+        self.regime_benchmark = "0050"
+        self.benchmark_bundle = None      # 延遲載入 (第一次 _regime_at 時)
+        self._regime_cache: Dict[str, Optional[str]] = {}
+
+    def _regime_at(self, as_of: str) -> Optional[str]:
+        """回傳 as_of 當下的大盤 regime ('bull'/'neutral'/'bear');關閉或無基準快取 → None。"""
+        if not self.use_regime:
+            return None
+        if self.benchmark_bundle is None:
+            try:
+                self.benchmark_bundle = load_benchmark(self.regime_benchmark) or False
+            except Exception:
+                self.benchmark_bundle = False
+        if not self.benchmark_bundle:
+            return None
+        key = str(as_of)
+        if key not in self._regime_cache:
+            from core.regime import classify_regime
+            self._regime_cache[key] = classify_regime(self.benchmark_bundle.price, key)
+        return self._regime_cache[key]
 
     def load(self, fetcher: Callable[[str], HistoryBundle] = None):
         """抓取每檔完整歷史 (本機執行)。可注入 fetcher 供測試。"""
@@ -587,6 +610,7 @@ class Backtester:
             score = self.scorer.calculate_score(stock)
             score.raw_stock = stock
             score.fund_info = fund_res
+            self.advisor.current_regime = self._regime_at(as_of)
             self.advisor.advise(stock, fund_res, val_res, score)
         except Exception as e:
             logger.warning(f"[{bundle.symbol}] {as_of} 評分失敗: {e}")
@@ -1213,6 +1237,7 @@ class Backtester:
             sr.raw_stock = stock
             sr.fund_info = fr
             try:
+                advisor.current_regime = self._regime_at(as_of)
                 advisor.advise(stock, fr, vr, sr)
             except Exception:
                 continue
@@ -1322,6 +1347,7 @@ class Backtester:
             sr.raw_stock = stock
             sr.fund_info = fr
             try:
+                advisor.current_regime = self._regime_at(as_of)
                 advisor.advise(stock, fr, vr, sr)
             except Exception:
                 continue
