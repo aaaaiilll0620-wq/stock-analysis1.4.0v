@@ -62,3 +62,4 @@ def download_stock_csv(stock_id="4958", lookback_days=120):
 
 if __name__ == "__main__":
     download_stock_csv("4958")
+
