@@ -909,6 +909,8 @@ class DataProvider:
             institutional_participation = 0.0
             flow_acceleration = 1.0
             trust_net20_shares = 0.0
+            foreign_net_ratio: dict = {}     # 外資多天期淨參與率 {1,3,5,10,20}
+            trust_net_ratio: dict = {}       # 投信多天期淨參與率 {1,3,5,10,20}
             if chip_df is not None and not chip_df.empty:
                 name_series = chip_df['name'].astype(str).str.strip()
                 trust_df = chip_df[name_series.isin(['Investment_Trust', 'Investment Trust', '投信'])]
@@ -974,6 +976,16 @@ class DataProvider:
 
                 # 投信近20日淨買超「股數」(供吸籌比,需搭配流通股數)
                 trust_net20_shares = t20 * 1000.0
+
+                # === 多天期法人淨參與率 (whale 重構基底):net(張) ÷ 同期總量(張),signed、市值中性 ===
+                _vser = pd.to_numeric(price_df['Trading_Volume'], errors='coerce') \
+                    if 'Trading_Volume' in price_df.columns else None
+                for _n in (1, 3, 5, 10, 20):
+                    _cn = _cut(_n)
+                    _vn = float(_vser.tail(_n).sum()) / 1000.0 if _vser is not None else 0.0
+                    if _vn > 0:
+                        foreign_net_ratio[_n] = cls._net_buy_lots(foreign_df, buy_col, sell_col, _cn) / _vn
+                        trust_net_ratio[_n] = cls._net_buy_lots(trust_df, buy_col, sell_col, _cn) / _vn
 
             # 成交量集中度:近20日上漲日量佔比(%)——零額外 API,沿用 price_df
             volume_concentration = cls._calc_volume_concentration(price_df, 20)
@@ -1207,6 +1219,8 @@ class DataProvider:
                 trust_flow=float(trust_flow),                          # 投信近10日淨買超張
                 institutional_participation=float(institutional_participation),  # 法人成交占比%
                 flow_acceleration=float(flow_acceleration),            # 買超力道放大倍數
+                foreign_net_ratio=foreign_net_ratio,                   # 外資多天期淨參與率 {1,3,5,10,20}
+                trust_net_ratio=trust_net_ratio,                       # 投信多天期淨參與率 {1,3,5,10,20}
                 big_holder_ratio=float(big_holder_ratio),              # 千張大戶佔比% (TDCC,週更)
                 big_holder_weekly_change=float(big_holder_weekly_change),  # 大戶佔比週變化(百分點)
                 operating_income=op_income_v,                          # 營業利益 (本業獲利)

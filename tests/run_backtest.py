@@ -104,7 +104,7 @@ def normalize_mode(raw, default="balanced"):
     return MODE_ALIAS.get(r, default)
 
 
-def build_backtester(symbols, mode, use_cache=False, refresh=False):
+def build_backtester(symbols, mode, use_cache=True, refresh=False):
     """撈名稱 + 建立 Backtester + 載入歷史資料 (較耗時,故抽出共用)。
     use_cache=True → 走本機 Parquet 快取 (需先跑 build_cache.py);refresh=True → 快取再補增量。"""
     if not symbols:
@@ -471,9 +471,11 @@ def main():
     parser.add_argument("--weighting", default="score", choices=["score", "equal"],
                         help="--ranked 的配重:score(分數加權,預設) / equal(等權)")
     parser.add_argument("--cache", action="store_true",
-                        help="走本機 Parquet 快取 (需先跑 build_cache.py),回測 0 次 API")
+                        help="(預設已啟用) 走本機 Parquet 快取,回測 0 次 API;保留供相容")
     parser.add_argument("--cache-refresh", action="store_true",
                         help="走本機快取但先補抓增量到最新 (少量 API)")
+    parser.add_argument("--live", action="store_true",
+                        help="強制即時抓 FinMind 全歷史 (會大量 API);預設走本機快取 0 API")
     parser.add_argument("--interactive", action="store_true", help="強制互動輸入代號")
     parser.add_argument("--export", default=None, choices=["xlsx"],
                         help="標準回測後把排行匯出成美化 Excel")
@@ -487,10 +489,12 @@ def main():
     else:
         ratings = ("強勢買進", "強烈推薦")          # 預設:集中買買進級,不再closet-index大盤
 
+    # 預設走本機快取 (0 API);--live 才即時抓。--cache-refresh 走快取並補增量。
+    use_cache = (not args.live)
     defaults = dict(mode=args.mode, start=args.start, end=args.end, rebalance=args.rebalance,
                     holding=args.holding, exit_mode=args.exit_mode, benchmark=args.benchmark,
                     ratings=ratings, top_n=args.top_n, weighting=args.weighting, track=args.track,
-                    use_cache=(args.cache or args.cache_refresh), refresh=args.cache_refresh)
+                    use_cache=use_cache, refresh=args.cache_refresh)
 
     # 直接按『執行』(無任何命令列參數) 或 --interactive → 進入互動選單
     if args.interactive or len(sys.argv) <= 1:
@@ -500,7 +504,7 @@ def main():
     # 有命令列參數 → 一次性執行 (維持原本 CLI 行為)
     symbols = parse_symbols(" ".join(args.symbols)) if args.symbols else []
     bt = build_backtester(symbols, args.mode,
-                          use_cache=(args.cache or args.cache_refresh), refresh=args.cache_refresh)
+                          use_cache=use_cache, refresh=args.cache_refresh)
     action = ("optimize" if args.optimize else "validate" if args.validate
               else "neutral" if args.neutral else "ranked" if args.ranked
               else "cycle" if args.cycle else "attribution" if args.attribution

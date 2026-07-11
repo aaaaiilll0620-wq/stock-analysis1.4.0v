@@ -27,8 +27,14 @@ class ScoringManager:
             #   估值 IC +0.049 但留一貢獻 −0.76% (冗餘) → 略降;籌碼 IC +0.028 (弱) → 略降。
             #   同時把高分維度 (基本面/技術) 加重會抬升 composite 中位數 → 緩解分數門檻瓶頸。
             "weights": {"technical": 0.32, "momentum": 0.38, "whale": 0.30},
-            "composite_weights": {"fundamental": 0.30, "valuation": 0.10,
-                                  "technical": 0.26, "momentum": 0.16, "whale": 0.18},
+            # v4.2 依 2023–2025 因子歸因重配 (balanced):
+            #   動能 IC+0.077/多空+2.81%/留一+0.46 (最強單因子,原僅16%嚴重低配) → 加重至 0.27;
+            #   估值 留一 −0.78 (拿掉反而更好) → 砍至 0.08;技術 留一 −0.03 (中性) → 降至 0.19;
+            #   籌碼 弱但非負 (+0.05) → 微降至 0.15;基本面 留一 +0.41 (穩) → 維持 0.31。
+            #   ⚠ 這是 in-sample 歸因,須經 --validate(train/test)+ --cycle(2021–22 空頭) 複驗才留。
+            #   舊版(如需回退):fund .30 / val .10 / tech .26 / mom .16 / whale .18
+            "composite_weights": {"fundamental": 0.31, "valuation": 0.08,
+                                  "technical": 0.19, "momentum": 0.27, "whale": 0.15},
             "min_score": 54,
             "description": "以基本面+技術為排序核心 (因子歸因校準),動能/估值退居確認。"
         }
@@ -184,36 +190,96 @@ class ScoringManager:
         return min(max(score, 0.0), 100.0)
 
     # ------------------------------------------------------------------
-    # 籌碼面:雙法人連買加分,並對連續賣超扣分
+    # 籌碼面 (v4.2 重構):以「多天期法人淨參與率」為基底,連買天數降級為 bonus
     # ------------------------------------------------------------------
+    #   背景:稽核 (item 1) 顯示舊版 whale 中位僅 26、37% 掛 0,主因是舊基底
+    #   `連買天數×20` 是嚴格連續計數,大型股法人買賣交錯 → 天數恆為 0 → 基底塌陷。
+    #   但 chip 資料完整,淨流向資訊被壓在 ±25 的 adj 裡浪費掉。
+    #   重構:淨參與率 (net ÷ 同期量,signed、市值中性、幾乎不為0) 拉回當 0-100 基底,
+    #        給出跨股 spread;連續買超天數改當小額 bonus (仍獎勵真正的持續吸籌)。
+    #   天期 1/3/5/10/20 分開加權:短天期看即時、長天期看趨勢。
+    _HORIZON_WEIGHTS = {1: 0.10, 3: 0.15, 5: 0.25, 10: 0.25, 20: 0.25}
+    _RATIO_TO_POINTS = 300.0   # 淨參與率 → 分數斜率 (±0.1 淨參與 ≈ ±30 分);可調,改後需 --attribution 複驗
+
     def _get_whale_score(self, data: StockData) -> float:
+        fr = data.foreign_net_ratio or {}
+        tr = data.trust_net_ratio or {}
+
+        # 無多天期資料 (live 尚未接線 / 無 chip) → 回退舊版計法,維持相容
+        if not fr and not tr:
+            return self._legacy_whale_score(data)
+
+        # ---- 基底:多天期法人淨參與率加權 (signed) → 0-100,中性≈48 ----
+        hw = self._HORIZON_WEIGHTS
+        combined_ratio = sum(
+            hw[n] * (float(fr.get(n, 0.0) or 0.0) + float(tr.get(n, 0.0) or 0.0))
+            for n in hw
+        )
+        score = 48.0 + combined_ratio * self._RATIO_TO_POINTS
+
+        # ---- 土洋同步 (5/10 日皆同買) → 確認加分 ----
+        if (fr.get(5, 0) > 0 and tr.get(5, 0) > 0) or (fr.get(10, 0) > 0 and tr.get(10, 0) > 0):
+            score += 8.0
+
+        # ---- 連續買/賣超天數:降級為 bonus/penalty (各 cap 3 天,最多 ±12) ----
+        score += min(data.foreign_buy_days, 3) * 2.0 + min(data.institutional_buy_days, 3) * 2.0
+        score -= min(data.foreign_sell_days, 3) * 2.0 + min(data.institutional_sell_days, 3) * 2.0
+
+        # ---- 確認層 (±15 有界):投信吸籌比 / 法人參與 / 力道放大 / 量能集中 ----
+        #   注意:large_holder_activity / foreign_flow / trust_flow 已由上面的淨參與率涵蓋,
+        #   不再重複計分 (避免因子共線放大同一訊號)。
+        adj = 0.0
+        if data.whale_concentration >= 1.0:
+            adj += 8.0
+        elif data.whale_concentration >= 0.3:
+            adj += 4.0
+        if data.institutional_participation >= 40.0:
+            adj += 4.0
+        elif data.institutional_participation >= 25.0:
+            adj += 2.0
+        if combined_ratio > 0 and data.flow_acceleration >= 1.5:
+            adj += 5.0          # 淨買且力道放大 = 加速吸籌
+        if data.volume_concentration >= 55.0:
+            adj += 3.0
+        elif 0.0 < data.volume_concentration < 45.0:
+            adj -= 3.0
+        adj = max(-15.0, min(15.0, adj))
+
+        # ---- TDCC 確認層 (±8,預設關閉為 0) ----
+        tdcc_adj = 0.0
+        wchg = data.big_holder_weekly_change
+        if wchg > 0:
+            tdcc_adj += min(wchg * 4.0, 8.0)
+        elif wchg < 0:
+            tdcc_adj += max(wchg * 4.0, -8.0)
+            if combined_ratio > 0:
+                tdcc_adj -= 3.0          # 背離:法人在買、大戶卻週減 (趁強出貨)
+        tdcc_adj = max(-8.0, min(8.0, tdcc_adj))
+
+        return min(max(score + adj + tdcc_adj, 0.0), 100.0)
+
+    # ------------------------------------------------------------------
+    # 舊版籌碼計法 (連買天數為基底) — 僅在無多天期淨參與率資料時回退使用
+    # ------------------------------------------------------------------
+    def _legacy_whale_score(self, data: StockData) -> float:
         trust_days = data.institutional_buy_days
         foreign_days = data.foreign_buy_days
         trust_sell = data.institutional_sell_days
         foreign_sell = data.foreign_sell_days
 
-        # 每連買 1 天 20 分,最高 100
         trust_score = min(trust_days * 20.0, 100.0)
         foreign_score = min(foreign_days * 20.0, 100.0)
-
-        # 土洋通吃(兩者同時買進)額外加分
         if trust_days > 0 and foreign_days > 0:
             combined = (trust_score * 0.5) + (foreign_score * 0.5) + 15.0
         else:
             combined = (trust_score * 0.5) + (foreign_score * 0.5)
-
-        # 【新增】連續賣超懲罰:投信殺傷力略高於外資
         combined -= trust_sell * 8.0 + foreign_sell * 6.0
 
-        # 【v3 籌碼微調】有界疊加 (最多 ±25):剔除自營商雜訊,改以短天期淨流向、
-        #   投信吸籌、法人參與度、買超力道放大為主 —— 對中小型主力股更敏感。
         adj = 0.0
-        # 主力動態:外資+投信近5日淨買超(領先訊號)
         if data.large_holder_activity > 0:
             adj += 8.0
         elif data.large_holder_activity < 0:
             adj -= 8.0
-        # 外資 / 投信 近10日淨流向
         if data.foreign_flow > 0:
             adj += 4.0
         elif data.foreign_flow < 0:
@@ -222,29 +288,22 @@ class ScoringManager:
             adj += 4.0
         elif data.trust_flow < 0:
             adj -= 4.0
-        # 買超力道放大:近5日日均 > 近20日日均 (加速吸籌),僅在淨買時獎勵
         if data.large_holder_activity > 0 and data.flow_acceleration >= 1.5:
             adj += 5.0
-        # 投信吸籌比:投信近20日吸走越多流通股 = 中小型股籌碼高度集中 (只獎勵,不因大型股天生低而懲罰)
         if data.whale_concentration >= 1.0:
             adj += 8.0
         elif data.whale_concentration >= 0.3:
             adj += 4.0
-        # 法人成交占比:法人主導盤面
         if data.institutional_participation >= 40.0:
             adj += 4.0
         elif data.institutional_participation >= 25.0:
             adj += 2.0
-        # 成交量集中度:量能集中上漲/下跌
         if data.volume_concentration >= 55.0:
             adj += 3.0
         elif 0.0 < data.volume_concentration < 45.0:
             adj -= 3.0
         adj = max(-25.0, min(25.0, adj))
 
-        # 【TDCC 確認層】大戶佔比「週變化」——預設關閉時此值為 0、不影響分數。
-        #   獨立 ±8 有界,與日線訊號分開:週增=大戶回補確認,週減=調節。
-        #   背離警示:日線主力在買、但千張大戶卻週減 (趁強出貨) → 額外扣分。
         tdcc_adj = 0.0
         wchg = data.big_holder_weekly_change
         if wchg > 0:
@@ -252,7 +311,7 @@ class ScoringManager:
         elif wchg < 0:
             tdcc_adj += max(wchg * 4.0, -8.0)
             if data.large_holder_activity > 0:
-                tdcc_adj -= 3.0          # 背離:買盤 vs 大戶出貨
+                tdcc_adj -= 3.0
         tdcc_adj = max(-8.0, min(8.0, tdcc_adj))
 
         return min(max(combined + adj + tdcc_adj, 0.0), 100.0)

@@ -190,6 +190,21 @@ def cached_fetch_history(symbol: str, refresh: bool = False) -> HistoryBundle:
     )
 
 
+def load_benchmark(symbol: str, refresh: bool = False) -> Optional[HistoryBundle]:
+    """
+    基準指數 (如 0050) 載入:優先讀本機快取 (0 API),快取無價格才即時抓 (fallback)。
+    先在本機跑一次 `python build_cache.py 0050` 把它建進快取,之後回測 / RS / Regime 皆 0 API。
+    這解決了原本 benchmark 每跑一次就即時抓 0050 全歷史 (~8 支請求) 的 API 浪費。
+    """
+    try:
+        b = cached_fetch_history(symbol, refresh=refresh)
+        if b is not None and getattr(b, "price", None) is not None and not b.price.empty:
+            return b
+    except Exception as e:
+        logger.debug(f"基準 {symbol} 讀快取失敗,改即時抓: {e}")
+    return fetch_history(symbol)
+
+
 # ==============================================================================
 # 2) point-in-time 重建 StockData (只用 as_of 當下拿得到的資料)
 # ==============================================================================
@@ -401,6 +416,8 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
     flow_acceleration = 1.0
     institutional_participation = 0.0
     trust_net20_shares = 0.0          # 投信近20日淨買超股數 (供投信吸籌比 whale_concentration)
+    foreign_net_ratio: dict = {}      # 外資多天期淨參與率 {1,3,5,10,20}
+    trust_net_ratio: dict = {}        # 投信多天期淨參與率 {1,3,5,10,20}
     chip = _slice(bundle.chip, as_of)
     if chip is not None and "name" in chip.columns:
         ns = chip["name"].astype(str).str.strip()
@@ -445,6 +462,16 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
             mkt_vol = DataProvider._market_volume_shares(p, 10)
             if mkt_vol > 0:
                 institutional_participation = float(inst_gross / (2.0 * mkt_vol) * 100.0)
+
+            # === 多天期法人淨參與率 (whale 重構基底):net(張) ÷ 同期總量(張),signed、市值中性 ===
+            def _vol_lots(nn):
+                return float(p["volume"].tail(nn).sum()) if "volume" in p.columns else 0.0
+            for _n in (1, 3, 5, 10, 20):
+                _cn = _cut(_n)
+                _vn = _vol_lots(_n)
+                if _vn > 0:
+                    foreign_net_ratio[_n] = DataProvider._net_buy_lots(foreign_df, bc, sc, _cn) / _vn
+                    trust_net_ratio[_n] = DataProvider._net_buy_lots(trust_df, bc, sc, _cn) / _vn
         except Exception as e:
             logger.debug(f"[{bundle.symbol}] {as_of} 籌碼流向計算略過: {e}")
 
@@ -515,6 +542,7 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         flow_acceleration=flow_acceleration,
         institutional_participation=institutional_participation,
         whale_concentration=whale_concentration,
+        foreign_net_ratio=foreign_net_ratio, trust_net_ratio=trust_net_ratio,
         volume_concentration=volume_concentration,
         sector_category=sector_category, industry=industry, is_financial=is_financial,
     )
@@ -959,7 +987,7 @@ class Backtester:
             return pd.DataFrame()
         if benchmark_bundle is None and benchmark:
             try:
-                benchmark_bundle = fetch_history(benchmark)
+                benchmark_bundle = load_benchmark(benchmark)
             except Exception as e:
                 logger.warning(f"基準 {benchmark} 抓取失敗,略過對比: {e}")
 
@@ -1010,7 +1038,7 @@ class Backtester:
             return pd.DataFrame()
         if benchmark_bundle is None and benchmark:
             try:
-                benchmark_bundle = fetch_history(benchmark)
+                benchmark_bundle = load_benchmark(benchmark)
             except Exception as e:
                 logger.warning(f"基準 {benchmark} 抓取失敗,略過對比: {e}")
 
@@ -1343,7 +1371,7 @@ class Backtester:
         bench_bundle = None
         if benchmark:
             try:
-                bench_bundle = fetch_history(benchmark)
+                bench_bundle = load_benchmark(benchmark)
             except Exception as e:
                 logger.warning(f"基準 {benchmark} 抓取失敗,略過大盤對照: {e}")
 
@@ -1490,7 +1518,7 @@ class Backtester:
             return pd.DataFrame()
         if benchmark_bundle is None and benchmark:
             try:
-                benchmark_bundle = fetch_history(benchmark)
+                benchmark_bundle = load_benchmark(benchmark)
             except Exception as e:
                 logger.warning(f"基準 {benchmark} 抓取失敗,略過對比: {e}")
 
@@ -1776,7 +1804,7 @@ class Backtester:
             return pd.DataFrame()
         if benchmark_bundle is None and benchmark:
             try:
-                benchmark_bundle = fetch_history(benchmark)
+                benchmark_bundle = load_benchmark(benchmark)
             except Exception as e:
                 logger.warning(f"基準 {benchmark} 抓取失敗,略過對比: {e}")
 

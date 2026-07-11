@@ -111,6 +111,10 @@ class StockData:
     trust_flow: float = 0.0                  # 投信近10日淨買超 (張)
     institutional_participation: float = 0.0 # 法人成交占比 (外資+投信近10日買+賣量 ÷ 總量 %)
     flow_acceleration: float = 1.0           # 買超力道放大倍數 (近5日日均淨買 ÷ 近20日日均淨買)
+    # --- 多天期法人淨參與率 (v4.2 whale 重構基底):{天期: (外資/投信)淨買超 ÷ 同期總成交量} ---
+    #   signed、市值中性、幾乎不為 0 → 取代脆弱的「連續買超天數」當 whale 主體。天期 = 1/3/5/10/20 日。
+    foreign_net_ratio: dict = field(default_factory=dict)  # 外資 {1,3,5,10,20} 日淨買超 ÷ 同期成交量
+    trust_net_ratio: dict = field(default_factory=dict)    # 投信 {1,3,5,10,20} 日淨買超 ÷ 同期成交量
     # --- TDCC 集保股權分散 (週更;預設純參考,由 Config.USE_TDCC_CHIP 決定是否影響分數) ---
     big_holder_ratio: float = 0.0            # 千張大戶佔比 (%)
     big_holder_weekly_change: float = 0.0    # 大戶佔比週變化 (百分點;正=回補,負=調節/出貨)
