@@ -1,0 +1,11 @@
+# Streamlit Community Cloud 依賴 (台股四維度決策系統 app.py)
+# 依 app 的實際 import 圖列出;matplotlib 只在回測繪圖用、app 不需要,故不列 (要跑回測繪圖再自行加)。
+streamlit
+pandas
+numpy
+altair
+duckdb
+pyarrow            # pandas 讀寫 parquet 快取所需
+FinMind            # 即時個股分析的資料來源 (訪客用自己的 token)
+python-dotenv      # 本機 .env 讀 token;雲端用 secrets
+tqdm               # main.py 進度條 (選用,列出以對齊本機行為)

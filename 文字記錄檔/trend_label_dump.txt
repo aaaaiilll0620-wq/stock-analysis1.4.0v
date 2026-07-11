@@ -1,0 +1,14 @@
+'把量價/RSI/乖離壓縮成一句趨勢短評,例如「強勁 (量能 3.2倍)」。'
+1.0
+'過熱 (超買/過度擴張)'
+0
+'強勁 (量能 '
+'.1f'
+'倍)'
+40
+'弱勢 (RSI 偏低)'
+45
+70
+'健康 (多頭)'
+'整理 (區間)'
+NAMES: ('rsi', 'ma20_bias', 'volume_spike', 'change_percent', 'rsi_extreme', 'bias_chase', 'spike_breakout')

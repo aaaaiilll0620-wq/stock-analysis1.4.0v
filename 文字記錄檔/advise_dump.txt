@@ -1,0 +1,45 @@
+CONSTS:
+  '在既有 ScoreResult 上補齊評級與建議欄位並回傳 (in-place 補值)。'
+  'sector_category'
+  'B'
+  'total_score'
+  50.0
+  'valuation_score'
+  'valuation_status'
+  '估值資料不足'
+  100.0
+  60.0
+  5.0
+  ('fundamental', 'valuation', 'technical', 'momentum', 'whale')
+  <code object <genexpr> at 0x0000017226C92DE0, file "C:\Users\aaaai\OneDrive\Desktop\Project 1\core\advisor.py", line 77>
+  0
+  <code object <genexpr> at 0x0000017226C92EF0, file "C:\Users\aaaai\OneDrive\Desktop\Project 1\core\advisor.py", line 80>
+  'fundamental'
+  'valuation'
+  'technical'
+  'momentum'
+  'whale'
+  1
+  0.0
+  2.0
+  2
+  '【'
+  '】'
+  'confidence'
+  'data_confidence'
+  65.0
+  'ℹ️資料完整度:僅 '
+  '.0f'
+  '%,信心偏低,建議人工覆核'
+  ''
+  <code object <genexpr> at 0x0000017226E605D0, file "C:\Users\aaaai\OneDrive\Desktop\Project 1\core\advisor.py", line 120>
+  'quality_flag'
+  '數據不足'
+  '·⚠️增收不增利'
+  '估值中性'
+  'valuation_label'
+  'peg_ratio'
+  'valuation_basis'
+  '絕對'
+NAMES: ('_detect_washout', 'getattr', 'float', 'get', 'whale_score', 'min', 'max', 'mode_weights', 'sum', 'DEFAULT_MODE_WEIGHTS', 'technical_score', 'momentum_score', 'round', 'total_score', 'atr', 'current_price', '_category', '_washout', '_defensive_stop', '_decide_rating', '_generate_advice', '_timely_growth_note', 'append', '_strip_parens', '_revenue_profit_crosscheck', 'join', 'rating', 'quality_flag', 'valuation_status', 'valuation_label', 'valuation_score', 'peg_ratio', 'valuation_basis', 'actionable_advice', 'advice_main', 'advice_notes', '_fundamental_label', 'fundamental_label', '_trend_label', 'trend_label', 'data_confidence')
+VARNAMES: ('self', 'stock', 'fund_result', 'val_result', 'score_result', 'washout', 'washout_note', 'category', 'fund_bucket', 'val_bucket', 'chip_bucket', 'keys', 'wsum', 'composite', 'defensive_stop', 'rating', 'core', 'advice_main', 'conf', 'notes', 'mom', 'cross_note', 'advice_combined')

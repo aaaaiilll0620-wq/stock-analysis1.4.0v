@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pip list)",
+      "Bash(python -m pip install pytest pytest-mock --quiet)",
+      "Bash(python -m pytest --version)",
+      "Bash(python main.py)",
+      "mcp__visualize__read_me",
+      "Bash(python3 -c ' *)",
+      "Read(//tmp/**)",
+      "mcp__visualize__show_widget"
+    ]
+  }
+}

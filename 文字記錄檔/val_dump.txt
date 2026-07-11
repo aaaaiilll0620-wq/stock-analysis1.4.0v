@@ -1,0 +1,16 @@
+=== _classify_expensive ===
+CONSTS: ('\n        本益比歷史高檔時的交叉驗證:PEG < 1 或營收年增夠強 → 判定「成長溢價」,\n        否則判定「昂貴泡泡」並把估值分壓到 BUBBLE_SCORE_CAP 以下。\n        回傳 (label, score_cap)；不觸發時回傳 ("", None)。\n        ', None, ('', None), ('eps_cagr', 'net_income_growth', 'revenue_cum_yoy', 'rev_cagr'), <code object <genexpr> at 0x00000243408D0870, file "C:\Users\aaaai\OneDrive\Desktop\Project 1\core\valuation.py", line 150>, 'revenue_cum_yoy', 'rev_cagr', ('成長溢價', None), '昂貴泡泡')
+NAMES: ('float', 'HIGH_PCT_THRESHOLD', 'any', 'GROWTH_CONFIRM_PEG', 'get', 'pd', 'isna', 'GROWTH_CONFIRM_REV', 'BUBBLE_SCORE_CAP')
+
+=== __init__ ===
+CONSTS: (None, 0.35, 0.25, 0.2, ('pe', 'pb', 'ps', 'dividend_yield'), 30.0, 8.0, ('lower', 'upper'), 4.0, 0.8, 0.5, 0.0, 6.0, 65.0, 40.0, ('cheap', 'fair'), 85.0, 1.0, 15.0)
+NAMES: ('weights', 'sum', 'values', 'items', 'bounds', 'status_thresholds', 'HIGH_PCT_THRESHOLD', 'GROWTH_CONFIRM_PEG', 'GROWTH_CONFIRM_REV', 'BUBBLE_SCORE_CAP')
+
+=== evaluate ===
+CONSTS: (None, 'pe_ratio', ('eps_cagr', 'net_income_growth', 'revenue_cum_yoy', 'rev_cagr'), 0, 'pe_percentile', 'pb_percentile', 'dividend_yield_percentile', 100.0, 'pe', 'pb', 'dividend_yield', 0.45, 0.3, 0.25, ('pe', 'pb', 'dividend_yield'), <code object <genexpr> at 0x00000243408D5200, file "C:\Users\aaaai\OneDrive\Desktop\Project 1\core\valuation.py", line 99>, <code object <genexpr> at 0x00000243408C1230, file "C:\Users\aaaai\OneDrive\Desktop\Project 1\core\valuation.py", line 100>, 1, (0.0, 0.0), 0.55, 2, '成長(PEG)', '歷史位階', '+', ('pe', 'pe_percentile', 'pb_percentile', 'dividend_yield_percentile', 'peg'), 40.0, 12.0, ('valuation_score', 'valuation_status', 'valuation_label', 'valuation_basis', 'peg_ratio', 'growth_used', 'per_metric', 'inputs', 'missing_fields', 'confidence'))
+NAMES: ('get', 'pd', 'isna', 'float', '_peg_to_score', 'sum', 'items', 'round', '_classify_expensive', 'min', 'append', '_status_relative', 'join', 'max', 'len', '_evaluate_absolute')
+
+=== _evaluate_absolute ===
+CONSTS: (None, 'pe_ratio', 'pb_ratio', 'price_to_sales', 'dividend_yield', ('pe', 'pb', 'ps', 'dividend_yield'), 0.0, <code object <genexpr> at 0x00000243408C1430, file "C:\Users\aaaai\OneDrive\Desktop\Project 1\core\valuation.py", line 199>, 2, ('has_data',), 100.0, 20.0, '', '絕對', 1, ('valuation_score', 'valuation_status', 'valuation_label', 'valuation_basis', 'per_metric', 'inputs', 'missing_fields', 'confidence'))
+NAMES: ('get', 'float', 'bounds', 'items', '_score_metric', 'append', 'weights', 'sum', 'values', 'round', '_status', 'bool', 'max', 'len')
+

@@ -1,0 +1,94 @@
+382           0 RESUME                   0
+
+384           2 LOAD_FAST                1 (stock)
+              4 LOAD_ATTR                0 (rsi)
+             24 STORE_FAST               2 (rsi)
+
+385          26 LOAD_FAST                1 (stock)
+             28 LOAD_ATTR                2 (ma20_bias)
+             48 STORE_FAST               3 (bias)
+
+386          50 LOAD_FAST                1 (stock)
+             52 LOAD_ATTR                4 (volume_spike)
+             72 COPY                     1
+             74 POP_JUMP_IF_TRUE         2 (to 80)
+             76 POP_TOP
+             78 LOAD_CONST               1 (1.0)
+        >>   80 STORE_FAST               4 (spike)
+
+387          82 LOAD_FAST                1 (stock)
+             84 LOAD_ATTR                6 (change_percent)
+            104 STORE_FAST               5 (c)
+
+390         106 LOAD_FAST                2 (rsi)
+            108 POP_JUMP_IF_NONE        15 (to 140)
+            110 LOAD_FAST                2 (rsi)
+            112 LOAD_FAST                0 (self)
+            114 LOAD_ATTR                8 (rsi_extreme)
+            134 COMPARE_OP              92 (>=)
+            138 POP_JUMP_IF_TRUE        17 (to 174)
+        >>  140 LOAD_FAST                3 (bias)
+            142 POP_JUMP_IF_NONE        16 (to 176)
+            144 LOAD_FAST                3 (bias)
+            146 LOAD_FAST                0 (self)
+            148 LOAD_ATTR               10 (bias_chase)
+            168 COMPARE_OP              92 (>=)
+            172 POP_JUMP_IF_FALSE        1 (to 176)
+
+391     >>  174 RETURN_CONST             2 ('過熱 (超買/過度擴張)')
+
+393     >>  176 LOAD_FAST                4 (spike)
+            178 LOAD_FAST                0 (self)
+            180 LOAD_ATTR               12 (spike_breakout)
+            200 COMPARE_OP              92 (>=)
+            204 POP_JUMP_IF_FALSE       14 (to 234)
+            206 LOAD_FAST                5 (c)
+            208 POP_JUMP_IF_NONE         5 (to 220)
+            210 LOAD_FAST                5 (c)
+            212 LOAD_CONST               3 (0)
+            214 COMPARE_OP              92 (>=)
+            218 POP_JUMP_IF_FALSE        7 (to 234)
+
+394     >>  220 LOAD_CONST               4 ('強勁 (量能 ')
+            222 LOAD_FAST                4 (spike)
+            224 LOAD_CONST               5 ('.1f')
+            226 FORMAT_VALUE             4 (with format)
+            228 LOAD_CONST               6 ('倍)')
+            230 BUILD_STRING             3
+            232 RETURN_VALUE
+
+396     >>  234 LOAD_FAST                2 (rsi)
+            236 POP_JUMP_IF_NONE         6 (to 250)
+            238 LOAD_FAST                2 (rsi)
+            240 LOAD_CONST               7 (40)
+            242 COMPARE_OP               2 (<)
+            246 POP_JUMP_IF_FALSE        1 (to 250)
+
+397         248 RETURN_CONST             8 ('弱勢 (RSI 偏低)')
+
+399     >>  250 LOAD_FAST                2 (rsi)
+            252 POP_JUMP_IF_NONE        22 (to 298)
+            254 LOAD_CONST               9 (45)
+            256 LOAD_FAST                2 (rsi)
+            258 SWAP                     2
+            260 COPY                     2
+            262 COMPARE_OP              26 (<=)
+            266 POP_JUMP_IF_FALSE        5 (to 278)
+            268 LOAD_CONST              10 (70)
+            270 COMPARE_OP              26 (<=)
+            274 POP_JUMP_IF_FALSE       11 (to 298)
+            276 JUMP_FORWARD             2 (to 282)
+        >>  278 POP_TOP
+
+402         280 RETURN_CONST            12 ('整理 (區間)')
+
+399     >>  282 LOAD_FAST                3 (bias)
+            284 POP_JUMP_IF_NONE         5 (to 296)
+            286 LOAD_FAST                3 (bias)
+            288 LOAD_CONST               3 (0)
+            290 COMPARE_OP              92 (>=)
+            294 POP_JUMP_IF_FALSE        1 (to 298)
+
+400     >>  296 RETURN_CONST            11 ('健康 (多頭)')
+
+402     >>  298 RETURN_CONST            12 ('整理 (區間)')

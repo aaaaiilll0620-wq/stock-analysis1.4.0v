@@ -1,0 +1,15 @@
+# project_root/
+# ├── config.py             # 存放所有 API Key、模型名稱等設定
+# ├── main.py               # 主程式入口（整合所有功能）
+#├── .env                  # 放所有金鑰 (FINMIND_TOKEN, ALPHA_VANTAGE_KEY)
+#├── core/
+#│   ├── data_provider.py  # 數據抓取（FinMind, AlphaVantage）
+#│   ├── engine_base.py    # 基類或通用邏輯
+#│   ├── fundamental.py    # 基本面分析
+#│   ├── technical.py       # 技術面分析
+#│   ├── whale.py           # 籌碼分析 (原本的「籌碼面」)
+#│   └── scoring_manager.py # 核心權重整合與最終評分
+#├── utils/
+#│   ├── helpers.py         # 通用函數（如：百分比計算、日期處理）
+#│   └── logger.py          # 日誌配置
+#└── config.py               # 全域設定與 API Key 管理
