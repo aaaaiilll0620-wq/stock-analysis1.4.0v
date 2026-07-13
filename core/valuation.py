@@ -101,14 +101,20 @@ class ValuationEngine:
             rel_detail = {k: round(v, 1) for k, v in per_metric.items()}
 
         # ---- 混合 A + B ----
+        # v4.4 (藍圖項9) 重修:混合比例 55/45 → 85/15。
+        #   因子實驗診斷 (45檔池,全期/2022):現行混合 IC +0.022/−0.008、單因子多空 −0.81%/−0.95%;
+        #   拖累源是「歷史位階」成分 (單獨 IC 全期 −0.021),PEG 成分單獨 IC +0.055、多空 +1.07% 為正
+        #   → 判定為『訊號品質』問題而非因子本質 → 加重 PEG 至 0.85。
+        #   保留 0.15 位階:2022 空頭段位階 IC +0.039 (熊市價值有效),且昂貴泡泡交叉驗證仍需它;
+        #   純 PEG (100/0) 全期最好但 2022 綜合 −1.34% 明顯變差,故不取。
         if peg_score is not None or rel_score is not None:
             parts, wsum = 0.0, 0.0
             if peg_score is not None:
-                parts += peg_score * 0.55
-                wsum += 0.55
+                parts += peg_score * 0.85
+                wsum += 0.85
             if rel_score is not None:
-                parts += rel_score * 0.45
-                wsum += 0.45
+                parts += rel_score * 0.15
+                wsum += 0.15
             score = float(round(parts / wsum, 2))
             basis_bits = []
             if peg_score is not None:

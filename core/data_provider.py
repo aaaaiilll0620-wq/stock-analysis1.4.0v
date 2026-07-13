@@ -375,6 +375,9 @@ class DataProvider:
             result["current_ratio"] = curr_assets / curr_liab * 100
         if equity and net_inc is not None:
             result["roe"] = net_inc / equity * 100  # 近似 ROE(單季)
+        # 總資產週轉率 (v4.4):年化季營收 ÷ 總資產,與回測 PIT 同一套算法
+        if total_assets and revenue:
+            extra["asset_turnover"] = revenue * 4.0 / total_assets
 
         # ---- 現金流量表(季)---- 只多這一支 API
         cf_df = None
@@ -816,6 +819,22 @@ class DataProvider:
             # 中期價格動能 (近6月/近3月報酬%,略過最近5日) —— 與回測 PIT 同一套算法
             mom_6m_val = cls._tech_engine.calculate_trailing_return(close_series, 120, skip=5)
             mom_3m_val = cls._tech_engine.calculate_trailing_return(close_series, 60, skip=5)
+            # 相對強弱 RS (v4.4):個股動能 − 大盤 (0050 快取) 同期;無快取/歷史不足留 None 不計分
+            rs_3m_val = rs_6m_val = None
+            try:
+                from core.backtest import benchmark_trailing_return  # 延遲載入避免循環匯入
+                _today = datetime.now().strftime("%Y-%m-%d")
+                _n_close = int(close_series.dropna().shape[0])
+                if _n_close >= 66:
+                    _b3 = benchmark_trailing_return(_today, 60)
+                    if _b3 is not None:
+                        rs_3m_val = float(mom_3m_val) - _b3
+                if _n_close >= 126:
+                    _b6 = benchmark_trailing_return(_today, 120)
+                    if _b6 is not None:
+                        rs_6m_val = float(mom_6m_val) - _b6
+            except Exception as e:
+                logger.info(f"[{symbol}] RS 相對強弱計算略過 (無 0050 快取?): {e}")
             volume_spike_val = 1.0
             try:
                 vp_df = price_df.rename(columns={'Trading_Volume': 'volume'}) \
@@ -1186,6 +1205,8 @@ class DataProvider:
                 volume_spike=float(volume_spike_val),        # 新增
                 mom_3m=float(mom_3m_val),                    # 新增:近3月中期動能
                 mom_6m=float(mom_6m_val),                    # 新增:近6月中期動能
+                rs_3m=rs_3m_val,                             # v4.4:近3月相對大盤 (RS)
+                rs_6m=rs_6m_val,                             # v4.4:近6月相對大盤 (RS)
                 rsi=float(rsi_val),
                 macd=macd_val,
                 macd_status=macd_status,
@@ -1253,6 +1274,7 @@ class DataProvider:
                 gross_margin=fundamental_data["gross_margin"],
                 debt_to_asset=fundamental_data["debt_to_asset"],
                 current_ratio=fundamental_data["current_ratio"],
+                asset_turnover=fundamental_data.get("asset_turnover"),  # v4.4:總資產週轉率
                 rev_cagr=(rev_trend if rev_trend is not None else rev_growth),  # 近3月平均年增 (趨勢)
                 revenue_growth=rev_growth,                   # 最新單月年增,供獲利一致性檢查
                 eps_cagr=fundamental_data.get("eps_growth"), # 真實 EPS 年增率 (缺則 None,由 fundamentals 中性化)

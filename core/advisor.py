@@ -496,6 +496,23 @@ class InvestmentAdvisor:
         return w, True
 
     def _decide_rating(self, stock, fund_result, val_result, score_result) -> str:
+        # 【bear 段評級閘門】total_score 的排序權重已隨 regime 調整 (見 advise() 的
+        #   regime_multipliers),但評級門檻 (min_score/chip_min/whale_hot) 原本固定,
+        #   空頭段照樣常給強推/強買。這裡依 core.regime.regime_rating_gates 暫時墊高
+        #   門檻 (chip_min/whale_hot 因籌碼在空頭是反指標而加嚴更多),讓評級也自動
+        #   更接近空手;呼叫結束後還原,避免污染下一支股票或下一次呼叫的門檻。
+        from core.regime import regime_rating_gates
+        gate = regime_rating_gates(getattr(self, "current_regime", None))
+        _orig_gates = (self.min_score, self.chip_min, self.whale_hot)
+        self.min_score = _orig_gates[0] + gate["min_score_add"]
+        self.chip_min = _orig_gates[1] * gate["chip_min_mult"]
+        self.whale_hot = _orig_gates[2] * gate["whale_hot_mult"]
+        try:
+            return self._decide_rating_inner(stock, fund_result, val_result, score_result)
+        finally:
+            self.min_score, self.chip_min, self.whale_hot = _orig_gates
+
+    def _decide_rating_inner(self, stock, fund_result, val_result, score_result) -> str:
         is_passed = fund_result.get("is_passed", False)
         cash_risk = fund_result.get("cash_flow_health", {}).get("risk_level", "unknown")
         profit_risk = fund_result.get("profit_quality", {}).get("risk", False)

@@ -40,6 +40,7 @@ class StockData:
     gross_margin: float = 0.0                # 毛利率
     debt_to_asset: float = 0.0               # 負債比率
     current_ratio: float = 0.0               # 流動比率
+    asset_turnover: Optional[float] = None   # 總資產週轉率 (年化季營收/總資產;None=財報缺) <- v4.4
     rev_cagr: float = 0.0                    # 月營收年增率
     eps_cagr: float = 0.0                    # EPS 年增率
     net_income_growth: float = 0.0           # 淨利年增率 (YoY) <- 新增:獲利品質一致性檢查
@@ -79,14 +80,20 @@ class StockData:
     volume_spike: float = 1.0            # 量能爆發倍數 = 當日量 / 20 日均量 <- 新增
     mom_3m: float = 0.0                  # 近3個月報酬% (中期價格動能;因子歸因後動能面新核心) <- 新增
     mom_6m: float = 0.0                  # 近6個月報酬% (中期價格動能,正向因子主體) <- 新增
+    # --- 相對強弱 RS (v4.4 候選):個股中期報酬 − 大盤 (0050) 同期報酬;None=無基準資料不計分 ---
+    rs_3m: Optional[float] = None        # 近3月相對大盤報酬 (百分點)
+    rs_6m: Optional[float] = None        # 近6月相對大盤報酬 (百分點)
     rsi: float = 0.0
     macd: float = 0.0
     macd_status: str = "neutral"             # MACD 狀態 (bullish_strong / bullish_recovery / bearish / neutral)
     macd_golden_cross: bool = False          # 是否剛出現黃金交叉
     # --- 新接入的技術訊號 (預設中性,不影響既有評分) ---
     kd_j: float = 50.0                        # KD 的 J 值 (>100 超買, <0 超賣;50 中性)
+    kd_k: float = 50.0                        # KD 的 K 值 (完整 KD 訊號用;50 中性) <- v4.4
+    kd_d: float = 50.0                        # KD 的 D 值 (K>D 偏多、K<D 偏空;50 中性) <- v4.4
     ma_cross_status: str = "neutral"          # MA20/60 交叉:golden_cross / death_cross / neutral
     obv_rising: Optional[bool] = None         # OBV 是否上升 (量能動能);None=無資料不計分
+    obv_above_ma20: Optional[bool] = None     # OBV 是否站上自身20日均 (量能趨勢,較單日穩) <- v4.4
     volume_divergence: bool = False           # 量價背離 (價漲量縮),True 為追高警訊
     # --- 籌碼成本區 (Volume Profile):大戶成本區 / 買進區間 ---
     cost_zone_poc: Optional[float] = None      # 主要成本區中心價 (POC,成交量最密集價位)
@@ -100,6 +107,7 @@ class StockData:
     cost_zone_hvn_levels: List[float] = field(default_factory=list)  # 高量節點 (HVN)
     cost_zone_lvn_levels: List[float] = field(default_factory=list)   # 低量節點 (LVN)
     bb_status: str = ""                       # 布林帶狀態 (squeezing / expanding)
+    bb_percent_b: Optional[float] = None      # 布林 %B = (收盤−下軌)/(上軌−下軌);None=無資料 <- v4.4
     bollinger_band_upper: float = 0.0
     bollinger_band_lower: float = 0.0
 

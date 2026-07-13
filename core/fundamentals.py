@@ -17,6 +17,11 @@ class FundamentalEngine:
          OCF 為負或與淨利嚴重背離時列為「高風險」。
       3. 資料治理:任何欄位缺失都不讓流程崩潰,改以缺漏清單降低信心分數。
     """
+    # v4.4 候選訊號開關 (未來優化藍圖 10):總資產週轉率 (年化季營收÷總資產) 進獲利能力組。
+    # A/B (scripts/factor_experiments.py):基本面單因子多空 全期 +1.51→+2.05%、2022 +0.14→+0.26%,
+    # 綜合多空全期 +2.63→+2.93% ✅ 通過 → 預設開啟。金融股豁免 (資產結構特殊)。
+    USE_ASSET_TURNOVER = True
+
     def __init__(self, weights: Optional[Dict[str, float]] = None):
         # Default weights sum to 1.0
         self.weights = weights or {
@@ -238,6 +243,8 @@ class FundamentalEngine:
             "roe": data.get("roe"),
             "net_margin": data.get("net_margin"),
             "gross_margin": data.get("gross_margin"),
+            # 金融股資產結構特殊 (存款/保單即資產),週轉率天生極低 → 豁免不計,避免結構性懲罰
+            "asset_turnover": (None if data.get("is_financial") else data.get("asset_turnover")),
             "rev_cagr": data.get("rev_cagr"),
             "eps_cagr": data.get("eps_cagr"),
             "debt_to_asset": data.get("debt_to_asset"),
@@ -304,10 +311,13 @@ class FundamentalEngine:
             ("debt_to_asset", "safety"), ("current_ratio", "safety"),
             ("pe_vs_industry", "valuation")
         ]
+        if self.USE_ASSET_TURNOVER:
+            metrics.append(("asset_turnover", "profitability"))
         for key, group in metrics:
             v = raw_data.get(key)
             if v is None or pd.isna(v):
-                if key not in missing_fields:
+                # asset_turnover 屬候選訊號且金融股豁免 → 缺漏不扣信心分
+                if key not in missing_fields and key != "asset_turnover":
                     missing_fields.append(key)
             scores[key] = self._calculate_score(v, self.bounds.get(key, {}))
 
@@ -319,7 +329,10 @@ class FundamentalEngine:
                     if raw_data.get(k) is not None and not pd.isna(raw_data.get(k))]
             return sum(vals) / len(vals) if vals else 50.0
 
-        score_profit = _avg_present(["roe", "net_margin", "gross_margin"])
+        profit_keys = ["roe", "net_margin", "gross_margin"]
+        if self.USE_ASSET_TURNOVER:
+            profit_keys.append("asset_turnover")
+        score_profit = _avg_present(profit_keys)
         score_growth = _avg_present(["rev_cagr", "eps_cagr"])
         score_safety = _avg_present(["debt_to_asset", "current_ratio"])
         pe_v = raw_data.get("pe_vs_industry")

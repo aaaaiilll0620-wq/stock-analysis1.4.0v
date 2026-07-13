@@ -2,6 +2,21 @@ from typing import Dict, List
 from core.models import StockData, ScoreResult
 
 class ScoringManager:
+    # ------------------------------------------------------------------
+    # v4.4 候選訊號開關 (未來優化藍圖 7、10):每個訊號獨立 A/B
+    # (scripts/factor_experiments.py,45檔池、月頻持有20日、全期+2022空頭雙段)。
+    # 無資料 (欄位 None) 時一律不動分,live/舊快取相容。
+    # A/B 結果 (綜合多空 全期/2022,基線 +2.63%/−0.95%):
+    #   RS   +2.78%/−0.44% ✅ 過 (動能IC +0.077→+0.079,2022綜合止血) → 預設開
+    #   KD   +2.53%/−1.09% ❌ 技術IC反而降 (0.011→0.004) → 關
+    #   %B   +2.32%/−1.09% ❌ 兩段皆拖累 → 關
+    #   OBV  +2.71%/−1.16% ❌ 全期小幅改善但2022明顯變差 → 關
+    # ------------------------------------------------------------------
+    USE_RS_OVERLAY = True     # 相對強弱 RS (個股中期報酬−0050 同期) 疊加進動能面
+    USE_KD_FULL = False       # 完整 KD (K/D 相對位置) 進技術面 — 未過篩,保留供複測
+    USE_BBP = False           # 布林 %B 位階進技術面 — 未過篩,保留供複測
+    USE_OBV_TREND = False     # OBV 20日趨勢進動能面確認層 — 未過篩,保留供複測
+
     MODES = {
         "conservative": {
             # 保守:仍重技術/籌碼穩定,但動能與籌碼佔比已拉高,估值/基本面退居確認角色
@@ -116,6 +131,20 @@ class ScoringManager:
         elif data.ma_cross_status == "death_cross":
             score -= 8          # 20 跌破 60,中期轉空
 
+        # (7) 布林 %B 位階 (v4.4 候選):上半帶健康偏強加分,突破上軌過遠/貼下軌扣分
+        if self.USE_BBP and data.bb_percent_b is not None:
+            b = data.bb_percent_b
+            if   0.5 <= b <= 0.95: score += 5
+            elif b > 1.05:         score -= 4    # 衝出上軌過遠,過度擴張
+            elif b < 0.05:         score -= 2    # 貼下軌弱勢
+
+        # (8) 完整 KD (v4.4 候選):K>D 偏多且未過熱加分,K<D 且弱勢扣分
+        if self.USE_KD_FULL:
+            if data.kd_k > data.kd_d and 20.0 <= data.kd_j <= 90.0:
+                score += 5
+            elif data.kd_k < data.kd_d and data.kd_j < 20.0:
+                score -= 3
+
         return min(max(score, 0.0), 100.0)
 
     # ------------------------------------------------------------------
@@ -149,6 +178,17 @@ class ScoringManager:
         # 動能衰竭抑制:近6月仍強、但近3月已明顯轉弱 → 趨勢轉折,扣分
         if m6 > 12 and m3 < -5:
             score -= 8
+
+        # ---- (A2) 相對強弱 RS 疊加 (v4.4 候選,±8 有界):跑贏大盤加分、明顯跑輸扣分 ----
+        #   無 0050 快取 / 個股歷史不足 (rs_6m=None) → 不動分,維持相容。
+        if self.USE_RS_OVERLAY and data.rs_6m is not None:
+            r6 = data.rs_6m
+            r3 = data.rs_3m if data.rs_3m is not None else 0.0
+            if   r6 > 20 and r3 > 0:  score += 8    # 中期強勢跑贏且近3月仍領先
+            elif r6 > 8:              score += 5
+            elif r6 > 0:              score += 2
+            elif r6 < -15:            score -= 6    # 明顯落後大盤 (弱勢股)
+            elif r6 < -5:             score -= 3
 
         # ---- (B) 營收動能 (最多 30):台股最即時的成長領先指標,較價格動能穩定 ----
         accel = data.revenue_accel
@@ -186,6 +226,9 @@ class ScoringManager:
             score += 5
         if data.kd_j > 100:
             score -= 3
+        # OBV 20日趨勢 (v4.4 候選):比單日 obv_rising 穩;量能趨勢向上小加分、向下小扣分
+        if self.USE_OBV_TREND and data.obv_above_ma20 is not None:
+            score += 4 if data.obv_above_ma20 else -2
 
         return min(max(score, 0.0), 100.0)
 

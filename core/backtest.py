@@ -233,6 +233,35 @@ def _norm_price(price_df: pd.DataFrame) -> pd.DataFrame:
     return p
 
 
+# --- 相對強弱 RS (v4.4):大盤 (0050) 截至 as_of 的中期報酬,模組層快取避免重複載入/重算 ---
+_RS_BENCHMARK = "0050"
+_rs_bench_bundle = None          # None=未載入, False=載入失敗 (快取無 0050)
+_rs_mom_cache: Dict[tuple, Optional[float]] = {}
+
+
+def benchmark_trailing_return(as_of: str, lookback: int, skip: int = 5) -> Optional[float]:
+    """大盤 (0050) 截至 as_of 的 trailing return (%),與個股 mom_3m/6m 同參數 (skip=5)。
+    僅讀本機快取 (0 API);快取沒建 0050 → 回 None,RS 欄位留 None 不計分。"""
+    global _rs_bench_bundle
+    key = (str(as_of), lookback)
+    if key in _rs_mom_cache:
+        return _rs_mom_cache[key]
+    if _rs_bench_bundle is None:
+        try:
+            from core import data_cache
+            df = data_cache.read_cached("TaiwanStockPrice", _RS_BENCHMARK)
+            _rs_bench_bundle = _back_adjust(df) if (df is not None and not df.empty) else False
+        except Exception:
+            _rs_bench_bundle = False
+    val = None
+    if _rs_bench_bundle is not False:
+        sliced = _slice(_rs_bench_bundle, as_of)
+        if sliced is not None and len(sliced) >= lookback + skip + 1:
+            val = _tech.calculate_trailing_return(_norm_price(sliced), lookback, skip=skip)
+    _rs_mom_cache[key] = val
+    return val
+
+
 def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData]:
     """
     以 as_of 為基準,用「當下拿得到」的切片重建 StockData。
@@ -263,6 +292,16 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
     vol_spike = _tech.calculate_volume_spike(p, 20)
     mom_6m = _tech.calculate_trailing_return(p, 120, skip=5)   # 近6月動能 (略過最近5日避短線反轉)
     mom_3m = _tech.calculate_trailing_return(p, 60, skip=5)    # 近3月動能
+    # 相對強弱 RS (v4.4):個股動能 − 大盤同期;個股歷史不足或無 0050 快取 → None 不計分
+    rs_3m = rs_6m = None
+    if len(close) >= 60 + 5 + 1:
+        b3 = benchmark_trailing_return(as_of, 60)
+        if b3 is not None:
+            rs_3m = mom_3m - b3
+    if len(close) >= 120 + 5 + 1:
+        b6 = benchmark_trailing_return(as_of, 120)
+        if b6 is not None:
+            rs_6m = mom_6m - b6
     atr = _tech.calculate_atr(p, 14)
     atr_pct = (atr / last_price * 100.0) if last_price else 0.0
     try:
@@ -276,16 +315,25 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         macd_golden = (_macd.get("cross") == "golden")   # 與 live 一致:剛出現黃金交叉 → 技術面加分
     except Exception:
         macd_status = "neutral"
+    bb_percent_b = None
     try:
-        bb_status = _tech.calculate_bb(p.copy()).get("status", "")
+        _bb = _tech.calculate_bb(p.copy())
+        bb_status = _bb.get("status", "")
+        bb_percent_b = _bb.get("percent_b")
     except Exception:
         bb_status = ""
-    # 新接入訊號:KD(J值) / MA20-60 交叉 / OBV 量價 (與即時系統一致)
+    # 新接入訊號:KD(完整 K/D/J) / MA20-60 交叉 / OBV 量價 (與即時系統一致)
     kd_j_val, ma_cross_status, obv_rising_val, volume_divergence_val = 50.0, "neutral", None, False
+    kd_k_val = kd_d_val = 50.0
+    obv_above_ma20_val = None
     try:
         _kd = _tech.calculate_kd(p.copy())
         if _kd.get("J") is not None and not pd.isna(_kd.get("J")):
             kd_j_val = float(_kd["J"])
+        if _kd.get("K") is not None and not pd.isna(_kd.get("K")):
+            kd_k_val = float(_kd["K"])
+        if _kd.get("D") is not None and not pd.isna(_kd.get("D")):
+            kd_d_val = float(_kd["D"])
     except Exception:
         pass
     try:
@@ -296,6 +344,7 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         _v = _tech.calculate_volume_analysis(p.copy())
         obv_rising_val = bool(_v.get("obv_rising"))
         volume_divergence_val = bool(_v.get("divergence_warning"))
+        obv_above_ma20_val = _v.get("obv_above_ma20")
     except Exception:
         pass
     vp = {"poc": None, "val": None, "vah": None, "price_vs_poc_pct": None, "status": ""}
@@ -339,6 +388,7 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
     eps_growth = ni_growth = None
     net_inc_abs = None
     operating_profit_ratio = None
+    asset_turnover_val = None
     operating_cash_flow = free_cash_flow = capex = ocf_to_net_income = None
     as_of_dt = pd.to_datetime(as_of)
 
@@ -348,6 +398,7 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         ok = df[pd.to_datetime(df["date"], errors="coerce") + pd.Timedelta(days=PUBLISH_LAG_DAYS) <= as_of_dt]
         return ok if not ok.empty else None
 
+    q_revenue = None               # 最新已公告季營收 (供資產週轉率 asset_turnover)
     inc = _published(bundle.income)
     if inc is not None:
         rev_v = DataProvider._latest_value(inc, ["Revenue"], ["營業收入"])
@@ -355,6 +406,7 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         ni_v = DataProvider._latest_value(inc, ["IncomeAfterTaxes", "ProfitLoss"],
                                           ["本期淨利", "綜合損益總額"])
         if rev_v:
+            q_revenue = rev_v
             if gp_v is not None:
                 gross_margin = gp_v / rev_v * 100.0
             if ni_v is not None:
@@ -384,6 +436,9 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
 
         if total_assets and total_liab is not None:
             debt_to_asset = total_liab / total_assets * 100.0
+        # 總資產週轉率 (v4.4):年化季營收 ÷ 總資產;經營效率訊號,供 fundamentals 計分候選
+        if total_assets and q_revenue:
+            asset_turnover_val = q_revenue * 4.0 / total_assets
         if curr_liab and curr_assets is not None:
             current_ratio = curr_assets / curr_liab * 100.0
         if equity and net_inc_abs is not None:
@@ -512,6 +567,7 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         pe_percentile=pe_pct, pb_percentile=pb_pct, dividend_yield_percentile=dy_pct,
         roe=roe, net_margin=net_margin, gross_margin=gross_margin,
         debt_to_asset=debt_to_asset, current_ratio=current_ratio,
+        asset_turnover=asset_turnover_val,
         operating_cash_flow=operating_cash_flow, free_cash_flow=free_cash_flow,
         capex=capex, net_income=net_inc_abs, ocf_to_net_income=ocf_to_net_income,
         operating_profit_ratio=operating_profit_ratio,
@@ -526,10 +582,12 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         revenue_asof=mom.get("asof"),
         ma5=ma5, ma20=ma20, weekly_ma20=weekly_ma20,
         ma5_bias=ma5_bias, ma20_bias=ma20_bias, volume_spike=vol_spike,
-        mom_3m=mom_3m, mom_6m=mom_6m,
+        mom_3m=mom_3m, mom_6m=mom_6m, rs_3m=rs_3m, rs_6m=rs_6m,
         rsi=rsi, macd_status=macd_status, macd_golden_cross=macd_golden, bb_status=bb_status,
-        kd_j=kd_j_val, ma_cross_status=ma_cross_status,
-        obv_rising=obv_rising_val, volume_divergence=volume_divergence_val,
+        bb_percent_b=bb_percent_b,
+        kd_j=kd_j_val, kd_k=kd_k_val, kd_d=kd_d_val, ma_cross_status=ma_cross_status,
+        obv_rising=obv_rising_val, obv_above_ma20=obv_above_ma20_val,
+        volume_divergence=volume_divergence_val,
         cost_zone_poc=vp.get("poc"), value_area_low=vp.get("val"),
         value_area_high=vp.get("vah"), price_vs_poc_pct=vp.get("price_vs_poc_pct"),
         cost_zone_status=vp.get("status", ""),

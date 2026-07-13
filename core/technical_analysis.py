@@ -135,11 +135,17 @@ class TechnicalEngine:
         lower_band = df['lower'].iloc[-1]
         mid_band = df['ma'].iloc[-1]
         squeeze_ratio = (upper_band - lower_band) / mid_band if mid_band != 0 else 1.0
+        # %B = (收盤 − 下軌) / (上軌 − 下軌):0=貼下軌、1=貼上軌、>1 突破上軌
+        band_w = upper_band - lower_band
+        percent_b = None
+        if pd.notna(band_w) and band_w > 0:
+            percent_b = float((df['close'].iloc[-1] - lower_band) / band_w)
         return {
             "upper": upper_band,
             "lower": lower_band,
             "bandwidth": current_bw,
             "squeeze_ratio": squeeze_ratio,
+            "percent_b": percent_b,
             "status": status
         }
     @staticmethod
@@ -232,6 +238,9 @@ class TechnicalEngine:
         is_high_volume = curr_ratio > 2.0
         price_up = curr_close > prev_close
         obv_rising = current_obv > prev_obv
+        # OBV 20日趨勢:OBV 是否站上自身20日均 (比單日 obv_rising 穩,供 v4.4 完整版訊號)
+        obv_ma20 = df['obv'].rolling(window=20, min_periods=10).mean().iloc[-1]
+        obv_above_ma20 = bool(current_obv > obv_ma20) if pd.notna(obv_ma20) else None
         is_divergence = False
         if curr_close > df['close'].iloc[-2] and curr_ratio < 1.0:
             is_divergence = True
@@ -242,7 +251,8 @@ class TechnicalEngine:
             "is_high_volume": bool(is_high_volume),
             "trend_match": "good" if (price_up and is_high_volume) else "weak",
             "divergence_warning": is_divergence,
-            "obv_rising": bool(obv_rising)
+            "obv_rising": bool(obv_rising),
+            "obv_above_ma20": obv_above_ma20
         }
     @staticmethod
     def calculate_ma_cross(df: pd.DataFrame, short=20, long=60) -> dict:

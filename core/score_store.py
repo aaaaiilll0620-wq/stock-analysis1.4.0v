@@ -79,13 +79,23 @@ def _engines(mode: str) -> Tuple[FundamentalEngine, ValuationEngine, ScoringMana
 
 
 def _weights_version(mode: str) -> str:
-    """對 MODES[mode] 的權重/門檻取短雜湊。權重改版 → 版本變 → 可辨識該重算的歷史列。"""
+    """對 MODES[mode] 的權重/門檻 + 訊號層版本取短雜湊。權重或訊號改版 → 版本變 →
+    可辨識該重算的歷史列。訊號層 (v4.4 起):候選訊號開關與估值混合等『不在 MODES 裡、
+    但會改變分數』的計分邏輯,一併納入版本,避免程式改了雜湊卻不變。"""
     cfg = ScoringManager.MODES[mode]
     payload = json.dumps(
         {
             "weights": cfg.get("weights"),
             "composite_weights": cfg.get("composite_weights"),
             "min_score": cfg.get("min_score"),
+            "signals": {
+                "rs": ScoringManager.USE_RS_OVERLAY,
+                "kd": ScoringManager.USE_KD_FULL,
+                "bbp": ScoringManager.USE_BBP,
+                "obv": ScoringManager.USE_OBV_TREND,
+                "asset_turnover": FundamentalEngine.USE_ASSET_TURNOVER,
+                "val_blend": "peg85_rel15",   # ValuationEngine 混合比例版本 (v4.4)
+            },
         },
         sort_keys=True,
         ensure_ascii=False,
