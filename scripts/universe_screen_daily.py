@@ -13,6 +13,14 @@
   預期產出 ~700-810 檔候選池 → 下游精算評分 (未接線)
   --include-no-pe 可保留 L0 排除者 (虧損/新股,驗證未覆蓋,自行斟酌)
 
+第二段 (池內 shortlist,0 FinMind API):
+  三因子 = 產業內估值位階 (industry_value_ref) + 20日動能 + 20日法人買賣超/成交量
+  (法人資料 = TEJ 種子 ∪ 收集器法人快照)。池內各因子取前 --shortlist-union-pct (預設15%)
+  聯集 → shortlist_{date}.csv (~280-320 檔,附 composite 排序供由高往低瀏覽)。
+  依據:§15-D/§16 驗證——同池大小聯集全面優於 composite top-N;value 用產業內版
+  三期超額再優於全市場版 (+0.437/-0.729/+0.012 vs +0.379/-0.842/-0.017)。
+  注意:任何緊縮池 2022 空頭段超額皆為負,shortlist 是「分流參考」不是投組。
+
 用法:
   python scripts/universe_screen_daily.py                # 以最新可用交易日跑粗篩
   python scripts/universe_screen_daily.py --adv-floor 20000000
@@ -76,6 +84,8 @@ def main():
     ap.add_argument("--adv-floor", type=float, default=10_000_000, help="20日均成交金額下限 (NTD)")
     ap.add_argument("--include-no-pe", action="store_true",
                      help="保留 PE 無效股 (虧損/新股;預設排除,與驗證母體一致)")
+    ap.add_argument("--shortlist-union-pct", type=float, default=15.0,
+                     help="第二段聯集:各因子取池內前 N%% (預設 15)")
     ap.add_argument("--out-dir", default=str(Path(project_root) / "outputs" / "universe_pool"))
     args = ap.parse_args()
 
@@ -133,6 +143,57 @@ def main():
           f" → L1 可投資性 {len(l1)} → L2 陷阱排除 -{int(trap.fillna(False).sum())}"
           f" → 候選池 {len(l2)} 檔")
     print(f"已輸出 {out}")
+
+    # --- 第二段:池內三因子聯集 shortlist ---
+    vind = con.execute(f"""
+        SELECT stock_id, value_ind_pct
+        FROM read_parquet('{MARKET_CACHE}/industry_value_ref.parquet')
+        WHERE date = '{as_of}'
+    """).df().set_index("stock_id")["value_ind_pct"]
+
+    tej_chip_max = con.execute(f"""
+        SELECT MAX(date) FROM read_parquet('{TEJ_CACHE}/institutional_flow/*.parquet', union_by_name=true)
+    """).fetchone()[0]
+    chip_snap_dir = MARKET_CACHE / "institutional_flow_daily"
+    chip_sql = f"""
+        UNION ALL BY NAME
+        SELECT stock_id, date, foreign_net, trust_net, dealer_net
+        FROM read_parquet('{chip_snap_dir}/*.parquet', union_by_name=true)
+        WHERE date > '{tej_chip_max}'""" if (chip_snap_dir.exists()
+                                              and any(chip_snap_dir.glob("*.parquet"))) else ""
+    chip = con.execute(f"""
+        SELECT stock_id, date, foreign_net, trust_net, dealer_net
+        FROM read_parquet('{TEJ_CACHE}/institutional_flow/*.parquet', union_by_name=true)
+        {chip_sql}
+        ORDER BY stock_id, date
+    """).df()
+    chip["net_total"] = chip[["foreign_net", "trust_net", "dealer_net"]].sum(axis=1)
+    chip = chip[chip["date"] <= as_of]
+    net20 = chip.groupby("stock_id")["net_total"].apply(lambda s: s.tail(20).sum())
+    vol20 = g["Trading_Volume"].apply(lambda s: s.tail(20).sum())
+
+    def mom20(s: pd.Series) -> float:
+        s = s.dropna()
+        if len(s) < 21 or not s.iloc[-21]:
+            return np.nan
+        return float((s.iloc[-1] - s.iloc[-21]) / s.iloc[-21] * 100.0)
+
+    sl = l2.copy()
+    sl["value_ind_pct"] = vind.reindex(sl.index)
+    sl["momentum20"] = g["close"].apply(mom20).reindex(sl.index)
+    sl["chip20_turnover"] = (net20 / vol20.replace(0, np.nan)).reindex(sl.index)
+    for f in ("value_ind_pct", "momentum20", "chip20_turnover"):
+        sl[f"{f}_pool_pct"] = sl[f].rank(pct=True) * 100.0
+    thr = 100.0 - args.shortlist_union_pct
+    union = ((sl["value_ind_pct_pool_pct"] > thr) | (sl["momentum20_pool_pct"] > thr)
+             | (sl["chip20_turnover_pool_pct"] > thr))
+    sl["composite"] = sl[[f"{f}_pool_pct" for f in
+                           ("value_ind_pct", "momentum20", "chip20_turnover")]].mean(axis=1)
+    shortlist = sl[union].sort_values("composite", ascending=False)
+    out2 = out_dir / f"shortlist_{as_of}.csv"
+    shortlist.to_csv(out2, encoding="utf-8-sig")
+    print(f"第二段聯集 (各因子前 {args.shortlist_union_pct:.0f}%): shortlist {len(shortlist)} 檔"
+          f" → {out2}")
 
 
 if __name__ == "__main__":

@@ -32,7 +32,9 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 logger = logging.getLogger(__name__)
 
-OUT_DIR = Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cache"))) / "price_valuation_daily"
+MARKET_CACHE = Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cache")))
+OUT_DIR = MARKET_CACHE / "price_valuation_daily"
+CHIP_DIR = MARKET_CACHE / "institutional_flow_daily"
 
 ENDPOINTS = {
     "twse_price": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
@@ -75,11 +77,17 @@ def is_common_stock(code: pd.Series) -> pd.Series:
 
 
 def collect() -> pd.DataFrame:
-    raw = {name: fetch(name, url) for name, url in ENDPOINTS.items()}
-
-    dates = {name: roc_to_iso(df["Date"].iloc[0]) for name, df in raw.items()}
-    if len(set(dates.values())) != 1:
-        raise RuntimeError(f"四端點資料日不一致,不落地: {dates}")
+    # 各端點收盤後的發布時間不同 (約 14:00-17:30 陸續翻日),資料日不一致代表
+    # 正處於發布窗 → 等 10 分鐘重抓,最多 4 次;仍不一致才失敗。
+    for attempt in range(4):
+        raw = {name: fetch(name, url) for name, url in ENDPOINTS.items()}
+        dates = {name: roc_to_iso(df["Date"].iloc[0]) for name, df in raw.items()}
+        if len(set(dates.values())) == 1:
+            break
+        logger.warning(f"四端點資料日不一致 (發布窗中?),10 分鐘後重抓 ({attempt+1}/4): {dates}")
+        if attempt == 3:
+            raise RuntimeError(f"四端點資料日持續不一致,不落地: {dates}")
+        time.sleep(600)
     trade_date = dates["twse_price"]
 
     t = raw["twse_price"].rename(columns={"Code": "stock_id"})
@@ -116,6 +124,58 @@ def collect() -> pd.DataFrame:
     return df
 
 
+def collect_chip(trade_date: str, force: bool = False) -> None:
+    """三大法人買賣超快照 (TWSE rwd T86 + TPEx 3insti),正規化成 TEJ institutional_flow
+    同一套欄位 (foreign_net=外陸資+外資自營商合計,單位:股)。接縫已實測與 TEJ 一致
+    (7/14 比對:foreign/dealer 100%、trust 96.7% 在千股容差內)。
+    法人資料缺一天可容忍 (下游是 20 日窗),故失敗只記 log 不讓整批收集失敗。"""
+    out = CHIP_DIR / f"{trade_date}.parquet"
+    if out.exists() and not force:
+        logger.info(f"法人快照 {out} 已存在 → no-op")
+        return
+    frames = []
+
+    ymd = trade_date.replace("-", "")
+    r = requests.get(f"https://www.twse.com.tw/rwd/zh/fund/T86?date={ymd}"
+                     f"&selectType=ALLBUT0999&response=json",
+                     timeout=60, headers={"user-agent": "Mozilla/5.0"})
+    d = r.json()
+    if d.get("stat") == "OK" and d.get("data"):
+        tw = pd.DataFrame(d["data"], columns=d["fields"])
+        tw["stock_id"] = tw["證券代號"].astype(str).str.strip()
+        tw = tw[is_common_stock(tw["stock_id"])]
+        frames.append(pd.DataFrame({
+            "stock_id": tw["stock_id"],
+            "foreign_net": (num(tw["外陸資買賣超股數(不含外資自營商)"])
+                             + num(tw["外資自營商買賣超股數"])),
+            "trust_net": num(tw["投信買賣超股數"]),
+            "dealer_net": num(tw["自營商買賣超股數"]),
+        }))
+    else:
+        raise ValueError(f"T86 無資料 (stat={d.get('stat')})")
+
+    o = fetch("tpex_price", "https://www.tpex.org.tw/openapi/v1/tpex_3insti_daily_trading")
+    o.columns = [c.replace(" ", "") for c in o.columns]   # 官方欄名夾雜空白,正規化後對應
+    if roc_to_iso(o["Date"].iloc[0]) != trade_date:
+        raise ValueError(f"TPEx 法人資料日 {o['Date'].iloc[0]} 與 {trade_date} 不符")
+    o["stock_id"] = o["SecuritiesCompanyCode"].astype(str).str.strip()
+    o = o[is_common_stock(o["stock_id"])]
+    frames.append(pd.DataFrame({
+        "stock_id": o["stock_id"],
+        "foreign_net": num(o["ForeignInvestorsIncludeMainlandAreaInvestors-Difference"]),
+        "trust_net": num(o["SecuritiesInvestmentTrustCompanies-Difference"]),
+        "dealer_net": num(o["Dealers-Difference"]),
+    }))
+
+    df = pd.concat(frames, ignore_index=True).drop_duplicates(subset=["stock_id"], keep="first")
+    df.insert(1, "date", trade_date)
+    CHIP_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(".parquet.tmp")
+    df.to_parquet(tmp, index=False)
+    os.replace(tmp, out)
+    logger.info(f"法人快照已落地 {trade_date}: {len(df)} 檔 → {out}")
+
+
 def main():
     ap = argparse.ArgumentParser(description="TWSE/TPEx 全市場每日快照收集器 (0 FinMind API)")
     ap.add_argument("--out-dir", default=str(OUT_DIR))
@@ -129,12 +189,17 @@ def main():
     out = out_dir / f"{trade_date}.parquet"
     if out.exists() and not args.force:
         logger.info(f"{out} 已存在 (資料日 {trade_date},假日或重複執行) → no-op")
-        return
-    tmp = out.with_suffix(".parquet.tmp")
-    df.to_parquet(tmp, index=False)
-    os.replace(tmp, out)
-    logger.info(f"已落地 {trade_date}: {len(df)} 檔 (上市+上櫃普通股),"
-                f" PE 有值 {df['PER_TSE'].notna().sum()} 檔 → {out}")
+    else:
+        tmp = out.with_suffix(".parquet.tmp")
+        df.to_parquet(tmp, index=False)
+        os.replace(tmp, out)
+        logger.info(f"已落地 {trade_date}: {len(df)} 檔 (上市+上櫃普通股),"
+                    f" PE 有值 {df['PER_TSE'].notna().sum()} 檔 → {out}")
+
+    try:
+        collect_chip(trade_date, force=args.force)
+    except Exception as e:
+        logger.warning(f"法人快照失敗 (價格快照不受影響,20日窗可容忍缺一天): {e}")
 
 
 if __name__ == "__main__":
