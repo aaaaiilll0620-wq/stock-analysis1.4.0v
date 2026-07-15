@@ -9,6 +9,8 @@
 
 特性:
   - 端點不支援歷史日期,回傳的是「最新交易日」→ 假日/重複執行自動變 no-op (冪等)
+  - **發布時序 (實測)**:TPEx 當天 ~14-16 點翻日,TWSE openapi 隔天清晨才翻日
+    → 排程設在「隔天早上 08:30 收 T-1」(兩板此時一致);傍晚收永遠湊不齊
   - 四端點資料日必須一致才落地,避免混到跨日資料
   - 重試 + 列數 sanity check;失敗以非零 exit code 結束 (bat 記 log)
   - 漏收的日子無法回補 → 用 TEJ 手動匯出丟 tej_exports/inbox/ 重跑 tej_importer 補洞
@@ -77,15 +79,15 @@ def is_common_stock(code: pd.Series) -> pd.Series:
 
 
 def collect() -> pd.DataFrame:
-    # 各端點收盤後的發布時間不同 (約 14:00-17:30 陸續翻日),資料日不一致代表
-    # 正處於發布窗 → 等 10 分鐘重抓,最多 4 次;仍不一致才失敗。
-    for attempt in range(4):
+    # 各端點收盤後的發布時間不同,實測 TWSE openapi 到 17:40+ 才翻日 → 資料日不一致
+    # 代表正處於發布窗:等 10 分鐘重抓,最多 8 次 (17:30 排程可涵蓋到 ~18:50)。
+    for attempt in range(8):
         raw = {name: fetch(name, url) for name, url in ENDPOINTS.items()}
         dates = {name: roc_to_iso(df["Date"].iloc[0]) for name, df in raw.items()}
         if len(set(dates.values())) == 1:
             break
-        logger.warning(f"四端點資料日不一致 (發布窗中?),10 分鐘後重抓 ({attempt+1}/4): {dates}")
-        if attempt == 3:
+        logger.warning(f"四端點資料日不一致 (發布窗中?),10 分鐘後重抓 ({attempt+1}/8): {dates}")
+        if attempt == 7:
             raise RuntimeError(f"四端點資料日持續不一致,不落地: {dates}")
         time.sleep(600)
     trade_date = dates["twse_price"]

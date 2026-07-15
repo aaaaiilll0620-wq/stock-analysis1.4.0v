@@ -3,10 +3,14 @@
 #  Run once (double-click register_market_snapshot_task.bat, or:
 #      powershell -ExecutionPolicy Bypass -File scripts\register_market_snapshot_task.ps1)
 #
-#  Schedule : weekdays (Mon-Fri) 17:30 -- official endpoints are final by then
-#  Catch-up : StartWhenAvailable = if the PC was off at 17:30, runs when back on.
-#             Bonus: a next-morning catch-up still fetches YESTERDAY's data
-#             (endpoints serve the latest completed trade day), recovering the gap.
+#  Schedule : Tue-Sat 08:30, collecting the PREVIOUS trading day (T-1).
+#             Why morning: TWSE openapi flips to the new day OVERNIGHT
+#             (still served 7/14 at midnight 7/16 in live testing), while TPEx
+#             flips same-day ~14:00-16:00. Next morning BOTH boards serve T-1
+#             consistently. Evening collection can never be consistent.
+#  Catch-up : StartWhenAvailable = if the PC was off at 08:30, runs when back on
+#             (both boards keep serving T-1 until ~14:00, so late-morning
+#             catch-up still recovers the day).
 #  Remove   : powershell -Command "Unregister-ScheduledTask -TaskName 'Market_SnapshotCollector' -Confirm:$false"
 # =====================================================================
 $ErrorActionPreference = 'Stop'
@@ -16,7 +20,7 @@ $bat = Join-Path $PSScriptRoot 'market_snapshot_collect.bat'
 if (-not (Test-Path $bat)) { throw "not found: $bat" }
 
 $action   = New-ScheduledTaskAction -Execute $bat
-$trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 17:30
+$trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Tuesday,Wednesday,Thursday,Friday,Saturday -At 08:30
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable `
               -ExecutionTimeLimit (New-TimeSpan -Hours 1) `
               -MultipleInstances IgnoreNew
