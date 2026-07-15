@@ -1116,6 +1116,14 @@ class DataProvider:
             except Exception:
                 pass
 
+            # 4-2b. 產業內估值位階 (v4.5,0 API 讀本機參考表;過舊/查無回 None → 估值引擎退回現行配方)
+            industry_value_percentile = None
+            try:
+                from core.industry_value import industry_value_pct
+                industry_value_percentile = industry_value_pct(symbol)
+            except Exception:
+                pass
+
             # (5) 成本區信心與現有籌碼資料交叉驗證 (零新增 API):
             #   法人參與度、近端主力淨流、TDCC 週變化(若已啟用)僅作信心微調,不影響成本帶主體。
             vp_conf = vp.get("confidence")
@@ -1267,6 +1275,7 @@ class DataProvider:
                 pe_percentile=pe_percentile,                 # 本益比歷史分位 (相對估值)
                 pb_percentile=pb_percentile,                 # 股價淨值比歷史分位
                 dividend_yield_percentile=dy_percentile,     # 殖利率歷史分位
+                industry_value_percentile=industry_value_percentile,  # 產業內估值位階 (v4.5)
                 valuation_basis=valuation_basis,             # 相對 / 絕對
                 market_regime=cls._ensure_market_regime(),   # 當前大盤位階
                 roe=fundamental_data["roe"],

@@ -20,6 +20,7 @@ import os
 import sys
 import argparse
 from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -247,9 +248,29 @@ def run_signal_ab(obs_by_period):
 # ------------------------------------------------------------------------------
 # 實驗 2:估值變體 (項 9) — 判斷「訊號品質 vs 因子本質」
 # ------------------------------------------------------------------------------
+_IND_REF_DF = None
+
+
+def _load_ind_ref(dates: set) -> dict:
+    """全市場產業內估值位階 (scripts/build_industry_value_ref.py 產出,§15-G 驗證勝出構造)。
+    回傳 {(stock_id, date): value_ind_pct},表不存在時回空 dict (變體自動退化為中性 50)。"""
+    global _IND_REF_DF
+    if _IND_REF_DF is None:
+        p = (Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cache")))
+             / "industry_value_ref.parquet")
+        _IND_REF_DF = (pd.read_parquet(p, columns=["stock_id", "date", "value_ind_pct"])
+                       if p.exists() else pd.DataFrame(columns=["stock_id", "date", "value_ind_pct"]))
+        if _IND_REF_DF.empty:
+            print("  [警告] 找不到 industry_value_ref.parquet,產業位階變體將退化為中性 50")
+    sub = _IND_REF_DF[_IND_REF_DF["date"].isin(dates)]
+    return {(s, d): float(v) for s, d, v in
+            zip(sub["stock_id"], sub["date"], sub["value_ind_pct"])}
+
+
 def valuation_variants(obs):
     """對每筆 obs 算各種估值變體分數 (皆 0-100,越高=越便宜)。"""
     rows = []
+    ind_ref = _load_ind_ref({o["as_of"] for o in obs})
     # 先收集每期的 PE/PBR 供橫斷面百分位
     pe_by_date = defaultdict(list)
     for o in obs:
@@ -297,8 +318,29 @@ def valuation_variants(obs):
         if pe is not None and not pd.isna(pe) and pe > 0 and len(pe_list) >= 8:
             v_xsec = 100.0 * (1.0 - pd.Series(pe_list).lt(float(pe)).mean())
 
+        # 變體 D:產業內位階 (排名母體=全市場 1,952 檔,非池內;§15-G 驗證勝出構造)
+        ind_pct = ind_ref.get((st.symbol, o["as_of"]))   # 0-100,越高=相對同業越便宜
+        v_ind = ind_pct if ind_pct is not None else 50.0
+
+        # 變體 E:現行混合配方,但位階成分的 pe 換成產業內位階 (pb/dy 沿用) — 生產候選
+        parts_i = dict(parts)
+        if ind_pct is not None:
+            parts_i["pe"] = ind_pct
+        v_rel_ind = (sum(parts_i[k] * w[k] for k in parts_i)
+                     / sum(w[k] for k in parts_i)) if parts_i else None
+        peg_avail = pe is not None and not pd.isna(pe) and pe > 0 and growth
+        mparts, mw = 0.0, 0.0
+        if peg_avail:
+            mparts += v_peg * 0.85
+            mw += 0.85
+        if v_rel_ind is not None:
+            mparts += v_rel_ind * 0.15
+            mw += 0.15
+        v_indmix = mparts / mw if mw else 50.0
+
         rows.append({"as_of": o["as_of"], "fwd": o["fwd"],
                      "v_cur": v_cur, "v_rel": v_rel, "v_peg": v_peg, "v_xsec": v_xsec,
+                     "v_ind": v_ind, "v_indmix": v_indmix,
                      "fundamental": float(o["fund_res"].get("total_score", 50.0))})
     return rows
 
@@ -314,7 +356,8 @@ def run_valuation_lab(obs_by_period):
     restore_flags(old)
 
     variants = [("現行混合(PEG+位階)", "v_cur"), ("純歷史位階", "v_rel"),
-                ("純PEG", "v_peg"), ("橫斷面PE便宜度", "v_xsec")]
+                ("純PEG", "v_peg"), ("橫斷面PE便宜度", "v_xsec"),
+                ("產業內位階(全市場)", "v_ind"), ("混合(PEG+產業位階)", "v_indmix")]
 
     print(f"{'估值變體':<20}{'IC全':>8}{'IC22':>8}{'多空全':>9}{'多空22':>9}"
           f"{'綜多空全(替換)':>14}{'綜多空22(替換)':>14}")
@@ -347,6 +390,23 @@ def run_valuation_lab(obs_by_period):
             csp[pname] = spread(merged, "composite")
         print(f"{label:<20}{fmt(ic_f):>8}{fmt(ic_22):>8}{fmt(sp_f, 1):>9}{fmt(sp_22, 1):>9}"
               f"{fmt(csp['2023-2025'], 1):>14}{fmt(csp['2022空頭'], 1):>14}")
+
+    # PEG × 產業內位階 混比掃描 (85/15 是位階還是噪音時代調的權重,產業位階品質不同,重掃)
+    print("\nPEG × 產業內位階 混比掃描 (綜合替換後):")
+    print(f"{'配比 (PEG/產業位階)':<22}{'綜多空全':>9}{'綜多空22':>9}{'綜IC全':>8}{'綜IC22':>8}")
+    print("-" * 60)
+    for a in (1.0, 0.85, 0.7, 0.5, 0.3, 0.15, 0.0):
+        stats = []
+        for pname in ("2023-2025", "2022空頭"):
+            merged = []
+            for dr, vr in zip(dims_by[pname], vrows_by[pname]):
+                m = dict(dr)
+                m["valuation"] = a * vr["v_peg"] + (1 - a) * vr["v_ind"]
+                merged.append(m)
+            add_composite(merged)
+            stats.append((spread(merged, "composite"), rank_ic(merged, "composite")))
+        print(f"{f'{a:.2f} / {1-a:.2f}':<22}{fmt(stats[0][0], 1):>9}{fmt(stats[1][0], 1):>9}"
+              f"{fmt(stats[0][1]):>8}{fmt(stats[1][1]):>8}")
 
     # 降權情境:估值權重 0.08 → 0.04 / 0.00 (轉給基本面)
     print("\n估值『再降權』情境 (權重轉給基本面):")

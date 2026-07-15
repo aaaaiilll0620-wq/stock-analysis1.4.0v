@@ -40,6 +40,13 @@ class ValuationEngine:
         # valuation_status 判定門檻 (分數越高代表越便宜)
         self.status_thresholds = {"cheap": 65.0, "fair": 40.0}
 
+    # v4.5 候選:估值分數改用「全市場產業內位階」(DevLog §15-G)。
+    #   TEJ 全市場三期驗證:decile10 陷阱大幅消解、value IC 三期全升;
+    #   factor_experiments A/B (45檔池):綜合多空 全期 +3.15→+3.24、2022 −1.02→−0.76,
+    #   唯一雙期同步改善的變體;混比掃描顯示摻 PEG 皆劣於純位階 → 100% 產業位階。
+    #   資料:core/industry_value.py (market_cache 參考表);查無值退回現行 PEG+位階配方。
+    USE_INDUSTRY_RELATIVE = True
+
     # 本益比歷史高檔的交叉驗證門檻
     PE_PERCENTILE_HIGH = 80.0    # 本益比歷史位階 >= 此值才做「成長溢價 vs 昂貴泡泡」分類
     GROWTH_STRONG = 15.0         # 累計營收年增 >= 此值視為成長強勁
@@ -65,6 +72,25 @@ class ValuationEngine:
         # 有 A/B 任一即混合計分;皆缺才退回 C。
         # ============================================================
         pe = data.get("pe_ratio")
+
+        # ---- v4.5:全市場產業內位階 (開關見 USE_INDUSTRY_RELATIVE 註解) ----
+        if self.USE_INDUSTRY_RELATIVE:
+            ind_pct = data.get("industry_value_percentile")
+            if ind_pct is not None and not pd.isna(ind_pct):
+                score = float(round(float(ind_pct), 2))
+                return {
+                    "valuation_score": score,
+                    "valuation_status": self._status_relative(score),
+                    "valuation_label": "",
+                    "valuation_basis": "產業內位階",
+                    "peg_ratio": None,
+                    "growth_used": None,
+                    "per_metric": {"industry_pe": round(score, 1)},
+                    "inputs": {"pe": pe, "industry_value_percentile": float(ind_pct)},
+                    "missing_fields": [],
+                    "confidence": 90.0,
+                }
+            # 查無產業位階 (非台股全市場母體/資料過舊) → 往下退回現行配方
 
         # ---- A. PEG 成長調整分 ----
         #   成長率優先序:EPS年增 > 淨利年增 > 累計營收年增 > 近3月營收年增。

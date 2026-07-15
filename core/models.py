@@ -31,6 +31,7 @@ class StockData:
     dividend_yield: float = 0.0              # 殖利率
     # --- 相對估值 (河流圖分位;個股相對自身歷史,牛熊皆適用) ---
     pe_percentile: Optional[float] = None         # 本益比歷史分位 (0-100,越低越便宜)
+    industry_value_percentile: Optional[float] = None  # 產業內估值位階 (0-100,越高=相對同業越便宜;v4.5)
     pb_percentile: Optional[float] = None         # 股價淨值比歷史分位 (0-100,越低越便宜)
     dividend_yield_percentile: Optional[float] = None  # 殖利率歷史分位 (0-100,越高越便宜)
     valuation_basis: str = "絕對"                 # 估值基準:相對(有歷史分位) / 絕對(歷史不足)

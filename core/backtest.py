@@ -262,6 +262,15 @@ def benchmark_trailing_return(as_of: str, lookback: int, skip: int = 5) -> Optio
     return val
 
 
+def _industry_value_pct_safe(symbol: str, as_of: str):
+    """產業內估值位階 PIT 查詢 (v4.5);參考表缺失/查無值回 None,由估值引擎退回現行配方。"""
+    try:
+        from core.industry_value import industry_value_pct
+        return industry_value_pct(symbol, as_of)
+    except Exception:
+        return None
+
+
 def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData]:
     """
     以 as_of 為基準,用「當下拿得到」的切片重建 StockData。
@@ -565,6 +574,7 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         current_price=last_price, volume=int(volume_lots), change_percent=change_pct,
         pe_ratio=pe_val, pb_ratio=pb_val, dividend_yield=(dy_val or 0.0),
         pe_percentile=pe_pct, pb_percentile=pb_pct, dividend_yield_percentile=dy_pct,
+        industry_value_percentile=_industry_value_pct_safe(bundle.symbol, as_of),
         roe=roe, net_margin=net_margin, gross_margin=gross_margin,
         debt_to_asset=debt_to_asset, current_ratio=current_ratio,
         asset_turnover=asset_turnover_val,

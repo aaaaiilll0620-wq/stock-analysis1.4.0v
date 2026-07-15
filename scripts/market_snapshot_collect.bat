@@ -29,6 +29,12 @@ if errorlevel 1 (
     exit /b 1
 )
 
+"%PY%" scripts\build_industry_value_ref.py >> "%LOG%" 2>&1
+if errorlevel 1 (
+    echo [ERROR] industry value ref rebuild failed >> "%LOG%"
+    exit /b 1
+)
+
 "%PY%" scripts\universe_screen_daily.py >> "%LOG%" 2>&1
 if errorlevel 1 (
     echo [ERROR] universe screen failed >> "%LOG%"

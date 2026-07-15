@@ -94,7 +94,8 @@ def _weights_version(mode: str) -> str:
                 "bbp": ScoringManager.USE_BBP,
                 "obv": ScoringManager.USE_OBV_TREND,
                 "asset_turnover": FundamentalEngine.USE_ASSET_TURNOVER,
-                "val_blend": "peg85_rel15",   # ValuationEngine 混合比例版本 (v4.4)
+                "val_blend": ("ind_pct_v45" if ValuationEngine.USE_INDUSTRY_RELATIVE
+                               else "peg85_rel15"),   # 估值配方版本 (v4.5 產業內位階 / v4.4 混合)
             },
         },
         sort_keys=True,
