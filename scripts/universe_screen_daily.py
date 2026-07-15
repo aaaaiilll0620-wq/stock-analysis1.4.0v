@@ -14,12 +14,15 @@
   --include-no-pe 可保留 L0 排除者 (虧損/新股,驗證未覆蓋,自行斟酌)
 
 第二段 (池內 shortlist,0 FinMind API):
-  三因子 = 產業內估值位階 (industry_value_ref) + 20日動能 + 20日法人買賣超/成交量
-  (法人資料 = TEJ 種子 ∪ 收集器法人快照)。池內各因子取前 --shortlist-union-pct (預設15%)
-  聯集 → shortlist_{date}.csv (~280-320 檔,附 composite 排序供由高往低瀏覽)。
-  依據:§15-D/§16 驗證——同池大小聯集全面優於 composite top-N;value 用產業內版
-  三期超額再優於全市場版 (+0.437/-0.729/+0.012 vs +0.379/-0.842/-0.017)。
-  注意:任何緊縮池 2022 空頭段超額皆為負,shortlist 是「分流參考」不是投組。
+  五因子 = 產業內估值位階 + 20日動能 + 20日法人買賣超/成交量
+           + 52週高點接近度 (突破) + 營收加速度 (最新YoY − 近3月均YoY)。
+  池內各因子取前 --shortlist-union-pct (預設15%) 聯集 → shortlist_{date}.csv
+  (~400 檔,composite 排序供由高往低瀏覽)。
+  依據 (§16-C + 但書2三連測,雙視野 20/60 日皆驗):5F vs 3F 召回 +8~9pp、
+  2022 超額改善 25-30%、月留存 +8pp,三期無一變差;突破與營收加速是唯二
+  2022 單因子為正的選股訊號。視野解讀:因子在 60 日 (季度) 視野的空頭傷害
+  約為 20 日視野的一半,shortlist 建議以波段視野使用。
+  注意:緊縮池 2022 空頭段超額整體仍偏負,shortlist 是「分流參考」不是投組。
 
 用法:
   python scripts/universe_screen_daily.py                # 以最新可用交易日跑粗篩
@@ -178,17 +181,41 @@ def main():
             return np.nan
         return float((s.iloc[-1] - s.iloc[-21]) / s.iloc[-21] * 100.0)
 
+    def high52_prox(s: pd.Series) -> float:
+        """收盤價 / 近240交易日最高收盤 ×100 (至少120樣本;越高=越接近52週高)。"""
+        s = s.dropna().tail(240)
+        if len(s) < 120 or not s.max():
+            return np.nan
+        return float(s.iloc[-1] / s.max() * 100.0)
+
+    # 營收加速度:最新已知單月 YoY − 近3個已知月份平均 YoY (PIT: 月底+10天才算已知)
+    rev_all = con.execute(f"""
+        SELECT stock_id, date, revenue_yoy_pct
+        FROM read_parquet('{TEJ_CACHE}/revenue_growth/*.parquet', union_by_name=true)
+    """).df()
+    rev_all["known"] = (pd.to_datetime(rev_all["date"]) + pd.offsets.MonthEnd(0)
+                         + pd.Timedelta(days=REVENUE_LAG_DAYS))
+    rev_all = rev_all[rev_all["known"] <= pd.Timestamp(as_of)].sort_values("date")
+
+    def rev_accel(s: pd.Series) -> float:
+        s = s.dropna().tail(3)
+        if len(s) < 3:
+            return np.nan
+        return float(s.iloc[-1] - s.mean())
+
+    FACTORS = ("value_ind_pct", "momentum20", "chip20_turnover", "high52_prox", "rev_accel")
     sl = l2.copy()
     sl["value_ind_pct"] = vind.reindex(sl.index)
     sl["momentum20"] = g["close"].apply(mom20).reindex(sl.index)
     sl["chip20_turnover"] = (net20 / vol20.replace(0, np.nan)).reindex(sl.index)
-    for f in ("value_ind_pct", "momentum20", "chip20_turnover"):
+    sl["high52_prox"] = g["close"].apply(high52_prox).reindex(sl.index)
+    sl["rev_accel"] = (rev_all.groupby("stock_id")["revenue_yoy_pct"]
+                          .apply(rev_accel).reindex(sl.index))
+    for f in FACTORS:
         sl[f"{f}_pool_pct"] = sl[f].rank(pct=True) * 100.0
     thr = 100.0 - args.shortlist_union_pct
-    union = ((sl["value_ind_pct_pool_pct"] > thr) | (sl["momentum20_pool_pct"] > thr)
-             | (sl["chip20_turnover_pool_pct"] > thr))
-    sl["composite"] = sl[[f"{f}_pool_pct" for f in
-                           ("value_ind_pct", "momentum20", "chip20_turnover")]].mean(axis=1)
+    union = np.logical_or.reduce([(sl[f"{f}_pool_pct"] > thr).to_numpy() for f in FACTORS])
+    sl["composite"] = sl[[f"{f}_pool_pct" for f in FACTORS]].mean(axis=1)
     shortlist = sl[union].sort_values("composite", ascending=False)
     out2 = out_dir / f"shortlist_{as_of}.csv"
     shortlist.to_csv(out2, encoding="utf-8-sig")
