@@ -423,6 +423,10 @@ def _univ_streaks(files: tuple) -> dict:
 with tab_univ:
     import glob as _glob
     _files = sorted(_glob.glob(os.path.join(_UNIV_DIR, "shortlist_*.csv")))
+    if not _files:   # 雲端部署沒有 outputs/ → 退回 repo 內的 cloud_cache 快照
+        _files = sorted(_glob.glob(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "cloud_cache", "UniversePool",
+            "shortlist_*.csv")))
     if not _files:
         st.info("找不到 shortlist 檔案。此分頁讀本機每日粗篩產出 (`outputs/universe_pool/`),"
                 "由排程 Market_SnapshotCollector 每早自動生成;歷史可用 "
@@ -434,7 +438,8 @@ with tab_univ:
         _df = _univ_load(_f).sort_values("composite", ascending=False)
         _streaks = _univ_streaks(tuple(_files[: _dates.index(_pick) + 1][-40:]))
 
-        _pool_f = os.path.join(_UNIV_DIR, f"pool_{_pick}.csv")
+        _data_dir = os.path.dirname(_f)
+        _pool_f = os.path.join(_data_dir, f"pool_{_pick}.csv")
         if os.path.exists(_pool_f):
             _p1 = pd.read_csv(_pool_f, nrows=1)
             if "bear_regime" in _p1.columns and bool(_p1["bear_regime"].iloc[0]):
@@ -484,7 +489,7 @@ with tab_univ:
             st.markdown("#### 🆕 今日新進 composite 前 50")
             st.dataframe(_new_rows[_cols].rename(columns={"name": "名稱", "industry": "產業"}).round(2),
                          use_container_width=True)
-        _digest_f = os.path.join(_UNIV_DIR, f"digest_{_pick}.md")
+        _digest_f = os.path.join(_data_dir, f"digest_{_pick}.md")
         if os.path.exists(_digest_f):
             with st.expander("📄 當日文字摘要 (digest)"):
                 st.markdown(open(_digest_f, encoding="utf-8").read())

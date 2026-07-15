@@ -92,6 +92,22 @@ def main() -> int:
     n = len(list(SNAPSHOT_DIR.glob("*.parquet")))
     print(f"  ✅ 已複製 {n} 個 parquet 到 cloud_cache/Scores")
 
+    # 2b) 同步全市場掃描名單 (最近 N 個交易日 shortlist + 最新 pool/digest)
+    #     → cloud_cache/UniversePool,供雲端版「🌐 全市場掃描」分頁 (app.py 有 fallback)。
+    univ_src = REPO_ROOT / "outputs" / "universe_pool"
+    univ_snap = REPO_ROOT / "cloud_cache" / "UniversePool"
+    keep = 40   # 連續在榜回看窗
+    sls = sorted(univ_src.glob("shortlist_*.csv"))[-keep:] if univ_src.exists() else []
+    if sls:
+        if univ_snap.exists():
+            shutil.rmtree(univ_snap)
+        univ_snap.mkdir(parents=True)
+        latest_date = sls[-1].stem.replace("shortlist_", "")
+        for f in [*sls, univ_src / f"pool_{latest_date}.csv", univ_src / f"digest_{latest_date}.md"]:
+            if f.exists():
+                shutil.copy2(f, univ_snap / f.name)
+        print(f"  ✅ 已同步 {len(sls)} 天 shortlist + 最新 pool/digest 到 cloud_cache/UniversePool")
+
     # 3) git add / 判斷有無變化 / commit
     _run(["git", "add", "cloud_cache"])
     staged = subprocess.run(["git", "diff", "--cached", "--quiet", "--", "cloud_cache"],
