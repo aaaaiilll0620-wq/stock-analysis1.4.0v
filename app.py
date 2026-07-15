@@ -180,6 +180,17 @@ def screen_universe(mode: str, min_composite: int, ratings: tuple, min_conf: int
 
 
 @st.cache_data(show_spinner=False)
+def tej_stock_names() -> dict:
+    """代號→股名全市場對照 (TEJ 產業對照表靜態快照,含下市股 2,400+ 檔;
+    本機與雲端皆讀 repo 內的 cloud_cache/stock_names.csv)。失敗回空 dict。"""
+    path = os.path.join(_ROOT, "cloud_cache", "stock_names.csv")
+    try:
+        df = pd.read_csv(path, dtype=str)
+        return dict(zip(df["stock_id"], df["name"]))
+    except Exception:
+        return {}
+
+
 def watchlist_names():
     """從 watchlist.txt 解析 {代號: 股名}，供『綜合分選股』把快取內 name==代號 的
     舊資料回填成正確股名 (例 2330 → 台積電)。檔案不存在/解析失敗 → 回傳空 dict。
@@ -357,9 +368,10 @@ with tab_screen:
         ratings = st.multiselect("限定評級 (不選 = 全部)", list(RATING_STYLE.keys()), default=[])
 
         df = screen_universe(mode, min_comp, tuple(ratings), min_conf, top)
-        # 名稱回填:舊快取的 name 欄可能等於代號,用 watchlist.txt 的股名覆蓋 (例 2330 → 台積電)。
+        # 名稱回填:舊快取的 name 欄可能等於代號 → 先用 TEJ 全市場對照 (2,400+ 檔),
+        # 再讓 watchlist.txt 的自訂股名覆蓋 (例 2330 → 台積電)。
         if df is not None and not df.empty and "stock_id" in df.columns and "name" in df.columns:
-            _nmap = watchlist_names()
+            _nmap = {**tej_stock_names(), **watchlist_names()}
             if _nmap:
                 df = df.copy()
                 df["name"] = [_nmap.get(str(sid), nm) for sid, nm in zip(df["stock_id"], df["name"])]
