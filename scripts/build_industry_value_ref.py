@@ -38,6 +38,9 @@ OUT = MARKET_CACHE / "industry_value_ref.parquet"
 
 MIN_PCT_SAMPLES = 60
 MIN_GROUP = 5
+# v4.5 生產估值是用「2019 起的 expanding 窗」過閘門的;TEJ 補匯 2004-2018 歷史後,
+# 若不錨定起點,分位分佈會整批改變 → 預設鎖 2019,研究用途才改。
+PE_HISTORY_START = "2019-01-01"
 
 
 def load_pe_union(con) -> pd.DataFrame:
@@ -77,12 +80,16 @@ def expanding_pe_pct(pe: np.ndarray) -> np.ndarray:
 def main():
     ap = argparse.ArgumentParser(description="全市場產業內估值位階參考表 (0 FinMind API)")
     ap.add_argument("--since", default=None, help="只輸出此日期(含)之後的列 (計算仍用全歷史)")
+    ap.add_argument("--pe-history-start", default=PE_HISTORY_START,
+                     help=f"expanding 窗起點 (預設 {PE_HISTORY_START},與 v4.5 閘門驗證一致;"
+                          "研究全歷史請設 2004-01-01)")
     ap.add_argument("--out", default=str(OUT))
     args = ap.parse_args()
 
     con = duckdb.connect()
     t0 = time.time()
     px = load_pe_union(con)
+    px = px[px["date"] >= args.pe_history_start].reset_index(drop=True)
     ind = pd.read_parquet(TEJ_CACHE / "industry_map.parquet")[["stock_id", "tej_ind_name"]]
     print(f"載入 {px['stock_id'].nunique()} 檔 × {len(px)} 列 ({time.time()-t0:.0f}s)")
 

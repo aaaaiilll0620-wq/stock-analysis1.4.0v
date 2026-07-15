@@ -45,7 +45,9 @@ MARKET_CACHE = Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cac
 SNAP_DIR = MARKET_CACHE / "price_valuation_daily"
 
 MIN_PCT_SAMPLES = 60
-DATA_START_CUTOFF = "2019-01-10"   # 種子起點就存在的股票不是新 IPO
+PE_HISTORY_START = "2019-01-01"    # PE expanding 窗起點,與 §15/v4.5 閘門驗證一致
+                                    # (TEJ 補匯 2004-2018 後不鎖起點會改變分位分佈)
+DATA_START_CUTOFF = "2019-01-10"   # 2019 起點就存在的股票不是新 IPO (補匯後改看實際首日)
 REVENUE_LAG_DAYS = 10              # 月營收約次月 10 日前公佈
 
 
@@ -97,6 +99,17 @@ def main():
     as_of = px["date"].max()
     print(f"資料截至 {as_of},{px['stock_id'].nunique()} 檔,{len(px)} 列 (TEJ 種子 ∪ 官方快照)")
 
+    # --- Level 0 regime 警示旗 (§16-E):全市場等權指數 < 其 MA200 → 空頭。
+    #     2005-2026 十二個 episode 實證:空頭月 shortlist 超額 -0.14 vs 多頭月 +0.25,
+    #     空頭時參考性降低 (配方「切換」的預註冊假設已被樣本外否決,只掛旗不切換)。
+    ret = px.sort_values(["stock_id", "date"]).groupby("stock_id")["close"].pct_change()
+    daily = (pd.DataFrame({"date": px["date"], "ret": ret})
+             .query("ret.notna() and abs(ret) < 0.5")
+             .groupby("date")["ret"].mean().sort_index())
+    ew_index = (1 + daily).cumprod()
+    bear_regime = bool(ew_index.iloc[-1] < ew_index.rolling(200).mean().iloc[-1])
+    print(f"市場 regime (等權指數 vs MA200): {'⚠️ 空頭——shortlist 歷史上此狀態超額為負,參考性降低' if bear_regime else '多頭'}")
+
     g = px.groupby("stock_id")
     latest = px[px["date"] == as_of].set_index("stock_id")
 
@@ -120,7 +133,8 @@ def main():
             return np.nan
         return float((hist < cur).mean() * 100.0)
 
-    pe_pct = g["PER_TSE"].apply(pe_hist_pct)          # 低 = 歷史上便宜
+    pe_grp = px[px["date"] >= PE_HISTORY_START].groupby("stock_id")
+    pe_pct = pe_grp["PER_TSE"].apply(pe_hist_pct)     # 低 = 歷史上便宜 (2019 起 expanding 窗)
     value = 100.0 - pe_pct                             # 高 = 便宜 (同驗證腳本)
     value_pct = value.rank(pct=True) * 100.0           # 全市場橫斷面
 
@@ -131,8 +145,10 @@ def main():
         "pe_hist_pct": pe_pct, "value_pct": value_pct,
         "revenue_yoy": rev["revenue_yoy_pct"], "rev_month": rev["rev_month"],
     })
+    pool["bear_regime"] = bear_regime
     n_all = len(pool)
-    pool = pool[latest["close"].notna()]                        # 今日有報價
+    quoted = latest["close"].notna().reindex(pool.index, fill_value=False)
+    pool = pool[quoted]                                         # 今日有報價 (下市股自然出局)
     l0 = pool if args.include_no_pe else pool[pool["value_pct"].notna()]
     l1 = l0[(l0["adv20"] >= args.adv_floor) & l0["listed_ok"]]
     trap = (l1["value_pct"] > 90) & ~(l1["revenue_yoy"] > 0)

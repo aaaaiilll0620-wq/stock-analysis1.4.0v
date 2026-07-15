@@ -379,6 +379,8 @@ def main():
     ap.add_argument("--dump-obs", default=None, metavar="PATH",
                      help="把三期原始觀測值 (含品質欄位,未過濾未百分位化) 輸出成 Parquet 後結束,"
                           "供離線快速迭代過濾實驗,不用每次重跑逐股迴圈")
+    ap.add_argument("--dump-start", default=None, help="搭配 --dump-obs:自訂單一區間起日 (取代三期)")
+    ap.add_argument("--dump-end", default=None, help="搭配 --dump-obs:自訂單一區間迄日")
     args = ap.parse_args()
     cache_dir = Path(args.cache_dir)
     weights = None
@@ -399,7 +401,9 @@ def main():
 
     if args.dump_obs:
         frames = []
-        for pname, start, end in PERIODS:
+        dump_periods = ([("custom", args.dump_start, args.dump_end)]
+                        if args.dump_start and args.dump_end else PERIODS)
+        for pname, start, end in dump_periods:
             dates = rebalance_dates(all_dates, start, end, "M")
             obs = build_observations(price, chip, dates, args.holding, args.momentum_window,
                                       args.chip_window, args.chip_mode,
