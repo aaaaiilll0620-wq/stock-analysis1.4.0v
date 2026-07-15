@@ -153,7 +153,38 @@ python build_cache.py --build-scores          # 重算三個模式的綜合分 (
 
 ---
 
-## 9. 回測(驗證這套有沒有效)
+## 9. 全市場掃描(0 API 海選 1,900+ 檔,watchlist 之外找新標的)
+
+「綜合分選股」排的是你 watchlist 裡的股票;**全市場掃描**則是從上市+上櫃約 1,900 檔
+普通股裡自動海選,**完全不用 FinMind API**(資料來自 TWSE/TPEx 官方開放端點+TEJ 歷史種子)。
+
+**每天自動發生的事**(排程 `Market_SnapshotCollector`,平日 17:30 收當天資料):
+
+```
+官方快照(價格/PE/三大法人) → 三層漏斗粗篩 → 五因子聯集 shortlist → 每日摘要
+   1,900+ 檔                    ~920 檔           ~480 檔          digest_{日期}.md
+```
+
+- **粗篩三層**:L0 因子可評估(虧損股 PE 空白出局)→ L1 可投資性(20日均成交額≥1,000萬+
+  上市滿年)→ L2 陷阱排除(極端便宜+營收衰退的「價值陷阱」股,21 年歷史驗證)。
+- **五因子聯集**:產業內估值位階/20日動能/法人買超/52週高接近度(突破)/營收加速度,
+  任一因子進池內前 15% 即入榜,附 composite 綜合排序。
+
+**怎麼看結果**(三選一):
+
+1. **網頁**:`streamlit run app.py` → 「🌐 全市場掃描」分頁——regime 警示、來源臂/
+   連續在榜/產業篩選器、今日新進前 50。雲端版也有(每晚 20:30 隨 scores 一起上雲)。
+2. **每日摘要**:開 `outputs\universe_pool\digest_{日期}.md`——新進前 50、連續在榜
+   亮點、每檔的「來源臂」(憑哪些因子進榜;**多臂交集股通常是最值得先看的**)。
+3. **完整名單**:`outputs\universe_pool\shortlist_{日期}.csv`。
+
+**重要心法**:shortlist 是**分流參考不是投組**——它負責把 1,900 檔縮到值得你花時間看的
+範圍,最終判斷仍是你的深度分析(把感興趣的加進 `watchlist.txt` 走完整四維評分)。
+空頭時段(頁面會掛 ⚠️ 警示)這份名單的歷史超額為負,參考性降低。
+
+---
+
+## 10. 回測(驗證這套有沒有效)
 
 `tests/run_backtest.py`,建議都加 `--cache` 走本機快取省 API:
 
@@ -169,7 +200,7 @@ python build_cache.py --build-scores          # 重算三個模式的綜合分 (
 
 ---
 
-## 10. 省 API:本機快取
+## 11. 省 API:本機快取
 
 資料會自動落地本機快取,查過的之後自動重用 (詳見 `docs/快取與選股_CACHE.md`)。要點:
 
@@ -179,7 +210,23 @@ python build_cache.py --build-scores          # 重算三個模式的綜合分 (
 
 ---
 
-## 11. 常見問題 / 注意事項
+## 12. 每日自動更新(免手動維護快取)
+
+不想每天手動跑 `build_cache.py` 的話,可以把它交給 Windows 工作排程,**平日 20:30(收盤後籌碼資料已出)自動跑**:
+
+1. 雙擊 `scripts\register_daily_task.bat`(或以系統管理員身分執行 `register_daily_task.ps1`),
+   一鍵註冊排程 `FinMind_DailyUpdate`。
+2. 之後每個平日 20:30 會自動執行 `scripts\daily_auto_update.bat`:
+   `build_cache.py`(增量建庫 + 刷新 scores)→ `deploy_scores.py`(快照 → commit → push)。
+3. 錯過時段(電腦關機/休眠)會自動補跑;單次執行超過 2 小時會強制結束,避免卡死排程。
+4. 執行紀錄在 `outputs\logs\`(保留 30 天),想確認有沒有正常跑可以直接看最新一份 log。
+5. **失敗保護**:任一步 build 失敗就停止、不會把壞快照推上雲端。
+
+想重新註冊或改時間,重新雙擊 `scripts\register_daily_task.bat` 即可覆蓋舊排程。
+
+---
+
+## 13. 常見問題 / 注意事項
 
 - **這是投資建議嗎?** 不是。它是篩選/研究輔助,決策與風險由你自負。
 - **貼了 token 還是抓不到?** 確認整串有複製到、帳號 Email 已完成驗證;短時間查太多檔可能撞每小時上限,等一小時額度重置。
@@ -191,7 +238,7 @@ python build_cache.py --build-scores          # 重算三個模式的綜合分 (
 
 ---
 
-## 12. 指令速查
+## 14. 指令速查
 
 ```
 # 個股 (命令列)
@@ -215,6 +262,15 @@ python build_cache.py --screen          # 跨股選股示範 (DuckDB)
 
 # 部署綜合分到雲端 (改完 watchlist 重算後上傳)
 python deploy_scores.py --rebuild-scores
+
+# 每日自動更新排程 (一次性設定)
+scripts\register_daily_task.bat        # 註冊/重註冊排程 (平日 20:30 自動跑)
+
+# 全市場掃描 (0 FinMind API;詳見第 9 節)
+scripts\register_market_snapshot_task.bat        # 一次性:註冊排程 (平日 17:30 收當天)
+scripts\market_snapshot_collect.bat              # 手動跑當天:收快照→粗篩→shortlist→摘要
+python scripts\universe_screen_backfill.py       # 回補歷史名單 (連續在榜統計用)
+python scripts\universe_digest.py                # 重生今日摘要 digest_{日期}.md
 ```
 
 ---
