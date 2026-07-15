@@ -9,8 +9,9 @@
 
 特性:
   - 端點不支援歷史日期,回傳的是「最新交易日」→ 假日/重複執行自動變 no-op (冪等)
-  - **發布時序 (實測)**:TPEx 當天 ~14-16 點翻日,TWSE openapi 隔天清晨才翻日
-    → 排程設在「隔天早上 08:30 收 T-1」(兩板此時一致);傍晚收永遠湊不齊
+  - **發布時序 (實測)**:TPEx openapi 當天 ~14-16 點翻日;TWSE openapi 快照版隔天
+    清晨才翻日 → TWSE 改走 rwd 介面 (指定日期、當天下午發布),目標日由 TPEx 決定,
+    傍晚 17:30 排程收「當天」資料
   - 四端點資料日必須一致才落地,避免混到跨日資料
   - 重試 + 列數 sanity check;失敗以非零 exit code 結束 (bat 記 log)
   - 漏收的日子無法回補 → 用 TEJ 手動匯出丟 tej_exports/inbox/ 重跑 tej_importer 補洞
@@ -38,13 +39,33 @@ MARKET_CACHE = Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cac
 OUT_DIR = MARKET_CACHE / "price_valuation_daily"
 CHIP_DIR = MARKET_CACHE / "institutional_flow_daily"
 
+# TPEx openapi 當天 ~14-16 點翻日;TWSE 改用 rwd 介面 (支援指定日期,當天下午即發布,
+# openapi 快照版要隔天清晨才翻日 → 棄用)。目標日由 TPEx 決定,TWSE 按日期精準抓。
 ENDPOINTS = {
-    "twse_price": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
-    "twse_pe":    "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL",
     "tpex_price": "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes",
     "tpex_pe":    "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_peratio_analysis",
 }
-MIN_ROWS = {"twse_price": 800, "twse_pe": 800, "tpex_price": 600, "tpex_pe": 600}
+MIN_ROWS = {"tpex_price": 600, "tpex_pe": 600}
+
+
+def fetch_twse_rwd(path: str, params: str, tries: int = 5) -> dict:
+    """TWSE rwd JSON API;stat!='OK' (該日未發布/假日) 以 ValueError 拋出讓上層重試。"""
+    url = f"https://www.twse.com.tw/rwd/zh/{path}?{params}&response=json"
+    for i in range(tries):
+        try:
+            r = requests.get(url, timeout=60, headers={"user-agent": "Mozilla/5.0"})
+            r.raise_for_status()
+            d = r.json()
+            if d.get("stat") != "OK":
+                raise ValueError(f"rwd {path} stat={d.get('stat')} (該日資料未發布?)")
+            return d
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.warning(f"rwd {path} 第 {i+1} 次失敗: {e}")
+            if i == tries - 1:
+                raise
+            time.sleep(3 * (i + 1))
 
 
 def fetch(name: str, url: str, tries: int = 5) -> pd.DataFrame:
@@ -79,31 +100,42 @@ def is_common_stock(code: pd.Series) -> pd.Series:
 
 
 def collect() -> pd.DataFrame:
-    # 各端點收盤後的發布時間不同,實測 TWSE openapi 到 17:40+ 才翻日 → 資料日不一致
-    # 代表正處於發布窗:等 10 分鐘重抓,最多 8 次 (17:30 排程可涵蓋到 ~18:50)。
+    # 目標日 = TPEx openapi 的資料日 (當天 ~14-16 點翻日);太早跑 (兩個 TPEx 端點
+    # 不同步) 就等 10 分鐘重抓。TWSE 用 rwd 按目標日精準抓,未發布同樣重試。
     for attempt in range(8):
-        raw = {name: fetch(name, url) for name, url in ENDPOINTS.items()}
-        dates = {name: roc_to_iso(df["Date"].iloc[0]) for name, df in raw.items()}
-        if len(set(dates.values())) == 1:
+        try:
+            raw = {name: fetch(name, url) for name, url in ENDPOINTS.items()}
+            dates = {name: roc_to_iso(df["Date"].iloc[0]) for name, df in raw.items()}
+            if len(set(dates.values())) != 1:
+                raise ValueError(f"TPEx 兩端點資料日不一致: {dates}")
+            trade_date = dates["tpex_price"]
+            ymd = trade_date.replace("-", "")
+            mi = fetch_twse_rwd("afterTrading/MI_INDEX", f"date={ymd}&type=ALLBUT0999")
+            bw = fetch_twse_rwd("afterTrading/BWIBBU_d", f"date={ymd}&selectType=ALL")
             break
-        logger.warning(f"四端點資料日不一致 (發布窗中?),10 分鐘後重抓 ({attempt+1}/8): {dates}")
-        if attempt == 7:
-            raise RuntimeError(f"四端點資料日持續不一致,不落地: {dates}")
-        time.sleep(600)
-    trade_date = dates["twse_price"]
+        except ValueError as e:
+            logger.warning(f"發布窗中,10 分鐘後重抓 ({attempt+1}/8): {e}")
+            if attempt == 7:
+                raise RuntimeError(f"重試耗盡,不落地: {e}")
+            time.sleep(600)
 
-    t = raw["twse_price"].rename(columns={"Code": "stock_id"})
+    stock_tbl = next(t for t in mi["tables"] if "證券代號" in (t.get("fields") or []))
+    t = pd.DataFrame(stock_tbl["data"], columns=stock_tbl["fields"])
+    t["stock_id"] = t["證券代號"].astype(str).str.strip()
     t = t[is_common_stock(t["stock_id"])]
+    if len(t) < 800:
+        raise RuntimeError(f"TWSE MI_INDEX 個股僅 {len(t)} 檔,低於 sanity 下限")
     twse = pd.DataFrame({
         "stock_id": t["stock_id"],
-        "open": num(t["OpeningPrice"]), "max": num(t["HighestPrice"]),
-        "min": num(t["LowestPrice"]), "close": num(t["ClosingPrice"]),
-        "Trading_Volume": num(t["TradeVolume"]),
+        "open": num(t["開盤價"]), "max": num(t["最高價"]),
+        "min": num(t["最低價"]), "close": num(t["收盤價"]),
+        "Trading_Volume": num(t["成交股數"]),
     })
-    pe = raw["twse_pe"].rename(columns={"Code": "stock_id"})
+    pe = pd.DataFrame(bw["data"], columns=bw["fields"])
+    pe["stock_id"] = pe["證券代號"].astype(str).str.strip()
     twse = twse.merge(pd.DataFrame({
-        "stock_id": pe["stock_id"], "PER_TSE": num(pe["PEratio"]),
-        "PBR_TSE": num(pe["PBratio"]), "dividend_yield_TSE": num(pe["DividendYield"]),
+        "stock_id": pe["stock_id"], "PER_TSE": num(pe["本益比"]),
+        "PBR_TSE": num(pe["股價淨值比"]), "dividend_yield_TSE": num(pe["殖利率(%)"]),
     }), on="stock_id", how="left")
 
     o = raw["tpex_price"].rename(columns={"SecuritiesCompanyCode": "stock_id"})

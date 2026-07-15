@@ -3,14 +3,13 @@
 #  Run once (double-click register_market_snapshot_task.bat, or:
 #      powershell -ExecutionPolicy Bypass -File scripts\register_market_snapshot_task.ps1)
 #
-#  Schedule : Tue-Sat 08:30, collecting the PREVIOUS trading day (T-1).
-#             Why morning: TWSE openapi flips to the new day OVERNIGHT
-#             (still served 7/14 at midnight 7/16 in live testing), while TPEx
-#             flips same-day ~14:00-16:00. Next morning BOTH boards serve T-1
-#             consistently. Evening collection can never be consistent.
-#  Catch-up : StartWhenAvailable = if the PC was off at 08:30, runs when back on
-#             (both boards keep serving T-1 until ~14:00, so late-morning
-#             catch-up still recovers the day).
+#  Schedule : weekdays (Mon-Fri) 17:30, collecting SAME-DAY data.
+#             TWSE side uses the rwd API (date-addressable, published same
+#             afternoon; the openapi snapshot lags until next morning and was
+#             abandoned). Target date is driven by TPEx openapi (flips ~14-16h).
+#  Catch-up : StartWhenAvailable = if the PC was off at 17:30, runs when back
+#             on; a next-morning catch-up still recovers yesterday (TPEx keeps
+#             serving T-1 until ~14:00 and TWSE rwd is date-addressed).
 #  Remove   : powershell -Command "Unregister-ScheduledTask -TaskName 'Market_SnapshotCollector' -Confirm:$false"
 # =====================================================================
 $ErrorActionPreference = 'Stop'
@@ -20,7 +19,7 @@ $bat = Join-Path $PSScriptRoot 'market_snapshot_collect.bat'
 if (-not (Test-Path $bat)) { throw "not found: $bat" }
 
 $action   = New-ScheduledTaskAction -Execute $bat
-$trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Tuesday,Wednesday,Thursday,Friday,Saturday -At 08:30
+$trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 17:30
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable `
               -ExecutionTimeLimit (New-TimeSpan -Hours 1) `
               -MultipleInstances IgnoreNew
