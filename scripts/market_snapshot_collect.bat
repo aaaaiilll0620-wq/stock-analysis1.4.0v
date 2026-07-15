@@ -41,5 +41,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
+"%PY%" scripts\universe_digest.py >> "%LOG%" 2>&1
+if errorlevel 1 (
+    echo [WARN] digest failed - shortlist still available >> "%LOG%"
+)
+
 echo ==== market_snapshot_collect done %date% %time% ==== >> "%LOG%"
 endlocal

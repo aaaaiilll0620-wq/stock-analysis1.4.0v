@@ -243,8 +243,8 @@ st.sidebar.divider()
 st.sidebar.caption("⚠️ 研究/篩選輔助,非投資建議。評級是『狀態分類』,不是立刻買進;"
                    "進場價位請看每檔的『買點提示』。")
 
-tab_one, tab_rank, tab_screen, tab_help = st.tabs(
-    ["🔎 個股分析", "🏆 多檔排行", "🎯 綜合分選股", "📖 使用說明"])
+tab_one, tab_rank, tab_screen, tab_univ, tab_help = st.tabs(
+    ["🔎 個股分析", "🏆 多檔排行", "🎯 綜合分選股", "🌐 全市場掃描", "📖 使用說明"])
 
 # ------------------------------------------------------------------ 個股分析
 with tab_one:
@@ -391,6 +391,105 @@ with tab_screen:
                 mime="text/csv")
             st.caption("綜合分 = 五維加權;百分位 = 該檔綜合分在此名單內的橫斷面排名 (越高越前)。"
                        "此頁純讀快取,不受側欄『刷新最新資料』影響。")
+
+# ------------------------------------------------------------------ 全市場掃描
+_UNIV_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs", "universe_pool")
+_ARMS = {"value_ind_pct_pool_pct": "便宜", "momentum20_pool_pct": "動能",
+         "chip20_turnover_pool_pct": "籌碼", "high52_prox_pool_pct": "突破",
+         "rev_accel_pool_pct": "營收加速"}
+
+
+@st.cache_data(show_spinner=False)
+def _univ_load(path: str) -> pd.DataFrame:
+    return pd.read_csv(path, dtype={"stock_id": str}).set_index("stock_id")
+
+
+@st.cache_data(show_spinner=False)
+def _univ_streaks(files: tuple) -> dict:
+    sets = [set(_univ_load(f).index) for f in files]
+    latest = sets[-1] if sets else set()
+    out = {}
+    for sid in latest:
+        n = 0
+        for s in reversed(sets):
+            if sid in s:
+                n += 1
+            else:
+                break
+        out[sid] = n
+    return out
+
+
+with tab_univ:
+    import glob as _glob
+    _files = sorted(_glob.glob(os.path.join(_UNIV_DIR, "shortlist_*.csv")))
+    if not _files:
+        st.info("找不到 shortlist 檔案。此分頁讀本機每日粗篩產出 (`outputs/universe_pool/`),"
+                "由排程 Market_SnapshotCollector 每早自動生成;歷史可用 "
+                "`python scripts/universe_screen_backfill.py` 回補。")
+    else:
+        _dates = [os.path.basename(f)[10:-4] for f in _files]
+        _pick = st.selectbox("資料日", _dates[::-1], index=0)
+        _f = _files[_dates.index(_pick)]
+        _df = _univ_load(_f).sort_values("composite", ascending=False)
+        _streaks = _univ_streaks(tuple(_files[: _dates.index(_pick) + 1][-40:]))
+
+        _pool_f = os.path.join(_UNIV_DIR, f"pool_{_pick}.csv")
+        if os.path.exists(_pool_f):
+            _p1 = pd.read_csv(_pool_f, nrows=1)
+            if "bear_regime" in _p1.columns and bool(_p1["bear_regime"].iloc[0]):
+                st.warning("⚠️ 市場 regime:空頭 —— 歷史上此狀態 shortlist 超額為負,參考性降低"
+                           " (詳見 DevLog §16-D)。")
+
+        _df["來源臂"] = ["+".join(lbl for c, lbl in _ARMS.items()
+                                   if c in _df.columns and pd.notna(_df.loc[i, c]) and _df.loc[i, c] > 85)
+                         for i in _df.index]
+        _df["連續在榜"] = [_streaks.get(i, 1) for i in _df.index]
+        _prev_idx = _dates.index(_pick) - 1
+        _new50 = set(_df.head(50).index)
+        if _prev_idx >= 0:
+            _new50 -= set(_univ_load(_files[_prev_idx]).sort_values(
+                "composite", ascending=False).head(50).index)
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("shortlist 檔數", len(_df))
+        c2.metric("新進前 50", len(_new50))
+        c3.metric("連續在榜 ≥5 天", int((_df["連續在榜"] >= 5).sum()))
+        c4.metric("歷史資料天數", len(_files))
+
+        _arm_sel = st.multiselect("來源臂 (留空=全部)", list(_ARMS.values()), default=[])
+        _c1, _c2 = st.columns(2)
+        _streak_min = _c1.slider("連續在榜 ≥ N 天", 1, 20, 1)
+        _ind_sel = _c2.multiselect("產業 (留空=全部)",
+                                    sorted(_df["industry"].dropna().unique()) if "industry" in _df.columns else [])
+
+        _v = _df
+        if _arm_sel:
+            _v = _v[_v["來源臂"].apply(lambda a: any(x in a for x in _arm_sel))]
+        _v = _v[_v["連續在榜"] >= _streak_min]
+        if _ind_sel and "industry" in _v.columns:
+            _v = _v[_v["industry"].isin(_ind_sel)]
+
+        _cols = [c for c in ("name", "industry", "close", "composite", "來源臂", "連續在榜",
+                              "value_ind_pct", "momentum20", "chip20_turnover",
+                              "high52_prox", "rev_accel", "adv20") if c in _v.columns]
+        _disp = _v[_cols].rename(columns={
+            "name": "名稱", "industry": "產業", "close": "收盤", "composite": "綜合",
+            "value_ind_pct": "產業內便宜", "momentum20": "20日動能%",
+            "chip20_turnover": "法人流向", "high52_prox": "距52週高%",
+            "rev_accel": "營收加速", "adv20": "20日均額"})
+        st.dataframe(_disp.round(2), use_container_width=True, height=520)
+        _new_rows = _df.loc[sorted(_new50)]
+        if len(_new_rows):
+            st.markdown("#### 🆕 今日新進 composite 前 50")
+            st.dataframe(_new_rows[_cols].rename(columns={"name": "名稱", "industry": "產業"}).round(2),
+                         use_container_width=True)
+        _digest_f = os.path.join(_UNIV_DIR, f"digest_{_pick}.md")
+        if os.path.exists(_digest_f):
+            with st.expander("📄 當日文字摘要 (digest)"):
+                st.markdown(open(_digest_f, encoding="utf-8").read())
+        st.caption("資料=TWSE/TPEx 官方快照+TEJ 種子 (0 FinMind);L0-L2 粗篩後五因子聯集,"
+                   "composite=五因子池內百分位平均。**分流參考,非投組**;個股請至『個股分析』深評。")
 
 # ------------------------------------------------------------------ 使用說明
 with tab_help:

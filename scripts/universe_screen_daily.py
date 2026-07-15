@@ -140,7 +140,16 @@ def main():
 
     rev = latest_revenue_yoy(con, as_of).set_index("stock_id")
 
+    names = con.execute(f"""
+        SELECT stock_id, arg_max(stock_name, date) AS stock_name
+        FROM read_parquet('{TEJ_CACHE}/price_valuation/*.parquet', union_by_name=true)
+        GROUP BY stock_id
+    """).df().set_index("stock_id")["stock_name"]
+    industry = pd.read_parquet(TEJ_CACHE / "industry_map.parquet",
+                                columns=["stock_id", "tej_ind_name"]).set_index("stock_id")["tej_ind_name"]
+
     pool = pd.DataFrame({
+        "name": names, "industry": industry,
         "close": latest["close"], "adv20": adv20, "listed_ok": listed_ok,
         "pe_hist_pct": pe_pct, "value_pct": value_pct,
         "revenue_yoy": rev["revenue_yoy_pct"], "rev_month": rev["rev_month"],
