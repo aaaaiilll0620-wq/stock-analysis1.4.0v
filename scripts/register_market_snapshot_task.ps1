@@ -18,7 +18,10 @@ $taskName = 'Market_SnapshotCollector'
 $bat = Join-Path $PSScriptRoot 'market_snapshot_collect.bat'
 if (-not (Test-Path $bat)) { throw "not found: $bat" }
 
-$action   = New-ScheduledTaskAction -Execute $bat
+# 以 wscript + run_hidden.vbs 隱藏視窗執行 (2026-07-16:避免空白主控台被誤關殺掉收集器)
+$vbs = Join-Path $PSScriptRoot 'run_hidden.vbs'
+if (-not (Test-Path $vbs)) { throw "not found: $vbs" }
+$action   = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "//B //Nologo `"$vbs`" `"$bat`""
 $trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 17:30
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable `
               -ExecutionTimeLimit (New-TimeSpan -Hours 1) `

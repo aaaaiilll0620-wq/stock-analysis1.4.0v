@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 # TEJ 本機歷史庫 (tej_importer.py 匯入的 Parquet;與 finmind_cache 分開存放)
 TEJ_CACHE_DIR = os.environ.get("TEJ_CACHE", os.path.join(os.path.expanduser("~"), "tej_cache"))
+# TWSE/TPEx 官方快照庫 (scripts/market_snapshot_collector.py 每日收集)
+MARKET_CACHE_DIR = os.environ.get("MARKET_CACHE", os.path.join(os.path.expanduser("~"), "market_cache"))
 
 class DataProvider:
     # 使用 SDK 初始化一次,避免重複建立連接
@@ -219,20 +221,99 @@ class DataProvider:
             logger.warning(f"[{symbol}] TEJ {dataset} 讀取失敗,退回 FinMind: {e}")
             return None
 
+    _market_monthly_rev: Optional[pd.DataFrame] = None   # 收集器月營收增量 (一次載入快取)
+    _market_daily_price: Optional[pd.DataFrame] = None   # 收集器每日價格快照 (一次載入快取)
+
+    @classmethod
+    def _ensure_market_daily_price(cls) -> pd.DataFrame:
+        """一次性載入 market_cache/price_valuation_daily/*.parquet (收集器每日快照,
+        欄位與 tej_cache/price_valuation 同一套:date/open/max/min/close/Trading_Volume/
+        PER_TSE/PBR_TSE/dividend_yield_TSE),供逐檔查詢。"""
+        if cls._market_daily_price is not None:
+            return cls._market_daily_price
+        import glob as _glob
+        files = sorted(_glob.glob(os.path.join(MARKET_CACHE_DIR, "price_valuation_daily", "*.parquet")))
+        frames = []
+        for f in files:
+            try:
+                frames.append(pd.read_parquet(f))
+            except Exception as e:
+                logger.warning(f"價格快照檔讀取失敗 (略過): {f} {e}")
+        cls._market_daily_price = (pd.concat(frames, ignore_index=True)
+                                   if frames else pd.DataFrame())
+        return cls._market_daily_price
+
+    @classmethod
+    def _read_local_price_valuation(cls, symbol: str) -> Optional[pd.DataFrame]:
+        """
+        本機日K+估值全歷史 = TEJ 種子 (2019~) ∪ 收集器每日快照增量,
+        重疊交易日以 TEJ 為準。新鮮度閘門:最新交易日落後今天超過 7 個日曆天
+        (收集器可能壞掉/沒開機) → 回 None 改走 FinMind。
+        回傳含 PER_TSE/PBR_TSE/dividend_yield_TSE 的完整 DataFrame,
+        由呼叫端自行切日期窗 (日K 365 天、估值分位 3 年)。
+        """
+        tej = cls._read_tej("price_valuation", symbol)
+        inc = cls._ensure_market_daily_price()
+        inc_sym = None
+        if not inc.empty:
+            inc_sym = inc[inc["stock_id"].astype(str) == str(symbol)]
+            if inc_sym.empty:
+                inc_sym = None
+        if tej is None and inc_sym is None:
+            return None
+        d = pd.concat([x for x in (tej, inc_sym) if x is not None], ignore_index=True)
+        d = (d.dropna(subset=["date", "close"])
+              .drop_duplicates(subset=["date"], keep="first")   # concat 順序 TEJ 在前 → 以 TEJ 為準
+              .sort_values("date").reset_index(drop=True))
+        if d.empty:
+            return None
+        last = pd.to_datetime(d["date"].iloc[-1], errors="coerce")
+        if pd.isna(last) or (datetime.now() - last).days > 7:
+            logger.info(f"[{symbol}] 本機日K最新僅至 {d['date'].iloc[-1]},過期改走 FinMind。")
+            return None
+        return d
+
+    @classmethod
+    def _ensure_market_monthly_rev(cls) -> pd.DataFrame:
+        """一次性載入 market_cache/monthly_revenue/*.parquet (收集器每日累積的官方
+        月營收增量,欄位與 tej_cache/monthly_revenue 同一套),供逐檔查詢。"""
+        if cls._market_monthly_rev is not None:
+            return cls._market_monthly_rev
+        import glob as _glob
+        files = sorted(_glob.glob(os.path.join(MARKET_CACHE_DIR, "monthly_revenue", "*.parquet")))
+        frames = []
+        for f in files:
+            try:
+                frames.append(pd.read_parquet(f))
+            except Exception as e:
+                logger.warning(f"月營收增量檔讀取失敗 (略過): {f} {e}")
+        cls._market_monthly_rev = (pd.concat(frames, ignore_index=True)
+                                   if frames else pd.DataFrame())
+        return cls._market_monthly_rev
+
     @classmethod
     def _read_tej_monthly_revenue(cls, symbol: str) -> Optional[pd.DataFrame]:
         """
-        本機 TEJ 月營收 → 補上 FinMind 慣例的 revenue_year / revenue_month 衍生欄,
+        本機月營收 = TEJ 種子 ∪ 收集器官方增量 (同月重複以 TEJ 為準),
+        補上 FinMind 慣例的 revenue_year / revenue_month 衍生欄,
         讓 _calc_rev_yoy / _calc_rev_momentum / _ttm_revenue 原封不動直接吃。
         新鮮度閘門:月營收次月 10 日前公告 → 最新月份若落後今天超過 70 天,
         代表本機庫漏了至少一個「已公告」的月份 → 回 None 改走 FinMind。
         """
         df = cls._read_tej("monthly_revenue", symbol)
+        inc = cls._ensure_market_monthly_rev()
+        if not inc.empty:
+            inc_sym = inc[inc["stock_id"].astype(str) == str(symbol)]
+            if not inc_sym.empty:
+                df = (pd.concat([df, inc_sym], ignore_index=True)
+                      if df is not None else inc_sym.copy())
         if df is None or "date" not in df.columns or "revenue" not in df.columns:
             return None
         d = df.copy()
         d["date"] = pd.to_datetime(d["date"], errors="coerce")
-        d = d.dropna(subset=["date"]).sort_values("date")
+        d = (d.dropna(subset=["date"])
+              .drop_duplicates(subset=["date"], keep="first")    # 先去重 (concat 順序 TEJ 在前 → 以 TEJ 為準)
+              .sort_values("date"))                              # 再排序 (sort 非穩定,不可先排)
         if d.empty:
             return None
         if (datetime.now() - d["date"].iloc[-1]).days > 70:
@@ -913,6 +994,21 @@ class DataProvider:
         except Exception as e:
             logger.warning(f"TaiwanStockInfo 抓取失敗,產業別以空表計: {e}")
 
+        # 2b) FinMind 抓不到時退本機 TEJ 對照表 (tse_ind_name 與 FinMind industry_category
+        #     同為交易所產業名,金融/半導體等關鍵字子字串比對相容;僅作韌性備援不當主來源)
+        if not m:
+            try:
+                p = os.path.join(TEJ_CACHE_DIR, "industry_map.parquet")
+                if os.path.exists(p):
+                    imap = pd.read_parquet(p)
+                    if {"stock_id", "tse_ind_name"}.issubset(imap.columns):
+                        m = {str(r["stock_id"]).strip(): str(r["tse_ind_name"]).strip()
+                             for _, r in imap.iterrows()
+                             if str(r.get("tse_ind_name", "")).strip() not in ("", "nan")}
+                        logger.info(f"產業別改用本機 TEJ 對照表 {len(m)} 檔 (FinMind 備援)。")
+            except Exception as e2:
+                logger.warning(f"TEJ 產業對照表備援亦失敗: {e2}")
+
         # 3) 存檔 (即使空表也快取,避免每檔重試;空表 age 到期會再抓)
         try:
             os.makedirs(cache_dir, exist_ok=True)
@@ -959,8 +1055,14 @@ class DataProvider:
         cls._ensure_login()
         try:
             # 1. 抓取基本股價歷史 (365天)
+            #   本機優先:TEJ 種子 ∪ 收集器每日快照 (0 API);過期/無檔退回 FinMind
             start_date = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
-            price_df = cls._api.get_data(dataset='TaiwanStockPrice', data_id=symbol, start_date=start_date)
+            local_pv = cls._read_local_price_valuation(symbol)
+            if local_pv is not None:
+                price_df = local_pv[local_pv["date"] >= start_date].copy()
+                logger.info(f"[{symbol}] 日K走本機 (至 {price_df['date'].iloc[-1]},0 API)。")
+            else:
+                price_df = cls._api.get_data(dataset='TaiwanStockPrice', data_id=symbol, start_date=start_date)
 
             if price_df is None or price_df.empty:
                 logger.error(f"無法取得股票 {symbol} 的價格數據")
@@ -1274,20 +1376,31 @@ class DataProvider:
             valuation_basis = "絕對"
             try:
                 per_start = (datetime.now() - timedelta(days=365 * 3)).strftime("%Y-%m-%d")
-                per_df = cls._api.get_data(dataset='TaiwanStockPER', data_id=symbol, start_date=per_start)
+                # 本機優先:日K已載入的本機資料自帶 PER_TSE/PBR_TSE/殖利率 (與官方實測 100% 一致)
+                if local_pv is not None:
+                    per_df = (local_pv[local_pv["date"] >= per_start]
+                              .rename(columns={"PER_TSE": "PER", "PBR_TSE": "PBR",
+                                               "dividend_yield_TSE": "dividend_yield"})
+                              [["date", "PER", "PBR", "dividend_yield"]]
+                              .dropna(how="all", subset=["PER", "PBR", "dividend_yield"]))
+                    logger.info(f"[{symbol}] PER/PBR/殖利率走本機 (0 API)。")
+                else:
+                    per_df = cls._api.get_data(dataset='TaiwanStockPER', data_id=symbol, start_date=per_start)
                 if per_df is not None and not per_df.empty:
                     pe_col = 'PER' if 'PER' in per_df.columns else ('PE' if 'PE' in per_df.columns else None)
                     pb_col = 'PBR' if 'PBR' in per_df.columns else ('PB' if 'PB' in per_df.columns else None)
                     dy_col = 'dividend_yield' if 'dividend_yield' in per_df.columns else \
                              ('DividendYield' if 'DividendYield' in per_df.columns else None)
                     last = per_df.iloc[-1]
-                    if pe_col:
+                    # pd.notna 防護:本機資料虧損股 PER 為 NaN (FinMind 是整列不存在),
+                    #   缺值時維持中性預設 (15/2/3) 且不算分位,行為與資料缺失一致。
+                    if pe_col and pd.notna(last[pe_col]):
                         pe_val = float(last[pe_col])
                         pe_percentile = cls._percentile_rank(per_df[pe_col], pe_val, positive_only=True)
-                    if pb_col:
+                    if pb_col and pd.notna(last[pb_col]):
                         pb_val = float(last[pb_col])
                         pb_percentile = cls._percentile_rank(per_df[pb_col], pb_val, positive_only=True)
-                    if dy_col:
+                    if dy_col and pd.notna(last[dy_col]):
                         dy_val = float(last[dy_col])
                         dy_percentile = cls._percentile_rank(per_df[dy_col], dy_val, positive_only=False)
                     if pe_percentile is not None or pb_percentile is not None:

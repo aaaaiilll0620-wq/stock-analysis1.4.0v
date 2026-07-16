@@ -164,7 +164,13 @@
       "Bash(PYTHONIOENCODING=utf-8 python -m pytest tests/test_technical_volume_profile.py -q)",
       "Bash(PYTHONIOENCODING=utf-8 python main.py 2330 --no-open)",
       "Bash(PYTHONIOENCODING=utf-8 python tej_importer.py --dataset monthly_revenue)",
-      "Bash(PYTHONIOENCODING=utf-8 python tej_importer.py --dataset financial_statements)"
+      "Bash(PYTHONIOENCODING=utf-8 python tej_importer.py --dataset financial_statements)",
+      "Bash(cd \"C:/Users/aaaai/OneDrive/Desktop/Project 1\" && cat scripts/market_snapshot_collect.bat && ls -la ~/market_cache/price_valuation_daily/ | tail -4 && ls -la ~/market_cache/institutional_flow_daily/ | tail -3)",
+      "Bash(cmd //c scripts\\\\\\\\market_snapshot_collect.bat)",
+      "PowerShell(Start-ScheduledTask -TaskName 'Market_SnapshotCollector'; Start-Sleep -Seconds 5; \\(Get-ScheduledTask -TaskName 'Market_SnapshotCollector'\\).State)",
+      "Bash(PYTHONIOENCODING=utf-8 python \"C:/Users/aaaai/AppData/Local/Temp/claude/C--Users-aaaai-OneDrive-Desktop-Project-1/02316429-aed6-4943-946a-5fc9ec6b9dc3/scratchpad/audit_twse.py\")",
+      "PowerShell(powershell -ExecutionPolicy Bypass -File \"scripts\\\\register_market_snapshot_task.ps1\"; powershell -ExecutionPolicy Bypass -File \"scripts\\\\register_daily_task.ps1\"; Get-ScheduledTask -TaskName 'Market_SnapshotCollector','FinMind_DailyUpdate' | ForEach-Object { \"{0}: {1} -> {2} {3}\" -f $_.TaskName, $_.State, $_.Actions[0].Execute, $_.Actions[0].Arguments })",
+      "Bash(PYTHONIOENCODING=utf-8 python main.py 8046 --no-open)"
     ]
   }
 }

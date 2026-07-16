@@ -14,7 +14,10 @@ $taskName = 'FinMind_DailyUpdate'
 $bat = Join-Path $PSScriptRoot 'daily_auto_update.bat'
 if (-not (Test-Path $bat)) { throw "not found: $bat" }
 
-$action   = New-ScheduledTaskAction -Execute $bat
+# 以 wscript + run_hidden.vbs 隱藏視窗執行 (2026-07-16:不再跳出主控台視窗)
+$vbs = Join-Path $PSScriptRoot 'run_hidden.vbs'
+if (-not (Test-Path $vbs)) { throw "not found: $vbs" }
+$action   = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "//B //Nologo `"$vbs`" `"$bat`""
 $trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 20:30
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable `
               -ExecutionTimeLimit (New-TimeSpan -Hours 2) `

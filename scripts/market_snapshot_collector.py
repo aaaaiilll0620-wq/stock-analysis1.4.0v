@@ -38,6 +38,12 @@ logger = logging.getLogger(__name__)
 MARKET_CACHE = Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cache")))
 OUT_DIR = MARKET_CACHE / "price_valuation_daily"
 CHIP_DIR = MARKET_CACHE / "institutional_flow_daily"
+REV_DIR = MARKET_CACHE / "monthly_revenue"
+
+REV_ENDPOINTS = {
+    "twse_rev": "https://openapi.twse.com.tw/v1/opendata/t187ap05_L",
+    "tpex_rev": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap05_O",
+}
 
 # TPEx openapi 當天 ~14-16 點翻日;TWSE 改用 rwd 介面 (支援指定日期,當天下午即發布,
 # openapi 快照版要隔天清晨才翻日 → 棄用)。目標日由 TPEx 決定,TWSE 按日期精準抓。
@@ -210,6 +216,64 @@ def collect_chip(trade_date: str, force: bool = False) -> None:
     logger.info(f"法人快照已落地 {trade_date}: {len(df)} 檔 → {out}")
 
 
+def collect_monthly_revenue() -> None:
+    """全市場月營收快照 (TWSE t187ap05_L + TPEx mopsfin_t187ap05_O),正規化成
+    tej_cache/monthly_revenue 同一套欄位 (千元→元),逐「營收月份」一檔累積:
+      ~/market_cache/monthly_revenue/{YYYY-MM}.parquet
+
+    PIT 設計:端點回傳「當前申報月」的批次快照 (月初只有已公告的公司,~10 日到齊)。
+    每日收集時,既有檔案內已出現的公司**原樣保留** (release_date=首次見到的日期,
+    ≈實際公告日),只追加新公告的公司 → 冪等、release_date 不會被後續覆蓋。
+    公告後更正的營收不回寫 (保持 PIT 快照);校正靠之後的 TEJ 手動匯出 (匯入端
+    以 TEJ 為準去重)。月營收缺一天可容忍 (次日補齊),失敗只記 log。"""
+    today = pd.Timestamp.now().strftime("%Y-%m-%d")
+    frames = []
+    for name, url in REV_ENDPOINTS.items():
+        r = requests.get(url, timeout=60,
+                         headers={"accept": "application/json", "user-agent": "Mozilla/5.0"})
+        r.raise_for_status()
+        frames.append(pd.DataFrame(r.json()))
+    d = pd.concat(frames, ignore_index=True)
+    if "公司代號" not in d.columns or d.empty:
+        raise ValueError("月營收端點回傳格式異常 (無 公司代號 欄)")
+    d["stock_id"] = d["公司代號"].astype(str).str.strip()
+    d = d[is_common_stock(d["stock_id"])]
+
+    ym = d["資料年月"].astype(str).str.strip()          # ROC 年月,如 11506
+    d["date"] = (ym.str[:-2].astype(int) + 1911).astype(str) + "-" + ym.str[-2:] + "-01"
+
+    snap = pd.DataFrame({
+        "stock_id": d["stock_id"],
+        "date": d["date"],
+        "release_date": today,                          # 首次見到 ≈ 公告日 (見 docstring)
+        "revenue_yoy_pct": num(d["營業收入-去年同月增減(%)"]),
+        "stock_name": d["公司名稱"].astype(str).str.strip(),
+        "revenue": num(d["營業收入-當月營收"]) * 1000,   # 千元 → 元,對齊 TEJ 匯入慣例
+        "revenue_last_year": num(d["營業收入-去年當月營收"]) * 1000,
+        "cum_revenue": num(d["累計營業收入-當月累計營收"]) * 1000,
+        "cum_revenue_last_year": num(d["累計營業收入-去年累計營收"]) * 1000,
+    }).dropna(subset=["revenue"]).drop_duplicates(subset=["stock_id", "date"], keep="first")
+
+    REV_DIR.mkdir(parents=True, exist_ok=True)
+    for month, g in snap.groupby("date"):
+        out = REV_DIR / f"{month[:7]}.parquet"
+        if out.exists():
+            prev = pd.read_parquet(out)
+            new_rows = g[~g["stock_id"].isin(set(prev["stock_id"]))]
+            if new_rows.empty:
+                logger.info(f"月營收 {month[:7]}: 無新公告公司 → no-op ({len(prev)} 檔)")
+                continue
+            merged = pd.concat([prev, new_rows], ignore_index=True)
+            added = len(new_rows)
+        else:
+            merged = g
+            added = len(g)
+        tmp = out.with_suffix(".parquet.tmp")
+        merged.sort_values("stock_id").reset_index(drop=True).to_parquet(tmp, index=False)
+        os.replace(tmp, out)
+        logger.info(f"月營收 {month[:7]}: +{added} 檔 → 共 {len(merged)} 檔 → {out}")
+
+
 def main():
     ap = argparse.ArgumentParser(description="TWSE/TPEx 全市場每日快照收集器 (0 FinMind API)")
     ap.add_argument("--out-dir", default=str(OUT_DIR))
@@ -234,6 +298,11 @@ def main():
         collect_chip(trade_date, force=args.force)
     except Exception as e:
         logger.warning(f"法人快照失敗 (價格快照不受影響,20日窗可容忍缺一天): {e}")
+
+    try:
+        collect_monthly_revenue()
+    except Exception as e:
+        logger.warning(f"月營收快照失敗 (價格快照不受影響,次日自動補齊): {e}")
 
 
 if __name__ == "__main__":
