@@ -164,6 +164,51 @@ class TestRegressionLegitCases:
 
 
 # --------------------------------------------------------------------------- #
+# 回歸:壓力不得等於現價自身 bin(2330 型「壓力約 XXXX(+0%)」假壓力)
+# 情境:主成本區 110(POC)、現價 118 坐在次級換手平台(HVN bin)內、上方 130 另有換手節點。
+# 舊版分支②③ above 用 c >= cur → 壓力 = 自身 bin 中心 ≈ 現價(+0%),
+# 連鎖誤觸 advisor 的 near_resistance →『現價位於成本帶上緣(接近壓力區)』。
+# --------------------------------------------------------------------------- #
+class TestResistanceNotOwnBin:
+    def _vp_and_cur(self):
+        rng = np.random.default_rng(2330)
+        closes, vols = [], []
+        for _ in range(45):                                  # 主成本區 POC ~110
+            closes.append(110 + rng.normal(0, 1.5)); vols.append(int(rng.integers(8000, 11000)))
+        for _ in range(25):                                  # 現價所在的次級換手平台 ~118
+            closes.append(118 + rng.normal(0, 1.2)); vols.append(int(rng.integers(5000, 7000)))
+        for _ in range(19):                                  # 上方換手節點 ~130
+            closes.append(130 + rng.normal(0, 1.5)); vols.append(int(rng.integers(4000, 6000)))
+        closes.append(118.0); vols.append(6000)              # 收在平台內(+7% vs POC,成本區內)
+        vp = TechnicalEngine.calculate_volume_profile(_df(closes, vols))
+        return vp, float(closes[-1])
+
+    def test_resistance_strictly_above_current_price(self):
+        vp, cur = self._vp_and_cur()
+        assert vp["resistance"] is not None
+        assert vp["resistance"] > cur * 1.005                # 壓力須明確高於現價,不得同價位帶
+
+    def test_advisor_note_never_shows_zero_pct_resistance(self):
+        vp, cur = self._vp_and_cur()
+        note = InvestmentAdvisor(min_score=60.0)._buy_zone_note(_stock_from_vp(vp, cur))
+        assert "壓力約" in note
+        assert "(+0%)" not in note                           # 原始 bug:壓力=現價 → (+0%)
+
+    def test_new_keys_present(self):
+        vp, _ = self._vp_and_cur()
+        assert vp["confidence"] is not None and 0 <= vp["confidence"] <= 100
+        assert vp["hvn_levels"], "HVN 節點列表不得為空"
+        # hvn_levels 依量能排序:第一個必為 POC 所在價位帶
+        assert abs(vp["hvn_levels"][0] - vp["poc"]) < 2.0
+        assert isinstance(vp["lvn_levels"], list)
+
+    def test_empty_result_contains_new_keys(self):
+        vp = TechnicalEngine.calculate_volume_profile(_df([100, 101], [1000, 1200]))
+        assert vp["confidence"] is None
+        assert vp["hvn_levels"] == [] and vp["lvn_levels"] == []
+
+
+# --------------------------------------------------------------------------- #
 # 真實資料回歸:4958(2026-03 ~ 2026-07,現價 588、主成本 ~211)
 # 這是一檔『由低基期連續強漲、量能沿路墊高』的股票(非中空雙峰)。
 # 曾出現的問題:(1) 誤報防守區;(2) 支撐被推到過低的 522(-11%)。

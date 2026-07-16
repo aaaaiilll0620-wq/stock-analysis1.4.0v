@@ -259,11 +259,20 @@ class InvestmentAdvisor:
                 if pos <= 0.25:
                     in_band_desc = "現價位於成本帶下緣(偏防守區)"
                 elif pos >= 0.75:
-                    in_band_desc = "現價位於成本帶上緣(接近壓力區)"
+                    # 帶內百分位說「上緣」但實際壓力尚遠 (>5%) 或根本無上方節點時,
+                    #   不得宣稱「接近壓力區」——否則與壓力距離標示(或壓力缺席)自相矛盾。
+                    if res is None:
+                        in_band_desc = "現價位於成本帶上緣(上方無近期換手壓力)"
+                    elif dist_resistance is not None and dist_resistance > 0.05:
+                        in_band_desc = "現價位於成本帶上緣(上方壓力尚有距離)"
+                    else:
+                        in_band_desc = "現價位於成本帶上緣(接近壓力區)"
                 else:
                     in_band_desc = "現價落在成本帶中段(套牢賣壓區)"
             if parts:
-                body = f"{in_band_desc}。{'、'.join(parts)}。帶量突破壓力或回測支撐再進。"
+                # 無上方壓力節點時,尾句不得再喊「帶量突破壓力」(沒有壓力可突破)
+                tail = "帶量突破壓力或回測支撐再進。" if res is not None else "回測支撐不破再進。"
+                body = f"{in_band_desc}。{'、'.join(parts)}。{tail}"
             else:
                 tail = ",待帶量突破再進。" if "賣壓區" in in_band_desc else "。"
                 body = f"{in_band_desc}{tail}"

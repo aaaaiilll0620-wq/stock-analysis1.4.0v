@@ -21,12 +21,25 @@ TEJ 全市場歷史批次匯入器
       外資買賣超(千股), 投信買賣超(千股), 自營買賣超(千股)
     (代號/名稱/年月日三欄由查詢精靈自動附加在最前面,不用手動勾)
 
-  fundamentals_quarterly (讀 tej_exports/inbox_fundamentals/):
+  fundamentals_quarterly (讀 tej_exports/inbox_fundamentals/,7欄舊版,已被 financial_statements 取代):
     單季財報,已選欄位順序:歸屬母公司淨利(損)、每股盈餘(EPS)、ROE(A)稅後、營業利益(損失)
     (皆單季非累計;金融股無標準營業利益科目,該欄可能為空)
 
-  revenue_growth (讀 tej_exports/inbox_revenue/):
+  financial_statements (讀 tej_exports/inbox_fundamentals/,16欄完整版):
+    IFRS 三大財報單季,查詢精靈欄位順序:
+      證券代碼(含名稱), 年月, 季別, 營業收入淨額, 營業毛利, 營業利益, 歸屬母公司淨利(損),
+      每股盈餘, 常續性稅後淨利, 資產總額, 負債總額, 流動資產, 流動負債, 股東權益總額,
+      來自營運之現金流量, 購置不動產廠房設備(含預付)-CFI
+    (金額皆千元 → 匯入轉為元;capex 為 CFI 流出,原始多為負值,保留正負號)
+
+  revenue_growth (讀 tej_exports/inbox_revenue/,4欄舊版,已被 monthly_revenue 取代):
     單月營收成長率 (年增率/YoY,非合併) 一個欄位
+
+  monthly_revenue (讀 tej_exports/inbox_revenue/,8欄完整版):
+    查詢精靈欄位順序:
+      證券代碼(含名稱), 年月, 營收發布日, 單月營收成長率%, 單月營收(千元),
+      去年單月營收(千元), 累計營收(千元), 去年累計營收(千元)
+    (release_date=真實公告日,供 PIT 對齊;金額千元 → 匯入轉為元)
 
   industry_map (讀 tej_exports/inbox_industry/,靜態對照表,無日期):
     代號/名稱 + TSE產業_代碼/名稱 + TEJ產業_代碼/名稱 + TEJ子產業_代碼/名稱
@@ -115,6 +128,7 @@ DATASETS = {
     # 解析後為該月第一天,只當期間標籤用,不是真實公告日 (無 PIT 保證,見檔頭說明)。
     "fundamentals_quarterly": {
         "inbox": Path(project_root) / "tej_exports" / "inbox_fundamentals",
+        "expect_cols": 7,          # 舊版 7 欄匯出;同 inbox 的 16 欄新檔由 financial_statements 讀
         "column_map": {
             0: "stock_id",
             1: "stock_name",
@@ -131,6 +145,7 @@ DATASETS = {
     # 單月營收成長率 (年增率/YoY,非合併);"date" 同上,是月份期間標籤。
     "revenue_growth": {
         "inbox": Path(project_root) / "tej_exports" / "inbox_revenue",
+        "expect_cols": 4,          # 舊版 4 欄匯出;同 inbox 的 8 欄新檔由 monthly_revenue 讀
         "column_map": {
             0: "stock_id",
             1: "stock_name",
@@ -139,6 +154,74 @@ DATASETS = {
         },
         "thousand_cols": {},
         "numeric_cols": ["revenue_yoy_pct"],
+    },
+    # 月營收完整版 (取代 revenue_growth):原始金額供 TTM 營收/P-S 與動能計算,
+    # release_date 為真實公告日 (PIT 對齊用)。證券代碼欄為「1101 台泥」合併格式 → 拆分。
+    "monthly_revenue": {
+        "inbox": Path(project_root) / "tej_exports" / "inbox_revenue",
+        "expect_cols": 8,
+        "id_name_combined": True,
+        "date_format": "%Y%m",     # 年月 = 201901
+        "column_map": {
+            0: "stock_id",
+            1: "date",
+            2: "release_date",
+            3: "revenue_yoy_pct",
+            4: "_revenue_thousand",
+            5: "_revenue_ly_thousand",
+            6: "_cum_revenue_thousand",
+            7: "_cum_revenue_ly_thousand",
+        },
+        "extra_date_cols": {"release_date": "%Y%m%d"},
+        "thousand_cols": {
+            "_revenue_thousand": "revenue",
+            "_revenue_ly_thousand": "revenue_last_year",
+            "_cum_revenue_thousand": "cum_revenue",
+            "_cum_revenue_ly_thousand": "cum_revenue_last_year",
+        },
+        "numeric_cols": ["revenue_yoy_pct"],
+    },
+    # 三大財報完整版 (取代 fundamentals_quarterly):單季 IFRS,金額千元 → 元。
+    # capex (購置不動產廠房設備-CFI) 為投資活動流出,原始多為負值,保留正負號
+    # (下游 FCF = OCF + capex(負) 的既有邏輯直接相容)。
+    "financial_statements": {
+        "inbox": Path(project_root) / "tej_exports" / "inbox_fundamentals",
+        "expect_cols": 16,
+        "id_name_combined": True,
+        "date_format": "%Y%m",     # 年月 = 201903 (季末月,期間標籤,非公告日)
+        "column_map": {
+            0: "stock_id",
+            1: "date",
+            2: "quarter",
+            3: "_revenue_thousand",
+            4: "_gross_profit_thousand",
+            5: "_operating_income_thousand",
+            6: "_net_income_thousand",
+            7: "eps",
+            8: "_recurring_ni_thousand",
+            9: "_total_assets_thousand",
+            10: "_total_liab_thousand",
+            11: "_current_assets_thousand",
+            12: "_current_liab_thousand",
+            13: "_equity_thousand",
+            14: "_ocf_thousand",
+            15: "_capex_thousand",
+        },
+        "thousand_cols": {
+            "_revenue_thousand": "revenue",
+            "_gross_profit_thousand": "gross_profit",
+            "_operating_income_thousand": "operating_income",
+            "_net_income_thousand": "net_income",
+            "_recurring_ni_thousand": "recurring_net_income",
+            "_total_assets_thousand": "total_assets",
+            "_total_liab_thousand": "total_liabilities",
+            "_current_assets_thousand": "current_assets",
+            "_current_liab_thousand": "current_liabilities",
+            "_equity_thousand": "equity",
+            "_ocf_thousand": "operating_cash_flow",
+            "_capex_thousand": "capex",
+        },
+        "numeric_cols": ["eps", "quarter"],
     },
     # 靜態產業對照表 (無日期欄):存成單一 parquet,不逐股拆檔。
     "industry_map": {
@@ -195,14 +278,38 @@ DATASETS = {
 def _load_one(path: Path, spec: dict) -> pd.DataFrame:
     df = pd.read_excel(path)
     n = df.shape[1]
+
+    # 欄數守門:同一個 inbox 可能同時放新舊版匯出檔 (欄位組合不同),
+    # 只讀欄數吻合的檔案,其餘跳過 (由對應的另一個 dataset 讀)。
+    expect = spec.get("expect_cols")
+    if expect is not None and n != expect:
+        logger.info(f"  跳過 {path.name}:{n} 欄 != 本資料集預期 {expect} 欄")
+        return pd.DataFrame()
+
     column_map = spec["column_map"]
     rename = {df.columns[i]: name for i, name in column_map.items() if i < n}
     df = df.rename(columns=rename)
 
     df["stock_id"] = df["stock_id"].astype(str).str.strip()
+    # 查詢精靈部分匯出格式的證券代碼欄為「1101 台泥」合併格式 → 拆成代號+名稱
+    if spec.get("id_name_combined"):
+        parts = df["stock_id"].str.split(n=1)
+        df["stock_id"] = parts.str[0].str.strip()
+        df["stock_name"] = parts.str[1].str.strip()
     if spec.get("static"):
         return df[[c for c in column_map.values() if c in df.columns]].dropna(subset=["stock_id"])
-    df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+
+    date_fmt = spec.get("date_format")
+    if date_fmt:
+        # 整數期間標籤 (如 201901) → 先轉純數字字串再按格式解析
+        raw = df["date"].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+        df["date"] = pd.to_datetime(raw, format=date_fmt, errors="coerce").dt.strftime("%Y-%m-%d")
+    else:
+        df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+    for col, fmt in (spec.get("extra_date_cols") or {}).items():
+        if col in df.columns:
+            raw = df[col].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+            df[col] = pd.to_datetime(raw, format=fmt, errors="coerce").dt.strftime("%Y-%m-%d")
 
     for src, dst in spec["thousand_cols"].items():
         if src in df.columns:
@@ -228,6 +335,9 @@ def load_inbox(dataset: str) -> pd.DataFrame:
         logger.info(f"讀取 {f}")
         frames.append(_load_one(Path(f), spec))
 
+    frames = [x for x in frames if not x.empty]
+    if not frames:
+        raise FileNotFoundError(f"{inbox_dir} 底下沒有欄數吻合本資料集的檔案")
     combined = pd.concat(frames, ignore_index=True)
     if spec.get("static"):
         return (combined.drop_duplicates(subset=["stock_id"], keep="last")

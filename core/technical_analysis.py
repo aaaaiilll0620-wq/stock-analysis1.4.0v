@@ -434,6 +434,7 @@ class TechnicalEngine:
         import numpy as np
         empty = {"poc": None, "val": None, "vah": None, "price_vs_poc_pct": None,
                  "status": "", "support": None, "resistance": None,
+                 "confidence": None, "hvn_levels": [], "lvn_levels": [],
                  "chase_threshold_pct": None, "volatility_pct": None, "vol_source": ""}
         if df is None or len(df) < 30 or "close" not in df.columns or "volume" not in df.columns:
             return empty
@@ -549,7 +550,15 @@ class TechnicalEngine:
         #   看似失靈(例:4958 支撐硬等於成本 202)。改用 HVN 後,像 8046 主成本區上緣另有換手節點
         #   (POC 911、支撐 938) 的情形才能被正確標出。
         hvn_thresh = vol_by_bin[poc_i] * 0.25
-        hvn = [float(centers[i]) for i in range(bins) if vol_by_bin[i] >= hvn_thresh]
+        hvn_idx = [i for i in range(bins) if vol_by_bin[i] >= hvn_thresh]
+        hvn = [float(centers[i]) for i in hvn_idx]
+        # 現價所在 bin 的上下緣 + 壓力選點下限:壓力一律排除現價自己坐的價格帶,且須離
+        #   現價至少 0.5%——否則現價落在 HVN bin 內(或 bin 很細)時,壓力會等於/貼著現價,
+        #   產生「壓力約 XXXX(+0%)」的無效輸出並誤導 advisor(2330 案例)。0.5% 下限對齊
+        #   顯示層的整數百分比四捨五入,保證壓力至少顯示 +1%。注意只排除『同價位帶』:
+        #   現價上方 1~3% 的高量節點是回檔後的真實上方套牢壓力,必須保留。
+        lo_edge, hi_edge = float(edges[cur_i]), float(edges[cur_i + 1])
+        res_floor = max(hi_edge, cur * 1.005)
         # 【雙引擎階梯式支撐/壓力:POC(定海神針) + 近期 HVN(動態雷達)】
         # 依『現價相對主成本區的位階』分三段取支撐,兼顧飆股靈敏度與牛皮股穩定度,
         #   且完全沿用字首分流(advisor 仍靠子字串對齊,此處僅決定數值不動狀態字串):
@@ -562,16 +571,17 @@ class TechnicalEngine:
             # ① 追高:現價『腳下』所在價格帶那根節點不是可退守的支撐(站在上面談不上防守),
             #   支撐取現價所在 bin『下方』最近的量能節點(真正的回檔退守位),壓力取上方最近節點。
             #   如此 4958 現價 588 會落在近期換手密集帶下緣的 571,而非被推到過低的 522。
-            lo_edge, hi_edge = float(edges[cur_i]), float(edges[cur_i + 1])
             below = [c for c in hvn if c < lo_edge]
-            above = [c for c in hvn if c > hi_edge]
+            above = [c for c in hvn if c > res_floor]
             support = float(max(below)) if below else None
             resistance = float(min(above)) if above else None
         elif status.startswith("主"):
             # ② 波段強勢:支撐貼現價腳下最近的次級 HVN 平台(當下踩著的有效防守位),
-            #   不讓它回落到遠在底部的 POC(否則科技飆股主升段支撐會過於遲鈍)。壓力取上方最近節點。
+            #   不讓它回落到遠在底部的 POC(否則科技飆股主升段支撐會過於遲鈍)。
+            #   壓力取『現價 bin 上方』最近節點(排除自身 bin,避免 +0% 假壓力;支撐維持
+            #   可含自身 bin —— 腳下踩著的換手平台本就是有效防守位,且回測支撐停損沿用此值)。
             below = [c for c in hvn if c <= cur]
-            above = [c for c in hvn if c >= cur]
+            above = [c for c in hvn if c > res_floor]
             support = float(max(below)) if below else None
             resistance = float(min(above)) if above else None
         else:
@@ -579,18 +589,34 @@ class TechnicalEngine:
             #   錨定歷史大戶成本最穩固。惟守住常識『支撐不得高於現價』:若 POC 仍在現價之上(如
             #   『下方』狀態跌破大戶成本),POC 此時是壓力而非支撐 → 支撐退回現價腳下最近 HVN。
             below = [c for c in hvn if c <= cur]
-            above = [c for c in hvn if c >= cur]
+            above = [c for c in hvn if c > res_floor]   # 同分支①②:排除現價同價位帶的假壓力
             if poc <= cur:
                 support = float(poc)
             else:
                 support = float(max(below)) if below else None
             resistance = float(min(above)) if above else None
 
+        # v4.4 預留欄位補實作 (models.py 早有欄位、引擎過去未回傳):
+        #   hvn_levels:全部高量節點,依量能由大到小排序 (advisor 取前3個當『關鍵量能節點』)
+        #   lvn_levels:低量節點 (量能 <= POC 的 10% 的價位帶 = 換手真空,價格通過速度快),由低到高
+        #   confidence:成本區可信度 0-100 = 樣本覆蓋 60% + POC 顯著度 40%
+        #     (顯著度 = POC bin 量能相對均勻分布的倍數,3 倍即滿分;分布越尖、成本區越可信)
+        hvn_levels = [round(float(centers[i]), 2)
+                      for i in sorted(hvn_idx, key=lambda i: -vol_by_bin[i])]
+        lvn_levels = [round(float(centers[i]), 2)
+                      for i in range(bins) if vol_by_bin[i] <= vol_by_bin[poc_i] * 0.10]
+        coverage = min(1.0, len(price) / float(lookback))
+        prominence = (vol_by_bin[poc_i] / total) * bins
+        confidence = float(round(min(100.0, 60.0 * coverage + 40.0 * min(prominence / 3.0, 1.0))))
+
         return {"poc": round(poc), "val": round(val), "vah": round(vah),
                 "price_vs_poc_pct": (round(price_vs_poc, 1) if price_vs_poc is not None else None),
                 "status": status,
                 "support": (round(support) if support else None),
                 "resistance": (round(resistance) if resistance else None),
+                "confidence": confidence,
+                "hvn_levels": hvn_levels,
+                "lvn_levels": lvn_levels,
                 # 動態追高門檻 & 波動體質(供回測 Trailing Stop / 出場邏輯沿用)
                 "chase_threshold_pct": chase_threshold,
                 "volatility_pct": band["volatility_pct"],

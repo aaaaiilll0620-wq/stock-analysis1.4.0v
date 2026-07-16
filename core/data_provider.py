@@ -13,6 +13,9 @@ from typing import Optional, Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
+# TEJ 本機歷史庫 (tej_importer.py 匯入的 Parquet;與 finmind_cache 分開存放)
+TEJ_CACHE_DIR = os.environ.get("TEJ_CACHE", os.path.join(os.path.expanduser("~"), "tej_cache"))
+
 class DataProvider:
     # 使用 SDK 初始化一次,避免重複建立連接
     _api = DataLoader()
@@ -201,6 +204,154 @@ class DataProvider:
             return None
 
     # ------------------------------------------------------------------
+    # TEJ 本機資料 (月營收 / 三大財報):新鮮度夠就用本機,過期退回 FinMind
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _read_tej(dataset: str, symbol: str) -> Optional[pd.DataFrame]:
+        """讀 tej_cache/<dataset>/<symbol>.parquet;無檔或壞檔回 None (由上層 fallback)。"""
+        p = os.path.join(TEJ_CACHE_DIR, dataset, f"{symbol}.parquet")
+        if not os.path.exists(p):
+            return None
+        try:
+            df = pd.read_parquet(p)
+            return df if not df.empty else None
+        except Exception as e:
+            logger.warning(f"[{symbol}] TEJ {dataset} 讀取失敗,退回 FinMind: {e}")
+            return None
+
+    @classmethod
+    def _read_tej_monthly_revenue(cls, symbol: str) -> Optional[pd.DataFrame]:
+        """
+        本機 TEJ 月營收 → 補上 FinMind 慣例的 revenue_year / revenue_month 衍生欄,
+        讓 _calc_rev_yoy / _calc_rev_momentum / _ttm_revenue 原封不動直接吃。
+        新鮮度閘門:月營收次月 10 日前公告 → 最新月份若落後今天超過 70 天,
+        代表本機庫漏了至少一個「已公告」的月份 → 回 None 改走 FinMind。
+        """
+        df = cls._read_tej("monthly_revenue", symbol)
+        if df is None or "date" not in df.columns or "revenue" not in df.columns:
+            return None
+        d = df.copy()
+        d["date"] = pd.to_datetime(d["date"], errors="coerce")
+        d = d.dropna(subset=["date"]).sort_values("date")
+        if d.empty:
+            return None
+        if (datetime.now() - d["date"].iloc[-1]).days > 70:
+            logger.info(f"[{symbol}] TEJ 月營收最新僅至 {d['date'].iloc[-1]:%Y-%m},過期改走 FinMind。")
+            return None
+        d["revenue_year"] = d["date"].dt.year
+        d["revenue_month"] = d["date"].dt.month
+        return d
+
+    @classmethod
+    def _fetch_fundamentals_tej(cls, symbol: str) -> Optional[Dict[str, Any]]:
+        """
+        以本機 TEJ 三大財報 (financial_statements,單季 IFRS) 計算與 _fetch_fundamentals
+        完全同一組欄位,0 FinMind API。無檔或過期回 None (由上層退回 FinMind 三支報表 API)。
+        新鮮度閘門:財報公告期限 Q1=5/15、Q2=8/14、Q3=11/14、年報=3/31;
+        「季末月標籤 → 下一季可取得」最大間隔約 166 天 (Q1 標籤 3/1 → Q2 公告 8/14),
+        故最新一季標籤若落後今天超過 175 天,代表漏了已公告的季度 → 過期。
+        """
+        df = cls._read_tej("financial_statements", symbol)
+        if df is None or "date" not in df.columns:
+            return None
+        d = df.copy()
+        d["date"] = pd.to_datetime(d["date"], errors="coerce")
+        d = d.dropna(subset=["date"]).sort_values("date")
+        if d.empty:
+            return None
+        if (datetime.now() - d["date"].iloc[-1]).days > 175:
+            logger.info(f"[{symbol}] TEJ 財報最新僅至 {d['date'].iloc[-1]:%Y-%m},過期改走 FinMind。")
+            return None
+
+        def _v(row, col) -> Optional[float]:
+            x = row.get(col)
+            if x is None or pd.isna(x):
+                return None
+            return float(x)
+
+        def _series(col) -> Optional[pd.DataFrame]:
+            """(date, value) 時序,格式同 _value_series,供 _yoy_growth 直接使用。"""
+            if col not in d.columns:
+                return None
+            out = d[["date", col]].rename(columns={col: "value"}).dropna(subset=["value"])
+            return out if not out.empty else None
+
+        q = d.iloc[-1]
+        revenue = _v(q, "revenue")
+        gross = _v(q, "gross_profit")
+        op_income = _v(q, "operating_income")
+        net_inc = _v(q, "net_income")
+        total_assets = _v(q, "total_assets")
+        total_liab = _v(q, "total_liabilities")
+        curr_assets = _v(q, "current_assets")
+        curr_liab = _v(q, "current_liabilities")
+        equity = _v(q, "equity")
+        ocf = _v(q, "operating_cash_flow")
+        capex = _v(q, "capex")
+
+        result: Dict[str, Optional[float]] = {
+            "roe": None, "net_margin": None, "gross_margin": None,
+            "debt_to_asset": None, "current_ratio": None,
+        }
+        extra: Dict[str, Any] = {
+            "net_income": None, "net_income_growth": None, "eps_growth": None,
+            "operating_income": None, "operating_profit_ratio": None,
+            "gross_margin_trend": None,
+            "operating_cash_flow": None, "capex": None,
+            "free_cash_flow": None, "ocf_to_net_income": None,
+            # TEJ 年月標籤為季末月 1 號 → 轉成季末「日」,與 FinMind 路徑口徑一致
+            # (此欄供上層判斷「近期動能是否已領先財報」的時間差)
+            "financials_asof": str((q["date"] + pd.offsets.MonthEnd(0)).strftime("%Y-%m-%d")),
+        }
+
+        if revenue and gross is not None:
+            result["gross_margin"] = gross / revenue * 100
+        if revenue and net_inc is not None:
+            result["net_margin"] = net_inc / revenue * 100
+        if total_assets and total_liab is not None:
+            result["debt_to_asset"] = total_liab / total_assets * 100
+        if curr_liab and curr_assets is not None:
+            result["current_ratio"] = curr_assets / curr_liab * 100
+        if equity and net_inc is not None:
+            result["roe"] = net_inc / equity * 100   # 近似 ROE(單季),同 FinMind 路徑
+        if total_assets and revenue:
+            extra["asset_turnover"] = revenue * 4.0 / total_assets
+
+        # 毛利率季度趨勢:最新季 vs 前數季平均 (同 FinMind 路徑演算法)
+        if "revenue" in d.columns and "gross_profit" in d.columns:
+            m = d.dropna(subset=["revenue", "gross_profit"])
+            m = m[m["revenue"] != 0]
+            if len(m) >= 2:
+                gm = (m["gross_profit"] / m["revenue"] * 100.0).tolist()
+                prior = gm[-4:-1] if len(gm) >= 4 else gm[:-1]
+                if prior:
+                    extra["gross_margin_trend"] = float(gm[-1] - sum(prior) / len(prior))
+
+        if op_income is not None:
+            extra["operating_income"] = op_income
+            if net_inc not in (None, 0):
+                extra["operating_profit_ratio"] = float(op_income) / float(net_inc)
+        if net_inc is not None:
+            extra["net_income"] = net_inc
+            extra["net_income_growth"] = cls._yoy_growth(_series("net_income"))
+        eps_growth = cls._yoy_growth(_series("eps"))
+        if eps_growth is None and extra["net_income_growth"] is not None:
+            eps_growth = extra["net_income_growth"]
+        extra["eps_growth"] = eps_growth
+
+        if ocf is not None:
+            extra["operating_cash_flow"] = ocf
+        if capex is not None:
+            extra["capex"] = capex
+        if ocf is not None and capex is not None:
+            extra["free_cash_flow"] = ocf + capex if capex < 0 else ocf - capex
+        if ocf is not None and net_inc not in (None, 0):
+            extra["ocf_to_net_income"] = ocf / net_inc
+
+        logger.info(f"[{symbol}] 基本面走本機 TEJ 財報 (至 {extra['financials_asof']},0 API)。")
+        return cls._finalize_fundamentals(symbol, result, extra)
+
+    # ------------------------------------------------------------------
     # 真實基本面(修正:原版每檔股票都套用同一組寫死的假財務數據)
     # ------------------------------------------------------------------
     @classmethod
@@ -264,11 +415,12 @@ class DataProvider:
           2. 現金流量表 type/origin_name 版本間可能不同,若大量 fallback 警告,
              請印出實際 type 清單並補進下方 type_keys / name_keys。
         """
-        neutral = {
-            "roe": 12.0, "net_margin": 10.0, "gross_margin": 25.0,
-            "debt_to_asset": 45.0, "current_ratio": 150.0,
-        }
-        result: Dict[str, Optional[float]] = {k: None for k in neutral}
+        # 本機優先:TEJ 三大財報有檔且新鮮 → 0 API 直接算完;否則走下面 FinMind 三支報表
+        tej = cls._fetch_fundamentals_tej(symbol)
+        if tej is not None:
+            return tej
+
+        result: Dict[str, Optional[float]] = {k: None for k in cls._NEUTRAL_FUND}
         # 非比率型欄位:缺就是缺,不套 fallback (交由 confidence 反映)
         extra: Dict[str, Optional[float]] = {
             "net_income": None, "net_income_growth": None,
@@ -417,12 +569,23 @@ class DataProvider:
             except Exception:
                 pass
 
-        # ---- 比率型欄位 fallback + 警告 ----
+        return cls._finalize_fundamentals(symbol, result, extra)
+
+    # 比率型欄位的中性 fallback 值 (TEJ 與 FinMind 兩條路徑共用)
+    _NEUTRAL_FUND = {
+        "roe": 12.0, "net_margin": 10.0, "gross_margin": 25.0,
+        "debt_to_asset": 45.0, "current_ratio": 150.0,
+    }
+
+    @classmethod
+    def _finalize_fundamentals(cls, symbol: str, result: Dict[str, Optional[float]],
+                               extra: Dict[str, Any]) -> Dict[str, Any]:
+        """比率型欄位套中性 fallback、非比率型保持真實 (含 None),並回傳缺漏清單。"""
         final: Dict[str, Any] = {}
         missing = []
         for k, v in result.items():
             if v is None:
-                final[k] = neutral[k]
+                final[k] = cls._NEUTRAL_FUND[k]
                 missing.append(k)
             else:
                 final[k] = round(float(v), 2)
@@ -861,6 +1024,7 @@ class DataProvider:
             # MACD / 布林狀態(供評分細分,取代原本算了卻沒用的引擎輸出)
             macd_status, macd_golden, bb_status = "neutral", False, ""
             macd_val, bb_upper, bb_lower = 0.0, 0.0, 0.0
+            bb_pctb = None
             try:
                 macd_res = cls._tech_engine.calculate_macd(price_df.copy())
                 if 'error' not in macd_res:
@@ -874,6 +1038,9 @@ class DataProvider:
                 bb_status = bb_res.get('status', '')
                 bb_upper = float(bb_res.get('upper', 0.0))
                 bb_lower = float(bb_res.get('lower', 0.0))
+                _pctb = bb_res.get('percent_b')
+                if _pctb is not None and not pd.isna(_pctb):
+                    bb_pctb = float(_pctb)
             except Exception as e:
                 logger.warning(f"[{symbol}] 布林帶計算失敗: {e}")
 
@@ -887,13 +1054,19 @@ class DataProvider:
             if 'min' in tdf.columns and 'low' not in tdf.columns:
                 tdf['low'] = pd.to_numeric(tdf['min'], errors='coerce')
             kd_j_val = 50.0
+            kd_k_val = kd_d_val = 50.0
             ma_cross_status = "neutral"
             obv_rising_val = None
+            obv_above_ma20_val = None
             volume_divergence_val = False
             try:
                 kd_res = cls._tech_engine.calculate_kd(tdf.copy())
                 if kd_res.get("J") is not None and not pd.isna(kd_res.get("J")):
                     kd_j_val = float(kd_res["J"])
+                if kd_res.get("K") is not None and not pd.isna(kd_res.get("K")):
+                    kd_k_val = float(kd_res["K"])
+                if kd_res.get("D") is not None and not pd.isna(kd_res.get("D")):
+                    kd_d_val = float(kd_res["D"])
             except Exception as e:
                 logger.debug(f"[{symbol}] KD 計算略過: {e}")
             try:
@@ -904,6 +1077,7 @@ class DataProvider:
             try:
                 vol_res = cls._tech_engine.calculate_volume_analysis(tdf.copy())
                 obv_rising_val = bool(vol_res.get("obv_rising"))
+                obv_above_ma20_val = vol_res.get("obv_above_ma20")   # bool 或 None(資料不足)
                 volume_divergence_val = bool(vol_res.get("divergence_warning"))
             except Exception as e:
                 logger.debug(f"[{symbol}] OBV/量價計算略過: {e}")
@@ -1077,10 +1251,15 @@ class DataProvider:
             # 4. 真實基本面(損益表 + 資產負債表)
             fundamental_data = cls._fetch_fundamentals(symbol)
 
-            # 4-1. 月營收年增率 + 即時動能 (最即時的成長領先指標,零額外 API)
+            # 4-1. 月營收年增率 + 即時動能 (最即時的成長領先指標)
+            #   本機優先:TEJ monthly_revenue 有檔且新鮮 → 0 API;否則 FinMind
             rev_mom = {"mom": None, "cum_yoy": None, "accel": None, "streak": 0, "asof": None}
             try:
-                rev_df = cls._api.get_data(dataset='TaiwanStockMonthRevenue', data_id=symbol, start_date='2024-01-01')
+                rev_df = cls._read_tej_monthly_revenue(symbol)
+                if rev_df is not None:
+                    logger.info(f"[{symbol}] 月營收走本機 TEJ (至 {rev_df['date'].iloc[-1]:%Y-%m},0 API)。")
+                else:
+                    rev_df = cls._api.get_data(dataset='TaiwanStockMonthRevenue', data_id=symbol, start_date='2024-01-01')
                 rev_growth = cls._calc_rev_yoy(rev_df)              # 最新單月 YoY → revenue_growth
                 rev_trend = cls._calc_rev_yoy_smoothed(rev_df)      # 近3月平均 YoY → rev_cagr (趨勢)
                 rev_mom = cls._calc_rev_momentum(rev_df)            # 月增/累計年增/加速度/連續成長月數
@@ -1221,8 +1400,12 @@ class DataProvider:
                 macd_golden_cross=macd_golden,
                 bb_status=bb_status,
                 kd_j=kd_j_val,
+                kd_k=kd_k_val,
+                kd_d=kd_d_val,
+                bb_percent_b=bb_pctb,
                 ma_cross_status=ma_cross_status,
                 obv_rising=obv_rising_val,
+                obv_above_ma20=obv_above_ma20_val,
                 volume_divergence=volume_divergence_val,
                 cost_zone_poc=vp.get("poc"),
                 value_area_low=vp.get("val"),
