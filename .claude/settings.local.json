@@ -170,7 +170,9 @@
       "PowerShell(Start-ScheduledTask -TaskName 'Market_SnapshotCollector'; Start-Sleep -Seconds 5; \\(Get-ScheduledTask -TaskName 'Market_SnapshotCollector'\\).State)",
       "Bash(PYTHONIOENCODING=utf-8 python \"C:/Users/aaaai/AppData/Local/Temp/claude/C--Users-aaaai-OneDrive-Desktop-Project-1/02316429-aed6-4943-946a-5fc9ec6b9dc3/scratchpad/audit_twse.py\")",
       "PowerShell(powershell -ExecutionPolicy Bypass -File \"scripts\\\\register_market_snapshot_task.ps1\"; powershell -ExecutionPolicy Bypass -File \"scripts\\\\register_daily_task.ps1\"; Get-ScheduledTask -TaskName 'Market_SnapshotCollector','FinMind_DailyUpdate' | ForEach-Object { \"{0}: {1} -> {2} {3}\" -f $_.TaskName, $_.State, $_.Actions[0].Execute, $_.Actions[0].Arguments })",
-      "Bash(PYTHONIOENCODING=utf-8 python main.py 8046 --no-open)"
+      "Bash(PYTHONIOENCODING=utf-8 python main.py 8046 --no-open)",
+      "Bash(PYTHONIOENCODING=utf-8 python tej_importer.py --dataset institutional_gross)",
+      "Bash(PYTHONIOENCODING=utf-8 python tej_importer.py --dataset margin_balance)"
     ]
   }
 }

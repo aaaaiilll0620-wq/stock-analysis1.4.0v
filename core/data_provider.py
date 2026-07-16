@@ -223,6 +223,119 @@ class DataProvider:
 
     _market_monthly_rev: Optional[pd.DataFrame] = None   # 收集器月營收增量 (一次載入快取)
     _market_daily_price: Optional[pd.DataFrame] = None   # 收集器每日價格快照 (一次載入快取)
+    _market_frames: Dict[str, pd.DataFrame] = {}          # 其他收集器目錄的通用快取
+
+    @classmethod
+    def _ensure_market_dir(cls, subdir: str) -> pd.DataFrame:
+        """通用:一次性載入 market_cache/<subdir>/*.parquet 供逐檔查詢 (空目錄回空表)。"""
+        if subdir in cls._market_frames:
+            return cls._market_frames[subdir]
+        import glob as _glob
+        frames = []
+        for f in sorted(_glob.glob(os.path.join(MARKET_CACHE_DIR, subdir, "*.parquet"))):
+            try:
+                frames.append(pd.read_parquet(f))
+            except Exception as e:
+                logger.warning(f"{subdir} 快照檔讀取失敗 (略過): {f} {e}")
+        cls._market_frames[subdir] = (pd.concat(frames, ignore_index=True)
+                                      if frames else pd.DataFrame())
+        return cls._market_frames[subdir]
+
+    @classmethod
+    def _read_local_chip(cls, symbol: str, start_date: str) -> Optional[pd.DataFrame]:
+        """
+        本機法人買賣毛額 (TEJ institutional_gross 種子 ∪ 收集器 institutional_flow_daily
+        的毛額欄位) → 轉成 FinMind TaiwanStockInstitutionalInvestorsBuySell 同構的
+        長格式 (date/name/buy/sell,單位:股),讓既有籌碼計算 (連買天數/淨參與率/
+        法人成交占比) 原封不動直接吃。缺毛額欄的舊快照列自動略過 (由 TEJ 種子涵蓋)。
+        新鮮度閘門:最新毛額日落後今天超過 7 天 → 回 None 改走 FinMind。
+        """
+        tej = cls._read_tej("institutional_gross", symbol)
+        inc = cls._ensure_market_dir("institutional_flow_daily")
+        inc_sym = None
+        if not inc.empty and "foreign_buy" in inc.columns:
+            inc_sym = inc[(inc["stock_id"].astype(str) == str(symbol))
+                          & inc["foreign_buy"].notna() & inc["trust_buy"].notna()]
+            if inc_sym.empty:
+                inc_sym = None
+        if tej is None and inc_sym is None:
+            return None
+        cols = ["date", "foreign_buy", "foreign_sell", "trust_buy", "trust_sell"]
+        parts = [x[cols] for x in (tej, inc_sym)
+                 if x is not None and set(cols).issubset(x.columns)]
+        if not parts:
+            return None
+        d = (pd.concat(parts, ignore_index=True)
+               .dropna(subset=["date"])
+               .drop_duplicates(subset=["date"], keep="first")   # TEJ 在前 → 以 TEJ 為準
+               .sort_values("date"))
+        d = d[d["date"] >= start_date]
+        # 覆蓋度守門:90 天窗約 60 個交易日;毛額列不足 (如收集器剛上線、TEJ 種子未匯)
+        # 時不能拿來算連買天數/20日參與率 → 退回 FinMind
+        if len(d) < 40:
+            return None
+        last = pd.to_datetime(d["date"].iloc[-1], errors="coerce")
+        if pd.isna(last) or (datetime.now() - last).days > 7:
+            logger.info(f"[{symbol}] 本機法人毛額最新僅至 {d['date'].iloc[-1]},過期改走 FinMind。")
+            return None
+        # 寬 → FinMind 長格式
+        f = d[["date", "foreign_buy", "foreign_sell"]].rename(
+            columns={"foreign_buy": "buy", "foreign_sell": "sell"})
+        f["name"] = "Foreign_Investor"
+        t = d[["date", "trust_buy", "trust_sell"]].rename(
+            columns={"trust_buy": "buy", "trust_sell": "sell"})
+        t["name"] = "Investment_Trust"
+        out = pd.concat([f, t], ignore_index=True).dropna(subset=["buy", "sell"])
+        return out.sort_values("date").reset_index(drop=True) if not out.empty else None
+
+    @classmethod
+    def _read_local_margin(cls, symbol: str, start_date: str) -> Optional[pd.DataFrame]:
+        """本機融資餘額 (TEJ margin_balance 種子 ∪ 收集器 margin_daily),單位:張。
+        回傳含 MarginPurchaseTodayBalance 欄的 df (與 FinMind 同構)。融資資料本就
+        晚一天發布 → 新鮮度閘門放寬到 8 天。"""
+        tej = cls._read_tej("margin_balance", symbol)
+        inc = cls._ensure_market_dir("margin_daily")
+        inc_sym = None
+        if not inc.empty:
+            inc_sym = inc[inc["stock_id"].astype(str) == str(symbol)]
+            if inc_sym.empty:
+                inc_sym = None
+        if tej is None and inc_sym is None:
+            return None
+        parts = [x[["date", "margin_balance"]] for x in (tej, inc_sym) if x is not None]
+        d = (pd.concat(parts, ignore_index=True)
+               .dropna(subset=["date", "margin_balance"])
+               .drop_duplicates(subset=["date"], keep="first")
+               .sort_values("date"))
+        d = d[d["date"] >= start_date]
+        if len(d) < 30:            # 10日變化率需要 ≥11 筆;覆蓋不足退回 FinMind
+            return None
+        last = pd.to_datetime(d["date"].iloc[-1], errors="coerce")
+        if pd.isna(last) or (datetime.now() - last).days > 8:
+            logger.info(f"[{symbol}] 本機融資餘額最新僅至 {d['date'].iloc[-1]},過期改走 FinMind。")
+            return None
+        return d.rename(columns={"margin_balance": "MarginPurchaseTodayBalance"}).reset_index(drop=True)
+
+    @classmethod
+    def _read_local_shareholding(cls, symbol: str) -> Optional[dict]:
+        """本機發行股數/外資持股比率 (收集器 shareholding_daily 最新一筆)。
+        發行股數變動極少 → 新鮮度閘門 10 天。回傳 {'shares', 'foreign_ratio'} 或 None。"""
+        inc = cls._ensure_market_dir("shareholding_daily")
+        if inc.empty:
+            return None
+        rows = inc[inc["stock_id"].astype(str) == str(symbol)].sort_values("date")
+        if rows.empty:
+            return None
+        last = rows.iloc[-1]
+        dt = pd.to_datetime(last["date"], errors="coerce")
+        if pd.isna(dt) or (datetime.now() - dt).days > 10:
+            return None
+        shares = last.get("shares_issued")
+        if shares is None or pd.isna(shares) or shares <= 0:
+            return None
+        fr = last.get("foreign_ratio")
+        return {"shares": float(shares),
+                "foreign_ratio": (float(fr) if fr is not None and pd.notna(fr) else None)}
 
     @classmethod
     def _ensure_market_daily_price(cls) -> pd.DataFrame:
@@ -1191,12 +1304,17 @@ class DataProvider:
                 logger.debug(f"[{symbol}] 成本區計算略過: {e}")
 
             # 3. 籌碼面:抓 90 天,交由記憶體計算連續買/賣超
+            #   本機優先:TEJ 毛額種子 ∪ 收集器快照 (0 API);過期/無檔退回 FinMind
             chip_start = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
-            chip_df = cls._api.get_data(
-                dataset='TaiwanStockInstitutionalInvestorsBuySell',
-                data_id=symbol,
-                start_date=chip_start
-            )
+            chip_df = cls._read_local_chip(symbol, chip_start)
+            if chip_df is not None:
+                logger.info(f"[{symbol}] 法人買賣超走本機 (至 {chip_df['date'].iloc[-1]},0 API)。")
+            else:
+                chip_df = cls._api.get_data(
+                    dataset='TaiwanStockInstitutionalInvestorsBuySell',
+                    data_id=symbol,
+                    start_date=chip_start
+                )
 
             trust_days = foreign_days = 0
             trust_sell_days = foreign_sell_days = 0
@@ -1291,27 +1409,41 @@ class DataProvider:
             whale_concentration = 0.0
             foreign_hold_ratio = 0.0
             shares_outstanding = 0.0
-            try:
-                sh_df = cls._api.get_data(dataset='TaiwanStockShareholding',
-                                          data_id=symbol, start_date=chip_start)
-                if sh_df is not None and not sh_df.empty:
-                    if 'NumberOfSharesIssued' in sh_df.columns:
-                        shares = pd.to_numeric(sh_df.iloc[-1]['NumberOfSharesIssued'], errors='coerce')
-                        if not pd.isna(shares) and shares > 0:
-                            shares_outstanding = float(shares)
-                            whale_concentration = float(trust_net20_shares / shares * 100.0)
-                    if 'ForeignInvestmentSharesRatio' in sh_df.columns:
-                        fr = pd.to_numeric(sh_df.iloc[-1]['ForeignInvestmentSharesRatio'], errors='coerce')
-                        if not pd.isna(fr):
-                            foreign_hold_ratio = float(fr)
-            except Exception as e:
-                logger.warning(f"[{symbol}] 外資持股表抓取失敗,投信吸籌比以 0 計: {e}")
+            local_sh = cls._read_local_shareholding(symbol)
+            if local_sh is not None:
+                # 本機優先 (收集器 t187ap03/MI_QFIIS 快照,0 API);TPEx 無外資比率端點
+                # → foreign_ratio 可能為 None,維持 0.0 預設 (分類器有市值主判,影響可忽略)
+                shares_outstanding = local_sh["shares"]
+                whale_concentration = float(trust_net20_shares / shares_outstanding * 100.0)
+                if local_sh["foreign_ratio"] is not None:
+                    foreign_hold_ratio = local_sh["foreign_ratio"]
+                logger.info(f"[{symbol}] 發行股數/外資比率走本機 (0 API)。")
+            else:
+                try:
+                    sh_df = cls._api.get_data(dataset='TaiwanStockShareholding',
+                                              data_id=symbol, start_date=chip_start)
+                    if sh_df is not None and not sh_df.empty:
+                        if 'NumberOfSharesIssued' in sh_df.columns:
+                            shares = pd.to_numeric(sh_df.iloc[-1]['NumberOfSharesIssued'], errors='coerce')
+                            if not pd.isna(shares) and shares > 0:
+                                shares_outstanding = float(shares)
+                                whale_concentration = float(trust_net20_shares / shares * 100.0)
+                        if 'ForeignInvestmentSharesRatio' in sh_df.columns:
+                            fr = pd.to_numeric(sh_df.iloc[-1]['ForeignInvestmentSharesRatio'], errors='coerce')
+                            if not pd.isna(fr):
+                                foreign_hold_ratio = float(fr)
+                except Exception as e:
+                    logger.warning(f"[{symbol}] 外資持股表抓取失敗,投信吸籌比以 0 計: {e}")
 
-            # 融資融券:融資餘額近10日變化率(散戶退場偵測,漏洞二)。免費;每檔 +1 API。
+            # 融資融券:融資餘額近10日變化率(散戶退場偵測,漏洞二)。本機優先;退 FinMind。
             margin_balance = margin_change_pct = 0.0
             try:
-                mg_df = cls._api.get_data(dataset='TaiwanStockMarginPurchaseShortSale',
-                                          data_id=symbol, start_date=chip_start)
+                mg_df = cls._read_local_margin(symbol, chip_start)
+                if mg_df is not None:
+                    logger.info(f"[{symbol}] 融資餘額走本機 (至 {mg_df['date'].iloc[-1]},0 API)。")
+                else:
+                    mg_df = cls._api.get_data(dataset='TaiwanStockMarginPurchaseShortSale',
+                                              data_id=symbol, start_date=chip_start)
                 if mg_df is not None and not mg_df.empty and 'MarginPurchaseTodayBalance' in mg_df.columns:
                     bal = pd.to_numeric(mg_df['MarginPurchaseTodayBalance'], errors='coerce').dropna()
                     if len(bal) >= 2:

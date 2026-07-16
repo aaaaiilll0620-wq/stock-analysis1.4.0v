@@ -39,6 +39,8 @@ MARKET_CACHE = Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cac
 OUT_DIR = MARKET_CACHE / "price_valuation_daily"
 CHIP_DIR = MARKET_CACHE / "institutional_flow_daily"
 REV_DIR = MARKET_CACHE / "monthly_revenue"
+MARGIN_DIR = MARKET_CACHE / "margin_daily"
+SHARE_DIR = MARKET_CACHE / "shareholding_daily"
 
 REV_ENDPOINTS = {
     "twse_rev": "https://openapi.twse.com.tw/v1/opendata/t187ap05_L",
@@ -190,6 +192,14 @@ def collect_chip(trade_date: str, force: bool = False) -> None:
                              + num(tw["外資自營商買賣超股數"])),
             "trust_net": num(tw["投信買賣超股數"]),
             "dealer_net": num(tw["自營商買賣超股數"]),
+            # 買賣毛額 (2026-07-16 起):institutional_participation (法人成交占比) 需要
+            # 買+賣總量,淨額算不出來;歷史由 TEJ institutional_gross 種子補
+            "foreign_buy": (num(tw["外陸資買進股數(不含外資自營商)"])
+                             + num(tw["外資自營商買進股數"])),
+            "foreign_sell": (num(tw["外陸資賣出股數(不含外資自營商)"])
+                              + num(tw["外資自營商賣出股數"])),
+            "trust_buy": num(tw["投信買進股數"]),
+            "trust_sell": num(tw["投信賣出股數"]),
         }))
     else:
         raise ValueError(f"T86 無資料 (stat={d.get('stat')})")
@@ -200,11 +210,23 @@ def collect_chip(trade_date: str, force: bool = False) -> None:
         raise ValueError(f"TPEx 法人資料日 {o['Date'].iloc[0]} 與 {trade_date} 不符")
     o["stock_id"] = o["SecuritiesCompanyCode"].astype(str).str.strip()
     o = o[is_common_stock(o["stock_id"])]
+
+    def _ocol(name):
+        """TPEx 欄位防禦性取值:官方欄名偶有調整,缺欄回 NaN 不炸整批。"""
+        if name in o.columns:
+            return num(o[name])
+        logger.warning(f"TPEx 3insti 缺欄位 {name},該欄以 NaN 落地")
+        return pd.Series([float("nan")] * len(o), index=o.index)
+
     frames.append(pd.DataFrame({
         "stock_id": o["stock_id"],
         "foreign_net": num(o["ForeignInvestorsIncludeMainlandAreaInvestors-Difference"]),
         "trust_net": num(o["SecuritiesInvestmentTrustCompanies-Difference"]),
         "dealer_net": num(o["Dealers-Difference"]),
+        "foreign_buy": _ocol("ForeignInvestorsIncludeMainlandAreaInvestors-TotalBuy"),
+        "foreign_sell": _ocol("ForeignInvestorsIncludeMainlandAreaInvestors-TotalSell"),
+        "trust_buy": _ocol("SecuritiesInvestmentTrustCompanies-TotalBuy"),
+        "trust_sell": _ocol("SecuritiesInvestmentTrustCompanies-TotalSell"),
     }))
 
     df = pd.concat(frames, ignore_index=True).drop_duplicates(subset=["stock_id"], keep="first")
@@ -214,6 +236,133 @@ def collect_chip(trade_date: str, force: bool = False) -> None:
     df.to_parquet(tmp, index=False)
     os.replace(tmp, out)
     logger.info(f"法人快照已落地 {trade_date}: {len(df)} 檔 → {out}")
+
+
+def _upsert_daily(dir_: Path, date_: str, rows: pd.DataFrame) -> None:
+    """把 rows (含 stock_id) upsert 進 {date}.parquet:既有股票保留、只追加新股票 → 冪等。"""
+    dir_.mkdir(parents=True, exist_ok=True)
+    out = dir_ / f"{date_}.parquet"
+    rows = rows.copy()
+    rows.insert(1, "date", date_)
+    if out.exists():
+        prev = pd.read_parquet(out)
+        rows = rows[~rows["stock_id"].isin(set(prev["stock_id"]))]
+        if rows.empty:
+            return
+        rows = pd.concat([prev, rows], ignore_index=True)
+    tmp = out.with_suffix(".parquet.tmp")
+    rows.sort_values("stock_id").reset_index(drop=True).to_parquet(tmp, index=False)
+    os.replace(tmp, out)
+    logger.info(f"{dir_.name} {date_}: 共 {len(rows)} 檔 → {out}")
+
+
+def collect_margin(trade_date: str, force: bool = False) -> None:
+    """融資餘額 (TWSE rwd MI_MARGN + TPEx openapi margin_balance),單位:張。
+    時序:MI_MARGN 當日資料約 21:00 才發布 → 17:30 跑通常收到的是 T-1;
+    TPEx 端點只回最新日。兩市場**各按自己的資料日**寫逐日檔 (個股只屬一個市場,
+    序列內部一致即可),當日缺的次日自動補。歷史由 TEJ margin_balance 種子補。
+    MI_MARGN 融資/融券兩組欄位重名 → 按位置取 (融資今日餘額 = 第 7 欄)。"""
+    # TWSE:試 trade_date,未發布就往回補最多 3 個日曆天中缺的檔
+    got_twse = False
+    d0 = pd.Timestamp(trade_date)
+    for back in range(4):
+        dt = (d0 - pd.Timedelta(days=back)).strftime("%Y-%m-%d")
+        if dt < "2026-07-15":                      # 只補收集器上線後的日子
+            break
+        out = MARGIN_DIR / f"{dt}.parquet"
+        if out.exists() and not force and back > 0:
+            break                                   # 已補到既有檔 → 停
+        try:
+            d = fetch_twse_rwd("marginTrading/MI_MARGN",
+                               f"date={dt.replace('-', '')}&selectType=ALL")
+        except Exception as e:
+            logger.info(f"MI_MARGN {dt} 未發布/假日 ({e}),往前一天試")
+            continue
+        tbl = next((t for t in d.get("tables", []) if "代號" in (t.get("fields") or [])), None)
+        if tbl is None or not tbl.get("data"):
+            continue
+        tw = pd.DataFrame(tbl["data"])
+        ids = tw.iloc[:, 0].astype(str).str.strip()
+        keep = is_common_stock(ids)
+        rows = pd.DataFrame({"stock_id": ids[keep],
+                             "margin_balance": num(tw.iloc[:, 6][keep])}).dropna()
+        if len(rows) < 500:
+            raise ValueError(f"MI_MARGN {dt} 僅 {len(rows)} 檔,低於 sanity 下限")
+        _upsert_daily(MARGIN_DIR, dt, rows)
+        got_twse = True
+        break
+    if not got_twse:
+        logger.warning("MI_MARGN 近 4 天皆無資料可收 (連假?)")
+
+    # TPEx:端點只回最新日,按它自己的 Date 落地
+    o = fetch("tpex_price", "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_margin_balance")
+    o.columns = [c.replace(" ", "") for c in o.columns]
+    tpex_date = roc_to_iso(o["Date"].iloc[0])
+    o["stock_id"] = o["SecuritiesCompanyCode"].astype(str).str.strip()
+    o = o[is_common_stock(o["stock_id"])]
+    rows = pd.DataFrame({"stock_id": o["stock_id"],
+                         "margin_balance": num(o["MarginPurchaseBalance"])}).dropna()
+    if len(rows) < 500:
+        raise ValueError(f"TPEx 融資僅 {len(rows)} 檔,低於 sanity 下限")
+    _upsert_daily(MARGIN_DIR, tpex_date, rows)
+
+
+def collect_shareholding(trade_date: str, force: bool = False) -> None:
+    """發行股數 + 外資持股比率快照:
+      發行股數 = TWSE t187ap03_L「已發行普通股數」+ TPEx t187ap03_O IssueShares
+      外資比率 = TWSE rwd MI_QFIIS「全體外資及陸資持股比率」(TPEx 無公開端點 → NaN;
+                 分類器有市值主判,外資比率僅第4順位後備,缺值影響可忽略)
+    下游只用「最新一筆」(流通股數 → 市值/P-S/投信吸籌比),不需歷史種子。"""
+    out = SHARE_DIR / f"{trade_date}.parquet"
+    if out.exists() and not force:
+        logger.info(f"持股快照 {out} 已存在 → no-op")
+        return
+
+    frames = []
+    for url, id_col, share_col in [
+        ("https://openapi.twse.com.tw/v1/opendata/t187ap03_L", "公司代號", "已發行普通股數或TDR原股發行股數"),
+        ("https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O", "SecuritiesCompanyCode", "IssueShares"),
+    ]:
+        r = requests.get(url, timeout=60,
+                         headers={"accept": "application/json", "user-agent": "Mozilla/5.0"})
+        r.raise_for_status()
+        b = pd.DataFrame(r.json())
+        b["stock_id"] = b[id_col].astype(str).str.strip()
+        b = b[is_common_stock(b["stock_id"])]
+        frames.append(pd.DataFrame({"stock_id": b["stock_id"],
+                                    "shares_issued": num(b[share_col])}))
+    df = pd.concat(frames, ignore_index=True).dropna(subset=["shares_issued"])
+    df = df.drop_duplicates(subset=["stock_id"], keep="first")
+
+    # MI_QFIIS 當日可能尚未發布 → 往回最多 3 個日曆天取最近可得的外資比率
+    ratio = None
+    d0 = pd.Timestamp(trade_date)
+    for back in range(4):
+        dt = (d0 - pd.Timedelta(days=back)).strftime("%Y%m%d")
+        try:
+            q = fetch_twse_rwd("fund/MI_QFIIS", f"date={dt}&selectType=ALLBUT0999")
+            qd = pd.DataFrame(q["data"], columns=q["fields"])
+            qd["stock_id"] = qd["證券代號"].astype(str).str.strip()
+            ratio = pd.DataFrame({"stock_id": qd["stock_id"],
+                                  "foreign_ratio": num(qd["全體外資及陸資持股比率"])})
+            break
+        except Exception as e:
+            logger.info(f"MI_QFIIS {dt} 未發布 ({e}),往前一天試")
+    if ratio is not None:
+        df = df.merge(ratio, on="stock_id", how="left")
+    else:
+        logger.warning("MI_QFIIS 近 4 天皆無資料,外資比率以 NaN 落地")
+        df["foreign_ratio"] = float("nan")
+
+    if len(df) < 1500:
+        raise ValueError(f"持股快照僅 {len(df)} 檔,低於 sanity 下限 1500")
+    df.insert(1, "date", trade_date)
+    SHARE_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(".parquet.tmp")
+    df.to_parquet(tmp, index=False)
+    os.replace(tmp, out)
+    logger.info(f"持股快照已落地 {trade_date}: {len(df)} 檔"
+                f" (外資比率有值 {df['foreign_ratio'].notna().sum()}) → {out}")
 
 
 def collect_monthly_revenue() -> None:
@@ -303,6 +452,16 @@ def main():
         collect_monthly_revenue()
     except Exception as e:
         logger.warning(f"月營收快照失敗 (價格快照不受影響,次日自動補齊): {e}")
+
+    try:
+        collect_margin(trade_date, force=args.force)
+    except Exception as e:
+        logger.warning(f"融資快照失敗 (10日窗可容忍缺一天): {e}")
+
+    try:
+        collect_shareholding(trade_date, force=args.force)
+    except Exception as e:
+        logger.warning(f"持股快照失敗 (用最新一筆,次日自動補): {e}")
 
 
 if __name__ == "__main__":

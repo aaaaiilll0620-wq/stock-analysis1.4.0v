@@ -125,6 +125,53 @@ def _back_adjust(price_df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame]:
 USE_ADJUSTED_PRICE = False
 
 
+def _pit_revenue(symbol: str, fallback: Optional[pd.DataFrame]) -> Optional[pd.DataFrame]:
+    """
+    月營收 PIT 對齊 (2026-07-16):date 改用**真實公告日**。
+      FinMind 的 date = 公告月 1 號 (6月營收標 7/1),實際公告期限是次月 10 日
+      → 回測在每月 1~10 日間會提早最多 9 天看到新月營收 (營收動能因子的樂觀偏誤)。
+      TEJ monthly_revenue 有逐筆營收發布日 (2019-01 起);收集器增量的 release_date
+      = 全市場快照首見日 (≈公告日)。缺公告日的列以法定期限「次月 10 日」保守補。
+      TEJ 起點之前的月份保留 FinMind 列 (date=公告月1號近似,僅影響 2019 前的研究)。
+    輸出欄位 (date/revenue/revenue_year/revenue_month) 與 FinMind 同構,
+    _slice + _calc_rev_* 原封不動直接吃。
+    """
+    try:
+        df = DataProvider._read_tej("monthly_revenue", symbol)
+        inc = DataProvider._ensure_market_monthly_rev()
+        if not inc.empty:
+            s = inc[inc["stock_id"].astype(str) == str(symbol)]
+            if not s.empty:
+                df = pd.concat([df, s], ignore_index=True) if df is not None else s.copy()
+        if df is None or df.empty:
+            return fallback
+        d = (df.dropna(subset=["date", "revenue"])
+               .drop_duplicates(subset=["date"], keep="first").copy())
+        month = pd.to_datetime(d["date"], errors="coerce")
+        rel = pd.to_datetime(d["release_date"], errors="coerce") if "release_date" in d.columns \
+            else pd.Series(pd.NaT, index=d.index)
+        rel = rel.fillna(month + pd.offsets.MonthBegin(1) + pd.Timedelta(days=9))
+        out = pd.DataFrame({
+            "date": rel.dt.strftime("%Y-%m-%d"),
+            "revenue": pd.to_numeric(d["revenue"], errors="coerce"),
+            "revenue_year": month.dt.year.astype("Int64"),
+            "revenue_month": month.dt.month.astype("Int64"),
+        }).dropna(subset=["revenue", "revenue_year"])
+        if out.empty:
+            return fallback
+        # TEJ 起點前的月份用 FinMind 補 (近似公告日),確保 2019 前的回測不退化
+        if fallback is not None and {"revenue_year", "revenue_month", "revenue", "date"}.issubset(fallback.columns):
+            first_y, first_m = int(out["revenue_year"].min()), 1
+            fb = fallback[pd.to_numeric(fallback["revenue_year"], errors="coerce") < first_y]
+            if not fb.empty:
+                out = pd.concat([fb[["date", "revenue", "revenue_year", "revenue_month"]], out],
+                                ignore_index=True)
+        return out.sort_values("date").reset_index(drop=True)
+    except Exception as e:
+        logger.warning(f"[{symbol}] TEJ 月營收 PIT 對齊失敗,沿用 FinMind: {e}")
+        return fallback
+
+
 def fetch_history(symbol: str, start_date: str = HISTORY_START) -> HistoryBundle:
     """抓取單檔回測所需的資料集完整歷史。失敗的資料集以 None 帶過。"""
     api = DataProvider._api
@@ -153,7 +200,7 @@ def fetch_history(symbol: str, start_date: str = HISTORY_START) -> HistoryBundle
         symbol=symbol,
         price=price,
         per=_get("TaiwanStockPER"),
-        revenue=_get("TaiwanStockMonthRevenue"),
+        revenue=_pit_revenue(symbol, _get("TaiwanStockMonthRevenue")),
         income=_get("TaiwanStockFinancialStatements"),
         balance=_get("TaiwanStockBalanceSheet"),
         cashflow=_get("TaiwanStockCashFlowsStatement"),
@@ -184,7 +231,7 @@ def cached_fetch_history(symbol: str, refresh: bool = False) -> HistoryBundle:
     return HistoryBundle(
         symbol=symbol,
         price=_back_adjust(dfs.get("price")),
-        per=dfs.get("per"), revenue=dfs.get("revenue"), income=dfs.get("income"),
+        per=dfs.get("per"), revenue=_pit_revenue(symbol, dfs.get("revenue")), income=dfs.get("income"),
         balance=dfs.get("balance"), cashflow=dfs.get("cashflow"),
         chip=dfs.get("chip"), shareholding=dfs.get("shareholding"),
     )

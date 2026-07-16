@@ -45,6 +45,19 @@ TEJ 全市場歷史批次匯入器
     代號/名稱 + TSE產業_代碼/名稱 + TEJ產業_代碼/名稱 + TEJ子產業_代碼/名稱
     (查詢精靈會把每個產業欄位展開成 原始/代碼/名稱 三欄,只取代碼與名稱)
 
+  institutional_gross (讀 tej_exports/inbox_chip_gross/,法人毛額+持股率,15欄):
+    用 TEJ 籌碼資料庫查詢精靈,已選欄位順序:
+      外資買賣超(千股), 投信買賣超(千股), 自營買賣超(千股),
+      外資買進張數, 外資賣出張數, 投信買進張數, 投信賣出張數,
+      自營商買進張數, 自營商賣出張數, 外資總投資股率%, 投信持股率%, 自營持股率%
+    (張 ≡ 千股 → 匯入 ×1000 轉股;供 institutional_participation 法人成交占比,
+     淨額算不出毛額 → 收集器 2026-07-16 起有存,更早的靠這份種子)
+
+  margin_balance (讀 tej_exports/inbox_margin/,融資融券,10欄):
+    已選欄位:融資餘額(張), 融資買進(張), 融資賣出(張), 融資增減(張), 融資使用率,
+             融券餘額(張), 券資比
+    (張與 FinMind MarginPurchaseTodayBalance 同單位;分析只用融資餘額,其餘留供研究)
+
   tdcc_weekly (讀 tej_exports/inbox_tdcc/,集保股權分散週頻):
     1000張以上(比率)、1張以下(比率)、1-5張(比率)、5-10張(比率)、集保總人數、集保總張數(千股)
 
@@ -222,6 +235,44 @@ DATASETS = {
             "_capex_thousand": "capex",
         },
         "numeric_cols": ["eps", "quarter"],
+    },
+    # 法人買賣毛額+持股率 (日頻):institutional_participation (法人成交占比) 需要買+賣總量;
+    # 買賣超淨額已有 institutional_flow,此處只取毛額 (張≡千股 → ×1000) 與持股率。
+    "institutional_gross": {
+        "inbox": Path(project_root) / "tej_exports" / "inbox_chip_gross",
+        "expect_cols": 15,
+        "column_map": {
+            0: "stock_id",
+            1: "stock_name",
+            2: "date",
+            6: "_foreign_buy_lots",
+            7: "_foreign_sell_lots",
+            8: "_trust_buy_lots",
+            9: "_trust_sell_lots",
+            12: "foreign_holding_pct",
+            13: "trust_holding_pct",
+        },
+        "thousand_cols": {
+            "_foreign_buy_lots": "foreign_buy",
+            "_foreign_sell_lots": "foreign_sell",
+            "_trust_buy_lots": "trust_buy",
+            "_trust_sell_lots": "trust_sell",
+        },
+        "numeric_cols": ["foreign_holding_pct", "trust_holding_pct"],
+    },
+    # 融資融券 (日頻,張 ≡ FinMind 單位,不換算)。分析用 margin_balance,融券留供研究。
+    "margin_balance": {
+        "inbox": Path(project_root) / "tej_exports" / "inbox_margin",
+        "expect_cols": 10,
+        "column_map": {
+            0: "stock_id",
+            1: "stock_name",
+            2: "date",
+            3: "margin_balance",
+            8: "short_balance",
+        },
+        "thousand_cols": {},
+        "numeric_cols": ["margin_balance", "short_balance"],
     },
     # 靜態產業對照表 (無日期欄):存成單一 parquet,不逐股拆檔。
     "industry_map": {
