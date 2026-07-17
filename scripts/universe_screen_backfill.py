@@ -118,15 +118,22 @@ def main():
             d[f"{f}_pool_pct"] = d[f].rank(pct=True) * 100.0
         union = np.logical_or.reduce([(d[f"{f}_pool_pct"] > thr).to_numpy() for f in FACTORS])
         d["composite"] = d[[f"{f}_pool_pct" for f in FACTORS]].mean(axis=1)
+        # C2 排序分 (v4.6,同 universe_screen_daily.py):排序用 C2,composite 供對照
+        d["revenue_yoy_pool_pct"] = d["revenue_yoy_pct"].rank(pct=True) * 100.0
+        d["c2_score"] = pd.concat([
+            d["value_ind_pct_pool_pct"], d["revenue_yoy_pool_pct"],
+            d["high52_prox_pool_pct"], 100.0 - d["momentum20_pool_pct"],
+        ], axis=1).mean(axis=1, skipna=True)
         cols = ["stock_id", "stock_name", "industry", "close", "adv20",
                 "pe_hist_pct", "value_mkt_pct", "revenue_yoy_pct",
-                *FACTORS, *(f"{f}_pool_pct" for f in FACTORS), "composite"]
+                *FACTORS, *(f"{f}_pool_pct" for f in FACTORS),
+                "revenue_yoy_pool_pct", "composite", "c2_score"]
         base = d[cols].rename(columns={"stock_name": "name", "value_mkt_pct": "value_pct",
                                         "revenue_yoy_pct": "revenue_yoy"}).set_index("stock_id")
         if not out_pool.exists():
             base.sort_values("adv20", ascending=False).to_csv(out_pool, encoding="utf-8-sig")
         if not out_sl.exists():
-            (base[union].sort_values("composite", ascending=False)
+            (base[union].sort_values("c2_score", ascending=False)
                  .to_csv(out_sl, encoding="utf-8-sig"))
         written += 1
     print(f"重放完成:寫入 {written} 個交易日,跳過既有 {skipped} 日 → {out_dir}")

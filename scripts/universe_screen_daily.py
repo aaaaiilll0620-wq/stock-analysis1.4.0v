@@ -17,7 +17,10 @@
   五因子 = 產業內估值位階 + 20日動能 + 20日法人買賣超/成交量
            + 52週高點接近度 (突破) + 營收加速度 (最新YoY − 近3月均YoY)。
   池內各因子取前 --shortlist-union-pct (預設15%) 聯集 → shortlist_{date}.csv
-  (~400 檔,composite 排序供由高往低瀏覽)。
+  (~400 檔)。排序欄 = c2_score (v4.6):產業內估值 + 營收YoY水位 + 52週高點
+  − 20日動能(反轉),池內百分位等權。依據 alpha_gate_lab.py 新量尺 (L1 母體
+  中位 651 檔/月度):六時代 IC 全正 (+0.052~+0.093,t 2.5~7.3),含 2005-2018
+  封存段一次性複驗;舊 5F composite 寬池排序 IC≈0 (僅驗過召回),保留供對照。
   依據 (§16-C + 但書2三連測,雙視野 20/60 日皆驗):5F vs 3F 召回 +8~9pp、
   2022 超額改善 25-30%、月留存 +8pp,三期無一變差;突破與營收加速是唯二
   2022 單因子為正的選股訊號。視野解讀:因子在 60 日 (季度) 視野的空頭傷害
@@ -241,11 +244,18 @@ def main():
     thr = 100.0 - args.shortlist_union_pct
     union = np.logical_or.reduce([(sl[f"{f}_pool_pct"] > thr).to_numpy() for f in FACTORS])
     sl["composite"] = sl[[f"{f}_pool_pct" for f in FACTORS]].mean(axis=1)
-    shortlist = sl[union].sort_values("composite", ascending=False)
+    # C2 排序分 (v4.6,alpha_gate_lab.py 六時代驗證含 2005-2018 封存段):
+    # 聯集圈人仍用 5F (召回已驗),排序改用 C2;composite 保留供對照。
+    sl["revenue_yoy_pool_pct"] = sl["revenue_yoy"].rank(pct=True) * 100.0
+    sl["c2_score"] = pd.concat([
+        sl["value_ind_pct_pool_pct"], sl["revenue_yoy_pool_pct"],
+        sl["high52_prox_pool_pct"], 100.0 - sl["momentum20_pool_pct"],
+    ], axis=1).mean(axis=1, skipna=True)
+    shortlist = sl[union].sort_values("c2_score", ascending=False)
     out2 = out_dir / f"shortlist_{as_of}.csv"
     shortlist.to_csv(out2, encoding="utf-8-sig")
     print(f"第二段聯集 (各因子前 {args.shortlist_union_pct:.0f}%): shortlist {len(shortlist)} 檔"
-          f" → {out2}")
+          f" (c2_score 排序) → {out2}")
 
 
 if __name__ == "__main__":
