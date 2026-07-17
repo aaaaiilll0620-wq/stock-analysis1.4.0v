@@ -447,7 +447,9 @@ with tab_univ:
         _dates = [os.path.basename(f)[10:-4] for f in _files]
         _pick = st.selectbox("資料日", _dates[::-1], index=0)
         _f = _files[_dates.index(_pick)]
-        _df = _univ_load(_f).sort_values("composite", ascending=False)
+        _df_raw = _univ_load(_f)
+        _rc = "c2_score" if "c2_score" in _df_raw.columns else "composite"   # 舊檔無 c2_score 回退
+        _df = _df_raw.sort_values(_rc, ascending=False)
         _streaks = _univ_streaks(tuple(_files[: _dates.index(_pick) + 1][-40:]))
 
         _data_dir = os.path.dirname(_f)
@@ -465,8 +467,9 @@ with tab_univ:
         _prev_idx = _dates.index(_pick) - 1
         _new50 = set(_df.head(50).index)
         if _prev_idx >= 0:
-            _new50 -= set(_univ_load(_files[_prev_idx]).sort_values(
-                "composite", ascending=False).head(50).index)
+            _prev_df = _univ_load(_files[_prev_idx])
+            _prev_rc = "c2_score" if "c2_score" in _prev_df.columns else "composite"
+            _new50 -= set(_prev_df.sort_values(_prev_rc, ascending=False).head(50).index)
 
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("shortlist 檔數", len(_df))
@@ -487,26 +490,31 @@ with tab_univ:
         if _ind_sel and "industry" in _v.columns:
             _v = _v[_v["industry"].isin(_ind_sel)]
 
-        _cols = [c for c in ("name", "industry", "close", "composite", "來源臂", "連續在榜",
-                              "value_ind_pct", "momentum20", "chip20_turnover",
-                              "high52_prox", "rev_accel", "adv20") if c in _v.columns]
-        _disp = _v[_cols].rename(columns={
-            "name": "名稱", "industry": "產業", "close": "收盤", "composite": "綜合",
-            "value_ind_pct": "產業內便宜", "momentum20": "20日動能%",
-            "chip20_turnover": "法人流向", "high52_prox": "距52週高%",
-            "rev_accel": "營收加速", "adv20": "20日均額"})
+        _cols = [c for c in ("name", "industry", "close", _rc, "composite", "來源臂", "連續在榜",
+                              "value_ind_pct", "revenue_yoy", "high52_prox", "momentum20",
+                              "chip20_turnover", "rev_accel", "adv20") if c in _v.columns]
+        _disp = _v[_cols].sort_values(_rc, ascending=False).rename(columns={
+            "name": "名稱", "industry": "產業", "close": "收盤",
+            "c2_score": "C2排序分", "composite": "舊5F(對照)",
+            "value_ind_pct": "產業內便宜", "revenue_yoy": "營收YoY",
+            "momentum20": "20日動能%", "chip20_turnover": "法人流向",
+            "high52_prox": "距52週高%", "rev_accel": "營收加速", "adv20": "20日均額"})
         st.dataframe(_disp.round(2), use_container_width=True, height=520)
         _new_rows = _df.loc[sorted(_new50)]
         if len(_new_rows):
-            st.markdown("#### 🆕 今日新進 composite 前 50")
-            st.dataframe(_new_rows[_cols].rename(columns={"name": "名稱", "industry": "產業"}).round(2),
+            st.markdown(f"#### 🆕 今日新進 {'C2排序分' if _rc == 'c2_score' else 'composite'} 前 50")
+            st.dataframe(_new_rows[_cols].rename(columns={
+                "name": "名稱", "industry": "產業", "c2_score": "C2排序分",
+                "composite": "舊5F(對照)"}).round(2),
                          use_container_width=True)
         _digest_f = os.path.join(_data_dir, f"digest_{_pick}.md")
         if os.path.exists(_digest_f):
             with st.expander("📄 當日文字摘要 (digest)"):
                 st.markdown(open(_digest_f, encoding="utf-8").read())
-        st.caption("資料=TWSE/TPEx 官方快照+TEJ 種子 (0 FinMind);L0-L2 粗篩後五因子聯集,"
-                   "composite=五因子池內百分位平均。**分流參考,非投組**;個股請至『個股分析』深評。")
+        st.caption("資料=TWSE/TPEx 官方快照+TEJ 種子 (0 FinMind);L0-L2 粗篩後五因子聯集圈人,"
+                   "排序=C2排序分 (產業內估值+營收YoY+52週高點−20日動能,寬池驗證六時代IC全正,"
+                   "見 DevLog §19);舊5F(對照)為聯集用的召回因子平均,寬池排序力≈0僅供對照。"
+                   "**分流參考,非投組**;個股請至『個股分析』深評。")
 
 # ------------------------------------------------------------------ 使用說明
 with tab_help:
