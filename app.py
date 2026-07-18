@@ -254,8 +254,8 @@ st.sidebar.divider()
 st.sidebar.caption("⚠️ 研究/篩選輔助,非投資建議。評級是『狀態分類』,不是立刻買進;"
                    "進場價位請看每檔的『買點提示』。")
 
-tab_one, tab_rank, tab_screen, tab_univ, tab_help = st.tabs(
-    ["🔎 個股分析", "🏆 多檔排行", "🎯 綜合分選股", "🌐 全市場掃描", "📖 使用說明"])
+tab_one, tab_rank, tab_screen, tab_univ, tab_drill, tab_help = st.tabs(
+    ["🔎 個股分析", "🏆 多檔排行", "🎯 綜合分選股", "🌐 全市場掃描", "📋 實戰演練", "📖 使用說明"])
 
 # ------------------------------------------------------------------ 個股分析
 with tab_one:
@@ -515,6 +515,159 @@ with tab_univ:
                    "排序=C2排序分 (產業內估值+營收YoY+52週高點−20日動能,寬池驗證六時代IC全正,"
                    "見 DevLog §19);舊5F(對照)為聯集用的召回因子平均,寬池排序力≈0僅供對照。"
                    "**分流參考,非投組**;個股請至『個股分析』深評。")
+
+# ------------------------------------------------------------------ 實戰演練
+_HOME = os.path.expanduser("~")
+_PLAN_TEJ = os.path.join(_HOME, "tej_cache", "price_valuation")
+_PLAN_SNAP = os.path.join(_HOME, "market_cache", "price_valuation_daily")
+_PLAN_0050 = os.path.join(_HOME, "finmind_cache", "TaiwanStockPrice", "0050.parquet")
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def _plan_prices(sids: tuple, start: str) -> pd.DataFrame:
+    """演練標的日線 (TEJ 種子 ∪ 官方快照,0 API)。"""
+    import glob as _g
+    frames = []
+    for sid in sids:
+        f = os.path.join(_PLAN_TEJ, f"{sid}.parquet")
+        if os.path.exists(f):
+            d = pd.read_parquet(f, columns=["stock_id", "date", "open", "close"])
+            frames.append(d[d["date"] >= start])
+    tej_max = max((f["date"].max() for f in frames if len(f)), default="")
+    for sf in sorted(_g.glob(os.path.join(_PLAN_SNAP, "*.parquet"))):
+        _d = os.path.basename(sf)[:-8]
+        if _d > tej_max and _d >= start:
+            d = pd.read_parquet(sf, columns=["stock_id", "date", "open", "close"])
+            frames.append(d[d["stock_id"].isin(sids)])
+    if not frames:
+        return pd.DataFrame()
+    px = pd.concat(frames, ignore_index=True).drop_duplicates(["stock_id", "date"])
+    return px.sort_values(["stock_id", "date"])
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def _plan_bench(start: str) -> pd.DataFrame:
+    """0050 基準 (自動還原分割,同 portfolio_simulator_lab)。"""
+    if not os.path.exists(_PLAN_0050):
+        return pd.DataFrame()
+    d = pd.read_parquet(_PLAN_0050)[["date", "close"]].sort_values("date").reset_index(drop=True)
+    r = d["close"].pct_change()
+    for i in d.index[r < -0.5]:
+        ratio = round(d.loc[i - 1, "close"] / d.loc[i, "close"])
+        if ratio >= 2:
+            d.loc[:i - 1, "close"] /= ratio
+    return d[d["date"] >= start]
+
+
+with tab_drill:
+    import glob as _glob
+    st.markdown("#### 📋 30 天實戰演練 — plan 操作卡 × 實際成交對帳")
+    _plan_files = sorted(_glob.glob(os.path.join(_UNIV_DIR, "plan_*.csv")))
+    if not _plan_files:
+        st.info("找不到 plan 操作卡。先執行 `python scripts/portfolio_simulator_lab.py --plan` "
+                "產生 `outputs/universe_pool/plan_{date}.csv`。")
+    else:
+        _pdates = [os.path.basename(f)[5:-4] for f in _plan_files]
+        _ppick = st.selectbox("操作卡 (凍結日)", _pdates[::-1], index=0)
+        _plan = pd.read_csv(_plan_files[_pdates.index(_ppick)], dtype={"stock_id": str})
+        st.caption(f"規則 (DevLog §22 判定):**T+1 開盤整批買進** (預估 {_plan['entry_date_est'].iloc[0]})"
+                   f" → 持有至**季度再平衡** ({_plan['exit_window'].iloc[0]});"
+                   "買進區間=凍結收盤×歷史隔夜跳空 p10~p90,開盤落帶外屬正常,不建議等價錯過進場。")
+
+        # --- 成交紀錄回填 (存 fills_{date}.csv) ---
+        _fills_f = os.path.join(_UNIV_DIR, f"fills_{_ppick}.csv")
+        if os.path.exists(_fills_f):
+            _fills = pd.read_csv(_fills_f, dtype={"stock_id": str})
+        else:
+            _fills = _plan[["stock_id", "name", "frozen_close",
+                            "buy_low", "buy_ref", "buy_high"]].copy()
+            _fills["fill_date"] = ""
+            _fills["fill_price"] = float("nan")
+            _fills["shares"] = float("nan")
+        st.markdown("##### ① 回填實際成交 (模擬戶成交後填 fill_date / fill_price,股數選填)")
+        _edited = st.data_editor(
+            _fills, num_rows="fixed", use_container_width=True, key=f"fills_{_ppick}",
+            disabled=["stock_id", "name", "frozen_close", "buy_low", "buy_ref", "buy_high"],
+            column_config={
+                "fill_date": st.column_config.TextColumn("fill_date (YYYY-MM-DD)"),
+                "fill_price": st.column_config.NumberColumn("fill_price", format="%.2f"),
+                "shares": st.column_config.NumberColumn("shares (選填)")})
+        if st.button("💾 儲存成交紀錄"):
+            _edited.to_csv(_fills_f, index=False, encoding="utf-8-sig")
+            st.success(f"已存 {_fills_f}")
+
+        # --- 追蹤與對帳 ---
+        _done = _edited[(_edited["fill_price"] > 0)
+                        & (_edited["fill_date"].astype(str).str.len() >= 8)]
+        if _done.empty:
+            st.info("尚未回填任何成交 → 上表填入後按儲存,即開始每日追蹤。")
+        else:
+            _px = _plan_prices(tuple(_plan["stock_id"]), _ppick)
+            if _px.empty:
+                st.warning("讀不到本機價格快取 (tej_cache/market_cache),此分頁需在本機執行。")
+            else:
+                _days = sorted(_px["date"].unique())
+                _tdays = [d for d in _days if d > _ppick]      # 凍結日後的交易日
+                _n_td = len(_tdays)
+                _last = _days[-1]
+                _close = _px[_px["date"] == _last].set_index("stock_id")["close"]
+
+                # 進場品質:成交 vs 區間帶 vs 理論 T+1 開盤
+                _theo = (_px[_px["date"] == _tdays[0]].set_index("stock_id")["open"]
+                         if _tdays else pd.Series(dtype=float))
+                _t = _done.set_index("stock_id")
+                _t["最新收盤"] = _close.reindex(_t.index)
+                _t["報酬%"] = (_t["最新收盤"] / _t["fill_price"] - 1) * 100
+                _t["帶內"] = ((_t["fill_price"] >= _t["buy_low"])
+                              & (_t["fill_price"] <= _t["buy_high"])).map({True: "✓", False: "帶外"})
+                _t["滑價vs理論開盤%"] = (_t["fill_price"] / _theo.reindex(_t.index) - 1) * 100
+
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("已進場", f"{len(_t)}/{len(_plan)} 檔")
+                c2.metric("凍結日後交易日", f"{_n_td} 天")
+                c3.metric("組合報酬 (等權)", f"{_t['報酬%'].mean():+.2f}%")
+                _b = _plan_bench(min(_done['fill_date']))
+                if len(_b) > 1:
+                    _b_ret = (_b["close"].iloc[-1] / _b["close"].iloc[0] - 1) * 100
+                    c4.metric("同期 0050", f"{_b_ret:+.2f}%")
+
+                st.markdown("##### ② 持股追蹤")
+                st.dataframe(_t[["name", "fill_date", "fill_price", "帶內", "滑價vs理論開盤%",
+                                  "最新收盤", "報酬%"]].rename(columns={
+                    "name": "名稱", "fill_date": "成交日", "fill_price": "成交價"}).round(2),
+                    use_container_width=True)
+
+                # 淨值曲線 (各股自成交日起,等權;0050 自最早成交日)
+                _curves = {}
+                for sid, r in _t.iterrows():
+                    s = _px[_px["stock_id"] == sid].set_index("date")["close"]
+                    s = s[s.index >= str(r["fill_date"])]
+                    if len(s):
+                        _curves[sid] = s / r["fill_price"]
+                if _curves:
+                    _eq = pd.DataFrame(_curves).ffill()
+                    _chart = pd.DataFrame({"投組 (等權)": _eq.mean(axis=1)})
+                    if len(_b) > 1:
+                        _chart["0050"] = _b.set_index("date")["close"] / _b["close"].iloc[0]
+                    st.line_chart(_chart)
+
+                # 20 交易日三方對帳
+                st.markdown("##### ③ 20 交易日對帳點")
+                if _n_td < 20:
+                    st.caption(f"再 {20 - _n_td} 個交易日成熟 (預估與 shortlist_ledger 首次 live 對帳同步)。"
+                               "屆時此處自動顯示:執行滑價統計、實際 vs 理論 T+1 組合報酬、vs 回測期望。")
+                else:
+                    _d20 = _tdays[19]
+                    _c20 = _px[_px["date"] == _d20].set_index("stock_id")["close"]
+                    _theo_ret = ((_c20.reindex(_t.index) / _theo.reindex(_t.index) - 1) * 100).mean()
+                    _act_ret = ((_c20.reindex(_t.index) / _t["fill_price"] - 1) * 100).mean()
+                    st.markdown(
+                        f"- 執行滑價 (成交 vs 理論 T+1 開盤):平均 **{_t['滑價vs理論開盤%'].mean():+.2f}%**\n"
+                        f"- 20 日組合報酬:實際 **{_act_ret:+.2f}%** vs 理論 T+1 **{_theo_ret:+.2f}%**\n"
+                        f"- 回測期望 (§22):新進榜 20 日均值約 **+1.5%**,8 檔組合標準差約 **±4%**"
+                        f" —— 單一 cohort 落在 ±4% 內都屬雜訊範圍,別過度解讀單次結果。")
+                st.caption("⚠️ 收盤價未還原除權息,除息日報酬會低估;本分頁為演練追蹤,非投資建議。"
+                           "演練考驗的是執行品質與紀律,alpha 的證明靠 ledger 逐月累積 (DevLog §21)。")
 
 # ------------------------------------------------------------------ 使用說明
 with tab_help:

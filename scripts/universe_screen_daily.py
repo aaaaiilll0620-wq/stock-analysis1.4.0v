@@ -169,11 +169,9 @@ def main():
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / f"pool_{as_of}.csv"
-    l2.sort_values("adv20", ascending=False).to_csv(out, encoding="utf-8-sig")
     print(f"全市場 {n_all} → 今日有報價 {len(pool)} → L0 因子可評估 {len(l0)}"
           f" → L1 可投資性 {len(l1)} → L2 陷阱排除 -{int(trap.fillna(False).sum())}"
           f" → 候選池 {len(l2)} 檔")
-    print(f"已輸出 {out}")
 
     # --- 第二段:池內三因子聯集 shortlist ---
     vind = con.execute(f"""
@@ -251,6 +249,10 @@ def main():
         sl["value_ind_pct_pool_pct"], sl["revenue_yoy_pool_pct"],
         sl["high52_prox_pool_pct"], 100.0 - sl["momentum20_pool_pct"],
     ], axis=1).mean(axis=1, skipna=True)
+    # 池檔延後至因子/池百分位/c2 算完才寫:活體對帳 (shortlist_ledger.py 軌1) 需要
+    # 池級 c2 對全池算已實現 IC。欄位 = 舊 backfill 格式的超集 (只增不減)。
+    sl.sort_values("adv20", ascending=False).to_csv(out, encoding="utf-8-sig")
+    print(f"已輸出 {out}")
     shortlist = sl[union].sort_values("c2_score", ascending=False)
     out2 = out_dir / f"shortlist_{as_of}.csv"
     shortlist.to_csv(out2, encoding="utf-8-sig")
