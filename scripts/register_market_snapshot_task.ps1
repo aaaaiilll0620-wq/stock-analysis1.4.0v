@@ -10,6 +10,11 @@
 #  Catch-up : StartWhenAvailable = if the PC was off at 17:30, runs when back
 #             on; a next-morning catch-up still recovers yesterday (TPEx keeps
 #             serving T-1 until ~14:00 and TWSE rwd is date-addressed).
+#             2026-07-19: added -WakeToRun -- on 7/18 the PC was ASLEEP (not
+#             off) at trigger time and the task silently never fired
+#             (MissedRuns stayed 0, so StartWhenAvailable did not catch up).
+#             WakeToRun wakes the machine from sleep at 17:30; needs wake
+#             timers allowed in Windows power settings to be effective.
 #  Remove   : powershell -Command "Unregister-ScheduledTask -TaskName 'Market_SnapshotCollector' -Confirm:$false"
 # =====================================================================
 $ErrorActionPreference = 'Stop'
@@ -23,7 +28,7 @@ $vbs = Join-Path $PSScriptRoot 'run_hidden.vbs'
 if (-not (Test-Path $vbs)) { throw "not found: $vbs" }
 $action   = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "//B //Nologo `"$vbs`" `"$bat`""
 $trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 17:30
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable `
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -WakeToRun `
               -ExecutionTimeLimit (New-TimeSpan -Hours 1) `
               -MultipleInstances IgnoreNew
 

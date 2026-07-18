@@ -30,19 +30,16 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import alpha_gate_lab as agl  # noqa: E402  (只用 ADV_FLOOR/build_candidate 做 C2 複算檢查)
 
-SCRATCH_OLD = Path(r"C:\Users\aaaai\AppData\Local\Temp\claude"
-                   r"\C--Users-aaaai-OneDrive-Desktop-Project-1"
-                   r"\623b4372-467b-4a4c-83eb-ae0cc72a6d60\scratchpad")
-SCRATCH_NEW = Path(r"C:\Users\aaaai\AppData\Local\Temp\claude"
-                   r"\C--Users-aaaai-OneDrive-Desktop-Project-1"
-                   r"\e53510b7-f898-40aa-9b74-31f2a335e48d\scratchpad")
+import lab_paths  # noqa: E402  2026-07-19 遷出 Temp scratchpad (工單 WP4)
+
+SCRATCH_NEW = lab_paths.RESEARCH_BASE          # q1_*/q3_* 實驗輸出落點
 TEJ_CACHE = Path.home() / "tej_cache"
 MARKET_CACHE = Path.home() / "market_cache"
 FINMIND_CACHE = Path.home() / "finmind_cache"
 SNAP_DIR = MARKET_CACHE / "price_valuation_daily"
-OBS_ALPHA = SCRATCH_OLD / "obs_alpha.parquet"
+OBS_ALPHA = lab_paths.OBS_ALPHA
 BENCH_0050 = FINMIND_CACHE / "TaiwanStockPrice" / "0050.parquet"
-STATS_OUT = SCRATCH_NEW / "portfolio_sim_stats.parquet"
+STATS_OUT = lab_paths.PORTFOLIO_SIM_STATS
 
 # ---- 預註冊凍結參數 (docs/預註冊_PortfolioSimulatorLab.md) --------------------
 SEED = 20260718

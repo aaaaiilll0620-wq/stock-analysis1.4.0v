@@ -27,12 +27,11 @@ import numpy as np
 import pandas as pd
 import duckdb
 
-SCRATCH = Path(r"C:\Users\aaaai\AppData\Local\Temp\claude"
-               r"\C--Users-aaaai-OneDrive-Desktop-Project-1"
-               r"\623b4372-467b-4a4c-83eb-ae0cc72a6d60\scratchpad")
+from lab_paths import OBS_DUMP_FULL, OBS_ALPHA  # 2026-07-19 遷出 Temp scratchpad (工單 WP4)
+
 TEJ = Path.home() / "tej_cache"
-OBS_SRC = SCRATCH / "obs_dump_full.parquet"
-OBS_OUT = SCRATCH / "obs_alpha.parquet"
+OBS_SRC = OBS_DUMP_FULL
+OBS_OUT = OBS_ALPHA
 
 ADV_FLOOR = 10_000_000
 TDCC_LAG_DAYS = 4       # 集保資料日=週五,公布約次週初 (同 tej_orthogonal_lab.py)

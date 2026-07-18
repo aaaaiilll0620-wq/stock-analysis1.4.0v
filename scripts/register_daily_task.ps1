@@ -3,9 +3,19 @@
 #  Run once (double-click register_daily_task.bat, or:
 #      powershell -ExecutionPolicy Bypass -File scripts\register_daily_task.ps1)
 #
-#  Schedule : weekdays (Mon-Fri) 20:30  -- after market close & chip data
-#  Catch-up : StartWhenAvailable = if the PC was off/asleep at 20:30,
-#             the task runs as soon as it's back on.
+#  Schedule : weekdays (Mon-Fri) 18:00  -- 30min buffer after Market_SnapshotCollector
+#             (17:30) so today's local chip/margin snapshots are already landed;
+#             2026-07-17: moved up from 20:30 -- that buffer predated the v4.5
+#             local-first chip pipeline (_read_local_chip reads today's
+#             institutional_flow_daily snapshot, 0 API) and margin data is
+#             inherently published a day late anyway (see data_provider.py
+#             _read_local_margin), so waiting until 20:30 bought nothing.
+#  Catch-up : StartWhenAvailable = if the PC was off at 18:00, the task runs
+#             as soon as it's back on. 2026-07-19: added -WakeToRun -- on 7/18
+#             the PC was ASLEEP (not off) at trigger time and the task silently
+#             never fired (MissedRuns stayed 0; StartWhenAvailable does NOT
+#             cover sleep). WakeToRun wakes the machine at 18:00; needs wake
+#             timers allowed in Windows power settings to be effective.
 #  Remove   : powershell -Command "Unregister-ScheduledTask -TaskName 'FinMind_DailyUpdate' -Confirm:$false"
 # =====================================================================
 $ErrorActionPreference = 'Stop'
@@ -18,8 +28,8 @@ if (-not (Test-Path $bat)) { throw "not found: $bat" }
 $vbs = Join-Path $PSScriptRoot 'run_hidden.vbs'
 if (-not (Test-Path $vbs)) { throw "not found: $vbs" }
 $action   = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "//B //Nologo `"$vbs`" `"$bat`""
-$trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 20:30
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable `
+$trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 18:00
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -WakeToRun `
               -ExecutionTimeLimit (New-TimeSpan -Hours 2) `
               -MultipleInstances IgnoreNew
 

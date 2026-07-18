@@ -26,15 +26,11 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import alpha_gate_lab as agl  # noqa: E402  (只用 build_candidate 做 C2 複算一致性檢查)
 
-SCRATCH_OLD = Path(r"C:\Users\aaaai\AppData\Local\Temp\claude"
-                   r"\C--Users-aaaai-OneDrive-Desktop-Project-1"
-                   r"\623b4372-467b-4a4c-83eb-ae0cc72a6d60\scratchpad")
-SCRATCH_NEW = Path(r"C:\Users\aaaai\AppData\Local\Temp\claude"
-                   r"\C--Users-aaaai-OneDrive-Desktop-Project-1"
-                   r"\e53510b7-f898-40aa-9b74-31f2a335e48d\scratchpad")
-OBS_ALPHA = SCRATCH_OLD / "obs_alpha.parquet"
-OBS_H60 = SCRATCH_NEW / "obs_dump_h60.parquet"
-STATS_OUT = SCRATCH_NEW / "basket_dispersion_stats.parquet"
+import lab_paths  # noqa: E402  2026-07-19 遷出 Temp scratchpad (工單 WP4)
+
+OBS_ALPHA = lab_paths.OBS_ALPHA
+OBS_H60 = lab_paths.OBS_H60
+STATS_OUT = lab_paths.BASKET_DISPERSION_STATS
 
 # ---- 預註冊凍結參數 (§3/§4/§6) ------------------------------------------------
 SEED = 20260718
