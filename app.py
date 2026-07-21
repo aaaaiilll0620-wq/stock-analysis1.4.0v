@@ -679,18 +679,44 @@ with tab_drill:
         _track["_fill_dt"] = pd.to_datetime(_track["fill_date"], errors="coerce")
         _track["_sell_dt"] = pd.to_datetime(_track["sell_date"], errors="coerce")
 
-        # WP1-2 fill_price sanity check:偏離凍結收盤逾帶寬數倍即紅字 (抓少小數點/貼錯欄的 typo)
+        # WP1-2 fill_price sanity check:核對「成交日當天實際市價」而非凍結收盤。
+        # 凍結收盤帶在除權息日會系統性誤判——T+1 若除權息,開盤參考價重設,合法成交會遠低於
+        # 凍結收盤 (例:378 → 除權後 ~261),舊版誤報「疑似輸入錯誤」。真正要抓的是打錯價
+        # (漏小數點/貼錯欄/貼錯股),其唯一可靠 oracle 是成交日當天的實際成交價區間:除權息後的
+        # 實際開/收盤已是重設後價位,合法成交自然吻合,只有 typo 才會偏離。市價未入快取才退回凍結帶。
+        _px = _plan_prices(tuple(_plan["stock_id"]), _ppick)
         _filled = _track[_track["fill_price"] > 0].copy()
         if not _filled.empty:
-            _bw = (_filled["buy_high"] - _filled["buy_low"]).abs()
-            _lo = _filled["buy_low"] - 2 * _bw       # 容許帶外,但逾「兩個帶寬」極可能是輸入錯誤
-            _hi = _filled["buy_high"] + 2 * _bw
-            _bad = _filled[(_filled["fill_price"] < _lo) | (_filled["fill_price"] > _hi)]
-            if not _bad.empty:
+            _MKT_MARGIN = 0.15                       # 當日 open/close 區間再放寬 ±15% (吸收盤中波動/漲跌停)
+            _pxi = _px.set_index(["stock_id", "date"]) if not _px.empty else None
+            _bad_mkt, _bad_frozen = [], []
+            for _, r in _filled.iterrows():
+                _sid, _fp = str(r["stock_id"]), float(r["fill_price"])
+                _fs = r["_fill_dt"].strftime("%Y-%m-%d") if pd.notna(r["_fill_dt"]) else None
+                _oc = None
+                if _pxi is not None and _fs is not None and (_sid, _fs) in _pxi.index:
+                    _mrow = _pxi.loc[(_sid, _fs)]
+                    _o, _c = float(_mrow["open"]), float(_mrow["close"])
+                    _oc = (min(_o, _c), max(_o, _c))
+                if _oc is not None:                  # 有當日市價 → 除權息-proof 比對
+                    if _fp < _oc[0] * (1 - _MKT_MARGIN) or _fp > _oc[1] * (1 + _MKT_MARGIN):
+                        _bad_mkt.append((r, _oc))
+                else:                                # 當日市價未快取 (今日剛成交/假日) → 退回凍結帶,軟提示
+                    _bw = abs(float(r["buy_high"]) - float(r["buy_low"]))
+                    if _fp < r["buy_low"] - 2 * _bw or _fp > r["buy_high"] + 2 * _bw:
+                        _bad_frozen.append(r)
+            if _bad_mkt:
                 _lst = "、".join(f"{r['stock_id']} {r['name']} 成交{r['fill_price']:.2f}"
-                                 f"(凍結收盤{r['frozen_close']:.2f})" for _, r in _bad.iterrows())
-                st.error(f"⚠️ fill_price 疑似輸入錯誤 (偏離凍結收盤逾兩個帶寬):{_lst}。"
-                         f"請確認非漏小數點或貼錯欄——錯價會污染滑價與淨額對帳。")
+                                 f"(當日實際 {oc[0]:.2f}~{oc[1]:.2f})" for r, oc in _bad_mkt)
+                st.error(f"⚠️ fill_price 疑似輸入錯誤 (偏離**成交日當天實際市價**逾 ±{_MKT_MARGIN*100:.0f}%):"
+                         f"{_lst}。請確認非漏小數點/貼錯欄/貼錯股——錯價會污染滑價與淨額對帳。"
+                         f"(已對照當日實際成交價,除權息日的合法成交不會被誤報。)")
+            if _bad_frozen:
+                _lst = "、".join(f"{r['stock_id']} {r['name']} 成交{r['fill_price']:.2f}"
+                                 f"(凍結收盤{r['frozen_close']:.2f})" for r in _bad_frozen)
+                st.warning(f"ℹ️ fill_price 偏離凍結收盤逾兩個帶寬,但**當日實際市價尚未入快取,無法核對**:"
+                           f"{_lst}。若當日除權息屬正常;待快照更新後會自動改以實際市價複核,"
+                           f"或請自行確認非打錯。")
 
         # --- 追蹤與對帳 ---
         _done = _track[(_track["fill_price"] > 0) & _track["_fill_dt"].notna()].copy()
@@ -698,7 +724,6 @@ with tab_drill:
             st.info("尚未回填任何成交 → 上表填入後按儲存,即開始每日追蹤。")
         else:
             _done["_fill_str"] = _done["_fill_dt"].dt.strftime("%Y-%m-%d")
-            _px = _plan_prices(tuple(_plan["stock_id"]), _ppick)
             if _px.empty:
                 st.warning("讀不到本機價格快取 (tej_cache/market_cache),此分頁需在本機執行。")
             else:
