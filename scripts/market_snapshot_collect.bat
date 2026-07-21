@@ -46,5 +46,13 @@ if errorlevel 1 (
     echo [WARN] digest failed - shortlist still available >> "%LOG%"
 )
 
+REM --- WP2-6 SUCCESS heartbeat: reached only if screen (errorlevel-gated above) succeeded.
+REM     snapshot_watchdog.ps1 reads this next day to catch a silently-missed run.
+set "HBDIR=outputs\heartbeat"
+if not exist "%HBDIR%" mkdir "%HBDIR%"
+for /f "delims=" %%d in ('powershell -NoProfile -Command "Get-Date -Format s"') do set "NOW=%%d"
+> "%HBDIR%\last_success.txt" echo %NOW%
+echo [heartbeat] SUCCESS %NOW% -> %HBDIR%\last_success.txt >> "%LOG%"
+
 echo ==== market_snapshot_collect done %date% %time% ==== >> "%LOG%"
 endlocal

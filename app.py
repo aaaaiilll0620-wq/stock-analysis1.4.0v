@@ -39,6 +39,15 @@ from core.scoring_manager import ScoringManager
 from core import data_cache
 from core import score_store                            # 綜合分快取:整個名單的跨股排名選股
 
+# ------------------------------------------------------------------ 實戰演練真實成本 (元大證券零股 6 折)
+# memory: user-trading-constraints — 學生小資金、零股、元大 6 折。賣出 0.3855% 與 20 日期望
+# +1.5% 同數量級,毛額記帳會系統性高估演練成績、污染 8/14 三方對帳 (工單 WP1)。
+_FEE_BROKER_PCT = 0.0855 / 100.0   # 券商手續費 6 折 (原 0.1425% × 0.6);買賣皆適用,有 NT$1 地板
+_FEE_TAX_PCT = 0.30 / 100.0        # 證券交易稅 (僅賣出課徵,無最低額)
+_FEE_BUY_PCT = _FEE_BROKER_PCT                 # 買進總費率 0.0855%
+_FEE_SELL_PCT = _FEE_BROKER_PCT + _FEE_TAX_PCT # 賣出總費率 0.3855% (含證交稅)
+_FEE_MIN_TWD = 1.0                 # 元大單筆最低手續費地板 (小資金/零股專屬真實成本,只有 live 量得到)
+
 # ------------------------------------------------------------------ 多使用者 token 隔離 (公開站 B 模式)
 # 背景:DataProvider 是「類別層級單例」(_api / _logged_in 都在 class 上),而 Streamlit 一個程序服務
 #       所有訪客。若直接對全域 _api 登入,並發訪客會互相蓋掉 token。做法:每個 token 建一個獨立、
@@ -253,6 +262,45 @@ else:
 st.sidebar.divider()
 st.sidebar.caption("⚠️ 研究/篩選輔助,非投資建議。評級是『狀態分類』,不是立刻買進;"
                    "進場價位請看每檔的『買點提示』。")
+
+# ------------------------------------------------------------------ WP2-7 全域資料新鮮度告警
+def _latest_shortlist_date() -> str | None:
+    """最新 shortlist 凍結日 (本機 outputs 優先,雲端退回 cloud_cache 快照)。"""
+    import glob as _g
+    _base = os.path.dirname(os.path.abspath(__file__))
+    for _d in (os.path.join(_base, "outputs", "universe_pool"),
+               os.path.join(_base, "cloud_cache", "UniversePool")):
+        _fs = sorted(_g.glob(os.path.join(_d, "shortlist_*.csv")))
+        if _fs:
+            _m = re.search(r"shortlist_(\d{4}-\d{2}-\d{2})\.csv", os.path.basename(_fs[-1]))
+            if _m:
+                return _m.group(1)
+    return None
+
+
+def _render_stale_banner():
+    """最新 shortlist 距今 >1 交易日即紅字警示 (本機＋雲端),含最後成功日期。
+    無台股假日日曆,以營業日 (Mon-Fri) 近似;>1 交易日容差已吸收單一國定假日與『今日尚未開跑』。"""
+    _d = _latest_shortlist_date()
+    if not _d:
+        return
+    try:
+        _last = pd.Timestamp(_d)
+    except Exception:
+        return
+    _today = pd.Timestamp.now().normalize()
+    if _last >= _today:
+        return
+    _bdays = len(pd.bdate_range(_last + pd.Timedelta(days=1), _today))
+    if _bdays > 1:
+        st.error(
+            f"⚠️ **資料可能過期**:最新 shortlist 為 **{_d}**,距今約 {_bdays} 個交易日未更新。"
+            f"每日粗篩排程 (Market_SnapshotCollector) 疑似漏跑——本機請查 `outputs\\heartbeat\\` "
+            f"心跳與 ALERT 檔;雲端請確認每日快照 commit 是否中斷。"
+            f"下方『全市場掃描』與『實戰演練』數據皆以此日期為基準,解讀請留意時效。")
+
+
+_render_stale_banner()
 
 tab_one, tab_rank, tab_screen, tab_univ, tab_drill, tab_help = st.tabs(
     ["🔎 個股分析", "🏆 多檔排行", "🎯 綜合分選股", "🌐 全市場掃描", "📋 實戰演練", "📖 使用說明"])
@@ -574,8 +622,10 @@ with tab_drill:
                    f" → 持有至**季度再平衡** ({_plan['exit_window'].iloc[0]});"
                    "買進區間=凍結收盤×歷史隔夜跳空 p10~p90,開盤落帶外屬正常,不建議等價錯過進場。")
 
-        # --- 成交紀錄回填 (存 fills_{date}.csv) ---
+        # --- 成交紀錄回填 (存 fills_{date}.csv;WP1-1 schema 含買進側＋賣出側) ---
+        # schema 定案:買賣同表 (單一 editor、原子儲存),不拆獨立 sells_{date}.csv。
         _fills_f = os.path.join(_UNIV_DIR, f"fills_{_ppick}.csv")
+        _SELL_COLS = {"sell_date": "", "sell_price": float("nan"), "sell_reason": ""}
         if os.path.exists(_fills_f):
             _fills = pd.read_csv(_fills_f, dtype={"stock_id": str})
         else:
@@ -584,24 +634,70 @@ with tab_drill:
             _fills["fill_date"] = ""
             _fills["fill_price"] = float("nan")
             _fills["shares"] = float("nan")
-        st.markdown("##### ① 回填實際成交 (模擬戶成交後填 fill_date / fill_price,股數選填)")
+        for _c, _default in _SELL_COLS.items():     # 舊檔 (賣出側前) 向後相容:缺欄補上
+            if _c not in _fills.columns:
+                _fills[_c] = _default
+        # WP1-2 DateColumn 需 date/datetime 型別:磁碟載入的日期是字串、新檔初值是 ""——
+        # 皆為 STRING kind,直接餵 DateColumn 會 StreamlitAPIException。先 coerce 成
+        # datetime64 (空值→NaT),元件才收得下;儲存時再格式化回乾淨 YYYY-MM-DD 字串。
+        for _c in ("fill_date", "sell_date"):
+            _fills[_c] = pd.to_datetime(_fills[_c], errors="coerce")
+        st.markdown("##### ① 回填實際成交 (買進填 fill_date / fill_price,股數選填;賣出時填 sell_*)")
         _edited = st.data_editor(
             _fills, num_rows="fixed", use_container_width=True, key=f"fills_{_ppick}",
             disabled=["stock_id", "name", "frozen_close", "buy_low", "buy_ref", "buy_high"],
             column_config={
-                "fill_date": st.column_config.TextColumn("fill_date (YYYY-MM-DD)"),
+                # WP1-2 輸入硬化:日期改 DateColumn — TextColumn 下格式 typo 會被 len>=8 靜默踢出追蹤,
+                # 對帳樣本缺損不可察覺;DateColumn 由元件層強制合法日期。
+                "fill_date": st.column_config.DateColumn("fill_date", format="YYYY-MM-DD"),
                 "fill_price": st.column_config.NumberColumn("fill_price", format="%.2f"),
-                "shares": st.column_config.NumberColumn("shares (選填)")})
+                "shares": st.column_config.NumberColumn("shares (選填)"),
+                "sell_date": st.column_config.DateColumn("sell_date", format="YYYY-MM-DD"),
+                "sell_price": st.column_config.NumberColumn("sell_price", format="%.2f"),
+                "sell_reason": st.column_config.TextColumn("sell_reason (季度再平衡/掉出top8/停損)")})
         if st.button("💾 儲存成交紀錄"):
-            _edited.to_csv(_fills_f, index=False, encoding="utf-8-sig")
+            _save = _edited.copy()
+            for _c in ("fill_date", "sell_date"):    # datetime64 → 乾淨 YYYY-MM-DD / 空字串,維持磁碟格式穩定
+                _save[_c] = pd.to_datetime(_save[_c], errors="coerce").dt.strftime("%Y-%m-%d").fillna("")
+            _save.to_csv(_fills_f, index=False, encoding="utf-8-sig")
             st.success(f"已存 {_fills_f}")
 
+        # --- WP1-3 追蹤來源改「磁碟 fills_{date}.csv 優先」 ---
+        # 消除 _edited 即時態「未存檔也追蹤、重整即遺失」歧義:追蹤/對帳一律讀已落地的磁碟檔,
+        # 未按儲存的編輯不進追蹤 (對帳證據鏈只認存檔事實)。
+        if os.path.exists(_fills_f):
+            _track = pd.read_csv(_fills_f, dtype={"stock_id": str})
+            for _c, _default in _SELL_COLS.items():
+                if _c not in _track.columns:
+                    _track[_c] = _default
+            st.caption("ℹ️ 追蹤與對帳以**磁碟 fills 檔**為準 (上方編輯需按『儲存』後才納入)。")
+        else:
+            _track = _edited.copy()
+            st.caption("ℹ️ 尚未儲存 fills 檔:以下追蹤暫用當前編輯內容,請按上方『儲存』落地以免重整遺失。")
+
+        # WP1-2 日期改 datetime 型別 (取代 len>=8 字串長度啟發);coerce 後 notna 才算有效成交
+        _track["_fill_dt"] = pd.to_datetime(_track["fill_date"], errors="coerce")
+        _track["_sell_dt"] = pd.to_datetime(_track["sell_date"], errors="coerce")
+
+        # WP1-2 fill_price sanity check:偏離凍結收盤逾帶寬數倍即紅字 (抓少小數點/貼錯欄的 typo)
+        _filled = _track[_track["fill_price"] > 0].copy()
+        if not _filled.empty:
+            _bw = (_filled["buy_high"] - _filled["buy_low"]).abs()
+            _lo = _filled["buy_low"] - 2 * _bw       # 容許帶外,但逾「兩個帶寬」極可能是輸入錯誤
+            _hi = _filled["buy_high"] + 2 * _bw
+            _bad = _filled[(_filled["fill_price"] < _lo) | (_filled["fill_price"] > _hi)]
+            if not _bad.empty:
+                _lst = "、".join(f"{r['stock_id']} {r['name']} 成交{r['fill_price']:.2f}"
+                                 f"(凍結收盤{r['frozen_close']:.2f})" for _, r in _bad.iterrows())
+                st.error(f"⚠️ fill_price 疑似輸入錯誤 (偏離凍結收盤逾兩個帶寬):{_lst}。"
+                         f"請確認非漏小數點或貼錯欄——錯價會污染滑價與淨額對帳。")
+
         # --- 追蹤與對帳 ---
-        _done = _edited[(_edited["fill_price"] > 0)
-                        & (_edited["fill_date"].astype(str).str.len() >= 8)]
+        _done = _track[(_track["fill_price"] > 0) & _track["_fill_dt"].notna()].copy()
         if _done.empty:
             st.info("尚未回填任何成交 → 上表填入後按儲存,即開始每日追蹤。")
         else:
+            _done["_fill_str"] = _done["_fill_dt"].dt.strftime("%Y-%m-%d")
             _px = _plan_prices(tuple(_plan["stock_id"]), _ppick)
             if _px.empty:
                 st.warning("讀不到本機價格快取 (tej_cache/market_cache),此分頁需在本機執行。")
@@ -617,31 +713,54 @@ with tab_drill:
                          if _tdays else pd.Series(dtype=float))
                 _t = _done.set_index("stock_id")
                 _t["最新收盤"] = _close.reindex(_t.index)
-                _t["報酬%"] = (_t["最新收盤"] / _t["fill_price"] - 1) * 100
+                # 已實現 (賣出) 者以 sell_price 作為出場價,未賣者用最新收盤
+                _sold = _t["sell_price"] > 0
+                _t["出場價"] = _t["最新收盤"].where(~_sold, _t["sell_price"])
+                _t["狀態"] = _sold.map({True: "已賣出", False: "持有中"})
                 _t["帶內"] = ((_t["fill_price"] >= _t["buy_low"])
                               & (_t["fill_price"] <= _t["buy_high"])).map({True: "✓", False: "帶外"})
                 _t["滑價vs理論開盤%"] = (_t["fill_price"] / _theo.reindex(_t.index) - 1) * 100
 
+                # WP1-4 記帳改淨額:元大零股 6 折費率;有 shares 走 TWD 精算 (含 NT$1 手續費地板),
+                # 無 shares 退回百分比近似 (含買賣總費率)。毛/淨並列,避免系統性高估演練成績。
+                _t["毛報酬%"] = (_t["出場價"] / _t["fill_price"] - 1) * 100
+                _gross_net_pct = ((_t["出場價"] * (1 - _FEE_SELL_PCT))
+                                  / (_t["fill_price"] * (1 + _FEE_BUY_PCT)) - 1) * 100
+                _sh = pd.to_numeric(_t["shares"], errors="coerce")
+                _buy_amt = _t["fill_price"] * _sh
+                _buy_fee = (_buy_amt * _FEE_BROKER_PCT).clip(lower=_FEE_MIN_TWD)
+                _exit_amt = _t["出場價"] * _sh
+                _sell_fee = (_exit_amt * _FEE_BROKER_PCT).clip(lower=_FEE_MIN_TWD) + _exit_amt * _FEE_TAX_PCT
+                _net_twd = (_exit_amt - _sell_fee) - (_buy_amt + _buy_fee)
+                _net_ret_twd = _net_twd / (_buy_amt + _buy_fee) * 100
+                _has_sh = _sh.notna() & (_sh > 0)
+                _t["淨報酬%"] = _net_ret_twd.where(_has_sh, _gross_net_pct)
+                _t["實際損益TWD"] = _net_twd.where(_has_sh)
+
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("已進場", f"{len(_t)}/{len(_plan)} 檔")
                 c2.metric("凍結日後交易日", f"{_n_td} 天")
-                c3.metric("組合報酬 (等權)", f"{_t['報酬%'].mean():+.2f}%")
-                _b = _plan_bench(min(_done['fill_date']))
+                c3.metric("組合報酬 (淨,等權)", f"{_t['淨報酬%'].mean():+.2f}%",
+                          delta=f"毛 {_t['毛報酬%'].mean():+.2f}%", delta_color="off")
+                _b = _plan_bench(_done["_fill_str"].min())
                 if len(_b) > 1:
                     _b_ret = (_b["close"].iloc[-1] / _b["close"].iloc[0] - 1) * 100
                     c4.metric("同期 0050", f"{_b_ret:+.2f}%")
 
-                st.markdown("##### ② 持股追蹤")
-                st.dataframe(_t[["name", "fill_date", "fill_price", "帶內", "滑價vs理論開盤%",
-                                  "最新收盤", "報酬%"]].rename(columns={
+                st.markdown("##### ② 持股追蹤 (淨額含元大零股 6 折實收費用)")
+                st.dataframe(_t[["name", "狀態", "fill_date", "fill_price", "帶內", "滑價vs理論開盤%",
+                                  "出場價", "毛報酬%", "淨報酬%", "實際損益TWD"]].rename(columns={
                     "name": "名稱", "fill_date": "成交日", "fill_price": "成交價"}).round(2),
                     use_container_width=True)
+                st.caption(f"淨額費率:買 {_FEE_BUY_PCT*100:.4f}% / 賣 {_FEE_SELL_PCT*100:.4f}% (含證交稅"
+                           f" {_FEE_TAX_PCT*100:.2f}%),單筆手續費地板 NT${_FEE_MIN_TWD:.0f}。"
+                           "填 shares 走 TWD 精算 (含地板真實成本),否則走百分比近似。")
 
                 # 淨值曲線 (各股自成交日起,等權;0050 自最早成交日)
                 _curves = {}
                 for sid, r in _t.iterrows():
                     s = _px[_px["stock_id"] == sid].set_index("date")["close"]
-                    s = s[s.index >= str(r["fill_date"])]
+                    s = s[s.index >= str(r["_fill_str"])]
                     if len(s):
                         _curves[sid] = s / r["fill_price"]
                 if _curves:
@@ -655,15 +774,18 @@ with tab_drill:
                 st.markdown("##### ③ 20 交易日對帳點")
                 if _n_td < 20:
                     st.caption(f"再 {20 - _n_td} 個交易日成熟 (預估與 shortlist_ledger 首次 live 對帳同步)。"
-                               "屆時此處自動顯示:執行滑價統計、實際 vs 理論 T+1 組合報酬、vs 回測期望。")
+                               "屆時此處自動顯示:執行滑價統計、實際 vs 理論 T+1 組合報酬 (毛/淨並列)、vs 回測期望。")
                 else:
                     _d20 = _tdays[19]
                     _c20 = _px[_px["date"] == _d20].set_index("stock_id")["close"]
                     _theo_ret = ((_c20.reindex(_t.index) / _theo.reindex(_t.index) - 1) * 100).mean()
-                    _act_ret = ((_c20.reindex(_t.index) / _t["fill_price"] - 1) * 100).mean()
+                    _act_gross = ((_c20.reindex(_t.index) / _t["fill_price"] - 1) * 100).mean()
+                    _act_net = (((_c20.reindex(_t.index) * (1 - _FEE_SELL_PCT))
+                                 / (_t["fill_price"] * (1 + _FEE_BUY_PCT)) - 1) * 100).mean()
                     st.markdown(
                         f"- 執行滑價 (成交 vs 理論 T+1 開盤):平均 **{_t['滑價vs理論開盤%'].mean():+.2f}%**\n"
-                        f"- 20 日組合報酬:實際 **{_act_ret:+.2f}%** vs 理論 T+1 **{_theo_ret:+.2f}%**\n"
+                        f"- 20 日組合報酬:實際毛 **{_act_gross:+.2f}%** / 實際淨 **{_act_net:+.2f}%**"
+                        f" vs 理論 T+1 (毛) **{_theo_ret:+.2f}%**\n"
                         f"- 回測期望 (§22):新進榜 20 日均值約 **+1.5%**,8 檔組合標準差約 **±4%**"
                         f" —— 單一 cohort 落在 ±4% 內都屬雜訊範圍,別過度解讀單次結果。")
                 st.caption("⚠️ 收盤價未還原除權息,除息日報酬會低估;本分頁為演練追蹤,非投資建議。"

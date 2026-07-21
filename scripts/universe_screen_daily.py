@@ -53,6 +53,25 @@ PE_HISTORY_START = "2019-01-01"    # PE expanding 窗起點,與 §15/v4.5 閘門
 DATA_START_CUTOFF = "2019-01-10"   # 2019 起點就存在的股票不是新 IPO (補匯後改看實際首日)
 REVENUE_LAG_DAYS = 10              # 月營收約次月 10 日前公佈
 
+# --- WP2 fail-loud 守衛參數 (docs/工單_活體演練保護_第一梯隊.md) ---
+#     全部是「偵測與中止」,不改任何計算值:健康日改後與改前 shortlist parity maxdiff=0。
+VALUE_IND_MAX_NAN_PCT = 20.0       # value_ind 腳池內 NaN 比率超此即 abort:C2 最強的全天候腿
+                                    #   靠 industry_value_ref 當日列,ref 整日缺 → c2 skipna 默默退化
+                                    #   成三因子平均、shortlist 照常輸出零警告 (工單 WP2 首要缺口)。
+LEG_MIN_COVERAGE_PCT = 95.0        # c2 四成分任一腳池內覆蓋率低於此即 WARN + 非零退出。
+REVENUE_STALE_WARN_DAYS = 45       # 最新已知營收月距 as_of 超此天數即 WARN (TEJ 未重匯偵測)。
+
+
+def _abort(msg: str, code: int = 2):
+    """fail-loud:印醒目訊息並以非零 errorlevel 退出 (bat 鏈本就以 errorlevel 擋下游)。"""
+    print(f"[ABORT] {msg}", file=sys.stderr)
+    print(f"[ABORT] {msg}")            # 同步進 log (bat 以 >> LOG 2>&1 收兩者)
+    sys.exit(code)
+
+
+def _nan_pct(s: pd.Series) -> float:
+    return float(s.isna().mean() * 100.0) if len(s) else 100.0
+
 
 def load_union(con) -> pd.DataFrame:
     tej_max = con.execute(f"""
@@ -95,12 +114,29 @@ def main():
     ap.add_argument("--shortlist-union-pct", type=float, default=15.0,
                      help="第二段聯集:各因子取池內前 N%% (預設 15)")
     ap.add_argument("--out-dir", default=str(Path(project_root) / "outputs" / "universe_pool"))
+    ap.add_argument("--expected-as-of", default=None,
+                     help="排程/watchdog 傳入的預期最後交易日 (YYYY-MM-DD);與實際 as_of 不符即 abort。"
+                          "不傳則僅做長期停滯 WARN (無網路假日日曆,故嚴格比對交由呼叫端提供期望值)。")
+    ap.add_argument("--force-overwrite", action="store_true",
+                     help="強制覆寫已存在的 pool/shortlist 凍結件 (預設拒絕重寫;僅供 parity 驗證/重算)。")
     args = ap.parse_args()
 
     con = duckdb.connect()
     px = load_union(con)
     as_of = px["date"].max()
     print(f"資料截至 {as_of},{px['stock_id'].nunique()} 檔,{len(px)} 列 (TEJ 種子 ∪ 官方快照)")
+
+    # --- WP2-4 as_of 新鮮度守衛 ---
+    #   嚴格比對:呼叫端 (排程/watchdog) 若傳 --expected-as-of,as_of 不符即 abort。
+    #   台股長假無網路日曆可判,故不在此硬猜「預期最後交易日」(否則每逢假日 no-op 都誤 abort);
+    #   期望值由掌握交易日曆的呼叫端提供。無期望值時僅做「長期停滯」軟性 WARN。
+    if args.expected_as_of and str(as_of) != str(args.expected_as_of):
+        _abort(f"as_of={as_of} 非預期最後交易日 {args.expected_as_of}——"
+               f"快照可能未更新 (collector 靜默無新增) 或撞到假日,拒絕以陳舊資料產出凍結件。")
+    _stale_days = (pd.Timestamp.now().normalize() - pd.Timestamp(as_of)).days
+    if _stale_days > 5:
+        print(f"[WARN] as_of={as_of} 距今 {_stale_days} 天——已超過一般週末/連假跨度,"
+              f"疑似快照鏈停擺,請查 outputs/logs 與 SUCCESS 心跳檔。")
 
     # --- Level 0 regime 警示旗 (§16-E):全市場等權指數 < 其 MA200 → 空頭。
     #     2005-2026 十二個 episode 實證:空頭月 shortlist 超額 -0.14 vs 多頭月 +0.25,
@@ -143,6 +179,16 @@ def main():
 
     rev = latest_revenue_yoy(con, as_of).set_index("stock_id")
 
+    # WP2-4 營收腳新鮮度:最新已知營收月距 as_of 過久 → TEJ 未重匯 (≈8/10 七月營收發布後最易觸發)。
+    if not rev.empty and rev["rev_month"].notna().any():
+        _newest_rev = pd.Timestamp(rev["rev_month"].max())
+        _rev_known = _newest_rev + pd.offsets.MonthEnd(0) + pd.Timedelta(days=REVENUE_LAG_DAYS)
+        _rev_gap = (pd.Timestamp(as_of) - _rev_known).days
+        if _rev_gap > REVENUE_STALE_WARN_DAYS:
+            print(f"[WARN] 最新已知營收月 {_newest_rev.date()} (known {_rev_known.date()}) "
+                  f"距 as_of={as_of} 逾 {_rev_gap} 天 (>{REVENUE_STALE_WARN_DAYS})——"
+                  f"TEJ 月營收疑未重匯,rev_accel/revenue_yoy 腳恐吃到過期資料。")
+
     names = con.execute(f"""
         SELECT stock_id, arg_max(stock_name, date) AS stock_name
         FROM read_parquet('{TEJ_CACHE}/price_valuation/*.parquet', union_by_name=true)
@@ -179,6 +225,11 @@ def main():
         FROM read_parquet('{MARKET_CACHE}/industry_value_ref.parquet')
         WHERE date = '{as_of}'
     """).df().set_index("stock_id")["value_ind_pct"]
+    # WP2-1 value_ind 守衛(源頭):industry_value_ref 整日缺列即 abort。
+    #   否則 vind.reindex 全 NaN → c2 skipna 默默退化成三因子平均,C2 最強的全天候腿無聲斷掉。
+    if vind.empty:
+        _abort(f"industry_value_ref 查無 as_of={as_of} 當日列——value_ind 腿整日缺失。"
+               f"請確認 build_industry_value_ref.py 已針對當日重建 (bat 鏈上游)。")
 
     tej_chip_max = con.execute(f"""
         SELECT MAX(date) FROM read_parquet('{TEJ_CACHE}/institutional_flow/*.parquet', union_by_name=true)
@@ -249,12 +300,42 @@ def main():
         sl["value_ind_pct_pool_pct"], sl["revenue_yoy_pool_pct"],
         sl["high52_prox_pool_pct"], 100.0 - sl["momentum20_pool_pct"],
     ], axis=1).mean(axis=1, skipna=True)
+
+    # --- WP2-1/2-2 四腳健康檢查 (寫檔前;純偵測,不改任何計算值) ---
+    #   c2 四成分的原始腳,池內覆蓋率落 log;任一腳斷掉 → c2 skipna 會默默用剩餘腳平均,
+    #   排序面目全非卻零警告。value_ind 是全天候主腿,單獨採較寬 20% 門檻先攔源頭大缺,
+    #   其餘與自身皆以 95% 覆蓋 (≤5% NaN) 為線,任一破線即 WARN + 非零退出。
+    C2_LEGS = ("value_ind_pct", "revenue_yoy", "high52_prox", "momentum20")
+    leg_nan = {leg: _nan_pct(sl[leg]) for leg in C2_LEGS}
+    print("c2 四腳池內 NaN 比率: "
+          + " ".join(f"{leg}={leg_nan[leg]:.1f}%" for leg in C2_LEGS)
+          + f" (池 {len(sl)} 檔)")
+    if leg_nan["value_ind_pct"] > VALUE_IND_MAX_NAN_PCT:
+        _abort(f"value_ind 腳池內 NaN {leg_nan['value_ind_pct']:.1f}% "
+               f"> {VALUE_IND_MAX_NAN_PCT:.0f}%——industry_value_ref 覆蓋不足,C2 全天候腿實質斷腿,"
+               f"拒絕以退化 c2 產出凍結件。")
+    _weak = [f"{leg}={leg_nan[leg]:.1f}%NaN(覆蓋{100 - leg_nan[leg]:.1f}%)"
+             for leg in C2_LEGS if (100 - leg_nan[leg]) < LEG_MIN_COVERAGE_PCT]
+    if _weak:
+        _abort(f"c2 成分覆蓋率不足 {LEG_MIN_COVERAGE_PCT:.0f}%: {', '.join(_weak)}——"
+               f"該腳在 c2 skipna 下被靜默剔除,排序不可信,中止。")
+
     # 池檔延後至因子/池百分位/c2 算完才寫:活體對帳 (shortlist_ledger.py 軌1) 需要
     # 池級 c2 對全池算已實現 IC。欄位 = 舊 backfill 格式的超集 (只增不減)。
-    sl.sort_values("adv20", ascending=False).to_csv(out, encoding="utf-8-sig")
-    print(f"已輸出 {out}")
     shortlist = sl[union].sort_values("c2_score", ascending=False)
     out2 = out_dir / f"shortlist_{as_of}.csv"
+
+    # --- WP2-3 凍結件不可覆寫 (程式保證,非排程冪等假設) ---
+    #   已存在即拒絕重寫,守住對帳證據鏈;--force-overwrite 供 parity 驗證/重算。
+    #   凍結件已在 → 視同 backfill「已存在跳過」的正常 no-op,exit 0 不擋 bat 下游。
+    _frozen = [p for p in (out, out2) if p.exists()]
+    if _frozen and not args.force_overwrite:
+        print(f"🔒 凍結件已存在,拒絕覆寫 (保護對帳證據鏈): {', '.join(p.name for p in _frozen)}。"
+              f" 如確需重算請加 --force-overwrite。跳過寫檔,視為冪等 no-op。")
+        return
+
+    sl.sort_values("adv20", ascending=False).to_csv(out, encoding="utf-8-sig")
+    print(f"已輸出 {out}")
     shortlist.to_csv(out2, encoding="utf-8-sig")
     print(f"第二段聯集 (各因子前 {args.shortlist_union_pct:.0f}%): shortlist {len(shortlist)} 檔"
           f" (c2_score 排序) → {out2}")
