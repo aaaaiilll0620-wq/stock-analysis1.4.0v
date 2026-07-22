@@ -245,10 +245,17 @@ def analyze(symbol: str, mode: str, refresh: bool, token: str = ""):
     if stock is None:
         return None
     fund_result, val_result, score = analyze_stock(stock, fe, ve, sm, adv)
+    # 交易計畫:與 main.py CLI 同一套 build_trade_plan(stock, score) → 進場區間/停損/目標。
+    # stock 已含 atr / value_area_* / cost_zone_* / ma20;算不出時降級為一句『資料不足』。
+    try:
+        plan_lines = format_plan_lines(build_trade_plan(stock, score))
+    except Exception:
+        plan_lines = []
     return {
         "symbol": stock.symbol, "name": stock.name,
         "price": stock.current_price, "rating": score.rating,
         "total": score.total_score,
+        "plan_lines": plan_lines,
         "dims": {"基本面": float(fund_result.get("total_score", 0.0)),
                  "估值": float(score.valuation_score),
                  "技術": float(score.technical_score),
@@ -548,6 +555,14 @@ with tab_one:
                 st.markdown(html, unsafe_allow_html=True)
             else:
                 st.markdown("（無額外建議文字）")
+            # 交易計畫:進場區間 / 停損 / 目標 (與 main.py CLI、其他分頁同一套規則換算)
+            _plan = r.get("plan_lines") or []
+            if _plan:
+                st.markdown("**📐 交易計畫（進場區間・停損・目標;規則換算的價位參考,非投資建議）**")
+                for _ln in _plan:
+                    st.markdown(
+                        f"<div style='font-size:1rem;color:#333;margin:2px 0 2px 8px'>· {escape(_ln)}</div>",
+                        unsafe_allow_html=True)
             st.divider()
 
 # ------------------------------------------------------------------ 多檔排行
