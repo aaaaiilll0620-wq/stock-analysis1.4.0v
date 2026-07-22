@@ -54,9 +54,36 @@ COLUMNS = [
     "composite", "rating",
     "fundamental", "valuation", "technical", "momentum", "whale",
     "valuation_status", "quality_flag",
-    "price", "sector", "data_confidence",
+    "price", "sector", "data_confidence", "data_gaps",
     "dyn_weight", "regime", "weights_version", "built_at",
+    # 交易計畫用價量結構 (build_pit_stockdata 已算好;持久化後 app 可 0 API 產出進場/停損/目標)
+    "atr", "value_area_low", "value_area_high", "cost_zone_poc",
+    "cost_zone_support", "cost_zone_resistance", "ma20",
+    # 法人參與原始欄 (供推薦閘門『法人是否真的在買』;不進計分)
+    "inst_participation", "foreign_flow", "trust_flow", "foreign_buy_days", "trust_buy_days",
 ]
+
+# 交易計畫欄位:與 core.trade_plan.build_trade_plan 的 getattr 名一致 (見 Part 1)。
+TRADE_PLAN_FIELDS = ["atr", "value_area_low", "value_area_high", "cost_zone_poc",
+                     "cost_zone_support", "cost_zone_resistance", "ma20"]
+
+# 資料缺口標籤:HistoryBundle 原始資料集 → 人話 (缺哪個 → 哪個維度只能吃中性預設)。
+_BUNDLE_GAP_LABELS = [
+    ("per", "估值PER/PBR"),
+    ("revenue", "月營收"),
+    ("income", "損益表"),
+    ("balance", "資產負債表"),
+    ("cashflow", "現金流量表"),
+    ("chip", "法人籌碼"),
+    ("shareholding", "股權結構"),
+]
+# 估值鏡頭缺口 (valuation.evaluate 的 missing_fields) → 人話。
+_LENS_GAP_LABELS = {
+    "pe_percentile": "PE歷史位階",
+    "pb_percentile": "PB歷史位階",
+    "dividend_yield_percentile": "殖利率位階",
+    "peg_growth": "成長率(PEG)",
+}
 
 
 # ------------------------------------------------------------------------------
@@ -171,6 +198,16 @@ def score_row(bundle: HistoryBundle, as_of: str, mode: str, engines=None) -> Opt
         logger.warning(f"[{bundle.symbol}] {as_of} {mode} 評分失敗: {e}")
         return None
 
+    # --- 資料缺口偵測 (供 app 篩選器抓『有沒有缺』+ 標示『缺什麼』) ---
+    #   原始資料集缺失 = 這檔對應維度只能用中性預設 (財報缺→基本面失真、籌碼缺→whale 失真…);
+    #   估值鏡頭缺失 = 估值三角驗證少一角。兩者併成人話標籤 data_gaps,並讓缺口拉低 data_confidence。
+    _gaps = [lab for f, lab in _BUNDLE_GAP_LABELS if getattr(bundle, f, None) is None]
+    _raw_missing = len(_gaps)                                   # 原始資料集缺口數 (額外扣信心)
+    _gaps += [_LENS_GAP_LABELS.get(m, m) for m in (val_res.get("missing_fields") or [])]
+    data_gaps = "；".join(dict.fromkeys(_gaps))                 # 去重保序;無缺 → ""
+    # 信心 = advisor 綜合信心 (已含基本面/估值鏡頭完整度) 再對『原始資料集缺口』額外扣 (每缺一類 −8)
+    conf_final = min(_f(score.data_confidence) or 100.0, 100.0 - _raw_missing * 8.0)
+
     return {
         "as_of": str(as_of),
         "stock_id": str(bundle.symbol),
@@ -187,11 +224,21 @@ def score_row(bundle: HistoryBundle, as_of: str, mode: str, engines=None) -> Opt
         "quality_flag": score.quality_flag,
         "price": _f(stock.current_price),
         "sector": getattr(stock, "sector_category", ""),
-        "data_confidence": _f(score.data_confidence),
+        "data_confidence": _f(conf_final),
+        "data_gaps": data_gaps,
         "dyn_weight": bool(getattr(score, "_dynamic_weight", False)),
         "regime": advisor.current_regime or "neutral",
         "weights_version": _weights_version(mode),
         "built_at": pd.Timestamp.utcnow().isoformat(),
+        # 交易計畫價量結構 (皆由 build_pit_stockdata 算好,持久化供 app 端 build_trade_plan)
+        **{k: _f(getattr(stock, k, None)) for k in TRADE_PLAN_FIELDS},
+        # 法人參與『原始』欄 (whale 維是市值中性的淨參與率聚合,薄量股會失真;
+        # 這些原始欄供 app 端做『法人是否真的在買』的推薦閘門,不進計分,不重複計):
+        "inst_participation": _f(getattr(stock, "institutional_participation", None)),  # 法人近10日成交占比%
+        "foreign_flow": _f(getattr(stock, "foreign_flow", None)),                       # 外資近10日淨買超(張)
+        "trust_flow": _f(getattr(stock, "trust_flow", None)),                           # 投信近10日淨買超(張)
+        "foreign_buy_days": _f(getattr(stock, "foreign_buy_days", None)),               # 外資連續買超天數
+        "trust_buy_days": _f(getattr(stock, "institutional_buy_days", None)),           # 投信連續買超天數
     }
 
 
@@ -243,13 +290,17 @@ def build_scores(symbols: Optional[Sequence[str]] = None,
                  modes: Optional[Sequence[str]] = None,
                  as_of: Optional[str] = None,
                  refresh: bool = False,
-                 names: Optional[Dict[str, str]] = None) -> int:
+                 names: Optional[Dict[str, str]] = None,
+                 source: str = "finmind") -> int:
     """
     對 symbols × modes 計算五維綜合分並落地成 Scores 快取。回傳寫入的列數。
       · symbols:預設分散化測試池 (universe = 排名比較的母體)。
       · modes:  預設全部三個模式 (balanced / conservative / aggressive);想只建一個傳 ["balanced"]。
       · as_of:  評分基準日;預設用每檔『最新可用交易日』(各檔可能不同)。
       · refresh:True → 先對各資料集補抓增量再算 (會用 API);False (預設) → 純讀本機快取 (0 API)。
+      · source:  資料源。"finmind" (預設) = FinMind 8 資料集快取;
+                 "tej" = 純本機 TEJ 快取 (core.tej_bundle;0 FinMind API,擴張母體不燒 API)。
+                 兩者皆走同一套 build_pit_stockdata + 評分 pipeline,分數口徑一致可比。
     """
     symbols = list(symbols) if symbols else _default_pool()
     modes = list(modes) if modes else list(ScoringManager.MODES.keys())
@@ -258,12 +309,21 @@ def build_scores(symbols: Optional[Sequence[str]] = None,
     names = names or {}
     eng = {m: _engines(m) for m in modes}
 
+    if source == "tej":
+        from core.tej_bundle import tej_fetch_history
+        _fetch = lambda sym: tej_fetch_history(sym, name=names.get(sym))   # noqa: E731 (0 API)
+    elif source == "finmind":
+        _fetch = lambda sym: cached_fetch_history(sym, refresh=refresh)     # noqa: E731
+    else:
+        raise ValueError(f"未知 source {source!r};可用:'finmind' / 'tej'")
+
     total = 0
     skipped: List[str] = []
     n = len(symbols)
-    print(f"開始建 scores:{n} 檔 × {len(modes)} 模式 {modes}  快取:{data_cache.CACHE_DIR}/{DATASET}")
+    print(f"開始建 scores:{n} 檔 × {len(modes)} 模式 {modes}  來源={source}  "
+          f"快取:{data_cache.CACHE_DIR}/{DATASET}")
     for i, sym in enumerate(symbols, 1):
-        bundle = cached_fetch_history(sym, refresh=refresh)
+        bundle = _fetch(sym)
         # 名稱優先用傳入的對照表 (build_cache 從 watchlist.txt 解析),再退回 bundle 原名、最後才用代號。
         bundle.name = names.get(sym) or getattr(bundle, "name", "") or sym
         aod = as_of or _latest_as_of(bundle)
@@ -293,7 +353,10 @@ def build_scores(symbols: Optional[Sequence[str]] = None,
 _SELECT_COLS = (
     "stock_id, name, as_of, mode, composite, rating, "
     "fundamental, valuation, technical, momentum, whale, "
-    "valuation_status, quality_flag, price, sector, data_confidence, dyn_weight"
+    "valuation_status, quality_flag, price, sector, data_confidence, data_gaps, dyn_weight, "
+    "atr, value_area_low, value_area_high, cost_zone_poc, "
+    "cost_zone_support, cost_zone_resistance, ma20, "
+    "inst_participation, foreign_flow, trust_flow, foreign_buy_days, trust_buy_days"
 )
 
 
@@ -414,7 +477,10 @@ def screen_by_composite(mode: str = "balanced",
         SELECT stock_id, name, as_of, composite,
                ROUND(_pct * 100, 1) AS pct_rank,
                rating, fundamental, valuation, technical, momentum, whale,
-               valuation_status, data_confidence, dyn_weight
+               valuation_status, data_confidence, data_gaps, dyn_weight,
+               price, atr, value_area_low, value_area_high, cost_zone_poc,
+               cost_zone_support, cost_zone_resistance, ma20,
+               inst_participation, foreign_flow, trust_flow, foreign_buy_days, trust_buy_days
         FROM ranked
         WHERE TRUE{where}
         ORDER BY composite DESC

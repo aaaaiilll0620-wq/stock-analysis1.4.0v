@@ -170,13 +170,30 @@ def screen_demo():
           "完整綜合分選股見 --build-scores / --screen-composite。)")
 
 
-def build_scores_demo(symbols, modes=None, refresh=False):
+def build_scores_demo(symbols, modes=None, refresh=False, source="finmind"):
     """用五維綜合分建立 / 更新 scores 快取 (讀本機原始快取,0 API)。
     會從 watchlist.txt 讀入 {代號: 股名},讓 scores 快取存正確股名 (例 2330 → 台積電),
-    避免『綜合分選股』頁的名稱欄跟代號一樣。"""
+    避免『綜合分選股』頁的名稱欄跟代號一樣。
+    source='tej' → 走純本機 TEJ 資料源 (core.tej_bundle),擴張母體不燒 FinMind API。"""
     from core import score_store
     names = load_watchlist_names()
-    return score_store.build_scores(symbols=symbols, modes=modes, refresh=refresh, names=names)
+    return score_store.build_scores(symbols=symbols, modes=modes, refresh=refresh,
+                                    names=names, source=source)
+
+
+def load_universe_from(path):
+    """從全市場掃描產出 (shortlist_*.csv / pool_*.csv) 讀 stock_id 當綜合分母體。
+    這是『擴張綜合分名單』的入口:粗篩已把全市場收斂到 ~400 檔 (TEJ 覆蓋),
+    對這批用 source='tej' 建五維即 0 API。回傳去重保序的代號清單。"""
+    import csv
+    codes, seen = [], set()
+    with open(path, encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            sid = str(row.get("stock_id", "")).strip()
+            if sid and sid not in seen:
+                seen.add(sid); codes.append(sid)
+    print(f"(已從 {os.path.basename(path)} 讀入 {len(codes)} 檔當綜合分母體)")
+    return codes
 
 
 def screen_composite_demo(mode="balanced"):
@@ -217,6 +234,12 @@ def main():
                     help="建 scores 前先對各資料集補抓增量 (會用 API;預設 0 API 純讀快取)")
     ap.add_argument("--no-scores", action="store_true",
                     help="日更時只更新原始資料,不自動刷新 scores")
+    ap.add_argument("--source", choices=["finmind", "tej"], default="finmind",
+                    help="建 scores 的資料源:finmind(預設,8資料集快取) / "
+                         "tej(純本機 TEJ,0 FinMind API,供擴張母體用)")
+    ap.add_argument("--universe-from", default=None,
+                    help="從全市場掃描 shortlist_*.csv / pool_*.csv 讀 stock_id 當綜合分母體 "
+                         "(擴張入口;建議搭 --source tej --build-scores)")
     args = ap.parse_args()
 
     if args.screen:
@@ -229,8 +252,14 @@ def main():
         return
 
     if args.build_scores:
-        symbols = [s.strip().upper() for s in args.symbols] if args.symbols else _load_pool()
-        build_scores_demo(symbols, modes=args.modes, refresh=args.score_refresh)
+        if args.universe_from:
+            symbols = load_universe_from(args.universe_from)
+        elif args.symbols:
+            symbols = [s.strip().upper() for s in args.symbols]
+        else:
+            symbols = _load_pool()
+        build_scores_demo(symbols, modes=args.modes, refresh=args.score_refresh,
+                          source=args.source)
         return
 
     symbols = [s.strip().upper() for s in args.symbols] if args.symbols else _load_pool()

@@ -78,6 +78,25 @@ class ValuationEngine:
             ind_pct = data.get("industry_value_percentile")
             if ind_pct is not None and not pd.isna(ind_pct):
                 score = float(round(float(ind_pct), 2))
+                # 資料信心 = 產業內位階(主方法,基底 80) + 每個獨立佐證鏡頭 +5 (上限 100)。
+                #   反映『這檔估值有多少獨立資料支撐』,取代過去所有股一律 90 的死值。
+                #   佐證鏡頭:PE 歷史位階 / PB 歷史位階 / 殖利率位階 / 可算 PEG 的成長率。
+                def _has(k):
+                    v = data.get(k)
+                    return v is not None and not pd.isna(v)
+                _peg_growth = (pe is not None and not pd.isna(pe) and float(pe) > 0
+                               and any(_has(g) and float(data.get(g)) > 0
+                                       for g in ("eps_cagr", "net_income_growth",
+                                                 "revenue_cum_yoy", "rev_cagr")))
+                _lenses = {
+                    "pe_percentile": _has("pe_percentile"),
+                    "pb_percentile": _has("pb_percentile"),
+                    "dividend_yield_percentile": _has("dividend_yield_percentile"),
+                    "peg_growth": _peg_growth,
+                }
+                _present = sum(_lenses.values())
+                _missing = [k for k, ok in _lenses.items() if not ok]
+                confidence = float(min(100.0, 80.0 + _present * 5.0))
                 return {
                     "valuation_score": score,
                     "valuation_status": self._status_relative(score),
@@ -87,8 +106,8 @@ class ValuationEngine:
                     "growth_used": None,
                     "per_metric": {"industry_pe": round(score, 1)},
                     "inputs": {"pe": pe, "industry_value_percentile": float(ind_pct)},
-                    "missing_fields": [],
-                    "confidence": 90.0,
+                    "missing_fields": _missing,
+                    "confidence": confidence,
                 }
             # 查無產業位階 (非台股全市場母體/資料過舊) → 往下退回現行配方
 

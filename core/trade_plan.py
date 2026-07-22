@@ -22,6 +22,10 @@
 from dataclasses import dataclass, asdict
 from typing import Optional
 
+# 量價位階『脫離現價』判準:下方 POC/VAL/支撐 若低於現價的此比例,視為已失效
+# (強趨勢股的舊成本區),不採用 → 改由 MA20/ATR 錨定。0.75 = 容忍現價 25% 以內的回檔支撐。
+_STALE_FLOOR = 0.75
+
 
 def _f(v):
     """安全轉 float;None/非數字 → None。"""
@@ -64,13 +68,22 @@ def build_trade_plan(stock, score_result=None) -> TradePlan:
         return TradePlan(None, None, None, None, None, None, None, False,
                          "資料不足,無法計算價位參考。")
 
+    # 過濾『已脫離現價』的量價位階:強趨勢股 (如 90 天內翻倍) 的 POC/VAL 會停在數月前的
+    # 低價帶,直接拿來當進場/停損會算出橫跨一倍的無意義區間 → 低於現價 _STALE_FLOOR 的
+    # 下方量價位階視為失效,改由 MA20/ATR 錨定現價附近。壓力 (VAH/res) 在上方,不受此過濾。
+    def _fresh(x):
+        return x if (x and x > 0 and x >= price * _STALE_FLOOR) else None
+    val_f, poc_f, sup_f = _fresh(val), _fresh(poc), _fresh(sup)
+
     # ---- 進場區間 ----
-    # 上緣 = 可接受成本:POC 或 MA20 取『有值且較低者』,避免把成本抓在壓力上。
-    upper_candidates = [x for x in (poc, ma20) if x and x > 0]
-    entry_high = min(upper_candidates) if upper_candidates else round(price * 0.99, 2)
-    # 下緣 = 理想承接:VAL 或 最近下方量能支撐,取『有值且較高者』當第一道支撐。
-    lower_candidates = [x for x in (val, sup) if x and x > 0]
-    entry_low = max(lower_candidates) if lower_candidates else round(entry_high * 0.97, 2)
+    # 上緣 = 可接受成本:POC / MA20 取『有值(未脫離現價)且較低者』;都沒有 → 現價回檔一點。
+    upper_candidates = [x for x in (poc_f, ma20) if x and 0 < x <= price * 1.02]
+    entry_high = (min(upper_candidates) if upper_candidates
+                  else round(price - (0.5 * atr if atr > 0 else price * 0.01), 2))
+    # 下緣 = 理想承接:VAL / 支撐 取『有值(未脫離)且低於上緣』的最高者;沒有 → 上緣往下 1.5 ATR。
+    lower_candidates = [x for x in (val_f, sup_f) if x and 0 < x < entry_high]
+    entry_low = (max(lower_candidates) if lower_candidates
+                 else round(entry_high - (1.5 * atr if atr > 0 else entry_high * 0.03), 2))
     if entry_low > entry_high:                              # 保護:確保 low <= high
         entry_low, entry_high = entry_high, entry_low
 
@@ -80,8 +93,13 @@ def build_trade_plan(stock, score_result=None) -> TradePlan:
     if stop <= 0:
         stop = round(entry_low * 0.95, 2)
 
-    # ---- 目標:優先結構壓力 (VAH/量能壓力),否則 +2ATR ----
-    target1 = vah or res or (round(price + 2.0 * atr, 2) if atr > 0 else round(price * 1.08, 2))
+    # ---- 目標:優先結構壓力 (VAH/量能壓力,且須在現價之上),否則 +2ATR ----
+    res_up = next((x for x in (vah, res) if x and x > price), None)   # 只採現價上方的壓力
+    target1 = res_up or (round(price + 2.0 * atr, 2) if atr > 0 else round(price * 1.08, 2))
+    # 目標至少要離現價一個 ATR (避免壓力就貼在現價,給出幾乎沒空間的假目標)
+    min_target = price + (1.0 * atr if atr > 0 else price * 0.04)
+    if target1 < min_target:
+        target1 = round(min_target, 2)
     # 若壓力就在進場上緣下方 (現價已突破整個結構),目標改用 +2ATR 往上推
     if target1 <= entry_high:
         target1 = round(entry_high + (2.0 * atr if atr > 0 else entry_high * 0.06), 2)
