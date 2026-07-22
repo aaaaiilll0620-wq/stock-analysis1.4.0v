@@ -538,7 +538,7 @@ with tab_one:
                                      axis=alt.Axis(title=None)),
                              tooltip=["維度", "分數"])
                      .properties(height=260))
-            st.altair_chart(chart, width='stretch')
+            st.altair_chart(chart, use_container_width=True)
             # 系統建議:自動分行、放大字體、無圖示
             lines = format_advice(r["advice"])
             if lines:
@@ -569,7 +569,7 @@ with tab_rank:
             prog.progress((i + 1) / len(codes))
         if rows:
             rows.sort(key=lambda x: x["綜合分"], reverse=True)
-            st.dataframe(rows, width='stretch', hide_index=True)
+            st.dataframe(rows, use_container_width=True, hide_index=True)
         else:
             st.warning("沒有可用結果。")
 
@@ -690,7 +690,7 @@ with tab_screen:
                      "外資連買", "投信連買",
                      "估值狀態", "信心", "缺漏資料", "動態權重", "基準日"]
             disp = disp[[c for c in order if c in disp.columns]]
-            st.dataframe(disp, width='stretch', hide_index=True)
+            st.dataframe(disp, use_container_width=True, hide_index=True)
             st.download_button(
                 "⬇️ 下載結果 (CSV)",
                 data=disp.to_csv(index=False).encode("utf-8-sig"),
@@ -949,14 +949,14 @@ with tab_univ:
             "value_ind_pct": "產業內便宜", "revenue_yoy": "營收YoY",
             "momentum20": "20日動能%", "chip20_turnover": "法人流向",
             "high52_prox": "距52週高%", "rev_accel": "營收加速", "adv20": "20日均額"})
-        st.dataframe(_disp.round(2), width='stretch', height=520)
+        st.dataframe(_disp.round(2), use_container_width=True, height=520)
         _new_rows = _df.loc[sorted(_new50)]
         if len(_new_rows):
             st.markdown(f"#### 🆕 今日新進 {'C2排序分' if _rc == 'c2_score' else 'composite'} 前 50")
             st.dataframe(_new_rows[_cols].rename(columns={
                 "name": "名稱", "industry": "產業", "c2_score": "C2排序分",
                 "composite": "舊5F(對照)"}).round(2),
-                         width='stretch')
+                         use_container_width=True)
         _digest_f = os.path.join(_data_dir, f"digest_{_pick}.md")
         if os.path.exists(_digest_f):
             with st.expander("📄 當日文字摘要 (digest)"):
@@ -1042,7 +1042,7 @@ with tab_fusion:
                      "基本面", "估值", "技術", "動能", "籌碼", "法人占比%",
                      "估值狀態", "信心", "缺漏"]
             _fd = _fd[[c for c in _ford if c in _fd.columns]]
-            st.dataframe(_fd, width='stretch', hide_index=True)
+            st.dataframe(_fd, use_container_width=True, hide_index=True)
             st.caption("雙確認 = c2(反動能/價值·全天候) 與 綜合分(順動能/品質·多頭強) 兩套獨立排序都進前段。"
                        "回測甜蜜點取各前 20%(t 最穩、約 25 檔、2022 不翻車)。空頭時此名單會自然縮水 → "
                        "回歸全市場掃描 c2。**非投資建議,個股請至『個股分析』深評。**")
@@ -1127,7 +1127,7 @@ with tab_drill:
             _fills[_c] = pd.to_datetime(_fills[_c], errors="coerce")
         st.markdown("##### ① 回填實際成交 (買進填 fill_date / fill_price,股數選填;賣出時填 sell_*)")
         _edited = st.data_editor(
-            _fills, num_rows="fixed", width='stretch', key=f"fills_{_ppick}",
+            _fills, num_rows="fixed", use_container_width=True, key=f"fills_{_ppick}",
             disabled=["stock_id", "name", "frozen_close", "buy_low", "buy_ref", "buy_high"],
             column_config={
                 # WP1-2 輸入硬化:日期改 DateColumn — TextColumn 下格式 typo 會被 len>=8 靜默踢出追蹤,
@@ -1259,7 +1259,7 @@ with tab_drill:
                 st.dataframe(_t[["name", "狀態", "fill_date", "fill_price", "帶內", "滑價vs理論開盤%",
                                   "出場價", "毛報酬%", "淨報酬%", "實際損益TWD"]].rename(columns={
                     "name": "名稱", "fill_date": "成交日", "fill_price": "成交價"}).round(2),
-                    width='stretch')
+                    use_container_width=True)
                 st.caption(f"淨額費率:買 {_FEE_BUY_PCT*100:.4f}% / 賣 {_FEE_SELL_PCT*100:.4f}% (含證交稅"
                            f" {_FEE_TAX_PCT*100:.2f}%),單筆手續費地板 NT${_FEE_MIN_TWD:.0f}。"
                            "填 shares 走 TWD 精算 (含地板真實成本),否則走百分比近似。")
