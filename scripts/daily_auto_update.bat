@@ -26,7 +26,18 @@ if not exist "%LOGDIR%" mkdir "%LOGDIR%"
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do set "TS=%%i"
 set "LOG=%LOGDIR%\daily_update_%TS%.log"
 
-echo ==== daily_auto_update start %date% %time% ==== >> "%LOG%"
+REM 2026-07-23: step markers also go to a SECOND log, on a local disk OUTSIDE
+REM OneDrive. Why: on 7/22 and 7/23 this task died mid-run with exit 255 and
+REM left no trace -- cmd simply stopped executing the next line, so none of the
+REM error branches below ever wrote anything. One suspect we could not rule out
+REM is OneDrive locking %LOG% (the whole project lives under OneDrive), which
+REM would make a failure invisible. %MARK% is unaffected by OneDrive, so if the
+REM two logs ever disagree we have our answer.
+set "MARKDIR=%LOCALAPPDATA%\FinMind"
+if not exist "%MARKDIR%" mkdir "%MARKDIR%"
+set "MARK=%MARKDIR%\daily_update_%TS%.marker.log"
+
+call :mark "==== daily_auto_update start ===="
 
 REM prefer python, fall back to py launcher
 set "PY=python"
@@ -52,44 +63,66 @@ if exist "%POOL%" goto poolready
 set "HB="
 for /f "delims=" %%h in ('powershell -NoProfile -Command "$f='outputs\heartbeat\last_success.txt'; if (Test-Path $f) { $t=(Get-Content $f -Raw).Trim(); if ($t.Length -ge 10) { $t.Substring(0,10) } }"') do set "HB=%%h"
 if "%HB%"=="%TODAY%" (
-    echo [info] collector finished today but no %POOL% -- non-trading day, nothing to score. >> "%LOG%"
-    echo ==== daily_auto_update no-op %date% %time% ==== >> "%LOG%"
+    call :mark "[info] collector finished today but no %POOL% -- non-trading day, nothing to score."
+    call :mark "==== daily_auto_update no-op ===="
     exit /b 0
 )
 if %WAITED% GEQ 75 (
-    echo [ERROR] %POOL% still missing after %WAITED% min -- Market_SnapshotCollector stuck or never ran. Skipping build to keep last good snapshot. >> "%LOG%"
-    echo ==== end with error %date% %time% ==== >> "%LOG%"
+    call :mark "[ERROR] %POOL% still missing after %WAITED% min -- Market_SnapshotCollector stuck or never ran. Skipping build to keep last good snapshot."
+    call :mark "==== end with error ===="
     exit /b 1
 )
-echo [wait] %POOL% not ready (%WAITED% min elapsed), collector still running -- retry in 5 min. >> "%LOG%"
+call :mark "[wait] %POOL% not ready (%WAITED% min elapsed), collector still running -- retry in 5 min."
 powershell -NoProfile -Command "Start-Sleep -Seconds 300"
 set /a WAITED+=5
 goto waitpool
 
 :poolready
-echo [info] building scores from pool: %POOL% >> "%LOG%"
+call :mark "[step1] build-scores starting from %POOL%"
 "%PY%" build_cache.py --build-scores --source tej --universe-from "%POOL%" >> "%LOG%" 2>&1
-if errorlevel 1 (
-    echo [ERROR] build-scores (tej/pool) failed, skip deploy to keep last good snapshot. >> "%LOG%"
-    echo ==== end with error %date% %time% ==== >> "%LOG%"
+set "RC=%errorlevel%"
+call :mark "[step1] build-scores rc=%RC%"
+if not "%RC%"=="0" (
+    call :mark "[ERROR] build-scores (tej/pool) failed rc=%RC%, skip deploy to keep last good snapshot."
+    call :mark "==== end with error ===="
     exit /b 1
 )
 
 REM 1b) refresh 市場燈號 regime exposure snapshot -> cloud_cache (best effort, non-fatal).
 REM      deploy_scores.py does `git add cloud_cache`, so this snapshot ships to cloud too.
+call :mark "[step2] regime_exposure starting"
 "%PY%" -m core.regime_exposure >> "%LOG%" 2>&1
-if errorlevel 1 echo [warn] regime_exposure snapshot refresh failed, keeping last snapshot. >> "%LOG%"
+set "RC=%errorlevel%"
+call :mark "[step2] regime_exposure rc=%RC%"
+if not "%RC%"=="0" call :mark "[warn] regime_exposure snapshot refresh failed, keeping last snapshot."
 
 REM 2) sync scores snapshot -> commit -> push (no-op if scores unchanged)
+call :mark "[step3] deploy_scores starting"
 "%PY%" deploy_scores.py --message "chore: daily auto update scores snapshot" >> "%LOG%" 2>&1
-if errorlevel 1 (
-    echo [ERROR] deploy_scores.py failed - check git remote / network. >> "%LOG%"
-    echo ==== end with error %date% %time% ==== >> "%LOG%"
+set "RC=%errorlevel%"
+call :mark "[step3] deploy_scores rc=%RC%"
+if not "%RC%"=="0" (
+    call :mark "[ERROR] deploy_scores.py failed rc=%RC% - check git remote / network."
+    call :mark "==== end with error ===="
     exit /b 1
 )
 
-REM 3) prune logs older than 30 days (best effort)
+REM 3) prune logs older than 30 days (best effort). forfiles returns 1 when it
+REM    finds nothing old enough to delete -- that is the normal case, not an
+REM    error, so its exit code is deliberately ignored here.
+call :mark "[step4] prune logs older than 30 days"
 forfiles /P "%LOGDIR%" /M daily_update_*.log /D -30 /C "cmd /c del @path" >nul 2>nul
+forfiles /P "%MARKDIR%" /M daily_update_*.marker.log /D -30 /C "cmd /c del @path" >nul 2>nul
 
-echo ==== daily_auto_update done %date% %time% ==== >> "%LOG%"
+call :mark "==== daily_auto_update done ===="
 exit /b 0
+
+REM =====================================================================
+REM  :mark <text>  -- append one timestamped line to BOTH logs.
+REM  Callers must capture %errorlevel% into RC BEFORE calling: the echoes
+REM  inside here reset it, so "if errorlevel 1" after a call is meaningless.
+REM =====================================================================
+:mark
+echo %~1 %date% %time% >> "%LOG%"
+echo %~1 %date% %time% >> "%MARK%"
+goto :eof

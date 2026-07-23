@@ -24,10 +24,20 @@ $taskName = 'FinMind_DailyUpdate'
 $bat = Join-Path $PSScriptRoot 'daily_auto_update.bat'
 if (-not (Test-Path $bat)) { throw "not found: $bat" }
 
-# 以 wscript + run_hidden.vbs 隱藏視窗執行 (2026-07-16:不再跳出主控台視窗)
-$vbs = Join-Path $PSScriptRoot 'run_hidden.vbs'
-if (-not (Test-Path $vbs)) { throw "not found: $vbs" }
-$action   = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "//B //Nologo `"$vbs`" `"$bat`""
+# 隱藏視窗執行 (2026-07-16:不再跳出主控台視窗)。
+# 2026-07-23:從 wscript + run_hidden.vbs 換成 powershell + run_hidden.ps1。
+#   原因一:Windows 11 已把 VBScript 列入淘汰 (每次執行都會在 Application
+#           記錄留一筆 VBScriptDeprecationAlert 4096)。
+#   原因二:7/22 與 7/23 兩次排程都以 exit 255 中途死亡且不留痕跡,vbs 這層
+#           是少數還沒被排除的嫌疑之一 (根因當時未確定,見 daily_auto_update.bat
+#           裡的 %MARK% 註解)。
+# 換之前實測過離開碼能否傳回排程器 (「上次執行結果」的唯一來源):
+#   wscript+vbs 7 / conhost --headless 0 (吃碼,淘汰) / cmd /c 7 (會開視窗)
+#   / powershell -WindowStyle Hidden 7 (採用)
+$ps1 = Join-Path $PSScriptRoot 'run_hidden.ps1'
+if (-not (Test-Path $ps1)) { throw "not found: $ps1" }
+$action   = New-ScheduledTaskAction -Execute 'powershell.exe' `
+              -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$ps1`" `"$bat`""
 $trigger  = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 18:00
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -WakeToRun `
               -ExecutionTimeLimit (New-TimeSpan -Hours 2) `
