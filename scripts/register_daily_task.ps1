@@ -1,4 +1,4 @@
-# =====================================================================
+﻿# =====================================================================
 #  Register the daily auto-update as a Windows Scheduled Task.
 #  Run once (double-click register_daily_task.bat, or:
 #      powershell -ExecutionPolicy Bypass -File scripts\register_daily_task.ps1)

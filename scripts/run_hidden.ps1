@@ -1,4 +1,4 @@
-# =====================================================================
+﻿# =====================================================================
 #  隱藏視窗執行器 (取代 run_hidden.vbs)。
 #  用法: powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden `
 #          -File run_hidden.ps1 "C:\path\to\some.bat"
