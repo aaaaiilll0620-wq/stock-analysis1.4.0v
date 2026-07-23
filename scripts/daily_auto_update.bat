@@ -33,14 +33,40 @@ set "PY=python"
 where python >nul 2>nul || set "PY=py"
 
 REM 1) build 5-dim scores for the daily L1 pool from LOCAL TEJ cache (0 FinMind API).
-REM    pool_{date}.csv is written by Market_SnapshotCollector (17:30) before this run.
-set "POOL="
-for /f "delims=" %%f in ('powershell -NoProfile -Command "$p=Get-ChildItem 'outputs\universe_pool\pool_*.csv' -ErrorAction SilentlyContinue ^| Sort-Object Name ^| Select-Object -Last 1; if ($p) { $p.FullName }"') do set "POOL=%%f"
-if not defined POOL (
-    echo [ERROR] no outputs\universe_pool\pool_*.csv found -- did Market_SnapshotCollector run at 17:30? >> "%LOG%"
+REM    pool_{date}.csv is written by Market_SnapshotCollector (starts 17:30).
+REM    2026-07-23 fix: the collector has a TPEx publish-window retry loop and can
+REM    finish anywhere from 18:02 to ~18:50 -- i.e. AFTER this task's 18:00 start.
+REM    The old code took the newest pool_*.csv unconditionally, so on a race it
+REM    silently scored YESTERDAY's pool at yesterday's close and the 綜合分 基準日
+REM    stayed one day stale with a green log. Now we insist on pool_<today>.csv:
+REM      · not there yet  -> poll every 5 min, up to 75 min (covers the retry window)
+REM      · collector already reported success today but still no pool
+REM                       -> non-trading day (holiday), quiet no-op, exit 0
+REM      · timeout        -> fail loud, keep last good snapshot, exit 1
+for /f %%d in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set "TODAY=%%d"
+set "POOL=outputs\universe_pool\pool_%TODAY%.csv"
+set /a WAITED=0
+
+:waitpool
+if exist "%POOL%" goto poolready
+set "HB="
+for /f "delims=" %%h in ('powershell -NoProfile -Command "$f='outputs\heartbeat\last_success.txt'; if (Test-Path $f) { $t=(Get-Content $f -Raw).Trim(); if ($t.Length -ge 10) { $t.Substring(0,10) } }"') do set "HB=%%h"
+if "%HB%"=="%TODAY%" (
+    echo [info] collector finished today but no %POOL% -- non-trading day, nothing to score. >> "%LOG%"
+    echo ==== daily_auto_update no-op %date% %time% ==== >> "%LOG%"
+    exit /b 0
+)
+if %WAITED% GEQ 75 (
+    echo [ERROR] %POOL% still missing after %WAITED% min -- Market_SnapshotCollector stuck or never ran. Skipping build to keep last good snapshot. >> "%LOG%"
     echo ==== end with error %date% %time% ==== >> "%LOG%"
     exit /b 1
 )
+echo [wait] %POOL% not ready (%WAITED% min elapsed), collector still running -- retry in 5 min. >> "%LOG%"
+powershell -NoProfile -Command "Start-Sleep -Seconds 300"
+set /a WAITED+=5
+goto waitpool
+
+:poolready
 echo [info] building scores from pool: %POOL% >> "%LOG%"
 "%PY%" build_cache.py --build-scores --source tej --universe-from "%POOL%" >> "%LOG%" 2>&1
 if errorlevel 1 (
