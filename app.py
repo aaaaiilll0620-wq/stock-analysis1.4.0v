@@ -316,6 +316,12 @@ def get_as_of_dates(mode: str) -> list:
 
 
 @st.cache_data(show_spinner=False)
+def get_score_history(stock_id: str, mode: str, limit: int = 10):
+    """單檔近 N 日綜合分＋五維走勢 (讀 scores 快取,0 API);不在每日名單 → 空表。"""
+    return score_store.score_history(stock_id, mode=mode, limit=limit)
+
+
+@st.cache_data(show_spinner=False)
 def screen_universe_at(as_of: str, mode: str, min_composite: int, ratings: tuple,
                        min_conf: int, top: int):
     """同 screen_universe,但鎖定某歷史 as_of 快照 (日期回顧用)。"""
@@ -601,6 +607,39 @@ with tab_one:
                     st.markdown(
                         f"<div style='font-size:1rem;color:#333;margin:2px 0 2px 8px'>· {escape(_ln)}</div>",
                         unsafe_allow_html=True)
+            # 近日綜合分走勢 (讀 scores 快取,0 API;僅每日名單內的股票有歷史)
+            _hist = get_score_history(r["symbol"], mode, limit=10)
+            if _hist is not None and len(_hist) >= 2:
+                st.markdown("**📈 近日綜合分走勢（每日名單快取・0 API・同權重版本才連線）**")
+                # 綜合分主線 (較粗) + 五維分項細線,melt 成長格式一次畫;看『哪個維度在拉動綜合分』
+                _dim_map = {"composite": "綜合分", "fundamental": "基本面", "valuation": "估值",
+                            "technical": "技術面", "momentum": "動能", "whale": "籌碼"}
+                _long = _hist.melt(id_vars="as_of",
+                                   value_vars=[c for c in _dim_map if c in _hist.columns],
+                                   var_name="_k", value_name="分數")
+                _long["項目"] = _long["_k"].map(_dim_map)
+                _order = [v for v in _dim_map.values()]
+                _base = alt.Chart(_long).encode(
+                    x=alt.X("as_of:O", axis=alt.Axis(title=None, labelAngle=-40)),
+                    y=alt.Y("分數:Q", scale=alt.Scale(domain=[0, 100]), axis=alt.Axis(title=None)),
+                    color=alt.Color("項目:N", sort=_order,
+                                    scale=alt.Scale(domain=_order,
+                                                    range=["#C00000", "#4472C4", "#70AD47",
+                                                           "#ED7D31", "#7030A0", "#7F7F7F"]),
+                                    legend=alt.Legend(title=None, orient="top")),
+                    tooltip=["as_of", "項目", alt.Tooltip("分數:Q", format=".1f")])
+                _comp = _long[_long["_k"] == "composite"]
+                _trend = (
+                    _base.mark_line(point=True).encode(
+                        size=alt.condition("datum.項目 == '綜合分'", alt.value(3.0), alt.value(1.3)))
+                    .properties(height=260)
+                    + alt.Chart(_comp).mark_point(size=60, filled=True, color="#C00000")
+                      .encode(x="as_of:O", y="分數:Q"))
+                st.altair_chart(_trend, use_container_width=True)
+                st.caption("走勢來自每日 0-API 名單快取（TEJ 五維，與即時 FinMind 綜合分近乎一致）；"
+                           "僅涵蓋每日名單內個股，點數隨每日更新累積。")
+            elif _hist is not None and len(_hist) == 1:
+                st.caption("📈 此檔在每日名單內但目前只有 1 個歷史分數點，連續走勢待每日更新累積。")
             st.divider()
 
 # ------------------------------------------------------------------ 多檔排行

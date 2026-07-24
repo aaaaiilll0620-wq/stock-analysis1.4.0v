@@ -453,6 +453,35 @@ def as_of_dates(mode: str = "balanced") -> List[str]:
     return [str(d) for d in df["as_of"].tolist()]
 
 
+def score_history(stock_id: str, mode: str = "balanced", limit: int = 10,
+                  same_version_only: bool = True) -> pd.DataFrame:
+    """
+    單一股票的『綜合分時間序列』(供個股頁畫近 N 日走勢圖;0 API,直接讀該檔 Parquet)。
+    回傳欄:as_of, composite, fundamental, valuation, technical, momentum, whale,
+            weights_version —— 依 as_of 由舊到新,取最後 limit 筆。
+      · same_version_only=True (預設):只留與『最新一筆』相同 weights_version 的列,
+        避免權重改版造成分數不可比 (斷代點不連線)。設 False 則回全部歷史。
+      · 該檔不在快取 (不在每日名單) 或該模式無資料 → 回空表 (呼叫端據此提示)。
+    """
+    _check_mode(mode)
+    store = data_cache.get_store()
+    df = store.read(DATASET, str(stock_id))
+    if df is None or df.empty or "mode" not in df.columns:
+        return pd.DataFrame()
+    df = df[df["mode"] == mode].copy()
+    if df.empty:
+        return pd.DataFrame()
+    df = df.sort_values("as_of")
+    if same_version_only and "weights_version" in df.columns:
+        latest_ver = df["weights_version"].iloc[-1]
+        df = df[df["weights_version"] == latest_ver]
+    cols = [c for c in ["as_of", "composite", "fundamental", "valuation",
+                        "technical", "momentum", "whale", "weights_version"]
+            if c in df.columns]
+    df = df[cols].drop_duplicates(subset=["as_of"], keep="last")
+    return df.tail(int(limit)).reset_index(drop=True)
+
+
 _AS_OF_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
