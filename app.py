@@ -291,6 +291,25 @@ def screen_universe(mode: str, min_composite: int, ratings: tuple, min_conf: int
 
 
 @st.cache_data(show_spinner=False)
+def get_as_of_dates(mode: str) -> list:
+    """該模式 scores 快取內所有出現過的 as_of 日期 (由舊到新),供『日期回顧』選單。"""
+    return score_store.as_of_dates(mode)
+
+
+@st.cache_data(show_spinner=False)
+def screen_universe_at(as_of: str, mode: str, min_composite: int, ratings: tuple,
+                       min_conf: int, top: int):
+    """同 screen_universe,但鎖定某歷史 as_of 快照 (日期回顧用)。"""
+    return score_store.screen_by_composite_at(
+        as_of=as_of, mode=mode,
+        min_composite=float(min_composite),
+        ratings=list(ratings) or None,
+        min_confidence=float(min_conf) if min_conf > 0 else None,
+        top=int(top),
+    )
+
+
+@st.cache_data(show_spinner=False)
 def tej_stock_names() -> dict:
     """代號→股名全市場對照 (TEJ 產業對照表靜態快照,含下市股 2,400+ 檔;
     本機與雲端皆讀 repo 內的 cloud_cache/stock_names.csv)。失敗回空 dict。"""
@@ -612,10 +631,18 @@ with tab_screen:
             "建好後回來按上面的「重新載入快取」。")
     else:
         st.markdown(
-            f"名單共 **{info['stocks']}** 檔　｜　基準日 **{info['as_of']}**　｜　"
+            f"名單共 **{info['stocks']}** 檔　｜　最新基準日 **{info['as_of']}**　｜　"
             f"權重版本 `{info['weights_version']}`　"
             "<span style='color:#888'>(排名只在此名單內相對比較)</span>",
             unsafe_allow_html=True)
+
+        # 日期回顧:預設「最新」(每檔取各自最新一筆);選歷史某日則鎖定該 as_of 快照比對
+        _screen_dates = get_as_of_dates(mode)
+        _LATEST = "最新（每檔最新一筆）"
+        _date_opts = [_LATEST] + _screen_dates[::-1] if _screen_dates else [_LATEST]
+        _spick = st.selectbox("資料日(日期回顧)", _date_opts, index=0,
+                              help="事後核對某一天的綜合分 Top 名單用;預設『最新』與過去慣用行為相同,"
+                                   "可切到歷史某一交易日,與『雙確認精選/全市場掃描』同日對照。")
 
         f1, f2, f3 = st.columns(3)
         default_min = int(ScoringManager.MODES[mode]["min_score"])
@@ -625,7 +652,12 @@ with tab_screen:
         top = f3.slider("顯示檔數", 5, 100, 30)
         ratings = st.multiselect("限定評級 (不選 = 全部)", list(RATING_STYLE.keys()), default=[])
 
-        df = screen_universe(mode, min_comp, tuple(ratings), min_conf, top)
+        if _spick == _LATEST:
+            df = screen_universe(mode, min_comp, tuple(ratings), min_conf, top)
+        else:
+            df = screen_universe_at(_spick, mode, min_comp, tuple(ratings), min_conf, top)
+            st.caption(f"📅 日期回顧:顯示 **{_spick}** 當日快照的排名 (非最新);"
+                       "與『雙確認精選/全市場掃描』切到同一天即可三邊對照。")
         # 名稱回填:舊快取的 name 欄可能等於代號 → 先用 TEJ 全市場對照 (2,400+ 檔),
         # 再讓 watchlist.txt 的自訂股名覆蓋 (例 2330 → 台積電)。
         if df is not None and not df.empty and "stock_id" in df.columns and "name" in df.columns:
