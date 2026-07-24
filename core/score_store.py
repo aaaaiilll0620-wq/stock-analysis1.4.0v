@@ -29,6 +29,7 @@ import glob as _glob
 import json
 import hashlib
 import logging
+import re
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -434,6 +435,71 @@ def latest_scores(mode: str = "balanced") -> pd.DataFrame:
         FROM latest
         WHERE _rn = 1
         ORDER BY composite DESC
+    """
+    return data_cache.duck_query(sql)
+
+
+def as_of_dates(mode: str = "balanced") -> List[str]:
+    """該模式下 Scores 快取內所有出現過的 as_of 日期 (由舊到新)，供『日期回顧』選單使用。"""
+    _check_mode(mode)
+    if not _has_scores():
+        return []
+    sql = f"SELECT DISTINCT as_of FROM {data_cache.tbl(DATASET)} WHERE mode = '{mode}' ORDER BY as_of"
+    try:
+        df = data_cache.duck_query(sql)
+    except Exception as e:
+        logger.warning(f"as_of_dates 查詢失敗: {e}")
+        return []
+    return [str(d) for d in df["as_of"].tolist()]
+
+
+_AS_OF_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def screen_by_composite_at(as_of: str, mode: str = "balanced",
+                           min_composite: Optional[float] = None,
+                           ratings: Optional[Sequence[str]] = None,
+                           min_confidence: Optional[float] = None,
+                           top: int = 3000) -> pd.DataFrame:
+    """
+    跟 screen_by_composite 邏輯相同，但鎖定某個歷史 as_of 快照 (而非永遠取每檔最新一筆)。
+    供『雙確認精選』等日期回顧功能：事後核對某一天的名單，而非只看當下最新狀態。
+    pct_rank 只在該 as_of 當天的名單內計算 (與 screen_by_composite 對「最新一筆」名單計算同義)。
+    as_of 格式不符 YYYY-MM-DD 或該日無資料 → 回空表。
+    """
+    _check_mode(mode)
+    if not _has_scores() or not _AS_OF_RE.match(str(as_of)):
+        return pd.DataFrame()
+    conds: List[str] = []
+    if min_composite is not None:
+        conds.append(f"composite >= {float(min_composite)}")
+    if min_confidence is not None:
+        conds.append(f"data_confidence >= {float(min_confidence)}")
+    if ratings:
+        vals = ", ".join("'" + str(r).replace("'", "") + "'" for r in ratings)
+        conds.append(f"rating IN ({vals})")
+    where = (" AND " + " AND ".join(conds)) if conds else ""
+
+    sql = f"""
+        WITH day AS (
+            SELECT * FROM {data_cache.tbl(DATASET)}
+            WHERE mode = '{mode}' AND as_of = '{as_of}'
+        ),
+        ranked AS (
+            SELECT *, percent_rank() OVER (ORDER BY composite) AS _pct
+            FROM day
+        )
+        SELECT stock_id, name, as_of, composite,
+               ROUND(_pct * 100, 1) AS pct_rank,
+               rating, fundamental, valuation, technical, momentum, whale,
+               valuation_status, data_confidence, data_gaps, dyn_weight,
+               price, atr, value_area_low, value_area_high, cost_zone_poc,
+               cost_zone_support, cost_zone_resistance, ma20,
+               inst_participation, foreign_flow, trust_flow, foreign_buy_days, trust_buy_days
+        FROM ranked
+        WHERE TRUE{where}
+        ORDER BY composite DESC
+        LIMIT {int(top)}
     """
     return data_cache.duck_query(sql)
 
