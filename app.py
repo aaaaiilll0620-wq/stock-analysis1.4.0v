@@ -225,14 +225,33 @@ def get_engines(mode: str):
     return build_engines(mode)
 
 
-@st.cache_data(show_spinner=False)
 def analyze(symbol: str, mode: str, refresh: bool, token: str = ""):
     """
-    回傳單檔分析結果 dict;None 表示抓不到資料。
-    token 進 cache key → 不同訪客各自快取、各用自己的 FinMind 額度。
-    在 _api_lock 內把 DataProvider._api 換成該 token 的獨立 loader,跑完還原 (並發安全)。
+    回傳單檔分析結果 dict;None 表示抓不到資料。refresh=True 一律繞過 st.cache_data、
+    真正重打 API——若沿用同一顆 cache,勾了『刷新最新資料』重複點兩次分析,
+    第二次的 (symbol, mode, True, token) 跟第一次同鍵,還是會命中快取、不會真的再抓一次。
     """
-    data_cache.FORCE_REFRESH = refresh
+    if refresh:
+        data_cache.FORCE_REFRESH = True
+        return _do_analyze(symbol, mode, token)
+    return _analyze_cached(symbol, mode, token)
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def _analyze_cached(symbol: str, mode: str, token: str = ""):
+    """
+    refresh=False 的快取路徑。token 進 cache key → 不同訪客各自快取、各用自己的 FinMind 額度。
+    ttl=3600:雲端 st.cache_data 是跨所有訪客共用的伺服器端快取、預設無過期時間,
+    沒有 ttl 會導致某訪客的即時分析結果被無限期快取、之後所有人(含本機以外的雲端訪客)
+    都看到那個舊價格/舊分數,直到 app 容器重啟——與本機新啟動的開發伺服器現抓現算對不起來。
+    """
+    data_cache.FORCE_REFRESH = False
+    return _do_analyze(symbol, mode, token)
+
+
+def _do_analyze(symbol: str, mode: str, token: str):
+    """實際抓資料 + 跑四維度評分,不快取 (快取與否由呼叫端決定)。
+    在 _api_lock 內把 DataProvider._api 換成該 token 的獨立 loader,跑完還原 (並發安全)。"""
     sm, dp, fe, ve, adv = get_engines(mode)
     loader = _loader_for(token)
     with _api_lock:
