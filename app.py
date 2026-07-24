@@ -1013,17 +1013,26 @@ with tab_fusion:
         f"多頭 +1.36%;因 c2 認可自動濾掉純動能股,**2022 空頭不像純綜合分翻車**。"
         f"⚠️ 集中約 20-30 檔、高信心高波動;**分流參考、非投資建議**。")
     import glob as _gf
-    _dfc = screen_universe(mode, 0, tuple(), 0, 3000)      # 綜合分排名 (整個 pool,含 pct_rank)
     _pf = sorted(_gf.glob(os.path.join(_UNIV_DIR, "pool_*.csv"))) or \
         sorted(_gf.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                      "cloud_cache", "UniversePool", "pool_*.csv")))
-    if _dfc is None or _dfc.empty:
-        st.info("需要綜合分 scores 快取。先跑 `python build_cache.py --build-scores`。")
-    elif not _pf:
+    _pool_dates = [os.path.basename(f)[5:-4] for f in _pf]           # pool_{date}.csv
+    _score_dates = set(score_store.as_of_dates(mode))
+    _fusion_dates = [d for d in _pool_dates if d in _score_dates]     # 兩邊當天都有資料才能比對
+
+    if not _pf:
         st.info("找不到 pool_*.csv (c2 來源)。由每日粗篩產出,可用 universe_screen_backfill.py 回補。")
+    elif not _fusion_dates:
+        st.info("找不到『pool 快照』與『綜合分 scores』同一天都有資料的日期,無法比對。"
+                "先跑 `python build_cache.py --build-scores` 補齊綜合分快取。")
     else:
-        _pool = pd.read_csv(_pf[-1], dtype={"stock_id": str})
-        if "c2_score" not in _pool.columns:
+        _fpick = st.selectbox("資料日(日期回顧)", _fusion_dates[::-1], index=0,
+                              help="事後核對某一天的雙確認名單用;預設為最新一天,可切回過去任一天比對。")
+        _dfc = score_store.screen_by_composite_at(_fpick, mode=mode, top=3000)  # 綜合分排名 (該日 pool,含 pct_rank)
+        _pool = pd.read_csv(_pf[_pool_dates.index(_fpick)], dtype={"stock_id": str})
+        if _dfc is None or _dfc.empty:
+            st.info("該日綜合分快取為空,無法比對。")
+        elif "c2_score" not in _pool.columns:
             st.info("pool 檔無 c2_score (舊格式);請重跑 scripts/universe_screen_daily.py。")
         else:
             _pool["c2_pct"] = _pool["c2_score"].rank(pct=True) * 100.0
