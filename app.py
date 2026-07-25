@@ -22,6 +22,7 @@ FinMind token:
 import os
 import re
 import sys
+import time
 from html import escape
 from types import SimpleNamespace
 
@@ -39,6 +40,7 @@ from core.data_provider import DataProvider
 from core.scoring_manager import ScoringManager
 from core import data_cache
 from core import score_store                            # 綜合分快取:整個名單的跨股排名選股
+from core import industry_flow                           # 法人資金流向產業 (想法2 B版,0 API)
 from core.trade_plan import build_trade_plan, format_plan_lines   # 交易計畫 (與 main.py 同一套)
 
 # ------------------------------------------------------------------ 實戰演練真實成本 (元大證券零股 6 折)
@@ -97,6 +99,12 @@ RATING_STYLE = {
 
 
 def rating_badge(rating: str) -> str:
+    """評級徽章。**沒有評級就不要畫徽章** —— 全市場掃描的 Top-10 是粗篩層、本來就沒有四維評級,
+    以前傳空字串進來會畫出一個空的淺灰方塊(#eee),在淺色主題下貼近白底看不出來,
+    深色主題下就變成一顆突兀的白格子。"""
+    rating = str(rating or "").strip()
+    if not rating:
+        return ""
     fg, bg, _ = RATING_STYLE.get(rating, ("#333", "#eee", ""))
     return (f"<span style='background:{bg};color:{fg};padding:4px 12px;border-radius:6px;"
             f"font-weight:700;font-size:1.05rem'>{rating}</span>")
@@ -209,14 +217,16 @@ def _trade_plan_lines_from_row(row) -> list:
 def _render_reco_card(rank: int, code: str, name: str, rating: str,
                       headline_extra: str, reason: str, plan_lines: list):
     """統一的 Top-10 推薦卡片 (兩個分頁共用):標題列 + 理由行 + 交易計畫多行。"""
-    st.markdown(
-        f"**{rank}. {escape(str(code))} {escape(str(name))}**　{rating_badge(rating)}　{headline_extra}",
-        unsafe_allow_html=True)
+    _badge = rating_badge(rating)
+    _head = f"**{rank}. {escape(str(code))} {escape(str(name))}**"
+    # 沒有評級時連分隔的全角空白一起省掉,不然標題後面會留一段莫名的空白
+    st.markdown("　".join(x for x in (_head, _badge, headline_extra) if x),
+                unsafe_allow_html=True)
     if reason:
-        st.markdown(f"<div style='color:#444;margin:-2px 0 3px'>{escape(reason)}</div>",
+        st.markdown(f"<div style='color:inherit;opacity:.82;margin:-2px 0 3px'>{escape(reason)}</div>",
                     unsafe_allow_html=True)
     for ln in plan_lines:
-        st.markdown(f"<div style='color:#333;font-size:0.9rem;margin:1px 0 1px 8px'>· {escape(ln)}</div>",
+        st.markdown(f"<div style='color:inherit;opacity:.9;font-size:0.9rem;margin:1px 0 1px 8px'>· {escape(ln)}</div>",
                     unsafe_allow_html=True)
 
 
@@ -319,6 +329,24 @@ def get_as_of_dates(mode: str) -> list:
 def get_score_history(stock_id: str, mode: str, limit: int = 10):
     """單檔近 N 日綜合分＋五維走勢 (讀 scores 快取,0 API);不在每日名單 → 空表。"""
     return score_store.score_history(stock_id, mode=mode, limit=limit)
+
+
+@st.cache_data(show_spinner="載入產業資金流向…")
+def get_industry_flow(level: str):
+    """各產業每日法人淨流入 (億元) 長格式 (讀 snapshot;本機無則即時算)。"""
+    return industry_flow.load_flow(level)
+
+
+@st.cache_data(show_spinner=False)
+def get_industry_members(level: str, industry: str, date, start=None, end=None):
+    """某產業的成分股法人淨流入 (下鑽用;date=None 則看 [start, end] 區間累計)。"""
+    return industry_flow.load_members(level, industry, date=date, start=start, end=end)
+
+
+@st.cache_data(show_spinner=False)
+def get_members_range():
+    """下鑽成分股資料實際涵蓋的日期範圍 (可能比主圖短) → (min, max)。"""
+    return industry_flow.members_range()
 
 
 @st.cache_data(show_spinner=False)
@@ -448,9 +476,526 @@ def _render_stale_banner():
 
 _render_stale_banner()
 
-tab_one, tab_rank, tab_screen, tab_univ, tab_fusion, tab_regime, tab_dca, tab_drill, tab_help = st.tabs(
+(tab_one, tab_rank, tab_screen, tab_univ, tab_fusion, tab_flow,
+ tab_regime, tab_dca, tab_drill, tab_help) = st.tabs(
     ["🔎 個股分析", "🏆 多檔排行", "🎯 綜合分選股", "🌐 全市場掃描",
-     "✨ 雙確認精選", "🚦 市場燈號", "💰 定期定額", "📋 實戰演練", "📖 使用說明"])
+     "✨ 雙確認精選", "🏭 法人流向", "🚦 市場燈號", "💰 定期定額", "📋 實戰演練", "📖 使用說明"])
+
+
+# ------------------------------------------------------------------ 法人資金流向產業 (想法2 B版)
+with tab_flow:
+    st.subheader("🏭 法人資金流向產業")
+    st.caption(
+        "全市場三大法人**每日淨買 × 收盤價 = 淨流入金額**,依 TEJ 產業別聚合。"
+        "歷史來自本機 TEJ 種子(2004 起)、最新一段由證交所 T86＋櫃買 3insti 每日 17:30 自動接續"
+        "(全程 0 FinMind API)。"
+        "**這是資金流向的描述圖,非買賣訊號** —— 法人賣轉買在本專案實證是反指標。")
+
+    _lv = st.radio("產業層級", list(industry_flow.LEVELS.keys()), index=0, horizontal=True,
+                   help="子產業最細(散裝航運/貨櫃輪級,~250 類);產業/上市產業較粗。")
+    _metric_map = {"外資+投信": "combined", "外資": "foreign", "投信": "trust"}
+    _mlabel = st.radio("法人別", list(_metric_map.keys()), index=0, horizontal=True)
+    _rawcol = _metric_map[_mlabel]
+
+    _flow_all = get_industry_flow(_lv)
+    if _flow_all is None or _flow_all.empty:
+        st.warning(
+            "目前沒有產業流向快取。請在專案根目錄執行:\n\n"
+            "```\npython scripts/build_industry_flow.py\n```\n"
+            "(需本機 `~/tej_cache` 種子或 `~/market_cache` 每日快照;跑完按 R 重整。)")
+    else:
+        _all_dates = sorted(_flow_all["date"].unique())
+
+        # ---- 期間:全期可能上千個交易日,播放/累計都要先收斂範圍 ----
+        _win_map = {"近 20 日": 20, "近 60 日": 60, "近 120 日": 120, "近 250 日": 250,
+                    "全部": None}
+        _wopts = [k for k, v in _win_map.items() if v is None or v <= len(_all_dates)] or ["全部"]
+        _win = st.radio("期間", _wopts, index=0, horizontal=True,
+                        help="決定『播放』的幀數與『期間累計』的區間。全部=快取內所有交易日。")
+        _n_win = _win_map.get(_win)
+        _dates = _all_dates[-_n_win:] if _n_win else _all_dates
+        _flow = _flow_all[_flow_all["date"].isin(set(_dates))]
+        _dmin, _dmax = _dates[0], _dates[-1]
+
+        # ---- 量綱:金額會被權值股單日爆量壓垮 (晶圓代工單日 -1121 億),占比口徑天生同尺度 ----
+        _has_turn = ("turnover" in _flow.columns
+                     and float(_flow["turnover"].fillna(0).abs().sum()) > 0)
+        _unit_opts = ["億元", "占成交額 %"] if _has_turn else ["億元"]
+        _unit = st.radio("量綱", _unit_opts, index=0, horizontal=True,
+                         help="億元=絕對金額,大產業恆常佔版面;占成交額%=淨流入÷該產業當日成交額,"
+                              "把大小產業拉到同一把尺上比較。"
+                         if _has_turn else "快取沒有成交額欄 → 重跑 build_industry_flow.py 解鎖占比口徑。")
+        _pct = _unit == "占成交額 %"
+        # 占比口徑下,成交額太小的產業會做出 ±100% 的假極端 → 設門檻剔除 (單日 5 億;累計按天數放大)
+        _MIN_TURN = 5.0
+        _unit_txt = "**%**（淨流入÷成交額）" if _pct else "**億元**"
+        st.markdown(f"資料日 **{_dmin} ～ {_dmax}**（{len(_dates)} 個交易日，"
+                    f"快取共 {len(_all_dates)} 日）　｜　單位：{_unit_txt}"
+                    "（正=淨買進、負=淨賣出）")
+        st.caption("長條圖的視覺語言：**顏色 = 方向**（紅買超／綠賣超，台股慣例）、**長度 = 數值**、"
+                   "**透明度 = 金額大小**（小額淡出，壓掉中段短長條的干擾）、"
+                   "**數字直接標在長條尾端**（不必對 X 軸或 hover）。"
+                   "透明度用的是相對尺度（|值| 的 70 百分位以上全滿），"
+                   "所以切換量綱／期間／層級都不用重調門檻。")
+
+        _view = st.radio("檢視", ["單日掃描(可移動)", "期間累計", "產業地圖(Treemap)"],
+                         index=0, horizontal=True,
+                         help="前兩者用長條看『排名與數值』(位置/長度是判讀最準的通道);"
+                              "產業地圖用面積+顏色看『整體版圖與資金分布』,兩者職責不同。")
+        _topn = st.slider("顯示產業數 (各取淨買/淨賣前段)", 6, 20, 12)
+
+        def _with_pct(_df, _min_turn=_MIN_TURN):
+            """加上占成交額% 欄 (foreign_pct/trust_pct/combined_pct);占比模式下剔除薄量產業。"""
+            _d = _df.copy()
+            if "turnover" not in _d.columns:
+                return _d
+            _t = _d["turnover"].replace(0, float("nan"))
+            for _c in ("foreign", "trust", "combined"):
+                if _c in _d.columns:
+                    _d[f"{_c}_pct"] = _d[_c] / _t * 100
+            if _pct:
+                _d = _d[_d["turnover"] >= _min_turn]
+            return _d
+
+        _mcol = f"{_rawcol}_pct" if _pct else _rawcol
+        _fmt = ".2f" if _pct else ".1f"
+        _unit_sfx = "%" if _pct else "億"
+        _axis_title = f"{_mlabel} 淨流入 ({'占成交額 %' if _pct else '億元'})"
+
+        # ---- 配色 ----------------------------------------------------------------
+        # 台股慣例:**紅 = 漲/買超、綠 = 跌/賣超**(與歐美相反),故 pos=紅、neg=綠。
+        # 核心法則:極端值亮如發光、中間值暗如背景。但「背景」是什麼色取決於主題 ——
+        # 本 app 沒鎖 theme(無 .streamlit/config.toml)→ Streamlit 跟著瀏覽器深淺色模式走,
+        # 兩種都會遇到。深色底是霓虹組;淺色底同原則,但零軸退向近白而非近黑(填近黑會讓
+        # 中性小變動變成白底上最搶眼的方塊,效果完全相反)。
+        # zero 不能貼齊頁面底色:深色底頁面是 #0E1117,零軸若也用同階,近零方塊會整片糊掉
+        # 看不出邊界 → 零軸抬到 #3A4256 (仍遠暗於霓虹端點,不搶戲),另用 edge 畫出方塊間的溝縫。
+        # txt_bar = 長條尾端數字的顏色。畫在圖的背景上(不是畫在方塊上),所以必須跟著主題走 ——
+        # Vega 的 mark_text 預設是黑字,在深色底等於隱形。
+        _PAL = {
+            "淺色底（預設主題）": {"pos": "#D50000", "neg": "#00A152", "zero": "#E3E8EF",
+                                   "edge": "#FFFFFF", "txt_bar": "#111111",
+                                   "txt_hi": "#FFFFFF", "txt_lo": "#111111"},
+            "深色底（霓虹）":     {"pos": "#FF1744", "neg": "#00E676", "zero": "#3A4256",
+                                   "edge": "#0E1117", "txt_bar": "#E6EAF1",
+                                   "txt_hi": "#FFFFFF", "txt_lo": "#FFFFFF"},
+        }
+        # 本 app 沒鎖 theme → Streamlit 跟著瀏覽器的 prefers-color-scheme 走,深淺兩種都會遇到。
+        # st.context.theme 是 1.44+ 才有 (本機 1.59 有、雲端鎖 1.37 沒有) → 取不到就預設淺色。
+        try:
+            _th = getattr(getattr(st, "context", None), "theme", None)
+            _pal_idx = 1 if str(getattr(_th, "type", "")).lower() == "dark" else 0
+        except Exception:          # 1.37 有 st.context 但沒有 .theme;任何存取異常都退回淺色
+            _pal_idx = 0
+        _pal_name = st.radio("配色", list(_PAL.keys()), index=_pal_idx, horizontal=True,
+                             help="配色要配合你的主題(跟著瀏覽器深淺色模式走,也可在右上角選單改)。"
+                                  "深色底那組是霓虹色,在白底上對比不足;淺色底那組把零軸退向近白而非近黑。"
+                                  "偵測不到主題時預設淺色,自己切即可。")
+        _P = _PAL[_pal_name]
+
+        # Vega/Streamlit 走 autosize:fit → properties(height) 是**含圖例與 X 軸的總高**,
+        # 不是繪圖區高度 (與 treemap 同一個坑)。實測頂部圖例 + X 軸 + 軸標題共吃掉約 131px。
+        # 舊寫法 26*n+40 在成分股少的產業直接爆掉:FCCL 只有 3 檔 → 總高 118 < 131,
+        # 繪圖區被壓成負值、Vega 夾成一條細縫 → 長條超細、標籤疊成一團。
+        _BAR_CHROME = 132
+
+        def _bar_h(_n):
+            """依列數算圖高:每列 28px 的繪圖區 + 固定 chrome。少列數也保證長條有正常厚度。"""
+            return 28 * max(int(_n), 1) + _BAR_CHROME
+
+        def _sign_col(_df, _col):
+            """買/賣兩色(取代原本的紅黃綠連續色階) —— 大小交給長度與透明度,顏色只管方向。"""
+            return ["買超" if (_v is not None and _v >= 0) else "賣超"
+                    for _v in _df[_col].fillna(0)]
+
+        def _alpha_scale(_vals):
+            """
+            透明度尺度:大額全滿、小額淡出 (壓掉中段短長條的彩度干擾)。
+
+            定義域 = [|值| 的 25 百分位, 75 百分位] 並 clamp,**兩端都用分位數錨定**:
+              · 不用固定的 10/50 億門檻 —— 量綱(億元/%)、期間(20 日/857 日)、產業層級
+                都會讓絕對門檻失效,分位數三者通吃。
+              · 不用 [0, max] 線性:法人流向是重尾分佈 (單日常見「一根 70 億、其餘 6~30 億」),
+                線性會讓除了第一名以外全部糊在一起。
+              · 也不用 pow 曲線壓:實測 exponent=2 會把第二名 (39 億,超過龍頭一半) 壓到 0.45,
+                讀起來變成「只有冠軍看得見」,矯枉過正。
+            結果:前 25% 全滿、後 25% 淡到 0.35、中間線性 —— 這才是原始建議想要的效果。
+            """
+            _a = _vals.abs().dropna()
+            _lo = float(_a.quantile(0.25)) if len(_a) else 0.0
+            _hi = float(_a.quantile(0.75)) if len(_a) else 0.0
+            if not _hi > _lo:                      # 退化 (值幾乎相同) → 退回 [0, max]
+                _lo, _hi = 0.0, (float(_a.max()) if len(_a) else 1.0) or 1.0
+            return alt.Scale(domain=[_lo, _hi], range=[0.35, 1.0], clamp=True)
+
+        def _flow_hbar(_df_show, _xcol, _xtitle, _xdomain=None):
+            """產業淨流入橫向分歧長條。顏色=方向(紅買/綠賣,台股慣例)、長度=數值、透明度=金額大小
+            (壓掉中段小長條的干擾)、尾端標數字(不必對 X 軸或 hover)。
+            _xdomain=[lo,hi] → 固定 x 軸 (動畫逐幀比例一致,不跳動)。"""
+            if _df_show is None or _df_show.empty:
+                return alt.Chart(pd.DataFrame({"x": []})).mark_bar().properties(height=60)
+            _d = _df_show.copy()
+            _d["_dir"] = _sign_col(_d, _xcol)
+            _d["_abs"] = _d[_xcol].abs()
+            _d["_lab"] = [("" if pd.isna(_v) else f"{_v:+,.1f}{_unit_sfx}") for _v in _d[_xcol]]
+            # 標籤貼在長條尾端;x 軸被固定時把標籤夾回軸內,否則超出範圍的標籤會被裁掉看不到
+            _d["_lx"] = (_d[_xcol].clip(_xdomain[0], _xdomain[1]) if _xdomain else _d[_xcol])
+
+            _xenc = (alt.X(f"{_xcol}:Q", title=_xtitle, scale=alt.Scale(domain=_xdomain))
+                     if _xdomain else alt.X(f"{_xcol}:Q", title=_xtitle))
+            # 排序在 Python 端算好,並**把它釘成 y 尺度的 domain**(最大正 → 中間 → 最大負)。
+            # 這是 layer 圖 (長條 + 正值標籤 + 負值標籤三層各自資料子集),共用 y 軸時 Vega 會把
+            # 三層的 domain 聯集:用 sort="-x" 三層各自排序會打架 (長條變超細、標籤擠成一團),
+            # 就算改傳明確 sort 清單,聯集仍會把負值段的順序弄反。只有明寫 scale.domain
+            # 才能完全蓋掉聯集行為。
+            _order = _d.sort_values(_xcol, ascending=False)["industry"].tolist()
+            _yenc = alt.Y("industry:N", title=None, scale=alt.Scale(domain=_order))
+            _tt = ([alt.Tooltip("industry:N", title="產業")]
+                   + [alt.Tooltip(f"{c}:Q", title=t, format=".1f")
+                      for c, t in [("foreign", "外資(億)"), ("trust", "投信(億)"),
+                                   ("combined", "合計(億)")]]
+                   + ([alt.Tooltip("combined_pct:Q", title="合計占成交額%", format=".2f"),
+                       alt.Tooltip("turnover:Q", title="成交額(億)", format=".0f")]
+                      if _has_turn else [])
+                   + [alt.Tooltip("n_stocks:Q", title="檔數")])
+            _bar = alt.Chart(_d).mark_bar(clip=True).encode(
+                x=_xenc, y=_yenc,
+                color=alt.Color("_dir:N", title=None,
+                                scale=alt.Scale(domain=["買超", "賣超"],
+                                                range=[_P["pos"], _P["neg"]]),
+                                legend=alt.Legend(orient="top", direction="horizontal")),
+                opacity=alt.Opacity("_abs:Q", legend=None, scale=_alpha_scale(_d[_xcol])),
+                tooltip=_tt)
+            # 正值標右側、負值標左側 → 兩層 (mark 的 align 不能逐列變)
+            _txt = []
+            for _side, _al, _dx in (("買超", "left", 4), ("賣超", "right", -4)):
+                _sub = _d[_d["_dir"] == _side]
+                if _sub.empty:
+                    continue
+                _txt.append(alt.Chart(_sub).mark_text(align=_al, dx=_dx, fontSize=10,
+                                                      baseline="middle", color=_P["txt_bar"])
+                            .encode(x=alt.X("_lx:Q", title=_xtitle,
+                                            scale=alt.Scale(domain=_xdomain) if _xdomain
+                                            else alt.Undefined),
+                                    y=_yenc, text="_lab:N", tooltip=_tt))
+            return (alt.layer(_bar, *_txt)
+                    .properties(height=_bar_h(len(_d)))
+                    .resolve_scale(x="shared", y="shared"))
+
+        def _day_show(_d):
+            """某日淨買前 topn + 淨賣前 topn,合成一張分歧長條的資料。"""
+            _day = _with_pct(_flow[_flow["date"] == _d])
+            if _day.empty:
+                return _day
+            return pd.concat([_day.nlargest(_topn, _mcol),
+                              _day.nsmallest(_topn, _mcol)]).drop_duplicates(subset=["industry"])
+
+        def _cum_frame():
+            """整段期間每個產業的累計淨流入 + 累計成交額。占比口徑要『先各自加總再相除』
+            (Σ淨流入 ÷ Σ成交額),不是每日比率的平均 —— 後者會被薄量日的極端比率拉走。"""
+            _c = (_flow.groupby("industry")
+                       .agg(foreign=("foreign", "sum"), trust=("trust", "sum"),
+                            combined=("combined", "sum"), turnover=("turnover", "sum"),
+                            n_stocks=("n_stocks", "max"))
+                       .reset_index())
+            return _with_pct(_c, _MIN_TURN * len(_dates))
+
+        # ---- Treemap:面積=成交額 (資金體量)、顏色=淨流入 (誰在買賣) —— Finviz 口徑 ----
+        # Altair 沒有 treemap mark,squarified 版面自己算 (core/treemap.py),再用 mark_rect 畫,
+        # 零新依賴 (雲端鎖 altair 5.3 / numpy 1.26,不值得為一張圖引 plotly)。
+        # squarified 算出來的長寬比只有在「畫布長寬比 = 實際繪圖區長寬比」時才成立。
+        # Streamlit 送給 Vega 的是 autosize:fit → properties(height) 是**含圖例的總高**,
+        # 圖例會從繪圖區扣走。故標題改用 st.markdown 畫在圖外,並把實測的圖例高度加回
+        # properties,讓繪圖區真的等於 _TM_W × _TM_H(實測底部橫向漸層圖例 = 106px)。
+        # 註:這個常數估錯只會讓方塊被等比拉伸(長寬比略差),**不影響資料正確性** ——
+        # x/y 都是線性尺度,面積之間的比例在任何均勻拉伸下都不變。
+        _TM_W, _TM_H, _TM_LEGEND = 880, 430, 106
+
+        def _treemap(_src, _tot_all):
+            """_src 需含 industry/turnover/foreign/trust/combined(+_pct)/n_stocks。
+            _tot_all = **未經任何過濾**的當期全產業成交額 —— 覆蓋率要對它算才誠實
+            (占比模式的薄量門檻已先砍掉一批,拿砍完的當分母會永遠接近 100%)。
+            回傳 (chart, 顯示用 df, 被丟掉的產業數)。"""
+            from core.treemap import squarify
+            _d = _src[_src["turnover"].fillna(0) > 0].copy()
+            if _d.empty:
+                return None, _d, 0
+            _n_show = min(2 * _topn, len(_d))
+            _dropped = len(_d) - _n_show
+            _d = _d.nlargest(_n_show, "turnover").reset_index(drop=True)
+            _d["cover"] = _d["turnover"] / _tot_all * 100 if _tot_all else 0.0
+
+            _rects = squarify(_d["turnover"].tolist(), _TM_W, _TM_H)
+            for _k in ("x", "y", "x2", "y2", "w", "h"):
+                _d[_k] = [_r[_k] for _r in _rects]
+            _d["cx"] = (_d["x"] + _d["x2"]) / 2
+            _d["cy"] = (_d["y"] + _d["y2"]) / 2
+
+            # 顏色域用 90 百分位的穩健對稱上界:單一極端產業不會把其他塊全洗成同一色
+            _v = _d[_mcol].abs().dropna()
+            _cmax = float(_v.quantile(0.90)) if len(_v) else 0.0
+            _cmax = _cmax if _cmax > 0 else (float(_v.max()) if len(_v) else 1.0)
+            _cmax = _cmax or 1.0
+            # 三段式雙極色階:0 附近退到「背景色」(深色底=近黑、淺色底=近白),兩端拉滿飽和
+            # → 中性小變動不搶注意力,極端大額像發光一樣浮出來
+            # interpolate="rgb" 是必要的:Vega 對自訂 range 預設走 HCL,紅→暗→綠 會繞過
+            # 紫色與青色 (實測跑出 rgb(116,49,117) 紫、rgb(0,114,140) 青),整張圖語意就毀了。
+            # RGB 線性內插才會老老實實地「紅→暗紅→暗→暗綠→綠」。
+            _cscale = alt.Scale(domain=[-_cmax, 0.0, _cmax], interpolate="rgb",
+                                range=[_P["neg"], _P["zero"], _P["pos"]], clamp=True)
+            # 文字色:塊夠飽和用 txt_hi,接近零軸(底色接近背景)用 txt_lo。
+            # 深色底兩者都是純白;淺色底近零是近白底 → 必須用深色字,不能一律白字。
+            _d["_txtc"] = [_P["txt_hi"] if abs(_x) >= 0.45 * _cmax else _P["txt_lo"]
+                           for _x in _d[_mcol].fillna(0)]
+            _d["_lab"] = _d["industry"]
+            _d["_val"] = [("—" if pd.isna(_x) else (f"{_x:+.2f}%" if _pct else f"{_x:+,.0f}"))
+                          for _x in _d[_mcol]]
+
+            _base = alt.Chart(_d).encode(
+                x=alt.X("x:Q", axis=None, scale=alt.Scale(domain=[0, _TM_W], nice=False)),
+                x2="x2:Q",
+                y=alt.Y("y:Q", axis=None, scale=alt.Scale(domain=[0, _TM_H], nice=False)),
+                y2="y2:Q")
+            _tt = ([alt.Tooltip("industry:N", title="產業"),
+                    alt.Tooltip("turnover:Q", title="成交額(億)", format=",.0f"),
+                    alt.Tooltip("cover:Q", title="占顯示範圍成交額%", format=".1f")]
+                   + [alt.Tooltip(f"{c}:Q", title=t, format=".1f")
+                      for c, t in [("foreign", "外資(億)"), ("trust", "投信(億)"),
+                                   ("combined", "合計(億)")]]
+                   + ([alt.Tooltip("combined_pct:Q", title="合計占成交額%", format=".2f")]
+                      if _has_turn else [])
+                   + [alt.Tooltip("n_stocks:Q", title="檔數")])
+            # 邊框用頁面底色畫出方塊間的溝縫 (不能用零軸色,那樣近零方塊會與邊框同色而糊成一片)
+            _rect = _base.mark_rect(stroke=_P["edge"], strokeWidth=2).encode(
+                color=alt.Color(f"{_mcol}:Q", title=_axis_title, scale=_cscale,
+                                legend=alt.Legend(orient="bottom", direction="horizontal",
+                                                  gradientLength=260)),
+                tooltip=_tt)
+            # 塊太小就不標字 (硬塞會疊成一團);數字只在夠高的塊才出現
+            _big = _d[(_d["w"] >= 52) & (_d["h"] >= 24)]
+            _bigger = _d[(_d["w"] >= 52) & (_d["h"] >= 42)]
+            _name = (alt.Chart(_big).mark_text(fontSize=11, fontWeight="bold", dy=-6)
+                     .encode(x=alt.X("cx:Q", axis=None, scale=alt.Scale(domain=[0, _TM_W], nice=False)),
+                             y=alt.Y("cy:Q", axis=None, scale=alt.Scale(domain=[0, _TM_H], nice=False)),
+                             text="_lab:N", color=alt.Color("_txtc:N", scale=None, legend=None),
+                             tooltip=_tt))
+            _num = (alt.Chart(_bigger).mark_text(fontSize=10, dy=9)
+                    .encode(x=alt.X("cx:Q", axis=None, scale=alt.Scale(domain=[0, _TM_W], nice=False)),
+                            y=alt.Y("cy:Q", axis=None, scale=alt.Scale(domain=[0, _TM_H], nice=False)),
+                            text="_val:N", color=alt.Color("_txtc:N", scale=None, legend=None),
+                            tooltip=_tt))
+            _ch = ((_rect + _name + _num)
+                   .properties(width=_TM_W, height=_TM_H + _TM_LEGEND)
+                   .configure_view(strokeWidth=0))
+            return _ch, _d, _dropped
+
+        if _view == "單日掃描(可移動)":
+            # 播放鈕:自動逐日推進 (bar-chart-race);滑桿:手動掃描單日
+            _c1, _c2 = st.columns([1, 2])
+            _play = _c1.button("▶ 播放連續天數", key="flow_play", use_container_width=True)
+            _speed = _c2.select_slider("播放速度", options=["慢", "中", "快"], value="中")
+            _delay = {"慢": 1.1, "中": 0.6, "快": 0.3}[_speed]
+            _fix_axis = st.checkbox("固定 x 軸 (動畫不跳動)", value=True,
+                                    help="以整段期間單日淨流入的最大絕對值,把 x 軸固定成對稱範圍;"
+                                         "關閉則每日自動縮放 (單一極端值會壓縮其他天)。")
+            # 固定範圍 = 各日最大絕對值的穩健上界:剔除 >3×中位數 的極端日 (如晶圓代工單日
+            # -1121 億),避免單日爆量把其他天壓成細絲;極端長條 clip 在軸邊。
+            # 各日最大 |值| 一定落在該日 top-n 買/賣其中一端,故直接對全表 groupby 取,不必逐日 nlargest。
+            _fp = _with_pct(_flow)
+            _daily_max = _fp.groupby("date")[_mcol].apply(lambda s: float(s.abs().max() or 0))
+            _med = float(_daily_max.median() or 0)
+            _kept = _daily_max[_daily_max <= 3 * _med] if _med > 0 else _daily_max
+            _absmax = float(_kept.max() if len(_kept) else 0) * 1.10
+            _clipped = _med > 0 and float(_daily_max.max()) > 3 * _med
+            _xdom = [-_absmax, _absmax] if (_fix_axis and _absmax > 0) else None
+            _pick = st.select_slider("交易日（拖動掃描）", options=_dates, value=_dmax)
+            _ph = st.empty()
+            _cap = st.empty()
+
+            # 幀數上限:全期可能上千個交易日,逐日播放會把整個 app 卡住數分鐘 → 等距抽幀,
+            # 並在字幕明講抽樣間隔 (不做無聲截斷)。
+            _MAXF = 150
+            _step = max(1, -(-len(_dates) // _MAXF))
+            _frames = _dates[::_step]
+            if _step > 1:
+                st.caption(f"⏱️ 期間有 {len(_dates)} 個交易日 → 播放每 {_step} 日抽 1 幀"
+                           f"(共 {len(_frames)} 幀);想逐日看請把期間縮到近 120 日以內。")
+
+            if _play:
+                # 逐日更新同一個 placeholder → 連續移動過程;結束停在最新日
+                for _d in _frames:
+                    _ph.altair_chart(
+                        _flow_hbar(_day_show(_d), _mcol, f"{_axis_title} — {_d}", _xdom),
+                        use_container_width=True)
+                    _cap.caption(f"▶ 播放中… {_d}")
+                    time.sleep(_delay)
+                _pick = _frames[-1]
+            _show = _day_show(_pick)
+            _ph.altair_chart(_flow_hbar(_show, _mcol, f"{_axis_title} — {_pick}", _xdom),
+                             use_container_width=True)
+            _unit_s = "%" if _pct else "億"
+            _cap.caption(f"📅 {_pick} 當日 {_mlabel}淨流入前 {_topn} 買 / 前 {_topn} 賣。"
+                         "按『▶ 播放連續天數』看逐日移動,或拖滑桿手動掃描。"
+                         + (f"　⚠️ x 軸固定在 ±{_absmax:.1f}{_unit_s};極端日的長條會 clip 在軸邊,"
+                            "實際數字看長條 tooltip。" if _xdom and _clipped else "")
+                         + (f"　成交額 < {_MIN_TURN:.0f} 億的薄量產業已剔除 (避免假極端)。"
+                            if _pct else ""))
+            _drill_date = _pick
+        elif _view == "產業地圖(Treemap)":
+            # 面積=成交額(資金體量,必為正)、顏色=淨流入(誰在買賣)。回答「版圖長怎樣」,
+            # 精確排名仍看長條圖 —— 面積的判讀精度天生低於位置/長度。
+            if not _has_turn:
+                st.warning("快取沒有成交額欄,畫不出產業地圖。請重跑 "
+                           "`python scripts/build_industry_flow.py` 後按 R 重整。")
+                _show, _drill_date = pd.DataFrame(columns=["industry"]), None
+            else:
+                _tb = st.radio("地圖基準", ["單日", "期間累計"], index=1, horizontal=True,
+                               help="單日=某一天的資金分布;期間累計=整段期間加總(版面較穩定)。")
+                if _tb == "單日":
+                    _tpick = st.select_slider("交易日（拖動掃描）", options=_dates, value=_dmax,
+                                              key="tm_date")
+                    _raw = _flow[_flow["date"] == _tpick]
+                    _src = _with_pct(_raw)
+                    _ttl = f"{_axis_title} — {_tpick}"
+                    _drill_date = _tpick
+                else:
+                    _raw = _flow
+                    _src = _cum_frame()
+                    _ttl = (f"{_mlabel} 累計淨流入（{'占成交額 %' if _pct else '億元'}）"
+                            f" — {_dmin}～{_dmax}")
+                    _drill_date = None
+                # 分母用未過濾的原始表:占比模式的薄量門檻已先砍掉一批產業,不能算進覆蓋率
+                _tot_all = float(_raw["turnover"].fillna(0).sum())
+                _n_all = int(_raw["industry"].nunique())
+                _tmchart, _show, _cut = _treemap(_src, _tot_all)
+                if _tmchart is None:
+                    st.info("此條件下沒有成交額資料可畫。")
+                else:
+                    st.markdown(f"**{_ttl}**")   # 標題畫在圖外,不佔 Vega 繪圖區 (見 _TM_LEGEND)
+                    st.altair_chart(_tmchart, use_container_width=False)
+                    _cv = float(_show["cover"].sum())
+                    _thin = _n_all - len(_show) - _cut         # 被薄量門檻剔除的產業數
+                    _miss = ([f"成交額排名 {len(_show)} 名之後的 {_cut} 個" ] if _cut else []) \
+                            + ([f"占比口徑薄量門檻剔除的 {_thin} 個"] if _pct and _thin > 0 else [])
+                    st.caption(
+                        f"**方塊面積 = 成交額**（資金體量）、**顏色 = {_mlabel}淨流入**"
+                        f"（紅=買超、綠=賣超，{'占成交額 %' if _pct else '億元'}）。"
+                        + (f"畫出 {len(_show)} 個產業，占{'該日' if _drill_date else '整段'}"
+                           f"全部 {_n_all} 個產業成交額的 **{_cv:.0f}%**；未畫的是"
+                           + "、".join(_miss) + "，要看完整排名請切「"
+                           f"{'單日掃描' if _drill_date else '期間累計'}」長條圖。"
+                           if _miss else
+                           f"全部 {_n_all} 個產業都在圖上（占成交額 {_cv:.0f}%），沒有省略。")
+                        + f"色階是**三段式**：0 附近退到接近背景色、兩端拉滿飽和 —— 中性小變動不搶注意力，"
+                          f"極端大額才會「發光」浮出來。上下界取 |淨流入| 的 90 百分位（對稱），"
+                          f"更極端的塊壓在端點（實際數字看 tooltip）。方塊太小時不標字，滑上去看 tooltip。")
+        else:
+            _drill_date = None  # 累計視圖 → 下鑽看整段累計
+            _cum = _cum_frame()
+            _show = pd.concat([_cum.nlargest(_topn, _mcol),
+                               _cum.nsmallest(_topn, _mcol)]).drop_duplicates(subset=["industry"])
+            st.altair_chart(_flow_hbar(_show, _mcol, f"{_mlabel} 累計淨流入 "
+                                       f"({'占成交額 %' if _pct else '億元'})"),
+                            use_container_width=True)
+
+            # 前 5 淨買產業的累計流入趨勢線 (看資金持續流入還是單日爆量)
+            _top5 = _cum.nlargest(5, _mcol)["industry"].tolist()
+            _tl = _flow[_flow["industry"].isin(_top5)].copy().sort_values("date")
+            if _pct:      # 累計占比 = 累計淨流入 ÷ 累計成交額 (同上,先加總再相除)
+                _tl["_c"] = _tl.groupby("industry")[_rawcol].cumsum()
+                _tl["_t"] = _tl.groupby("industry")["turnover"].cumsum()
+                _tl["累計"] = _tl["_c"] / _tl["_t"].replace(0, float("nan")) * 100
+            else:
+                _tl["累計"] = _tl.groupby("industry")[_rawcol].cumsum()
+            _line = (alt.Chart(_tl).mark_line().encode(
+                        x=alt.X("date:T", title=None),
+                        y=alt.Y("累計:Q", title=f"{_mlabel} 累計淨流入 "
+                                               f"({'占成交額 %' if _pct else '億元'})"),
+                        color=alt.Color("industry:N", legend=alt.Legend(title="產業", orient="top")),
+                        tooltip=["date", "industry", alt.Tooltip("累計:Q", format=_fmt)])
+                     .properties(height=300))
+            st.markdown("**前 5 淨買產業 · 累計流入趨勢**")
+            st.altair_chart(_line, use_container_width=True)
+            st.caption(f"整段 {_dmin}～{_dmax}（{len(_dates)} 日）的 {_mlabel}累計淨流入"
+                       f"前 {_topn} 買 / 前 {_topn} 賣;下圖看前 5 是持續吸金還是單日脈衝。"
+                       + (f"　占比口徑=Σ淨流入÷Σ成交額,且剔除累計成交額 "
+                          f"< {_MIN_TURN * len(_dates):.0f} 億的薄量產業。" if _pct else ""))
+
+        # ---- 下鑽:點選產業展開成分股 (哪些個股在買/賣) ----
+        st.divider()
+        st.markdown("**🔍 展開產業看成分股**")
+        _ind_opts = _show["industry"].tolist()   # 目前圖上的產業 (淨買+淨賣段),依 |流入| 排序
+        # 成分股快取只留最近 N 日 (全歷史太大) → 下鑽區間要夾在成分股實際涵蓋範圍內,
+        # 否則「累計」的主圖與下鑽會是不同期間,數字對不起來卻看不出來。
+        _mrng0, _mrng1 = get_members_range()
+        _dstart = max(_dmin, _mrng0) if _mrng0 else _dmin
+        _dend = min(_dmax, _mrng1) if _mrng1 else _dmax
+        _short = (not _drill_date) and _dstart > _dmin
+        _when = f"{_drill_date} 當日" if _drill_date else f"{_dstart}～{_dend} 累計"
+        _sel_ind = (st.selectbox(f"選一個產業展開成分股（{_when}）", _ind_opts, index=0,
+                                 help="清單為上方圖表當前顯示的產業;展開看是哪些個股撐起這條資金流。")
+                    if _ind_opts else None)
+        if _short:
+            st.info(f"成分股快取只留最近 {_mrng0}～{_mrng1};下鑽數字是這段區間的累計,"
+                    f"比上方主圖的 {_dmin}～{_dmax} 短。要對齊請把期間縮短,"
+                    "或用 `--member-days` 重建快照。")
+        _mem = (get_industry_members(_lv, _sel_ind, _drill_date, _dstart, _dend)
+                if _sel_ind else None)
+        if _sel_ind is None:
+            st.info("目前條件下沒有產業可展開（占比口徑的薄量門檻可能把整段都剔除了,"
+                    "試著切回『億元』或拉長期間）。")
+        elif _mem is None or _mem.empty:
+            st.info("此產業當期無成分股法人資料。")
+        else:
+            _nmap = {**tej_stock_names(), **watchlist_names()}
+            _mem = _with_pct(_mem, 0)      # 個股不套薄量門檻 (成分股本來就會有小型股)
+            _mem["名稱"] = [_nmap.get(str(s), "") for s in _mem["stock_id"]]
+            _mem["標籤"] = _mem["stock_id"] + " " + _mem["名稱"]
+            _mem_show = pd.concat([_mem.nlargest(_topn, _mcol),
+                                   _mem.nsmallest(_topn, _mcol)]).drop_duplicates(subset=["stock_id"])
+            # 與上方主圖同一套視覺語言:顏色=方向、透明度=金額大小、尾端標數字
+            _mem_show = _mem_show.copy()
+            _mem_show["_dir"] = _sign_col(_mem_show, _mcol)
+            _mem_show["_abs"] = _mem_show[_mcol].abs()
+            _mem_show["_lab"] = [("" if pd.isna(_v) else f"{_v:+,.2f}{_unit_sfx}")
+                                 for _v in _mem_show[_mcol]]
+            # 同上:把排序釘成 scale.domain,不能只靠 sort (layer 圖的 domain 聯集會蓋掉它)
+            _morder = _mem_show.sort_values(_mcol, ascending=False)["標籤"].tolist()
+            _myenc = alt.Y("標籤:N", title=None, scale=alt.Scale(domain=_morder))
+            _mtt = ([alt.Tooltip("標籤:N", title="個股")]
+                    + [alt.Tooltip(f"{c}:Q", title=t, format=".2f")
+                       for c, t in [("foreign", "外資(億)"), ("trust", "投信(億)"),
+                                    ("combined", "合計(億)")]]
+                    + ([alt.Tooltip("combined_pct:Q", title="合計占成交額%", format=".2f")]
+                       if _has_turn else []))
+            _mem_bar = alt.Chart(_mem_show).mark_bar().encode(
+                x=alt.X(f"{_mcol}:Q", title=_axis_title), y=_myenc,
+                color=alt.Color("_dir:N", title=None,
+                                scale=alt.Scale(domain=["買超", "賣超"],
+                                                range=[_P["pos"], _P["neg"]]),
+                                legend=alt.Legend(orient="top", direction="horizontal")),
+                opacity=alt.Opacity("_abs:Q", legend=None, scale=_alpha_scale(_mem_show[_mcol])),
+                tooltip=_mtt)
+            _mem_txt = [alt.Chart(_s).mark_text(align=_a, dx=_x, fontSize=10, baseline="middle",
+                                                color=_P["txt_bar"])
+                        .encode(x=alt.X(f"{_mcol}:Q", title=_axis_title), y=_myenc,
+                                text="_lab:N", tooltip=_mtt)
+                        for _s, _a, _x in
+                        ((_mem_show[_mem_show["_dir"] == "買超"], "left", 4),
+                         (_mem_show[_mem_show["_dir"] == "賣超"], "right", -4)) if not _s.empty]
+            st.altair_chart(alt.layer(_mem_bar, *_mem_txt)
+                            .properties(height=_bar_h(len(_mem_show))),
+                            use_container_width=True)
+            _cols = ["stock_id", "名稱", "foreign", "trust", "combined"]
+            _ren = {"stock_id": "代號", "foreign": "外資", "trust": "投信", "combined": "合計"}
+            if _has_turn and "combined_pct" in _mem.columns:
+                _cols += ["turnover", "combined_pct"]
+                _ren |= {"turnover": "成交額(億)", "combined_pct": "合計占成交額%"}
+            st.dataframe(_mem[_cols].rename(columns=_ren).round(2),
+                         use_container_width=True, hide_index=True)
+            st.caption(f"**{_sel_ind}** 成分股（{_when}）{_mlabel}淨流入;"
+                       "金額 = 法人淨買股數 × 收盤 ÷ 1e8（億元）,占比 = 該金額 ÷ 同期成交額。"
+                       "貼代號到『個股分析』可看該檔四維度深評。")
 
 
 # ------------------------------------------------------------------ 市場燈號 (曝險)
@@ -575,7 +1120,7 @@ with tab_one:
             c2.metric("現價", f"{r['price']:.2f}")
             c3.metric("資料信心", f"{r['confidence']:.0f}%")
             st.markdown(
-                f"<div style='font-size:1rem;color:#444;margin:2px 0 10px'>"
+                f"<div style='font-size:1rem;color:inherit;opacity:.82;margin:2px 0 10px'>"
                 f"基本面:{escape(r['fundamental_label'])}　｜　趨勢:{escape(r['trend_label'])}　｜　"
                 f"估值:{escape(r['valuation_status'])}　｜　獲利:{escape(r['quality_flag'])}　｜　"
                 f"類別 {escape(r['sector'])}</div>", unsafe_allow_html=True)
@@ -605,7 +1150,7 @@ with tab_one:
                 st.markdown("**📐 交易計畫（進場區間・停損・目標;規則換算的價位參考,非投資建議）**")
                 for _ln in _plan:
                     st.markdown(
-                        f"<div style='font-size:1rem;color:#333;margin:2px 0 2px 8px'>· {escape(_ln)}</div>",
+                        f"<div style='font-size:1rem;color:inherit;opacity:.9;margin:2px 0 2px 8px'>· {escape(_ln)}</div>",
                         unsafe_allow_html=True)
             # 近日綜合分走勢 (讀 scores 快取,0 API;僅每日名單內的股票有歷史)
             _hist = get_score_history(r["symbol"], mode, limit=10)
@@ -691,7 +1236,7 @@ with tab_screen:
         st.markdown(
             f"名單共 **{info['stocks']}** 檔　｜　最新基準日 **{info['as_of']}**　｜　"
             f"權重版本 `{info['weights_version']}`　"
-            "<span style='color:#888'>(排名只在此名單內相對比較)</span>",
+            "<span style='color:inherit;opacity:.65'>(排名只在此名單內相對比較)</span>",
             unsafe_allow_html=True)
 
         # 日期回顧:預設「最新」(每檔取各自最新一筆);選歷史某日則鎖定該 as_of 快照比對
@@ -1415,10 +1960,10 @@ with tab_drill:
 
 # ------------------------------------------------------------------ 使用說明
 with tab_help:
-    st.subheader("🧭 這個工具是什麼 + 9 個分頁總覽")
+    st.subheader("🧭 這個工具是什麼 + 10 個分頁總覽")
     st.markdown(
         "這是一套**選股研究 / 紀律輔助**工具,幫你對台股做多維度評分與排名。**它不預測漲跌、"
-        "不是印鈔機**;定位是『幫你有系統地篩、有紀律地追蹤』。九個分頁分三類:\n\n"
+        "不是印鈔機**;定位是『幫你有系統地篩、有紀律地追蹤』。十個分頁分三類:\n\n"
         "**A. 即時查單檔(需自己的 FinMind token)**\n"
         "- 🔎 **個股分析**:單檔四維度深評 + 精確買點,即時抓最新資料。\n"
         "- 🏆 **多檔排行**:多檔並排即時比較。\n\n"
@@ -1427,6 +1972,8 @@ with tab_help:
         "- 🌐 **全市場掃描**:C2 排序 + 五來源臂 shortlist,看整體 Top 10。\n"
         "- ✨ **雙確認精選**:同時進 c2 前 20% 與 綜合分前 20% 的交集(附誠實回測)。\n\n"
         "**C. 風控與試算工具(0 API)**\n"
+        "- 🏭 **法人流向**:各產業每日法人淨流入(億元 / 占成交額%),可播放、可下鑽成分股。"
+        "**描述圖,不是買賣訊號**。\n"
         "- 🚦 **市場燈號**:現在該持有幾成(反應式風控,非預測方向)。\n"
         "- 💰 **定期定額**:試算你 DCA 的真實個人報酬(MWRR),對比 0050。\n"
         "- 📋 **實戰演練**:30 天 plan 操作卡 × 實際成交對帳,練執行紀律。\n"

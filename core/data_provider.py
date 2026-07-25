@@ -113,16 +113,55 @@ class DataProvider:
     # ------------------------------------------------------------------
     @classmethod
     def _get_name(cls, symbol: str) -> str:
+        """代號→股名。個股分析已去 FinMind 化 (0 API),TaiwanStockInfo 不再會被登入,
+        故以本機/repo 內的 TEJ 對照表為主來源,FinMind 僅在兩者皆空時當最後備援。
+          1) cloud_cache/stock_names.csv (repo 內靜態快照,本機與 Streamlit Cloud 皆可讀)
+          2) tej_cache/industry_map.parquet 的 stock_name (本機較新,補 csv 缺的代號)
+          3) FinMind TaiwanStockInfo (需登入;抓不到就退回代號本身)"""
         if cls._name_map is None:
+            m: dict = {}
+            if getattr(sys, "frozen", False):
+                base = os.path.dirname(sys.executable)
+            else:
+                base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+            # 1) repo 內 TEJ 全市場靜態快照
             try:
-                info = cls._api.get_data(dataset='TaiwanStockInfo')
-                if info is not None and not info.empty and 'stock_id' in info.columns:
-                    cls._name_map = dict(zip(info['stock_id'].astype(str), info['stock_name']))
-                else:
-                    cls._name_map = {}
+                p = os.path.join(base, "cloud_cache", "stock_names.csv")
+                if os.path.exists(p):
+                    df = pd.read_csv(p, dtype=str)
+                    if {"stock_id", "name"}.issubset(df.columns):
+                        m = {str(r["stock_id"]).strip(): str(r["name"]).strip()
+                             for _, r in df.iterrows()
+                             if str(r.get("name", "")).strip() not in ("", "nan")}
+                        logger.info(f"股名對照載入 {len(m)} 檔 (cloud_cache/stock_names.csv)")
             except Exception as e:
-                logger.warning(f"無法取得股票名稱對照表: {e}")
-                cls._name_map = {}
+                logger.warning(f"讀取 cloud_cache/stock_names.csv 失敗: {e}")
+
+            # 2) 本機 TEJ 對照表補漏 (不覆蓋 csv 已有的)
+            try:
+                p2 = os.path.join(TEJ_CACHE_DIR, "industry_map.parquet")
+                if os.path.exists(p2):
+                    imap = pd.read_parquet(p2)
+                    if {"stock_id", "stock_name"}.issubset(imap.columns):
+                        for _, r in imap.iterrows():
+                            sid = str(r["stock_id"]).strip()
+                            nm = str(r.get("stock_name", "")).strip()
+                            if sid and nm not in ("", "nan"):
+                                m.setdefault(sid, nm)
+            except Exception as e:
+                logger.warning(f"TEJ industry_map 股名備援失敗: {e}")
+
+            # 3) 最後才動 FinMind (兩份本機對照都沒有時)
+            if not m:
+                try:
+                    info = cls._api.get_data(dataset='TaiwanStockInfo')
+                    if info is not None and not info.empty and 'stock_id' in info.columns:
+                        m = dict(zip(info['stock_id'].astype(str), info['stock_name']))
+                except Exception as e:
+                    logger.warning(f"無法取得股票名稱對照表: {e}")
+
+            cls._name_map = m
         return cls._name_map.get(str(symbol), symbol)
 
     # ------------------------------------------------------------------
