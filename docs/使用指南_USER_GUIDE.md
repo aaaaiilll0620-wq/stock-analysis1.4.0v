@@ -298,10 +298,15 @@ python build_cache.py --build-scores          # 重算三個模式的綜合分 (
 - **下鑽的成分股資料只留最近 250 個交易日**(全歷史太大)。若你把期間拉得更長,畫面會明白告訴你
   「下鑽是 X～Y 的累計,比上方主圖短」,不會讓兩個數字默默對不起來。
 
-**資料怎麼更新**:這頁的快照**不在每日排程裡**,要更新資料日請手動跑:
+**資料怎麼更新**:**已自動化**,平日排程會自己補上當天(在 `daily_auto_update.bat` 裡,
+跟綜合分快照一起推上雲端),你不用做任何事。它每天只新增約 54 KB 的當日增量檔,不會重寫整份快照。
+
+只有這幾種情況要手動跑:
 
 ```
-python scripts/build_industry_flow.py               # 預設近 3 年
+python scripts/build_industry_flow.py --incremental   # 手動補當天(平常排程會自己做)
+python scripts/build_industry_flow.py --compact       # 逐日檔累積太多時折回基底(畫面會提醒)
+python scripts/build_industry_flow.py                 # 重建歷史基底(改了範圍或產業分類表時)
 python scripts/build_industry_flow.py --start 2004-01-01   # 全歷史(約 33 MB,本機看就好、別上傳)
 ```
 

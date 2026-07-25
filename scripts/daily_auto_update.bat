@@ -96,6 +96,19 @@ set "RC=%errorlevel%"
 call :mark "[step2] regime_exposure rc=%RC%"
 if not "%RC%"=="0" call :mark "[warn] regime_exposure snapshot refresh failed, keeping last snapshot."
 
+REM 1c) append today's 法人流向產業 increment -> cloud_cache (best effort, non-fatal).
+REM      INCREMENTAL on purpose: the snapshot is committed to the repo and parquet
+REM      cannot be diffed, so rewriting the 13MB base every day would mean a fresh
+REM      13MB blob per day (3GB+ of git history per year). --incremental writes only
+REM      the new trading day as a ~54KB pair of files (~13MB/year) and is idempotent,
+REM      so a re-run or a missing collector day is a quiet no-op.
+REM      Fold them back into the base occasionally: build_industry_flow.py --compact
+call :mark "[step2b] industry_flow incremental starting"
+"%PY%" scripts\build_industry_flow.py --incremental >> "%LOG%" 2>&1
+set "RC=%errorlevel%"
+call :mark "[step2b] industry_flow rc=%RC%"
+if not "%RC%"=="0" call :mark "[warn] industry_flow increment failed, keeping last snapshot."
+
 REM 2) sync scores snapshot -> commit -> push (no-op if scores unchanged)
 call :mark "[step3] deploy_scores starting"
 "%PY%" deploy_scores.py --message "chore: daily auto update scores snapshot" >> "%LOG%" 2>&1

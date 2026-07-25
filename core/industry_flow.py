@@ -53,6 +53,13 @@ MEMBERS_SNAPSHOT = _PROJECT_ROOT / "cloud_cache" / "IndustryFlow" / "members.par
 # 不為一張圖動)。改成 build 時把對照落地成 parquet,雲端只讀 parquet、完全不碰 Excel。
 MAP_SNAPSHOT = _PROJECT_ROOT / "cloud_cache" / "IndustryFlow" / "industry_map.parquet"
 
+# 逐日增量檔。為什麼不每天重寫整份快照:snapshot 要 commit 進 repo,而 parquet 無法 diff ——
+# 每天重寫 13MB 就是每天一顆 13MB 的新 blob (一年 3GB+ 的 git 歷史)。改成基底檔不動、
+# 每天只新增「那一天」的小檔 (flow ~10KB + members ~30KB),一年約 10MB。
+# 這也與 collector 自己的 {date}.parquet 慣例一致。
+DAILY_FLOW_DIR = _PROJECT_ROOT / "cloud_cache" / "IndustryFlow" / "daily_flow"
+DAILY_MEMBERS_DIR = _PROJECT_ROOT / "cloud_cache" / "IndustryFlow" / "daily_members"
+
 # 產業層級 → Industry.xlsx 欄名 (由粗到細)。子產業 = 散裝航運/貨櫃輪這種粒度 (265 類)。
 LEVELS = {
     "子產業": "TEJ子產業_名稱",
@@ -124,7 +131,8 @@ def _dates_available() -> List[str]:
     return sorted(chip & price)
 
 
-def _connect(days: Optional[int], start: Optional[str], history: bool):
+def _connect(days: Optional[int] = None, start: Optional[str] = None, history: bool = True,
+             on_dates: Optional[List[str]] = None):
     """
     建 duckdb 連線並把『每檔每日法人淨流入 + 成交額 (億元)』做成 TEMP TABLE `m`。
     來源檔數上萬 (TEJ 2300 檔 × 2 + 每日快照),故在 SQL 內 join/聚合,不把全歷史拉進 pandas。
@@ -150,7 +158,11 @@ def _connect(days: Optional[int], start: Optional[str], history: bool):
             cut = str(d["date"].min())
             start = max(start, cut) if start else cut
 
-    where = f"AND CAST(date AS VARCHAR) >= '{start}'" if start else ""
+    if on_dates:                            # 只算指定的幾天 (逐日增量用)
+        _lst = ", ".join("'" + str(d).replace("'", "") + "'" for d in on_dates)
+        where = f"AND CAST(date AS VARCHAR) IN ({_lst})"
+    else:
+        where = f"AND CAST(date AS VARCHAR) >= '{start}'" if start else ""
     # QUALIFY 去重:TEJ 種子與每日快照在接縫日 (2026-07-14) 會重疊,同 (股票,日) 只留一列。
     con.execute(f"""
         CREATE TEMP TABLE m AS
@@ -301,15 +313,133 @@ def _downcast(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _read_daily(dir_: Path) -> pd.DataFrame:
+    """讀某個逐日增量目錄裡的全部檔案 (無檔案 → 空表)。壞檔只跳過不讓整頁掛掉。"""
+    files = sorted(glob.glob(str(dir_ / "*.parquet")))
+    frames = []
+    for f in files:
+        try:
+            frames.append(pd.read_parquet(f))
+        except Exception:
+            continue
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def base_max_date() -> Optional[str]:
+    """歷史基底 flow.parquet 的最新資料日 (供增量判斷起點);無基底回 None。"""
+    if not SNAPSHOT.exists():
+        return None
+    try:
+        d = pd.read_parquet(SNAPSHOT, columns=["date"])
+        return str(d["date"].max()) if not d.empty else None
+    except Exception:
+        return None
+
+
+def daily_dates() -> List[str]:
+    """已落地的逐日增量檔日期 (由舊到新)。"""
+    return sorted(Path(f).stem for f in glob.glob(str(DAILY_FLOW_DIR / "*.parquet")))
+
+
+def append_days(dates: Optional[List[str]] = None,
+                levels: Optional[List[str]] = None) -> List[str]:
+    """
+    逐日增量:把「基底之後、尚未落地」的交易日各寫成一個小 parquet。
+      · cloud_cache/IndustryFlow/daily_flow/{date}.parquet     (含 level 欄,~10KB)
+      · cloud_cache/IndustryFlow/daily_members/{date}.parquet  (~30KB)
+    只讀 collector 的每日快照 (history=False) —— 增量要補的就是 TEJ 種子之後的日子。
+    冪等:已存在的日期不重算。回傳實際新增的日期清單。
+    """
+    levels = levels or list(LEVELS.keys())
+    have = set(daily_dates())
+    base_max = base_max_date()
+    todo = [d for d in _dates_available()
+            if d not in have and (base_max is None or d > base_max)]
+    if dates:
+        todo = [d for d in dates if d not in have]
+    if not todo:
+        return []
+
+    imap = _industry_long(levels)
+    added = []
+    DAILY_FLOW_DIR.mkdir(parents=True, exist_ok=True)
+    DAILY_MEMBERS_DIR.mkdir(parents=True, exist_ok=True)
+    for d in todo:
+        con, n = _connect(on_dates=[d], history=False)
+        if con is None or n == 0:
+            continue
+        try:
+            con.register("imap", imap)
+            f = con.execute("""
+                SELECT m.date AS date, im.level AS level, im.industry AS industry,
+                       sum(m."foreign") AS "foreign", sum(m.trust) AS trust,
+                       sum(m."foreign" + m.trust) AS combined,
+                       sum(m.turnover) AS turnover, count(*) AS n_stocks
+                FROM m JOIN imap im ON m.stock_id = im.stock_id
+                GROUP BY 1, 2, 3 ORDER BY level, combined DESC
+            """).df()
+            mem = con.execute("""
+                SELECT date, stock_id, "foreign", trust, "foreign" + trust AS combined, turnover
+                FROM m ORDER BY stock_id
+            """).df()
+        finally:
+            con.close()
+        if f.empty:
+            continue
+        for target, data in ((DAILY_FLOW_DIR / f"{d}.parquet", f[_SNAP_COLS]),
+                             (DAILY_MEMBERS_DIR / f"{d}.parquet", mem[_MEM_COLS])):
+            tmp = target.with_suffix(".parquet.tmp")
+            _downcast(data).to_parquet(tmp, index=False, compression="zstd")
+            os.replace(tmp, target)
+        added.append(d)
+    return added
+
+
+def compact(members_days: int = 250) -> Tuple[int, int]:
+    """
+    把逐日增量檔折進歷史基底、刪掉逐日檔,並把 members 基底裁回最近 members_days 日。
+    逐日檔累積太多時跑一次 (它會重寫 13MB 基底,所以別天天跑)。回傳 (flow 列數, members 列數)。
+    """
+    if not daily_dates():
+        return 0, 0
+    flow = pd.concat([x for x in (pd.read_parquet(SNAPSHOT) if SNAPSHOT.exists() else None,
+                                  _read_daily(DAILY_FLOW_DIR)) if x is not None and not x.empty],
+                     ignore_index=True)
+    flow = flow.drop_duplicates(subset=["date", "level", "industry"], keep="last")
+    mem = pd.concat([x for x in ((pd.read_parquet(MEMBERS_SNAPSHOT)
+                                  if MEMBERS_SNAPSHOT.exists() else None),
+                                 _read_daily(DAILY_MEMBERS_DIR)) if x is not None and not x.empty],
+                    ignore_index=True)
+    mem = mem.drop_duplicates(subset=["date", "stock_id"], keep="last")
+    keep = sorted(mem["date"].unique())[-int(members_days):]
+    mem = mem[mem["date"].isin(set(keep))]
+
+    for target, data in ((SNAPSHOT, flow[_SNAP_COLS].sort_values(["date", "level"])),
+                         (MEMBERS_SNAPSHOT, mem[_MEM_COLS].sort_values(["date", "stock_id"]))):
+        tmp = target.with_suffix(".parquet.tmp")
+        _downcast(data.reset_index(drop=True)).to_parquet(tmp, index=False, compression="zstd")
+        os.replace(tmp, target)
+    for dir_ in (DAILY_FLOW_DIR, DAILY_MEMBERS_DIR):
+        for f in glob.glob(str(dir_ / "*.parquet")):
+            os.remove(f)
+    return len(flow), len(mem)
+
+
 def _members_frame() -> pd.DataFrame:
-    """members 來源:優先讀 snapshot (雲端/本機皆可),無則本機即時算最近一年。"""
+    """members 來源:歷史基底 ∪ 逐日增量 (雲端/本機皆可);兩者皆無則本機即時算最近一年。"""
+    frames = []
     if MEMBERS_SNAPSHOT.exists():
         try:
-            m = pd.read_parquet(MEMBERS_SNAPSHOT)
-            if not m.empty:
-                return m
+            frames.append(pd.read_parquet(MEMBERS_SNAPSHOT))
         except Exception:
             pass
+    inc = _read_daily(DAILY_MEMBERS_DIR)
+    if not inc.empty:
+        frames.append(inc)
+    frames = [f for f in frames if f is not None and not f.empty]
+    if frames:
+        m = pd.concat(frames, ignore_index=True)
+        return m.drop_duplicates(subset=["date", "stock_id"], keep="last")
     return compute_members(days=250)
 
 
@@ -356,19 +486,27 @@ def load_members(level: str, industry: str, date: Optional[str] = None,
 
 def load_flow(level: str = DEFAULT_LEVEL) -> pd.DataFrame:
     """
-    讀某層級的產業流向長格式:優先讀已落地的 snapshot (雲端/本機皆可),
-    無 snapshot 則本機即時算最近一年 (compute_flow)。兩者皆無 → 空表。
+    讀某層級的產業流向長格式:**歷史基底 ∪ 逐日增量** (雲端/本機皆可),
+    兩者皆無則本機即時算最近一年 (compute_flow)。全無 → 空表。
     """
+    frames = []
     if SNAPSHOT.exists():
         try:
-            df = pd.read_parquet(SNAPSHOT)
-            sub = df[df["level"] == level].drop(columns=["level"])
-            if not sub.empty:
-                if "turnover" not in sub.columns:     # 舊 snapshot → 占比口徑留空
-                    sub["turnover"] = float("nan")
-                return (sub[_FLOW_COLS]
-                        .sort_values(["date", "combined"], ascending=[True, False])
-                        .reset_index(drop=True))
+            frames.append(pd.read_parquet(SNAPSHOT))
         except Exception:
             pass
+    inc = _read_daily(DAILY_FLOW_DIR)
+    if not inc.empty:
+        frames.append(inc)
+    frames = [f for f in frames if f is not None and not f.empty and "level" in f.columns]
+    if frames:
+        df = pd.concat(frames, ignore_index=True)
+        sub = df[df["level"] == level].drop(columns=["level"])
+        if not sub.empty:
+            if "turnover" not in sub.columns:        # 舊 snapshot → 占比口徑留空
+                sub["turnover"] = float("nan")
+            sub = sub.drop_duplicates(subset=["date", "industry"], keep="last")
+            return (sub[_FLOW_COLS]
+                    .sort_values(["date", "combined"], ascending=[True, False])
+                    .reset_index(drop=True))
     return compute_flow(level, days=250)
