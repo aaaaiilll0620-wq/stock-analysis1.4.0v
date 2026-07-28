@@ -1,38 +1,34 @@
 {
- "exposure": 0.6666666666666666,
- "ladder_n": 2,
- "as_of": "2026-07-27",
+ "exposure": 0.3333333333333333,
+ "ladder_n": 1,
+ "as_of": "2026-07-28",
  "lines": [
   {
    "ma": 50,
    "above": false,
    "raw_above": false,
    "pending": false,
-   "days": 6,
-   "gap_pct": -4.345911973737405
+   "days": 7,
+   "gap_pct": -7.607575173173786
   },
   {
    "ma": 100,
-   "above": true,
+   "above": false,
    "raw_above": false,
-   "pending": true,
-   "days": 156,
-   "gap_pct": -0.2894541158601105
+   "pending": false,
+   "days": 1,
+   "gap_pct": -3.7648518797631203
   },
   {
    "ma": 200,
    "above": true,
    "raw_above": true,
    "pending": false,
-   "days": 157,
-   "gap_pct": 5.297329231027481
+   "days": 158,
+   "gap_pct": 1.6090925690826152
   }
  ],
  "hist": [
-  {
-   "date": "2026-01-22",
-   "曝險%": 100.0
-  },
   {
    "date": "2026-01-23",
    "曝險%": 100.0
@@ -508,6 +504,10 @@
   {
    "date": "2026-07-27",
    "曝險%": 66.66666666666666
+  },
+  {
+   "date": "2026-07-28",
+   "曝險%": 33.33333333333333
   }
  ]
 }
