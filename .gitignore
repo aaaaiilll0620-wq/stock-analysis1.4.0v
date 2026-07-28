@@ -21,6 +21,23 @@ backups/
 .vscode/
 .DS_Store
 
+# ---- TEJ 匯出檔:一次性匯入來源,線上不需要 (2026-07-28) ----
+# 這些 xlsx 是 tej_importer.py 的**輸入**,跑完就把資料寫進 ~/tej_cache,
+# 之後全靠那份快取;app.py 在雲端一次也不會讀它們。
+# 但它們有 835 MB,佔 HEAD 整個 checkout 的 95% —— Streamlit Cloud 每次部署
+# 都在下載一批永遠用不到的東西。
+#
+# ⚠️ 「不追蹤」不等於「刪掉」:它們連同資料夾分類與檔名都永遠留在 git 歷史裡,
+#    GitHub 上那份也還在。要拿回來:
+#        git checkout c582422 -- tej_exports/
+#    (c582422 = 移出版控前的最後一個 commit)
+#    這一點很重要,因為本機那份手動備份沒有分資料夾,而「哪個檔屬於哪個 inbox」
+#    正是 tej_importer 用來決定欄位怎麼解讀的依據。
+tej_exports/inbox*/
+# 例外:Industry.xlsx 只有 148 KB,而 app.py → core/industry_flow.py 真的會讀它,
+# 雲端少了它「法人流向」分頁會掛。
+!tej_exports/inbox_industry/
+
 # ---- 例外:cloud_cache 是要『刻意提交』的 scores 快照,別忽略它 ----
 !cloud_cache/
 !cloud_cache/**
