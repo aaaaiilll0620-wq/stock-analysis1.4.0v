@@ -27,9 +27,18 @@ from beat_0050.honest_backtest import OBS_ALPHA
 from beat_0050.realbody.bt_bundle import bt_fetch_history
 from core.score_store import score_row, _engines
 
-OUT_DEFAULT = Path(__file__).resolve().parents[2] / "data" / "research_base" / "realbody_scores.parquet"
-ADV_FLOOR = 2e7
+RB_DIR = Path(__file__).resolve().parents[2] / "data" / "research_base"
+OUT_DEFAULT = RB_DIR / "realbody_scores.parquet"     # ADV≥2000萬 那份的正規路徑
+ADV_FLOOR = 2e7                                       # 預設門檻 (可用 --adv-floor 覆寫)
 MODE = "balanced"
+
+
+def out_path_for(adv_floor: float) -> Path:
+    """非預設門檻一律寫到帶後綴的新檔 —— 不覆蓋既有的 realbody_scores.parquet。
+    那份跑了數小時,build 中途失敗或評分邏輯有變時,舊檔是唯一的退路。"""
+    if abs(adv_floor - ADV_FLOOR) < 1:
+        return OUT_DEFAULT
+    return RB_DIR / f"realbody_scores_adv{int(adv_floor / 1e4)}w.parquet"
 
 _ENG = None
 
@@ -66,12 +75,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--year", type=int, default=None, help="只跑某年 (驗證用)")
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 檔 (驗證用)")
-    ap.add_argument("--out", type=str, default=str(OUT_DEFAULT))
+    ap.add_argument("--adv-floor", type=float, default=ADV_FLOOR,
+                    help="ADV 門檻 (預設 2e7 = 2000萬);非預設值會寫到帶後綴的新檔")
+    ap.add_argument("--out", type=str, default=None)
     ap.add_argument("--workers", type=int, default=6, help="平行進程數")
     args = ap.parse_args()
+    adv_floor = float(args.adv_floor)
+    args.out = args.out or str(out_path_for(adv_floor))
 
     obs = pd.read_parquet(OBS_ALPHA, columns=["as_of", "stock_id", "adv20", "listed_ok"])
-    obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= ADV_FLOOR)]        # noqa: E712
+    obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= adv_floor)]        # noqa: E712
+    print(f"[build] ADV≥{adv_floor:,.0f} → {len(obs):,} stock-months, "
+          f"{obs['stock_id'].nunique()} 檔 → {args.out}", flush=True)
     obs["as_of"] = obs["as_of"].astype(str)
     if args.year:
         obs = obs[obs["as_of"].str.startswith(str(args.year))]
