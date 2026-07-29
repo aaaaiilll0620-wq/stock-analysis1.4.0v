@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "strategies"))
 
 from beat_0050.honest_backtest import Engine, ERAS, RF_ANNUAL
+from beat_0050.honest_backtest import RET_COL
 from existing_composite import build_factors, holdings_for
 from regime_signal_lab import build_regime_features
 from regime_hysteresis_lab import ladder_expo_daily, apply_daily_expo, metrics
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     obs["as_of"] = obs["as_of"].astype(str); obs["stock_id"] = obs["stock_id"].astype(str)
 
     # ---- (1) 真身 vs proxy 相似度 ----
-    m = rb.merge(obs[["as_of", "stock_id", "composite", "c2", "fwd"]], on=["as_of", "stock_id"], how="inner")
+    m = rb.merge(obs[["as_of", "stock_id", "composite", "c2", RET_COL]], on=["as_of", "stock_id"], how="inner")
     print("=" * 68)
     print("(1) 真身綜合分 vs proxy — 像不像?")
     print("=" * 68)
@@ -64,7 +65,7 @@ if __name__ == "__main__":
         if len(g) < 30:
             continue
         corrs.append(g["real_composite"].rank().corr(g["composite"].rank()))
-        fwdp = g["fwd"].rank(pct=True)
+        fwdp = g[RET_COL].rank(pct=True)
         ic_real.append(g["real_composite"].rank(pct=True).corr(fwdp))
         ic_proxy.append(g["composite"].rank(pct=True).corr(fwdp))
     print(f"逐月排序相關 (真身 vs proxy): 平均 {np.nanmean(corrs):.3f} (中位 {np.nanmedian(corrs):.3f})")

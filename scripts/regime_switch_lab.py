@@ -37,7 +37,8 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lab_paths import OBS_ALPHA, check_base                        # noqa: E402
+import lab_paths                                                   # noqa: E402
+from lab_paths import OBS_ALPHA, RET_COL, check_base, load_panel   # noqa: E402
 
 TEJ_CACHE = Path(os.environ.get("TEJ_CACHE", str(Path.home() / "tej_cache")))
 
@@ -93,7 +94,7 @@ def main():
     if check_base(verbose=True) and not OBS_ALPHA.exists():
         print("缺 obs_alpha.parquet;先跑 alpha_gate_lab.py --build。"); return
 
-    obs = pd.read_parquet(OBS_ALPHA)
+    obs = load_panel()   # 可執行報酬線 fwd_x;不再讀 obs_alpha.fwd
     obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= args.adv_floor)].copy()  # noqa: E712
 
     # --- 五維 proxy (逐月橫斷面百分位) ---
@@ -108,7 +109,7 @@ def main():
     # c2 proxy = mean(估值, 營收YoY, 52週高, 100−動能)
     obs["c2"] = (obs["_val"] + obs["_fund"] + g["high52_prox"].transform(pct)
                  + (100 - obs["_mom"])) / 4.0
-    obs["fwd_excess"] = obs["fwd"] - g["fwd"].transform("mean")
+    obs["fwd_excess"] = obs[RET_COL] - g[RET_COL].transform("mean")
 
     # --- 即時 regime 旗 join 到 as_of ---
     reg = build_regime()
@@ -129,8 +130,8 @@ def main():
     # ---- 逐月 IC ----
     def ic_by(df, key):
         def _i(x):
-            m = x[key].notna() & x["fwd"].notna()
-            return x.loc[m, key].rank().corr(x.loc[m, "fwd"].rank()) if m.sum() >= 20 else np.nan
+            m = x[key].notna() & x[RET_COL].notna()
+            return x.loc[m, key].rank().corr(x.loc[m, RET_COL].rank()) if m.sum() >= 20 else np.nan
         return df.groupby("as_of").apply(_i).dropna()
 
     print("="*76)
@@ -201,7 +202,7 @@ def main():
           + ("綜合分空頭確實較差" if comp_bear < c2_bear else "空頭差異不明顯"))
     print("="*76)
 
-    out = OBS_ALPHA.parent / "regime_switch_stats.csv"
+    out = lab_paths.RESEARCH_BASE / "regime_switch_stats.csv"
     md.to_csv(out, index=False, encoding="utf-8-sig")
     print(f"\n逐月三策略明細已寫 {out}")
 

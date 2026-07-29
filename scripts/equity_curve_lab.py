@@ -15,7 +15,7 @@ from __future__ import annotations
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np, pandas as pd, bisect
-from lab_paths import OBS_ALPHA
+from lab_paths import RESEARCH_BASE, RET_COL, load_panel
 from regime_switch_lab import build_regime
 
 COST = 0.47          # 元大6折 來回 (%)
@@ -24,8 +24,8 @@ TOP_PCT = 20
 
 
 def build_factors():
-    obs = pd.read_parquet(OBS_ALPHA)
-    obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= 2e7)].copy().reset_index(drop=True)  # noqa: E712
+    # 可執行報酬線 fwd_x(見 lab_paths.load_panel 說明);不再讀 obs_alpha.fwd
+    obs = load_panel(adv_floor=2e7)
     g = obs.groupby("as_of")
     def pct(s): return s.rank(pct=True) * 100
     obs["_f"] = g["revenue_yoy"].transform(pct); obs["_v"] = g["value_ind"].transform(pct)
@@ -51,12 +51,12 @@ def monthly_returns(obs) -> pd.DataFrame:
         def net(idx, prev):
             ids = set(x.loc[list(idx), "stock_id"])
             turn = 1 - (len(ids & prev)/len(ids)) if prev else 1.0
-            return x.loc[list(idx), "fwd"].mean() - turn*COST, ids
+            return x.loc[list(idx), RET_COL].mean() - turn*COST, ids
         dc, ids_dc = net(inter, prev_dc)
         c2r, ids_c2 = net(ca, prev_c2)
         prev_dc, prev_c2 = ids_dc, ids_c2
         rows.append({"as_of": a, "bear": bf(str(a)),
-                     "dual": dc, "c2": c2r, "mkt": x["fwd"].mean(), "n": len(inter)})
+                     "dual": dc, "c2": c2r, "mkt": x[RET_COL].mean(), "n": len(inter)})
     return pd.DataFrame(rows)
 
 
@@ -101,7 +101,7 @@ def main():
         print(f"  {lab:<8} 多頭 {ab:+6.1f}%/年   空頭 {ar:+6.1f}%/年")
 
     out = pd.DataFrame({"as_of": md["as_of"], **{k: v for k, v in curves.items()}})
-    p = OBS_ALPHA.parent / "equity_curves.csv"
+    p = RESEARCH_BASE / "equity_curves.csv"
     out.to_csv(p, index=False, encoding="utf-8-sig")
     print(f"\n淨值序列已寫 {p}")
     print("\n判讀:夏普看每單位風險的報酬 (越高越好);MDD/水下看『最壞要套牢多久』——"

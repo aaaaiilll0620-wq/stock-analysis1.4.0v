@@ -45,6 +45,7 @@ BENCH_TR = Path(__file__).resolve().parent / "data" / "benchmark" / "0050_tr.par
 FINMIND_0050 = Path.home() / "finmind_cache" / "TaiwanStockPrice" / "0050.parquet"      # 後備:僅 2019+ 未還原
 OBS_ALPHA = Path(__file__).resolve().parent.parent / "data" / "research_base" / "obs_alpha.parquet"
 EXEC_RET = Path(__file__).resolve().parent.parent / "data" / "research_base" / "exec_ret.parquet"
+RET_COL = "fwd_x"       # 可執行報酬欄;beat_0050/* 一律由此引用,不要各自寫死字串
 
 COST_RT = 0.47          # 元大6折 來回 (%):買 0.1425%×0.6 + 賣 0.1425%×0.6 + 證交稅 0.3%
                         # 盤中零股電子單低消 NT$1 → 綁定門檻僅 1/0.0855% ≈ 1,170 元/筆,

@@ -46,7 +46,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lab_paths import OBS_ALPHA, check_base                       # noqa: E402
+from lab_paths import RESEARCH_BASE, RET_COL, check_base, load_panel   # noqa: E402
 
 # 六時代 (與 alpha_gate_lab 完全一致:探索 3 段 + 封存 hold-out 3 段)
 ERAS = [
@@ -84,10 +84,10 @@ def tstat(x: np.ndarray) -> float:
 def ic_series(df: pd.DataFrame, key: str) -> pd.Series:
     """逐 as_of 的 Spearman IC:key 排序 vs fwd 排序 (同 alpha_gate_lab.ic_series)。"""
     def _ic(g):
-        m = g[key].notna() & g["fwd"].notna()
+        m = g[key].notna() & g[RET_COL].notna()
         if m.sum() < 20:
             return np.nan
-        return g.loc[m, key].rank().corr(g.loc[m, "fwd"].rank())
+        return g.loc[m, key].rank().corr(g.loc[m, RET_COL].rank())
     return df.groupby("as_of").apply(_ic).dropna()
 
 
@@ -134,7 +134,7 @@ def by_era(obs: pd.DataFrame, long_col: str, short_col: str):
             print(f"{name:<18}{'—':>8}"); continue
         cell = rv.groupby("as_of")["fwd_excess"].mean().to_numpy()
         # 連續版:每月 (chip5 − chip) 排序 vs fwd 的 IC 平均
-        dd = d.dropna(subset=["chip5", "chip", "fwd"]).copy()
+        dd = d.dropna(subset=["chip5", "chip", RET_COL]).copy()
         dd["rev_score"] = dd["chip5"] - dd["chip"]
         ic = ic_series(dd, "rev_score")
         ic_mean = ic.mean() if len(ic) else float("nan")
@@ -152,13 +152,13 @@ def main():
         print("缺 obs_alpha.parquet;請先跑 alpha_gate_lab.py --build (見 lab_paths 檔頭)。")
         return
 
-    obs = pd.read_parquet(OBS_ALPHA, columns=[
-        "as_of", "stock_id", "fwd", "chip", "chip5", "chip10", "chip60",
-        "chip_accel", "adv20", "listed_ok"])
-    n0 = len(obs)
-    obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= args.adv_floor)].copy()  # noqa: E712
+    # 可執行報酬線 fwd_x(見 lab_paths.load_panel);不再讀 obs_alpha.fwd
+    n0 = len(load_panel(drop_na_ret=False, listed_only=False))
+    obs = load_panel(adv_floor=args.adv_floor)[[
+        "as_of", "stock_id", RET_COL, "chip", "chip5", "chip10", "chip60",
+        "chip_accel", "adv20"]].copy()
     # 去市場 beta:每月流動池橫斷面均值
-    obs["fwd_excess"] = obs["fwd"] - obs.groupby("as_of")["fwd"].transform("mean")
+    obs["fwd_excess"] = obs[RET_COL] - obs.groupby("as_of")[RET_COL].transform("mean")
     print(f"obs_alpha {n0} 列 → 流動池 (listed_ok & adv20>={args.adv_floor/1e6:.0f}M) {len(obs)} 列;"
           f"{obs['as_of'].nunique()} 月 ({obs['as_of'].min()} ~ {obs['as_of'].max()})")
     print(f"前瞻窗 = 20 交易日 (obs_alpha 內建 fwd);excess = 減同月流動池均值 (去 beta)")
@@ -183,7 +183,7 @@ def main():
                          "mean_excess": round(g["fwd_excess"].mean(), 3),
                          "median_excess": round(g["fwd_excess"].median(), 3),
                          "n_months": len(cell), "t": round(tstat(cell), 2)})
-    out_f = OBS_ALPHA.parent / "inst_reversal_stats.csv"
+    out_f = RESEARCH_BASE / "inst_reversal_stats.csv"
     pd.DataFrame(rows).to_csv(out_f, index=False, encoding="utf-8-sig")
     print(f"\n分態×時代摘要已寫 {out_f}")
     print("\n判讀指引:『賣轉買』要能參考,需 (1) excess 均值為正且 |t|≥2、(2) 六時代不翻向"

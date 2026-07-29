@@ -19,14 +19,18 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from beat_0050.honest_backtest import Engine, OBS_ALPHA, ERAS
+from beat_0050.honest_backtest import Engine, OBS_ALPHA, EXEC_RET, RET_COL, ERAS
 
 TOP_PCT = 20
 
 
-def build_factors() -> pd.DataFrame:
-    obs = pd.read_parquet(OBS_ALPHA)
-    obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= 2e7)].copy().reset_index(drop=True)  # noqa: E712
+def build_factors(adv_floor: float = 2e7) -> pd.DataFrame:
+    obs = pd.read_parquet(OBS_ALPHA).drop(columns=["fwd"], errors="ignore")
+    obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= adv_floor)]  # noqa: E712
+    # 可執行報酬線;obs_alpha.fwd 有執行偏誤與漏日偏誤,見 honest_backtest 檔頭
+    ex = pd.read_parquet(EXEC_RET, columns=["as_of", "stock_id", RET_COL])
+    obs = obs.merge(ex, on=["as_of", "stock_id"], how="left").dropna(subset=[RET_COL])
+    obs = obs.reset_index(drop=True)
     g = obs.groupby("as_of")
     def pct(s):
         return s.rank(pct=True) * 100

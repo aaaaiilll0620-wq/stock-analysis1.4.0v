@@ -19,7 +19,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))
-from beat_0050.honest_backtest import Engine, RF_ANNUAL
+from beat_0050.honest_backtest import Engine, RF_ANNUAL, RET_COL
 from existing_composite import build_factors, holdings_for
 from regime_switch_lab import build_regime
 
@@ -67,9 +67,9 @@ if __name__ == "__main__":
     print("=" * 66)
     recs = {k: {"bull": [], "bear": []} for k in FACTORS}
     for a, x in obs.groupby("as_of"):
-        if len(x) < 30 or x["fwd"].isna().all():
+        if len(x) < 30 or x[RET_COL].isna().all():
             continue
-        fwd_pct = x["fwd"].rank(pct=True)
+        fwd_pct = x[RET_COL].rank(pct=True)
         tag = "bear" if is_bear(a) else "bull"
         for k in FACTORS:
             ic = np.corrcoef(x[k].values, fwd_pct.values)[0, 1]
