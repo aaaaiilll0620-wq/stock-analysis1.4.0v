@@ -37,8 +37,15 @@ BENCH_TR = Path(__file__).resolve().parent / "data" / "benchmark" / "0050_tr.par
 FINMIND_0050 = Path.home() / "finmind_cache" / "TaiwanStockPrice" / "0050.parquet"      # 後備:僅 2019+ 未還原
 OBS_ALPHA = Path(__file__).resolve().parent.parent / "data" / "research_base" / "obs_alpha.parquet"
 
-COST_RT = 0.47          # 元大6折 來回 (%)
-SLIPPAGE_RT = 0.10      # 滑價估計 來回 (%),保守
+COST_RT = 0.47          # 元大6折 來回 (%):買 0.1425%×0.6 + 賣 0.1425%×0.6 + 證交稅 0.3%
+                        # 盤中零股電子單低消 NT$1 → 綁定門檻僅 1/0.0855% ≈ 1,170 元/筆,
+                        # 10 萬本金 ÷ 25 檔 = 4,000 元/筆,遠在門檻上 → 費率制生效,低消不咬人。
+SLIPPAGE_RT = 0.25      # 滑價估計 來回 (%)。2026-07-29 由 0.10 上修:
+                        # 實測近 2 年持股 344 檔,中位股價 64.5 元,依台股最小跳動單位算出
+                        # 「1 跳價差」的來回成本等權平均已達 0.217% —— 舊值 0.10% **低於
+                        # 理論下限**,是錯的而非保守。0.25% 取 1 跳下限再留一點餘裕;
+                        # 零股實際價差常寬於 1 跳、量不足需追價,故這仍偏樂觀。
+                        # 敏感度:滑價 0.3% 時季換手已輸 0050,月換手要到 ~1.0% 才輸。
 RF_ANNUAL = 1.0
 BENCH_YIELD = 3.5       # 0050 概略年殖利率 (%);僅後備路徑(finmind 未還原價)才用,TEJ 還原價已含息
 
