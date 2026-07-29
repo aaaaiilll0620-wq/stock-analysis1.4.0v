@@ -39,6 +39,7 @@ PROJ = Path(__file__).resolve().parents[2]
 TEJ_CACHE = Path(os.environ.get("TEJ_CACHE", str(Path.home() / "tej_cache")))
 OBS_ALPHA = PROJ / "data" / "research_base" / "obs_alpha.parquet"
 EXEC_RET = PROJ / "data" / "research_base" / "exec_ret.parquet"
+REALBODY = PROJ / "data" / "research_base" / "realbody_scores.parquet"   # 真身五面分數 (ADV≥2000萬)
 BENCH_TR = PROJ / "beat_0050" / "data" / "benchmark" / "0050_tr.parquet"
 OUTDIR = PROJ / "beat_0050" / "results"
 
@@ -77,6 +78,16 @@ class Panel:
         ex = pd.read_parquet(EXEC_RET)
         obs = obs.merge(ex, on=["as_of", "stock_id"], how="left")
         obs = obs.dropna(subset=[RET_COL, "adv20"])
+        # 真身綜合分 (L3):只在 ADV≥2000萬 有值,其餘為 NaN —— dual_confirm_mask 會據此擋人
+        if REALBODY.exists():
+            rb = pd.read_parquet(REALBODY, columns=["as_of", "stock_id", "real_composite"])
+            rb["as_of"] = rb["as_of"].astype(str)
+            rb["stock_id"] = rb["stock_id"].astype(str)
+            obs["as_of"] = obs["as_of"].astype(str)
+            obs["stock_id"] = obs["stock_id"].astype(str)
+            obs = obs.merge(rb, on=["as_of", "stock_id"], how="left")
+        else:
+            obs["real_composite"] = np.nan
 
         self.months = np.array(sorted(obs["as_of"].unique()))
         self.month_s = np.array([str(m)[:10] for m in self.months])
@@ -100,6 +111,7 @@ class Panel:
         self.SLIP = mat("tick_slip")
         self.ADV = mat("adv20", np.float64)
         self.F = {f: mat(f) for f in FACTORS if f in obs.columns}
+        self.REAL_COMP = mat("real_composite")   # 真身綜合分 (ADV<2000萬 全 NaN)
         self.HAS_RET = np.isfinite(self.RET)
         # ADV 分層的有效遮罩
         self.tier_valid = {name: (self.HAS_RET & (self.ADV >= thr)) for name, thr in ADV_TIERS}
@@ -235,9 +247,26 @@ def full_scan(P: Panel, RET: np.ndarray | None = None, verbose: bool = True,
 
 # ==============================================================================
 # 雙確認 (現行選股層) — 定義沿用 beat_0050/strategies/existing_composite.py
+#
+# 2026-07-29 (L3):綜合分腿預設吃**真身** `real_composite`(生產 scoring_manager)。
+# 真身面板只建到 ADV≥2000萬 → tier="100萬" 之類的低門檻層**沒有真身分數**,
+# 必須明寫 source="proxy" 才跑得動,且結論不可與真身層直接並列比較。
 # ==============================================================================
-def dual_confirm_mask(P: Panel, tier: str, top_pct: int = 20) -> np.ndarray:
+def dual_confirm_mask(P: Panel, tier: str, top_pct: int = 20,
+                      source: str = "real") -> np.ndarray:
     valid = P.tier_valid[tier]
+    if source not in ("real", "proxy"):
+        raise ValueError(f"source 只能是 'real' 或 'proxy',收到 {source!r}")
+    if source == "real":
+        cov = np.isfinite(P.REAL_COMP[valid]).mean() if valid.any() else 0.0
+        if cov < 0.99:
+            raise ValueError(
+                f"tier={tier} 的真身綜合分覆蓋率僅 {cov:.1%} —— realbody_scores 只建到 "
+                f"ADV≥2000萬。低於門檻的 stock-month 沒有真身分數,靜默跑會把「雙確認 "
+                f"@ADV≥{tier}」偷偷退化成「雙確認 @ADV≥2000萬 ∩ 該層」。\n"
+                "要測低 ADV 的真身雙確認,得先把 realbody_scores 重建到該門檻 "
+                "(改 beat_0050/realbody/build_realbody_scores.py 的 ADV_FLOOR);\n"
+                "只想看舊的替身結果請明寫 source='proxy'(不可與真身層並列)。")
 
     def pct(name):
         v = P.F[name]
@@ -251,9 +280,13 @@ def dual_confirm_mask(P: Panel, tier: str, top_pct: int = 20) -> np.ndarray:
         return out
 
     f, v = pct("revenue_yoy"), pct("value_ind")
-    t = (pct("high52_prox") + pct("bbp20")) / 2
-    m, w = pct("momentum"), pct("chip")
-    composite = 0.31 * f + 0.08 * v + 0.19 * t + 0.27 * m + 0.15 * w
+    m = pct("momentum")
+    if source == "real":
+        composite = P.REAL_COMP.astype(np.float64)
+    else:
+        t = (pct("high52_prox") + pct("bbp20")) / 2
+        w = pct("chip")
+        composite = 0.31 * f + 0.08 * v + 0.19 * t + 0.27 * m + 0.15 * w
     c2 = (v + f + pct("high52_prox") + (100 - m)) / 4
 
     def topk(score):
@@ -356,17 +389,14 @@ def run_h2(P: Panel) -> dict:
     print("H2  配對 t 檢定:high52 vs 現行雙確認(同月、同報酬線、同成本模型)")
     print("=" * 92)
     rng = np.random.default_rng(SEED)
-    series = {
-        "high52 N=8 ADV≥100萬": evaluate(winner_mask(P, "100萬", 8), P.RET, P.SLIP),
-        "high52 N=8 ADV≥2000萬": evaluate(winner_mask(P, "2000萬", 8), P.RET, P.SLIP),
-        "雙確認 ADV≥2000萬(現行)": evaluate(dual_confirm_mask(P, "2000萬"), P.RET, P.SLIP),
-        "雙確認 ADV≥100萬": evaluate(dual_confirm_mask(P, "100萬"), P.RET, P.SLIP),
-    }
-    print(f"\n{'策略':<26}{'CAGR%':>9}{'夏普':>8}{'MDD%':>9}{'月數':>7}{'月換手%':>10}")
+    # 「雙確認 ADV≥100萬」沒有真身分數(realbody 只建到 2000萬),只能維持替身;
+    # 標題上標 (替身) 提醒它與 2000萬 那列的比較基準不同,見 dual_confirm_mask 檔頭。
     tmask = {"high52 N=8 ADV≥100萬": winner_mask(P, "100萬", 8),
              "high52 N=8 ADV≥2000萬": winner_mask(P, "2000萬", 8),
-             "雙確認 ADV≥2000萬(現行)": dual_confirm_mask(P, "2000萬"),
-             "雙確認 ADV≥100萬": dual_confirm_mask(P, "100萬")}
+             "雙確認 ADV≥2000萬(現行)": dual_confirm_mask(P, "2000萬", source="real"),
+             "雙確認 ADV≥100萬(替身)": dual_confirm_mask(P, "100萬", source="proxy")}
+    series = {k: evaluate(v, P.RET, P.SLIP) for k, v in tmask.items()}
+    print(f"\n{'策略':<26}{'CAGR%':>9}{'夏普':>8}{'MDD%':>9}{'月數':>7}{'月換手%':>10}")
     for k, v in series.items():
         m = met(v)
         print(f"{k:<26}{m.get('cagr', np.nan):>9.2f}{m.get('sharpe', np.nan):>8.2f}"
@@ -376,7 +406,7 @@ def run_h2(P: Panel) -> dict:
 
     tests = [
         ("H2a", "high52 N=8 ADV≥100萬", "雙確認 ADV≥2000萬(現行)"),
-        ("H2b", "high52 N=8 ADV≥100萬", "雙確認 ADV≥100萬"),
+        ("H2b", "high52 N=8 ADV≥100萬", "雙確認 ADV≥100萬(替身)"),
         ("H2c", "high52 N=8 ADV≥2000萬", "雙確認 ADV≥2000萬(現行)"),
     ]
     print(f"\n{'假設':<6}{'比較':<50}{'月數':>6}{'平均月差pp':>12}{'配對t':>8}{'bootstrap 95%CI':>22}{'判定':>8}")

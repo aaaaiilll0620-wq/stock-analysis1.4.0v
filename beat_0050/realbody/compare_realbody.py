@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "strategies"))
 
 from beat_0050.honest_backtest import Engine, ERAS, RF_ANNUAL
 from beat_0050.honest_backtest import RET_COL
-from existing_composite import build_factors, holdings_for
+from existing_composite import build_factors, build_proxy_factors, holdings_for
 from regime_signal_lab import build_regime_features
 from regime_hysteresis_lab import ladder_expo_daily, apply_daily_expo, metrics
 
@@ -52,7 +52,9 @@ if __name__ == "__main__":
     rb = pd.read_parquet(RB)
     rb["as_of"] = rb["as_of"].astype(str)
     rb["stock_id"] = rb["stock_id"].astype(str)
-    obs = build_factors()
+    # 這裡**刻意**要替身:本腳本的工作就是量真身 vs 替身差多少。
+    # 其他 lab 一律用 build_factors()(真身),見 existing_composite 檔頭 L3 段。
+    obs = build_proxy_factors()
     obs["as_of"] = obs["as_of"].astype(str); obs["stock_id"] = obs["stock_id"].astype(str)
 
     # ---- (1) 真身 vs proxy 相似度 ----
@@ -87,9 +89,12 @@ if __name__ == "__main__":
     eng = Engine()
     feat = build_regime_features(); dates = feat["date"].tolist()
 
-    h_real = real_holdings(rb)
-    h_proxy_dual = holdings_for(obs, "dual")
+    real_obs = build_factors()                       # 真身面板 (real_composite + c2)
+    h_real = real_holdings(rb)                       # 真身綜合分 top20% (無 c2 確認)
+    h_real_dual = holdings_for(real_obs, "dual")     # 真身雙確認 = 生產實際在跑的
+    h_proxy_dual = holdings_for(obs, "dual", comp_col="composite")   # 替身雙確認 (舊結論的來源)
     runs = {"真身top20%": eng.run(h_real)["monthly"].reset_index(drop=True),
+            "真身雙確認": eng.run(h_real_dual)["monthly"].reset_index(drop=True),
             "proxy雙確認": eng.run(h_proxy_dual)["monthly"].reset_index(drop=True)}
     bench = runs["proxy雙確認"]["bench"].values
 
@@ -104,6 +109,7 @@ if __name__ == "__main__":
     print(f"{'策略':<22}" + "".join(f"{c:>9}" for c in cols))
     print("-" * 76)
     series = {"proxy雙確認(原始)": runs["proxy雙確認"]["ret"].values,
+              "真身雙確認(原始)": runs["真身雙確認"]["ret"].values,
               "真身top20%(原始)": rr["ret"].values,
               "真身top20%+階梯確認3d": real_over}
     for name, s in series.items():
