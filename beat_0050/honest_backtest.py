@@ -13,7 +13,15 @@
   5. 風險優先:報 Sharpe/Sortino/MDD/水下,不只看 CAGR。
 
 資料:
-  · 個股月度報酬 = obs_alpha.fwd (20日價格報酬) + 殖利率補息 (duckdb ASOF join price_valuation)。
+  · 個股月度報酬 = exec_ret.fwd_x = open(本月訊號日+1) → open(下月訊號日+1),已含息。
+    **不用 obs_alpha.fwd** —— 那條線同時有兩個方向相反的偏誤 (2026-07-29 查出):
+      (a) close(T)→close(T+20) 不可執行。訊號在 T 收盤才算得出來,實務最快隔日開盤成交。
+          對高換手 arm 高估約 5pp/年。
+      (b) 固定 20 交易日的窗串接會**漏日**。月底相隔約 21 個交易日,每月漏約 1 天;
+          21 年下來漏掉近一整年行情,約 −3pp/年。而基準腿 (close(T)→close(T')) 沒有漏,
+          於是策略腿與基準腿跑在不同時鐘上。
+    兩者部分抵銷,淨誤差的**大小與正負都隨換手率變動** → 無法用經驗係數事後修正,
+    只能從源頭換線。面板由 `scripts/build_exec_ret.py` 產生。
   · 0050 基準:首選 data/benchmark/0050_tr.parquet (TEJ 還原收盤價,含息,2005-01+,全循環涵蓋)
     → build_benchmark.py 由 8 個 TEJ xlsx 固化而來;後備才用 finmind (未還原,2019+,補概略殖利率)。
 
@@ -36,6 +44,7 @@ TEJ_CACHE = Path(os.environ.get("TEJ_CACHE", str(Path.home() / "tej_cache")))
 BENCH_TR = Path(__file__).resolve().parent / "data" / "benchmark" / "0050_tr.parquet"  # TEJ 還原價(含息)2005+
 FINMIND_0050 = Path.home() / "finmind_cache" / "TaiwanStockPrice" / "0050.parquet"      # 後備:僅 2019+ 未還原
 OBS_ALPHA = Path(__file__).resolve().parent.parent / "data" / "research_base" / "obs_alpha.parquet"
+EXEC_RET = Path(__file__).resolve().parent.parent / "data" / "research_base" / "exec_ret.parquet"
 
 COST_RT = 0.47          # 元大6折 來回 (%):買 0.1425%×0.6 + 賣 0.1425%×0.6 + 證交稅 0.3%
                         # 盤中零股電子單低消 NT$1 → 綁定門檻僅 1/0.0855% ≈ 1,170 元/筆,
@@ -66,25 +75,20 @@ class Engine:
         self.asofs = sorted(self.tr["as_of"].unique())
         self.bench = self._build_benchmark()               # {as_of: 0050 月總報酬%}
 
-    # ---- 個股總報酬面板 (價格報酬 + 殖利率補息) ----
+    # ---- 個股總報酬面板 (可執行線,已含息) ----
     def _build_tr_panel(self, adv_floor) -> pd.DataFrame:
-        import duckdb
+        if not EXEC_RET.exists():
+            raise FileNotFoundError(
+                f"缺少可執行報酬面板 {EXEC_RET}。\n"
+                "請先跑 `python scripts/build_exec_ret.py`。\n"
+                "不提供退回 obs_alpha.fwd 的後備路徑 —— 那條線同時有執行偏誤與漏日偏誤,"
+                "兩者方向相反且大小隨換手率變動,靜默退回會讓結果無法判讀。")
         obs = pd.read_parquet(OBS_ALPHA, columns=["as_of", "stock_id", "fwd", "adv20", "listed_ok"])
         obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= adv_floor)].copy()  # noqa: E712
-        con = duckdb.connect()
-        con.register("obs", obs[["as_of", "stock_id"]])
-        # ASOF join:每個 (stock_id, as_of) 取 date<=as_of 最近一筆的殖利率
-        yq = con.execute(f"""
-            SELECT o.as_of, o.stock_id, p.dividend_yield_TSE AS dy
-            FROM obs o ASOF LEFT JOIN
-                 read_parquet('{TEJ_CACHE}/price_valuation/*.parquet', union_by_name=true) p
-            ON o.stock_id = p.stock_id AND p.date <= o.as_of
-        """).df()
-        obs = obs.merge(yq, on=["as_of", "stock_id"], how="left")
-        obs["dy"] = pd.to_numeric(obs["dy"], errors="coerce").fillna(0.0).clip(0, 15)
-        # 總報酬 = 價格報酬 + 殖利率/12 (20交易日≈1/12年;補回除息跳空)
-        obs["tr"] = obs["fwd"] + obs["dy"] / 12.0
-        return obs[["as_of", "stock_id", "tr", "fwd"]]
+        ex = pd.read_parquet(EXEC_RET, columns=["as_of", "stock_id", "fwd_x"])
+        obs = obs.merge(ex, on=["as_of", "stock_id"], how="left")
+        obs["tr"] = obs["fwd_x"]          # fwd_x 已內含 dividend_yield_TSE/12
+        return obs[["as_of", "stock_id", "tr", "fwd"]].dropna(subset=["tr"])
 
     # ---- 0050 基準:首選 TEJ 還原價(含息,2005+);後備 finmind(未還原,2019+,補概略殖利率) ----
     def _build_benchmark(self) -> dict:
@@ -108,8 +112,10 @@ class Engine:
             return {}
         bp = dict(zip(b["date"], b[col])); bd = sorted(bp)
         def px(d):
-            i = bisect.bisect_right(bd, d) - 1
-            return bp[bd[i]] if i >= 0 else None
+            # 取 as_of 的**隔一個交易日**收盤,與策略腿的 open(T+1) 進場同相位。
+            # 串接後仍是買進持有(整條序列只是平移一天),但兩條腿不再差半個月的相位。
+            i = bisect.bisect_right(bd, d)
+            return bp[bd[i]] if i < len(bd) else None
         out = {}
         for i, a in enumerate(self.asofs):
             nxt = self.asofs[i + 1] if i + 1 < len(self.asofs) else None
