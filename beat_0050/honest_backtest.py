@@ -72,6 +72,9 @@ ERAS = [
 class Engine:
     def __init__(self, adv_floor: float = 2e7, cost_rt: float = COST_RT + SLIPPAGE_RT):
         self.cost = cost_rt
+        self._adv_floor = adv_floor
+        self._tr_map = None
+        self._pool = None
         self.tr = self._build_tr_panel(adv_floor)          # 個股月度總報酬面板
         self.asofs = sorted(self.tr["as_of"].unique())
         self.bench = self._build_benchmark()               # {as_of: 0050 月總報酬%}
@@ -125,9 +128,24 @@ class Engine:
                 out[a] = (p1 / p0 - 1) * 100 + yield_addon
         return out
 
+    # ---- 報酬查表 (快取:ladder 會跑上百次 run,每次重建太貴) ----
+    @property
+    def tr_map(self) -> dict:
+        if getattr(self, "_tr_map", None) is None:
+            self._tr_map = {(r.as_of, r.stock_id): r.tr for r in self.tr.itertuples()}
+        return self._tr_map
+
+    @property
+    def pool(self) -> dict:
+        """{as_of: [stock_id]} —— 該月**有報酬可算**的全部個股 = 這個 Engine 的機會集合。"""
+        if getattr(self, "_pool", None) is None:
+            self._pool = {a: g["stock_id"].to_numpy()
+                          for a, g in self.tr.dropna(subset=["tr"]).groupby("as_of")}
+        return self._pool
+
     # ---- 執行:holdings {as_of: [stock_id]} → 淨值 + 指標 ----
     def run(self, holdings: dict, weights: dict | None = None) -> dict:
-        tr_map = {(r.as_of, r.stock_id): r.tr for r in self.tr.itertuples()}
+        tr_map = self.tr_map
         prev = set(); rows = []
         for a in self.asofs:
             ids = [s for s in holdings.get(a, []) if (a, s) in tr_map]
@@ -145,6 +163,108 @@ class Engine:
                          "gross": gross, "turn": turn, "n": len(ids),
                          "bench": self.bench.get(a, np.nan)})
         return {"monthly": pd.DataFrame(rows)}
+
+    # ==================================================================
+    # 基準階梯 (2026-07-30) —— 一個基準回答不了三個問題
+    # ------------------------------------------------------------------
+    # 「輸 0050」這句判定把三件事綁在一起,以致於長期給出錯的結論:
+    #   (1) 選股能力   —— 對照『等權母體』(同 ADV 池、不選股)
+    #   (2) 加權方式   —— 0050 市值加權 vs 策略等權。實測 2005-2026 市值加權
+    #                     贏「平均流動股」約 5.8pp/年(六時代有五代為正),
+    #                     等權策略開場就欠這一段,那不是選股層的錯。
+    #   (3) 集中度/成本 —— 對照『換手率與持股數都對齊的隨機組合』
+    #
+    # 特別注意 (2026-07-29 的教訓):隨機虛無**必須對齊換手率**。
+    # 每月重抽的隨機 25 檔 = 100% 換手,一年吃掉約 8.6pp 成本 —— 那在量成本,
+    # 不是在量「沒有選股能力」,拿來當虛無對照會把任何低換手策略捧成天才。
+    # ==================================================================
+    def _realized(self, holdings: dict) -> dict:
+        """{as_of: (實際持股數, 實際換手率)} —— 以 run() 的同一套過濾為準。"""
+        out = {}; prev = set()
+        for a in self.asofs:
+            ids = [s for s in holdings.get(a, []) if (a, s) in self.tr_map]
+            if not ids:
+                continue
+            cur = set(ids)
+            out[a] = (len(ids), 1 - len(cur & prev) / len(cur) if prev else 1.0)
+            prev = cur
+        return out
+
+    def matched_random(self, targets: dict, rng) -> dict:
+        """持股數與換手率**都對齊** targets 的隨機組合(無選股訊號)。"""
+        hold = {}; prev = []
+        for a in self.asofs:
+            if a not in targets:
+                continue
+            n, turn = targets[a]
+            pool = self.pool.get(a)
+            if pool is None or len(pool) == 0:
+                continue
+            n = min(n, len(pool))
+            prev_ok = [s for s in prev if (a, s) in self.tr_map]
+            keep_n = min(int(round(n * (1 - turn))), len(prev_ok), n)
+            keep = list(rng.choice(prev_ok, keep_n, replace=False)) if keep_n > 0 else []
+            rest = np.setdiff1d(pool, np.asarray(keep, dtype=pool.dtype)) if keep else pool
+            need = min(n - len(keep), len(rest))
+            new = list(rng.choice(rest, need, replace=False)) if need > 0 else []
+            ids = keep + new
+            if ids:
+                hold[a] = ids
+                prev = ids
+        return hold
+
+    def universe_ew(self) -> dict:
+        """等權母體:每月持有機會集合裡的全部個股(這個 Engine 的 adv_floor 決定池)。"""
+        return {a: list(v) for a, v in self.pool.items()}
+
+    def ladder(self, holdings: dict, reps: int = 50, seed: int = 20260730) -> dict:
+        """回傳 {rung: {指標}};rung ∈ 策略 / 等權母體 / 對齊隨機 / 0050。"""
+        strat = self.run(holdings)["monthly"]
+        targets = self._realized(holdings)
+        ew = self.run(self.universe_ew())["monthly"]
+        rng = np.random.default_rng(seed)
+        draws = [self._metrics(self.run(self.matched_random(targets, rng))["monthly"]["ret"].values)
+                 for _ in range(reps)]
+        rand = {k: float(np.median([d[k] for d in draws if k in d]))
+                for k in ("CAGR%", "夏普", "MDD%", "波動%")}
+        # 虛無檢定:策略夏普落在「同持股數、同換手率的隨機組合」分布的哪個百分位。
+        # 這是 H3a 那種對照的正確版本 —— 對齊 footprint 後,剩下的才是訊號。
+        sh = np.array([d["夏普"] for d in draws if "夏普" in d], float)
+        s_sh = self._metrics(strat["ret"].values).get("夏普", np.nan)
+        rand["p_null"] = float((sh >= s_sh).mean()) if len(sh) else np.nan
+        rand["null_p95"] = float(np.percentile(sh, 95)) if len(sh) else np.nan
+        n_avg = float(np.mean([n for n, _ in targets.values()]))
+        t_avg = float(np.mean([t for _, t in targets.values()]))
+        return {"策略": {**self._metrics(strat["ret"].values), "n": n_avg, "turn": t_avg},
+                "等權母體": {**self._metrics(ew["ret"].values),
+                             "n": float(np.mean([len(v) for v in self.pool.values()])), "turn": np.nan},
+                "對齊隨機": {**rand, "n": n_avg, "turn": t_avg, "reps": reps},
+                "0050": {**self._metrics(strat.dropna(subset=["bench"])["bench"].values),
+                         "n": 50.0, "turn": 0.0}}
+
+    def report_ladder(self, holdings: dict, name: str = "策略", reps: int = 50) -> dict:
+        L = self.ladder(holdings, reps=reps)
+        print(f"\n{'='*84}\n【{name}】基準階梯 (含息含成本,來回 {self.cost:.2f}%;ADV池 ≥ {self._adv_floor:.0f})\n{'='*84}")
+        print(f"{'':<26}{'檔數':>6}{'月換手%':>8}{'CAGR%':>8}{'波動%':>7}{'夏普':>7}{'MDD%':>8}")
+        for k in ("策略", "等權母體", "對齊隨機", "0050"):
+            m = L[k]
+            lab = {"等權母體": "① 等權母體(不選股)", "對齊隨機": f"② 對齊隨機({L['對齊隨機']['reps']}次中位)",
+                   "0050": "③ 0050 買進持有", "策略": f"◆ {name}"}[k]
+            print(f"{lab:<26}{m['n']:>6.0f}{m['turn']*100 if m['turn']==m['turn'] else 0:>8.1f}"
+                  f"{m.get('CAGR%',np.nan):>8.2f}{m.get('波動%',np.nan):>7.1f}"
+                  f"{m.get('夏普',np.nan):>7.2f}{m.get('MDD%',np.nan):>8.1f}")
+        s, ew, rd, b = L["策略"], L["等權母體"], L["對齊隨機"], L["0050"]
+        print(f"\n(1) 選股能力  策略 − 等權母體 : {s['CAGR%']-ew['CAGR%']:+7.2f} pp/年   "
+              f"夏普 {s['夏普']-ew['夏普']:+.2f}   → {'✅有' if s['CAGR%']>ew['CAGR%'] else '❌無'}")
+        print(f"(2) 扣掉交易footprint  策略 − 對齊隨機 : {s['CAGR%']-rd['CAGR%']:+7.2f} pp/年   "
+              f"夏普 {s['夏普']-rd['夏普']:+.2f}   "
+              f"虛無 p={rd['p_null']:.3f} (隨機 p95 夏普 {rd['null_p95']:.2f})   "
+              f"→ {'✅過' if rd['p_null'] < 0.05 else '❌未過'}")
+        print(f"(3) 機會成本  策略 − 0050 : {s['CAGR%']-b['CAGR%']:+7.2f} pp/年   "
+              f"夏普 {s['夏普']-b['夏普']:+.2f}   → {'✅值得' if s['夏普']>b['夏普'] else '❌不如買ETF'}")
+        print(f"    參考:0050 − 等權母體 = {b['CAGR%']-ew['CAGR%']:+.2f} pp/年 "
+              f"(市值加權的結構性優勢,不是選股層造成的)")
+        return L
 
     # ---- 指標 ----
     @staticmethod
