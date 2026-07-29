@@ -69,7 +69,7 @@ def _loader_for(token: str):
     """為某個 FinMind token 取/建一個獨立、已包本機快取的 loader。空 token = 匿名 (額度低)。"""
     with _loaders_lock:
         if token not in _loaders:
-            from FinMind.data import DataLoader
+            from FinMind.data import DataLoader  # type: ignore
             dl = DataLoader()
             if token:
                 try:
