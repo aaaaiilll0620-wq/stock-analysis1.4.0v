@@ -9,11 +9,12 @@
 旗回測,看切換是否真能贏過已驗證全天候的 c2。
 
 方法 (對齊 alpha_gate_lab / inst_reversal_lab):
-  · 基底 obs_alpha (2005-2026,257月,流動池 adv20≥20M,前瞻20日,去市場 beta)。
-  · 綜合分『proxy』= 五維橫斷面百分位依 balanced 權重加權 (0.31 基本面/0.08 估值/0.19 技術/
-    0.27 動能/0.15 籌碼);因子覆蓋所限,基本面以 revenue_yoy 代理、技術以 52週高+BBP 代理
-    —— 為近似,但精準捕捉『動能傾斜』這個與 c2 的核心差異 (誠實邊界,非 app 精確 composite)。
-  · c2 proxy = mean(產業內估值, 營收YoY, 52週高, 100−動能) 百分位。
+  · 基底 obs_alpha ⋈ exec_ret ⋈ realbody_scores (2005-2026,流動池 adv20≥20M,
+    前瞻20日可執行報酬線,去市場 beta)。
+  · 綜合分 = **生產真身** `real_composite` (core/scoring_manager 的五面加權分)。
+    2026-07-29 (L3) 換身:舊版在此用 obs_alpha 原始因子重建替身,與真身 Top-20%
+    名單 Jaccard 僅 0.35、IC 方向相反 (+0.0093 vs −0.0036) → 測的不是生產在跑的東西。
+  · c2 = mean(產業內估值, 營收YoY, 52週高, 100−動能) 百分位 (對齊 universe_screen_daily)。
   · 即時 regime 旗:TEJ 全市場等權指數 vs MA200 (與 universe_screen §16-E 同定義,無未來函數)。
   · 量測:各排序器逐月 IC (Spearman vs fwd);前十分位組合的 excess 報酬;
     三策略 (永遠c2 / 多頭綜合分+空頭c2 / 永遠綜合分) 的 excess,總體+分多空+六時代。
@@ -37,7 +38,9 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lab_paths import OBS_ALPHA, check_base                        # noqa: E402
+import lab_paths                                                        # noqa: E402
+from lab_paths import (OBS_ALPHA, RET_COL, REAL_COMP_COL, check_base,   # noqa: E402
+                       load_real_panel)
 
 TEJ_CACHE = Path(os.environ.get("TEJ_CACHE", str(Path.home() / "tej_cache")))
 
@@ -50,8 +53,8 @@ ERAS = [
     ("2023-2026",       "2023-01-01", "2026-12-31"),
 ]
 
-# balanced 綜合分權重 (core.scoring_manager.MODES['balanced'])
-W = {"fund": 0.31, "val": 0.08, "tech": 0.19, "mom": 0.27, "whale": 0.15}
+# 綜合分不再在此重建 —— 直接吃 realbody_scores 的 real_composite (生產真身)。
+# balanced 權重 {fund .31, val .08, tech .19, mom .27, whale .15} 已內含在真身分數裡。
 
 
 def tstat(x) -> float:
@@ -93,22 +96,10 @@ def main():
     if check_base(verbose=True) and not OBS_ALPHA.exists():
         print("缺 obs_alpha.parquet;先跑 alpha_gate_lab.py --build。"); return
 
-    obs = pd.read_parquet(OBS_ALPHA)
-    obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= args.adv_floor)].copy()  # noqa: E712
-
-    # --- 五維 proxy (逐月橫斷面百分位) ---
+    # 真身五面分數 + c2 + 可執行報酬線 (L3;adv_floor < 2000萬 會 raise)
+    obs = load_real_panel(adv_floor=args.adv_floor)
     g = obs.groupby("as_of")
-    obs["_fund"] = g["revenue_yoy"].transform(pct)                       # 基本面代理:營收YoY
-    obs["_val"] = g["value_ind"].transform(pct)                          # 估值:產業內位階 (高=便宜)
-    obs["_tech"] = (g["high52_prox"].transform(pct) + g["bbp20"].transform(pct)) / 2
-    obs["_mom"] = g["momentum"].transform(pct)                           # 動能 (高=漲多)
-    obs["_whale"] = g["chip"].transform(pct)                            # 籌碼:法人20日淨買
-    obs["composite"] = (W["fund"]*obs["_fund"] + W["val"]*obs["_val"] + W["tech"]*obs["_tech"]
-                        + W["mom"]*obs["_mom"] + W["whale"]*obs["_whale"])
-    # c2 proxy = mean(估值, 營收YoY, 52週高, 100−動能)
-    obs["c2"] = (obs["_val"] + obs["_fund"] + g["high52_prox"].transform(pct)
-                 + (100 - obs["_mom"])) / 4.0
-    obs["fwd_excess"] = obs["fwd"] - g["fwd"].transform("mean")
+    obs["fwd_excess"] = obs[RET_COL] - g[RET_COL].transform("mean")
 
     # --- 即時 regime 旗 join 到 as_of ---
     reg = build_regime()
@@ -129,16 +120,16 @@ def main():
     # ---- 逐月 IC ----
     def ic_by(df, key):
         def _i(x):
-            m = x[key].notna() & x["fwd"].notna()
-            return x.loc[m, key].rank().corr(x.loc[m, "fwd"].rank()) if m.sum() >= 20 else np.nan
+            m = x[key].notna() & x[RET_COL].notna()
+            return x.loc[m, key].rank().corr(x.loc[m, RET_COL].rank()) if m.sum() >= 20 else np.nan
         return df.groupby("as_of").apply(_i).dropna()
 
     print("="*76)
-    print("【A. 排序力 IC:綜合分 proxy vs c2 proxy,分多空/六時代】(IC>0=前段跑贏後段)")
+    print("【A. 排序力 IC:真身綜合分 vs c2,分多空/六時代】(IC>0=前段跑贏後段)")
     print("="*76)
     print(f"{'區段':<16}{'月':>5}{'綜合分IC':>10}{'(t)':>7}{'c2 IC':>9}{'(t)':>7}{'贏家':>8}")
     def _seg(df, name):
-        ic_c = ic_by(df, "composite"); ic_2 = ic_by(df, "c2")
+        ic_c = ic_by(df, REAL_COMP_COL); ic_2 = ic_by(df, "c2")
         win = "綜合分" if ic_c.mean() > ic_2.mean() else "c2"
         print(f"{name:<16}{df['as_of'].nunique():>5}{ic_c.mean():>10.4f}{tstat(ic_c.values):>7.1f}"
               f"{ic_2.mean():>9.4f}{tstat(ic_2.values):>7.1f}{win:>8}")
@@ -170,8 +161,8 @@ def main():
             thr = xx[key].quantile(top_q)
             return xx[xx[key] >= thr]["fwd_excess"].mean()
         monthly.append({"as_of": a, "bear": bear,
-                        "always_c2": te("c2"), "always_comp": te("composite"),
-                        "switch": te("c2") if bear else te("composite")})
+                        "always_c2": te("c2"), "always_comp": te(REAL_COMP_COL),
+                        "switch": te("c2") if bear else te(REAL_COMP_COL)})
     md = pd.DataFrame(monthly).dropna(subset=["always_c2", "always_comp", "switch"])
 
     print("\n" + "="*76)
@@ -201,7 +192,7 @@ def main():
           + ("綜合分空頭確實較差" if comp_bear < c2_bear else "空頭差異不明顯"))
     print("="*76)
 
-    out = OBS_ALPHA.parent / "regime_switch_stats.csv"
+    out = lab_paths.RESEARCH_BASE / "regime_switch_stats.csv"
     md.to_csv(out, index=False, encoding="utf-8-sig")
     print(f"\n逐月三策略明細已寫 {out}")
 

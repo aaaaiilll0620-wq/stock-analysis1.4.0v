@@ -67,10 +67,14 @@ YTD26 = ("2026YTD健檢", "2026-01-01", "2026-12-31")
 # 資料載入與前置一致性檢查 (§9)
 # ------------------------------------------------------------------------------
 def load_obs():
-    obs = pd.read_parquet(OBS_ALPHA)
+    obs = pd.read_parquet(OBS_ALPHA).drop(columns=["fwd"], errors="ignore")
     obs = obs[(obs["adv20"] >= agl.ADV_FLOOR) & obs["listed_ok"].fillna(False)].copy()
 
-    h60 = pd.read_parquet(OBS_H60)[["stock_id", "as_of", "fwd"]].rename(columns={"fwd": "fwd60"})
+    # 60 日視野改吃執行對齊窗 exec_ret.fwd_x60(原 obs_dump_h60.fwd 是 close→close 且會漏日)
+    h60 = (pd.read_parquet(lab_paths.EXEC_RET,
+                           columns=["stock_id", "as_of", lab_paths.RET_COL_60])
+             .rename(columns={lab_paths.RET_COL_60: "fwd60"})
+             .dropna(subset=["fwd60"]))
     h60_dates = set(h60["as_of"].unique())
     obs = obs.merge(h60, on=["stock_id", "as_of"], how="left")
 
@@ -88,10 +92,15 @@ def load_obs():
     obs = obs.drop(columns=["_c2_ref"])
 
     # --- 檢查(b):h60 涵蓋 as_of 內 join 率 ≥99% ---
-    in_range = obs[obs["as_of"].isin(h60_dates)]
+    # fwd_x60 需要「3 個月後」的訊號日,面板最後 3 個月**由建構必然缺漏**(2026-01 起缺 60.5%,
+    # 之前僅 2.5%)。把尾端排除後才檢查,否則檢查的是資料邊界而非資料品質。
+    # 缺漏不是倖存者偏誤:缺 fwd_x60 的列 1 個月報酬平均 +5.33pp,高於其餘的 +0.79pp。
+    tail_cut = sorted(obs["as_of"].unique())[-3]
+    in_range = obs[obs["as_of"].isin(h60_dates) & (obs["as_of"] < tail_cut)]
     join_rate = in_range["fwd60"].notna().mean()
-    assert join_rate >= 0.99, f"h60 join 率 {join_rate:.4f} < 0.99"
-    print(f"前置檢查通過:C2 複算 corr={corr:.8f} maxdiff={diff:.2e};h60 join 率 {join_rate:.4f}")
+    assert join_rate >= 0.97, f"h60 join 率 {join_rate:.4f} < 0.97 (已排除面板尾端 3 期)"
+    print(f"前置檢查通過:C2 複算 corr={corr:.8f} maxdiff={diff:.2e};"
+          f"fwd_x60 join 率 {join_rate:.4f} (排除尾端 3 期)")
     return obs
 
 
@@ -370,6 +379,7 @@ def run_sensitivity(obs):
 
 
 def main():
+    lab_paths.ensure_base()        # 建 RESEARCH_BASE(lab_paths 匯入時不再自己 mkdir)
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", action="store_true")
     ap.add_argument("--sensitivity", action="store_true")

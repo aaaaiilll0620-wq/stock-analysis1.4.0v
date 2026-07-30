@@ -27,7 +27,8 @@ import numpy as np
 import pandas as pd
 import duckdb
 
-from lab_paths import OBS_DUMP_FULL, OBS_ALPHA  # 2026-07-19 遷出 Temp scratchpad (工單 WP4)
+from lab_paths import (OBS_DUMP_FULL, OBS_ALPHA, EXEC_RET, RET_COL,  # 2026-07-19 遷出 Temp scratchpad (工單 WP4)
+                       ensure_base)
 
 TEJ = Path.home() / "tej_cache"
 OBS_SRC = OBS_DUMP_FULL
@@ -224,7 +225,7 @@ def _per_date(df):
 def ic_series(df, key):
     """每期 Spearman IC 序列。"""
     def one(g):
-        x, y = g[key], g["fwd"]
+        x, y = g[key], g[RET_COL]
         m = x.notna() & y.notna()
         if m.sum() < 30:
             return np.nan
@@ -242,12 +243,12 @@ def ic_stats(df, key):
 def ls_spread(df, key, q=0.1):
     """十分位多空:同日 top q − bottom q 的 fwd 差,逐期平均。"""
     def one(g):
-        g = g.dropna(subset=[key, "fwd"])
+        g = g.dropna(subset=[key, RET_COL])
         k = int(len(g) * q)
         if k < 5:
             return np.nan
         g = g.sort_values(key)
-        return g["fwd"].tail(k).mean() - g["fwd"].head(k).mean()
+        return g[RET_COL].tail(k).mean() - g[RET_COL].head(k).mean()
     s = _per_date(df).apply(one).dropna()
     return float(s.mean()) if len(s) >= 3 else np.nan
 
@@ -255,12 +256,12 @@ def ls_spread(df, key, q=0.1):
 def quintile_mono(df, key):
     """五分位階梯單調性:Q1..Q5 平均 fwd 對 1..5 的 Spearman (1=完美單調)。"""
     def one(g):
-        g = g.dropna(subset=[key, "fwd"])
+        g = g.dropna(subset=[key, RET_COL])
         if len(g) < 50:
             return None
         g = g.copy()
         g["_q"] = pd.qcut(g[key].rank(method="first"), 5, labels=False)
-        return g.groupby("_q")["fwd"].mean()
+        return g.groupby("_q")[RET_COL].mean()
     ladders = [r for _, gr in _per_date(df) if (r := one(gr)) is not None]
     if len(ladders) < 3:
         return np.nan
@@ -271,10 +272,10 @@ def quintile_mono(df, key):
 def top_slice(df, key, n_top=10, n_next=15):
     """細分位:top-N 平均 fwd − next-N 平均 fwd (§18-E 要的窄子集量測)。"""
     def one(g):
-        g = g.dropna(subset=[key, "fwd"]).sort_values(key, ascending=False)
+        g = g.dropna(subset=[key, RET_COL]).sort_values(key, ascending=False)
         if len(g) < n_top + n_next:
             return np.nan
-        return g["fwd"].head(n_top).mean() - g["fwd"].iloc[n_top:n_top + n_next].mean()
+        return g[RET_COL].head(n_top).mean() - g[RET_COL].iloc[n_top:n_top + n_next].mean()
     s = _per_date(df).apply(one).dropna()
     return float(s.mean()) if len(s) >= 3 else np.nan
 
@@ -282,14 +283,14 @@ def top_slice(df, key, n_top=10, n_next=15):
 def ortho_ic(df, key, base="composite"):
     """對 base 正交化後的殘差 IC (每期橫斷面 OLS 取殘差)。"""
     def one(g):
-        m = g[key].notna() & g[base].notna() & g["fwd"].notna()
+        m = g[key].notna() & g[base].notna() & g[RET_COL].notna()
         if m.sum() < 30:
             return np.nan
         x = g.loc[m, base].rank()
         y = g.loc[m, key].rank()
         beta = np.polyfit(x, y, 1)
         resid = y - np.polyval(beta, x)
-        return pd.Series(resid).rank().corr(g.loc[m, "fwd"].rank())
+        return pd.Series(resid).rank().corr(g.loc[m, RET_COL].rank())
     s = _per_date(df).apply(one).dropna()
     if len(s) < 3:
         return np.nan, np.nan
@@ -306,8 +307,11 @@ def add_baseline(df):
 
 
 def load_l1(eras):
-    obs = pd.read_parquet(OBS_OUT)
+    # 分析路徑改吃可執行報酬線;--build 路徑仍照舊產生 obs_alpha(含原始 fwd 欄)
+    obs = pd.read_parquet(OBS_OUT).drop(columns=["fwd"], errors="ignore")
     obs = obs[(obs["adv20"] >= ADV_FLOOR) & obs["listed_ok"].fillna(False)].copy()
+    _ex = pd.read_parquet(EXEC_RET, columns=["as_of", "stock_id", RET_COL])
+    obs = obs.merge(_ex, on=["as_of", "stock_id"], how="left").dropna(subset=[RET_COL])
     lo = min(s for _, s, _ in eras)
     hi = max(e for _, _, e in eras)
     obs = obs[(obs["as_of"] >= lo) & (obs["as_of"] <= hi)]
@@ -474,6 +478,7 @@ def holdout(factors):
 
 
 def main():
+    ensure_base()        # 建 RESEARCH_BASE(lab_paths 匯入時不再自己 mkdir)
     ap = argparse.ArgumentParser()
     ap.add_argument("--build", action="store_true")
     ap.add_argument("--report", action="store_true")

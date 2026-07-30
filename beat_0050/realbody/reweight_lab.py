@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "strategies"))
 
-from beat_0050.honest_backtest import Engine, OBS_ALPHA
+from beat_0050.honest_backtest import Engine, EXEC_RET, RET_COL
 from regime_signal_lab import build_regime_features
 from regime_hysteresis_lab import ladder_expo_daily, apply_daily_expo, metrics
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     rb["as_of"] = rb["as_of"].astype(str); rb["stock_id"] = rb["stock_id"].astype(str)
     for c in FACES:
         rb[c] = pd.to_numeric(rb[c], errors="coerce").fillna(rb[c].median())
-    obs = pd.read_parquet(OBS_ALPHA, columns=["as_of", "stock_id", "fwd"])
+    obs = pd.read_parquet(EXEC_RET, columns=["as_of", "stock_id", RET_COL]).dropna(subset=[RET_COL])
     obs["as_of"] = obs["as_of"].astype(str); obs["stock_id"] = obs["stock_id"].astype(str)
     rb = rb.merge(obs, on=["as_of", "stock_id"], how="left")
 
@@ -61,8 +61,8 @@ if __name__ == "__main__":
     ic_train = {}
     tr = rb[rb["as_of"] <= TRAIN_END]
     for f in FACES:
-        ics = [g[f].rank(pct=True).corr(g["fwd"].rank(pct=True))
-               for _, g in tr.groupby("as_of") if len(g) >= 30 and g["fwd"].notna().any()]
+        ics = [g[f].rank(pct=True).corr(g[RET_COL].rank(pct=True))
+               for _, g in tr.groupby("as_of") if len(g) >= 30 and g[RET_COL].notna().any()]
         ic_train[f] = float(np.nanmean(ics))
         print(f"  {FLAB[f]:<6}{ic_train[f]:+.4f}")
 

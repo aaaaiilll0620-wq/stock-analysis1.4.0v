@@ -3,11 +3,14 @@
 ================================================================================
 兩個問題:
   (1) 報酬率:regime 切多頭月/空頭月,雙確認(含息)在多頭月的年化報酬 + 對 0050 多頭時贏不贏。
-  (2) 獲利因子:綜合分5因子(營收/動能/技術/籌碼/價值)各自的排序力 IC,分多頭/空頭。
-      IC = 當月因子百分位 vs 未來報酬百分位 的相關(Spearman);正=高分股後續漲多。
+  (2) 獲利因子:綜合分**五個面**(基本面/估值/技術/動能/籌碼)各自的排序力 IC,分多頭/空頭。
+      IC = 當月面分數百分位 vs 未來報酬百分位 的相關(Spearman);正=高分股後續漲多。
       t = mean(IC)/std × √月數;|t|>2 才算穩定。
 
-誠實邊界:fwd=20日價格報酬(未含息,IC看排序不受影響);proxy composite;回測≠未來。
+2026-07-29 (L3):量的對象從 obs_alpha 重建的替身因子換成**生產真身五面分數**
+(`realbody_scores`)。舊版量的 `_f/_m/_t/_w/_v` 是替身的腿,和生產跑的不是同一組東西。
+
+誠實邊界:報酬線 = exec_ret.fwd_x(可執行、含息);回測≠未來。
 ================================================================================
 """
 from __future__ import annotations
@@ -19,12 +22,13 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))
-from beat_0050.honest_backtest import Engine, RF_ANNUAL
+from beat_0050.honest_backtest import Engine, RF_ANNUAL, RET_COL
 from existing_composite import build_factors, holdings_for
 from regime_switch_lab import build_regime
 
-FACTORS = {"_f": "營收成長(0.31)", "_m": "動能(0.27)", "_t": "技術(0.19)",
-           "_w": "籌碼(0.15)", "_v": "價值(0.08)", "composite": "綜合分(合成)", "c2": "c2價值"}
+FACTORS = {"f_fund": "基本面(0.31)", "f_mom": "動能(0.27)", "f_tech": "技術(0.19)",
+           "f_whale": "籌碼(0.15)", "f_val": "估值(0.08)",
+           "real_composite": "真身綜合分(合成)", "c2": "c2價值"}
 
 
 def ann(monthly_ret_pct: np.ndarray) -> tuple:
@@ -67,9 +71,9 @@ if __name__ == "__main__":
     print("=" * 66)
     recs = {k: {"bull": [], "bear": []} for k in FACTORS}
     for a, x in obs.groupby("as_of"):
-        if len(x) < 30 or x["fwd"].isna().all():
+        if len(x) < 30 or x[RET_COL].isna().all():
             continue
-        fwd_pct = x["fwd"].rank(pct=True)
+        fwd_pct = x[RET_COL].rank(pct=True)
         tag = "bear" if is_bear(a) else "bull"
         for k in FACTORS:
             ic = np.corrcoef(x[k].values, fwd_pct.values)[0, 1]

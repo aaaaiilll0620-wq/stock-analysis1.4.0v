@@ -55,6 +55,10 @@ ENDPOINTS = {
 }
 MIN_ROWS = {"tpex_price": 600, "tpex_pe": 600}
 
+# MI_INDEX 的 response 同時含大盤指數/成交金額/漲跌家數 → 由 collect() 暫存,
+# main() 交給 core.market_index 落地 (市場燈號頁的參考欄位,零額外 API 成本)
+_LAST_MI: dict | None = None
+
 
 def fetch_twse_rwd(path: str, params: str, tries: int = 5) -> dict:
     """TWSE rwd JSON API;stat!='OK' (該日未發布/假日) 以 ValueError 拋出讓上層重試。"""
@@ -120,6 +124,8 @@ def collect() -> pd.DataFrame:
             ymd = trade_date.replace("-", "")
             mi = fetch_twse_rwd("afterTrading/MI_INDEX", f"date={ymd}&type=ALLBUT0999")
             bw = fetch_twse_rwd("afterTrading/BWIBBU_d", f"date={ymd}&selectType=ALL")
+            global _LAST_MI
+            _LAST_MI = mi
             break
         except ValueError as e:
             logger.warning(f"發布窗中,10 分鐘後重抓 ({attempt+1}/8): {e}")
@@ -462,6 +468,14 @@ def main():
         collect_shareholding(trade_date, force=args.force)
     except Exception as e:
         logger.warning(f"持股快照失敗 (用最新一筆,次日自動補): {e}")
+
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from core.market_index import update_from_mi_index
+        p = update_from_mi_index(_LAST_MI)
+        logger.info(f"大盤指數/量能/漲跌家數已落地 {trade_date} → {p}")
+    except Exception as e:
+        logger.warning(f"大盤指數快照失敗 (僅影響市場燈號頁的參考欄位,不影響訊號): {e}")
 
 
 if __name__ == "__main__":

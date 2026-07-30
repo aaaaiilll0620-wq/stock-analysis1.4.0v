@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from beat_0050.honest_backtest import OBS_ALPHA
+from beat_0050.honest_backtest import EXEC_RET, RET_COL
 
 RB = Path(__file__).resolve().parents[2] / "data" / "research_base" / "realbody_scores.parquet"
 FACES = {"f_tech": "技術面", "f_mom": "動能面", "f_val": "估值面", "f_fund": "基本面", "f_whale": "籌碼面"}
@@ -25,14 +25,14 @@ def quintile_profile(df, face):
     q_means = {q: [] for q in range(1, 6)}
     spreads = []
     for a, g in df.groupby("as_of"):
-        g = g.dropna(subset=[face, "fwd"])
+        g = g.dropna(subset=[face, RET_COL])
         if len(g) < 50:
             continue
         try:
             g = g.assign(_q=pd.qcut(g[face].rank(method="first"), 5, labels=[1, 2, 3, 4, 5]))
         except Exception:
             continue
-        mq = g.groupby("_q", observed=True)["fwd"].mean()
+        mq = g.groupby("_q", observed=True)[RET_COL].mean()
         for q in range(1, 6):
             if q in mq.index:
                 q_means[q].append(mq[q])
@@ -47,7 +47,7 @@ def quintile_profile(df, face):
 if __name__ == "__main__":
     rb = pd.read_parquet(RB)
     rb["as_of"] = rb["as_of"].astype(str); rb["stock_id"] = rb["stock_id"].astype(str)
-    obs = pd.read_parquet(OBS_ALPHA, columns=["as_of", "stock_id", "fwd"])
+    obs = pd.read_parquet(EXEC_RET, columns=["as_of", "stock_id", RET_COL]).dropna(subset=[RET_COL])
     obs["as_of"] = obs["as_of"].astype(str); obs["stock_id"] = obs["stock_id"].astype(str)
     rb = rb.merge(obs, on=["as_of", "stock_id"], how="left")
     for f in FACES:
