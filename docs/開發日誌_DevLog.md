@@ -276,5 +276,54 @@ python tests\run_backtest.py           # 買 強勢買進+強烈推薦、等權�
 
 ---
 
+## 11. 🔬 2026-07-30 — 回測基礎設施稽核（Codex 靜態盤點 → 五輪對抗式修正）
+
+> **定位**：這一節記錄的是**量測管線的稽核與加固**，不是任何假設（H1–H5）的判定。
+> 起因是審查官（Codex）對 `beat_0050/` 研究層做全面靜態盤點，提出 7 項「可能讓回測結論無效」
+> 的風險，經五輪對抗式往返逐一封死。**目的：確保 §7 之後填進去的數字站得住。**
+
+### 稽核結論一句話
+發現並修掉一個**真的在動數字**的量測偏誤（尾月時鐘不對齊，四個受測策略各虛高
+**0.35–0.50pp CAGR / 0.02 夏普**），以及六項「目前沒出事、但遲早會靜默出事」的紀律漏洞。
+**沒有任何研究結論被翻盤**（`dual100 --part h1` 前置閘修正後仍過：真身雙確認 @100萬 夏普 0.89 > 0050 的 0.68）。
+
+### 逐項處置（7 點原始盤點 → 五輪收斂）
+| 風險 | 實測量級 | 處置 |
+|---|---|---|
+| 0050 基準時位（開盤 vs 收盤錨） | **僅 0.1pp/年**（逐月差平均 +0.010pp, t≈0） | 量化澄清；`0050_tr` 有 `adj_open` 就自動改用；兩路徑一致 |
+| 尾月共同時鐘不對齊 | **0.35–0.50pp CAGR / 0.02 夏普** | `Panel._truncate_to_bench` / `Engine._align_clock` / `met_vs` 硬性同時鐘 |
+| 靜默砍母體 | 兩份面板實測 **0 缺、100.0000%** | 建置對帳報告 + 覆蓋率閘門（預設 1.0）+ `no_data`/`score_error` 分類 |
+| Merge 複製列 / 計數膨脹 | 四份面板重複鍵 **全 0** | `assert_unique` / `assert_no_row_growth` 上鎖六個 merge 點；輸入母體 `assert_obs_unique` |
+| try/except 繞過缺檔硬規則 | — | `REAL_COMP` 改 property 延遲 raise；`score_row(strict=True)` 分流 |
+| Import 副作用（FinMind 登入） | — | `lab_paths` 去除匯入副作用；建置器 lazy import（網路封鎖下可匯入） |
+| 研究生命線測試缺口 | — | 新增 `tests/test_research_lifelines.py`，**25 項** |
+
+### 正規面板隔離規則（防污染）
+- 只有**完美建置**（cov=1.0 且 0 個 score_error）能佔正規檔名。
+- 任何瑕疵 → `.EXPLORE`（過放寬門檻）或 `.INCOMPLETE`（未過/有 bug），`resolve_realbody()` 撿不到。
+- `--year/--limit` 局部跑強制 `_partial`；正規 parquet 原子寫入（`.tmp → os.replace`）。
+- 覆蓋率門檻降低（`DUAL100_COV_MIN` / `--min-coverage`）一律印進 run log（provenance），<1.0 印探索橫幅。
+
+### 驗證紀錄（保留）
+- **研究 lifeline 測試：25 passed / 0 failed。**
+- 完整 `tests/`：**132 passed / 10 failed**。
+- 那 10 個失敗（`test_scoring_manager` 的 `test_bias_bands` / `test_full_momentum_breakout`、
+  `test_fundamentals`）是 **`core` 計分口徑與測試期望漂移的既有 baseline**，
+  經 `git stash` 全部改動後複跑仍為同樣 10 failed / 51 passed，**與本次 diff 無交集**。
+- 兩條獨立路徑（矩陣 `high52_lab.Panel` vs 持股字典 `honest_backtest.Engine`）逐月對帳 **0.0000pp**。
+
+### 動到的檔案
+`scripts/lab_paths.py`、`beat_0050/strategies/high52_lab.py`、`beat_0050/strategies/dual100_lab.py`、
+`beat_0050/honest_backtest.py`、`beat_0050/realbody/build_realbody_scores.py`、`core/score_store.py`
+（`strict` 分流）、`scripts/{alpha_gate,portfolio_simulator,basket_dispersion}_lab.py`（`ensure_base()`）、
+`tests/test_research_lifelines.py`（新）、`tests/conftest.py`。
+
+### 範圍外（已列，未動）
+- `core/data_provider.py` 的 class-body `DataLoader()`（全 App 既有登入副作用，牽涉 app/main/portfolio）。
+- `scripts/tej_funnel_test.py` 收集階段中止（硬編碼外部路徑）。
+- `core` 計分口徑漂移導致的 10 個 baseline 失敗（`real_composite` 正是這套引擎算的，值得另開一輪查）。
+
+---
+
 *本日誌記錄從「防守型 3 級反向指標」到「四級雙軌 + 市場中性驗證通過」的完整重構歷程。*
 *核心成果：三大痛點（恐高／逆勢／死抱）已解，選股排序力經樣本外驗證，並定案風險調整後勝過大盤的可實作配置。*

@@ -83,3 +83,9 @@ def make_ohlcv(closes, volumes=None, start="2024-01-01"):
 @pytest.fixture
 def ohlcv_factory():
     return make_ohlcv
+
+
+def pytest_configure(config):
+    # tests/test_research_lifelines.py 用 @pytest.mark.slow 標「要讀研究面板 parquet」的測試。
+    # 平時全跑(單次不到 1 秒);只想跑純邏輯測試時 `-m "not slow"`。
+    config.addinivalue_line("markers", "slow: 需要讀 data/research_base 面板的測試")

@@ -27,7 +27,8 @@ import numpy as np
 import pandas as pd
 import duckdb
 
-from lab_paths import OBS_DUMP_FULL, OBS_ALPHA, EXEC_RET, RET_COL  # 2026-07-19 遷出 Temp scratchpad (工單 WP4)
+from lab_paths import (OBS_DUMP_FULL, OBS_ALPHA, EXEC_RET, RET_COL,  # 2026-07-19 遷出 Temp scratchpad (工單 WP4)
+                       ensure_base)
 
 TEJ = Path.home() / "tej_cache"
 OBS_SRC = OBS_DUMP_FULL
@@ -477,6 +478,7 @@ def holdout(factors):
 
 
 def main():
+    ensure_base()        # 建 RESEARCH_BASE(lab_paths 匯入時不再自己 mkdir)
     ap = argparse.ArgumentParser()
     ap.add_argument("--build", action="store_true")
     ap.add_argument("--report", action="store_true")

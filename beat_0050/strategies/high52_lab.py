@@ -36,10 +36,13 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 PROJ = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJ / "scripts"))
+from lab_paths import (resolve_realbody, REALBODY_ADV_FLOOR,   # noqa: E402
+                       assert_unique, assert_no_row_growth, PANEL_KEYS)
+
 TEJ_CACHE = Path(os.environ.get("TEJ_CACHE", str(Path.home() / "tej_cache")))
 OBS_ALPHA = PROJ / "data" / "research_base" / "obs_alpha.parquet"
 EXEC_RET = PROJ / "data" / "research_base" / "exec_ret.parquet"
-REALBODY = PROJ / "data" / "research_base" / "realbody_scores.parquet"   # 真身五面分數 (ADV≥2000萬)
 BENCH_TR = PROJ / "beat_0050" / "data" / "benchmark" / "0050_tr.parquet"
 OUTDIR = PROJ / "beat_0050" / "results"
 
@@ -72,22 +75,44 @@ WINNER = ("high52_prox", "高", "N=8", "100萬")   # 待檢定的贏家 arm
 class Panel:
     """把 obs_alpha × exec_ret 攤成 (月 × 股) 矩陣,讓 arm 評估變成純向量運算。"""
 
-    def __init__(self) -> None:
+    def __init__(self, realbody_floor: float = REALBODY_ADV_FLOOR) -> None:
         obs = pd.read_parquet(OBS_ALPHA)
         obs = obs[obs["listed_ok"] == True].copy()  # noqa: E712
+        obs["as_of"] = obs["as_of"].astype(str)
+        obs["stock_id"] = obs["stock_id"].astype(str)
+        assert_unique(obs, name="obs_alpha(listed_ok)")
         ex = pd.read_parquet(EXEC_RET)
-        obs = obs.merge(ex, on=["as_of", "stock_id"], how="left")
+        ex["as_of"] = ex["as_of"].astype(str)
+        ex["stock_id"] = ex["stock_id"].astype(str)
+        assert_unique(ex, name="exec_ret")
+        n0 = len(obs)
+        obs = obs.merge(ex, on=PANEL_KEYS, how="left")
+        assert_no_row_growth(n0, len(obs), "Panel: obs_alpha ⋈ exec_ret")
         obs = obs.dropna(subset=[RET_COL, "adv20"])
-        # 真身綜合分 (L3):只在 ADV≥2000萬 有值,其餘為 NaN —— dual_confirm_mask 會據此擋人
-        if REALBODY.exists():
-            rb = pd.read_parquet(REALBODY, columns=["as_of", "stock_id", "real_composite"])
+        # 真身綜合分 (L3):載入能覆蓋 `realbody_floor` 的那一份面板(見 lab_paths.resolve_realbody)。
+        # 低於該面板建置門檻的 stock-month 仍是 NaN —— dual_confirm_mask 的覆蓋率閘門會據此擋人,
+        # 這一層刻意不擋,讓 tier 之間的對照(2000萬 vs 100萬)可以在同一個 Panel 裡跑完。
+        # **面板整份缺檔則不建 real_composite 欄** —— REAL_COMP 是 property,取用即 raise
+        # (見下)。不再把缺檔悄悄變成一整片 NaN。
+        self.realbody_floor = realbody_floor
+        self.realbody_err: str | None = None
+        try:
+            rb_path = resolve_realbody(realbody_floor)
+        except FileNotFoundError as e:
+            print(f"[Panel] 無真身面板 —— 不吃真身分數的路徑(scan / H1 / H3)照跑,"
+                  f"取用 P.REAL_COMP 會 raise:\n{e}")
+            self.realbody_err = str(e)
+            rb_path = None
+        self.realbody_path = rb_path
+        if rb_path is not None:
+            rb = pd.read_parquet(rb_path, columns=["as_of", "stock_id", "real_composite"])
             rb["as_of"] = rb["as_of"].astype(str)
             rb["stock_id"] = rb["stock_id"].astype(str)
-            obs["as_of"] = obs["as_of"].astype(str)
-            obs["stock_id"] = obs["stock_id"].astype(str)
-            obs = obs.merge(rb, on=["as_of", "stock_id"], how="left")
-        else:
-            obs["real_composite"] = np.nan
+            assert_unique(rb, name=f"真身面板 {rb_path.name}")
+            n1 = len(obs)
+            obs = obs.merge(rb, on=PANEL_KEYS, how="left")
+            assert_no_row_growth(n1, len(obs), f"Panel: obs ⋈ {rb_path.name}")
+            print(f"[Panel] 真身面板 {rb_path.name}(涵蓋 ADV≥{realbody_floor:,.0f})")
 
         self.months = np.array(sorted(obs["as_of"].unique()))
         self.month_s = np.array([str(m)[:10] for m in self.months])
@@ -111,28 +136,106 @@ class Panel:
         self.SLIP = mat("tick_slip")
         self.ADV = mat("adv20", np.float64)
         self.F = {f: mat(f) for f in FACTORS if f in obs.columns}
-        self.REAL_COMP = mat("real_composite")   # 真身綜合分 (ADV<2000萬 全 NaN)
+        # 真身綜合分:缺面板 → None,取用時由 REAL_COMP property raise。
+        self._real_comp = mat("real_composite") if "real_composite" in obs.columns else None
         self.HAS_RET = np.isfinite(self.RET)
         # ADV 分層的有效遮罩
         self.tier_valid = {name: (self.HAS_RET & (self.ADV >= thr)) for name, thr in ADV_TIERS}
         self._rank_cache: dict[tuple, np.ndarray] = {}
         self.bench = self._benchmark()
+        self._truncate_to_bench()      # 策略腿與基準腿共用同一組月份(見該函式)
+
+    @property
+    def REAL_COMP(self) -> np.ndarray:
+        """真身綜合分矩陣。**面板缺檔時取用即 raise**,不回一整片 NaN。
+
+        2026-07-30 修:原本 `except FileNotFoundError → real_composite 全 NaN`,
+        繞過了「缺檔直接 raise」的硬規則(審查官第 4 點)。但 scan / H1 / H3 這些
+        不吃真身分數的路徑本來就該能在沒有面板時跑完 —— 所以不是在建構子 raise,
+        而是把 raise **延到取用點**:不碰就不炸,碰了就給重建指令。
+        """
+        if self._real_comp is None:
+            raise FileNotFoundError(
+                self.realbody_err or "本 Panel 未載入真身面板(real_composite 不存在)")
+        return self._real_comp
 
     # ---- 0050 含息基準,對齊同一個執行窗:open(本月訊號日+1) → open(下月訊號日+1) ----
     # 串接後正好等於「買進持有」,無缺口無重疊,與策略序列完全可比。
+    #
+    # **殘留相位落差(2026-07-30 量化,審查官第 1 點)**:0050_tr 只有還原**收盤**價
+    # (TEJ「調整股價(日)」匯出源就沒有開盤價),所以基準腿實際是
+    # close(T+1)→close(T'+1),而策略腿是 open(T+1)→open(T'+1)。
+    # 兩腿錨在**同一組交易日、同一窗長**,串接後只差首尾兩個盤中報酬 → telescoping 抵銷。
+    # 以 FinMind 0050 實價(2019-2026,有開盤價,同 as_of 網格)實測:
+    #     close 錨:CAGR 26.53%  夏普 1.159  年化波動 22.02%
+    #     open  錨:CAGR 26.44%  夏普 1.166  年化波動 21.83%
+    #     逐月差(close−open):平均 +0.010pp(≈0)、標準差 1.32pp
+    # → 無系統性偏誤,量級 ~0.1pp/年、~0.01 夏普。與 obs_alpha.fwd 的 5.6pp/年不同級:
+    #   那個是「窗長漏日 + 訊號不可執行」,會隨換手率放大;這個只是同一條買進持有序列的相位。
+    # 逐月差進到對 0050 的配對檢定時是加在基準腿的白噪音 → 墊高分母、**壓低** t 值,方向保守。
+    # 0050_tr 日後補進 `adj_open` 欄(build_benchmark 換帶開盤價的匯出)即自動改用開盤錨,落差歸零。
     def _benchmark(self) -> np.ndarray:
         b = pd.read_parquet(BENCH_TR).sort_values("date").reset_index(drop=True)
         d = b["date"].astype(str).to_numpy()
-        px = pd.to_numeric(b["adj_close"], errors="coerce").to_numpy(float)
+        self.bench_px_col = "adj_open" if "adj_open" in b.columns else "adj_close"
+        px = pd.to_numeric(b[self.bench_px_col], errors="coerce").to_numpy(float)
         base = np.array([int(np.searchsorted(d, m, side="right")) - 1 for m in self.month_s])
         out = np.full(self.T, np.nan)
         for t in range(self.T - 1):
+            # base<0 = 該 as_of 早於基準首日。原本只擋 i<0,base=-1 時 i=0 會**誤用基準首日
+            # 當進場價**,把數月甚至數年的行情算進一個月。現行資料 base[0]=20 不會踩到,
+            # 但基準檔一換區間就會靜默生效 → 明擋。
+            if base[t] < 0 or base[t + 1] < 0:
+                continue
             i, j = base[t] + 1, base[t + 1] + 1
-            if i < 0 or j >= len(px):
+            if j >= len(px):
                 continue
             if px[i] > 0 and px[j] > 0:
                 out[t] = (px[j] / px[i] - 1) * 100
         return out
+
+    # ---- 共同時鐘(審查官第 5 點)----
+    # met() 會丟掉 NaN,所以「策略有、基準沒有」的月份會讓兩條腿跑在**不同月份集合**上:
+    # 各自用自己的 n 年化,策略等於免費多算了一個月的行情。
+    # 實測:面板最後一個月(as_of=2026-04-30,出場日落在面板之外 → _benchmark 算不出來)
+    # 策略有報酬、0050 沒有,光這一個月就讓四個受測策略的 CAGR 虛高 0.35~0.50pp、
+    # 夏普虛高 0.02。裁在 Panel 層 → 全 lab 一次生效,不必在每個 met() 呼叫點加遮罩
+    # (那種寫法漏一個點就是一個不同時鐘)。
+    #
+    # 只裁頭尾。中間缺基準**不裁而是 raise** —— 裁掉會把不相鄰的兩個月接成「相鄰」,
+    # evaluate() 的 `Ma[1:] & Ma[:-1]` 換手率就錯了。
+    def _truncate_to_bench(self) -> None:
+        ok = np.isfinite(self.bench)
+        if ok.all():
+            return
+        idx = np.where(ok)[0]
+        if len(idx) == 0:
+            raise RuntimeError(
+                f"0050 基準 {BENCH_TR} 與面板月份完全對不上(面板 {self.month_s[0]}~"
+                f"{self.month_s[-1]})—— 先查基準檔區間,不要在無基準的情況下報相對績效。")
+        lo, hi = int(idx[0]), int(idx[-1])
+        if not ok[lo:hi + 1].all():
+            gaps = [self.month_s[t] for t in range(lo, hi + 1) if not ok[t]]
+            raise RuntimeError(
+                f"0050 基準在面板**中間**缺 {len(gaps)} 個月:{gaps[:12]}。\n"
+                "頭尾缺可以裁,中間缺不能裁 —— 裁掉會把不相鄰的兩個月接成『相鄰』,"
+                "evaluate() 的換手率會算錯。請先補基準資料 (beat_0050/build_benchmark.py)。")
+        dropped = [self.month_s[t] for t in range(self.T) if not ok[t]]
+        sl = slice(lo, hi + 1)
+        self.months, self.month_s = self.months[sl], self.month_s[sl]
+        self.RET, self.RET2, self.RETCC = self.RET[sl], self.RET2[sl], self.RETCC[sl]
+        self.SLIP, self.ADV = self.SLIP[sl], self.ADV[sl]
+        self.F = {k: v[sl] for k, v in self.F.items()}
+        if self._real_comp is not None:
+            self._real_comp = self._real_comp[sl]
+        self.HAS_RET = self.HAS_RET[sl]
+        self.tier_valid = {k: v[sl] for k, v in self.tier_valid.items()}
+        self.bench = self.bench[sl]
+        self.T = len(self.months)
+        self._rank_cache.clear()
+        print(f"[Panel] 裁掉 0050 無基準的 {len(dropped)} 個月 {dropped} —— "
+              f"策略腿與基準腿共用同一時鐘,剩 {self.T} 月 "
+              f"({self.month_s[0]} ~ {self.month_s[-1]})")
 
     # ---- 排名 (1 = 最好);無效值排到最後 ----
     def ranks(self, factor: str, asc: bool, tier: str) -> np.ndarray:
@@ -205,6 +308,37 @@ def met(r: np.ndarray) -> dict:
             "mdd": dd.min() * 100, "n": n}
 
 
+def met_vs(strat: np.ndarray, bench: np.ndarray) -> tuple:
+    """回 (m_strat, m_bench, excluded) —— 在**兩腿都有值**的共同月份上各算指標。
+
+    這是 Codex 審查點 1 的硬性保證:met() 各自丟 NaN 會讓策略腿與基準腿跑在不同月份集合上。
+    這裡強制共同遮罩後才算,CAGR/夏普永遠同一時鐘。
+    **選擇共同遮罩而非 raise 的理由**:walk-forward 協定在「訓練窗內沒有任何 arm 湊得滿
+    WF_MIN_ARM 個月」時會空手(oos 留 NaN)—— 那是早期樣本的正常現象、協定正確地拒絕下注,
+    不是 bug。raise 會把 H1a 這種合法空手直接打死;共同遮罩則誠實地把兩腿都限在
+    「協定有下注的月份」比較。固定 arm 策略(H1b/H2 的贏家)實測 0 空手月 → 對它們無影響,
+    只有 walk-forward 會用到。排除的月數一律回傳並印出,不靜默。
+    """
+    s, b = np.asarray(strat, float), np.asarray(bench, float)
+    ok = np.isfinite(s) & np.isfinite(b)
+    excluded = int((np.isfinite(b) & ~np.isfinite(s)).sum())
+    sm = np.where(ok, s, np.nan)
+    bm = np.where(ok, b, np.nan)
+    return met(sm), met(bm), excluded
+
+
+def warn_clock(label: str, r: np.ndarray, bench: np.ndarray) -> int:
+    """met() 丟 NaN,所以「策略空手」的月份會被當成不存在 —— 等於免費跳過那個月的行情,
+    而基準腿照算。Panel._truncate_to_bench 已對齊「基準缺月」那一種不同時鐘;
+    這裡抓第二種:**策略自己沒持股**。有落差就吼出來,不靜默。回傳落差月數。"""
+    fs, fb = np.isfinite(np.asarray(r, float)), np.isfinite(np.asarray(bench, float))
+    gap = int((fb & ~fs).sum())
+    if gap:
+        print(f"    ⚠ 時鐘落差:{label} 有 {gap} 個月無持股(基準有值)。met() 會跳過這些月,"
+              f"該策略的 CAGR/夏普是『只在有持股的月份』的成績,與 0050 不同時鐘。")
+    return gap
+
+
 def sharpe_only(r: np.ndarray) -> float:
     r = r[np.isfinite(r)] / 100.0
     if len(r) < 6:
@@ -253,19 +387,23 @@ def full_scan(P: Panel, RET: np.ndarray | None = None, verbose: bool = True,
 # 必須明寫 source="proxy" 才跑得動,且結論不可與真身層直接並列比較。
 # ==============================================================================
 def dual_confirm_mask(P: Panel, tier: str, top_pct: int = 20,
-                      source: str = "real") -> np.ndarray:
+                      source: str = "real", min_cov: float = 1.0) -> np.ndarray:
+    # min_cov 預設 1.0(零靜默損失,Codex 第三輪第 1 點):真身分數必須覆蓋該層母體的**全部**,
+    # 少一格就 raise。三層實測皆 100%。要在已知合法缺口的探索面板上跑才顯式放寬 min_cov。
     valid = P.tier_valid[tier]
     if source not in ("real", "proxy"):
         raise ValueError(f"source 只能是 'real' 或 'proxy',收到 {source!r}")
     if source == "real":
         cov = np.isfinite(P.REAL_COMP[valid]).mean() if valid.any() else 0.0
-        if cov < 0.99:
+        if cov < min_cov:
+            thr = dict(ADV_TIERS)[tier]
             raise ValueError(
-                f"tier={tier} 的真身綜合分覆蓋率僅 {cov:.1%} —— realbody_scores 只建到 "
-                f"ADV≥2000萬。低於門檻的 stock-month 沒有真身分數,靜默跑會把「雙確認 "
-                f"@ADV≥{tier}」偷偷退化成「雙確認 @ADV≥2000萬 ∩ 該層」。\n"
-                "要測低 ADV 的真身雙確認,得先把 realbody_scores 重建到該門檻 "
-                "(改 beat_0050/realbody/build_realbody_scores.py 的 ADV_FLOOR);\n"
+                f"tier={tier} 的真身綜合分覆蓋率僅 {cov:.1%} —— 目前這個 Panel 載入的面板是 "
+                f"{getattr(P, 'realbody_path', None)}(涵蓋 ADV≥{getattr(P, 'realbody_floor', float('nan')):,.0f})。\n"
+                f"低於面板門檻的 stock-month 沒有真身分數,靜默跑會把「雙確認 @ADV≥{tier}」"
+                f"偷偷退化成「∩ 面板門檻」。\n"
+                f"要測這一層的真身雙確認,先重建面板再用 Panel(realbody_floor={thr:.0f}) 建面板:\n"
+                f"  python -m beat_0050.realbody.build_realbody_scores --adv-floor {thr:.0f}\n"
                 "只想看舊的替身結果請明寫 source='proxy'(不可與真身層並列)。")
 
     def pct(name):
@@ -337,10 +475,12 @@ def run_h1(P: Panel) -> dict:
         t = end
 
     span = slice(WF_MIN_TRAIN, P.T)
-    m_oos = met(oos[span])
-    m_bh = met(P.bench[span])
     wm = evaluate(winner_mask(P), P.RET, P.SLIP)
-    m_fix = met(wm[span])
+    # 每個假設各自對齊到「自己與基準的共同月份」比較 —— 硬性同時鐘(見 met_vs)。
+    # H1a 用 oos vs bench 的共同遮罩;m_bh_a 是「H1a 那組共同月份」上的基準,
+    # 不是全期基準,兩者判定各自用自己的 m_bh_* 才是同一時鐘。
+    m_oos, m_bh_a, ex_a = met_vs(oos[span], P.bench[span])
+    m_fix, m_bh_b, ex_b = met_vs(wm[span], P.bench[span])
 
     print(f"\nOOS 期間 {P.month_s[WF_MIN_TRAIN]} ~ {P.month_s[-1]}  "
           f"({m_oos.get('n', 0)} 個月, {len(picks)} 次重選)\n")
@@ -349,22 +489,33 @@ def run_h1(P: Panel) -> dict:
         print(f"{p['from'][:7]}~{p['to'][:7]:<14}{p['arm']:<42}{p['train_sharpe']:>10.2f}{p['train_months']:>10}")
 
     n_h52 = sum(1 for p in picks if p["arm"].startswith("high52_prox"))
+    if ex_a:
+        print(f"\n⚠ H1a 協定有 {ex_a} 個空手月(訓練窗內無合格 arm)—— 已對齊共同月份比較。")
+    if ex_b:
+        print(f"⚠ H1b 固定 arm 有 {ex_b} 個空手月 —— 同上處理。")
+    # 每個策略後面**緊接它自己那組共同月份上的 0050**(Codex 第二輪第 2 點:畫面上的基準
+    # 必須就是判定用的那一組月份,不能顯示全期基準卻用共同遮罩判定)。ex=0 時它就等於全期基準。
     print(f"\n{'':<24}{'CAGR%':>10}{'夏普':>9}{'MDD%':>9}{'月數':>7}")
-    for lab, m in [("H1a 協定 walk-forward", m_oos), ("H1b 固定贏家 arm", m_fix),
-                   ("     0050 含息買進持有", m_bh)]:
+    rows = [("H1a 協定 walk-forward", m_oos),
+            (f"  └ 0050(同 H1a {m_bh_a.get('n', 0)} 月)", m_bh_a),
+            ("H1b 固定贏家 arm", m_fix),
+            (f"  └ 0050(同 H1b {m_bh_b.get('n', 0)} 月)", m_bh_b)]
+    for lab, m in rows:
         print(f"{lab:<24}{m.get('cagr', np.nan):>10.2f}{m.get('sharpe', np.nan):>9.2f}"
               f"{m.get('mdd', np.nan):>9.1f}{m.get('n', 0):>7}")
 
-    h1a = (m_oos.get("sharpe", -9) > m_bh.get("sharpe", 9)) and \
-          (m_oos.get("cagr", -9) > m_bh.get("cagr", 9))
-    h1b = (m_fix.get("sharpe", -9) > m_bh.get("sharpe", 9)) and \
-          (m_fix.get("cagr", -9) > m_bh.get("cagr", 9))
+    # 判定用各自的共同月份基準(m_bh_a / m_bh_b),不是全期 m_bh —— 才是同一時鐘。
+    h1a = (m_oos.get("sharpe", -9) > m_bh_a.get("sharpe", 9)) and \
+          (m_oos.get("cagr", -9) > m_bh_a.get("cagr", 9))
+    h1b = (m_fix.get("sharpe", -9) > m_bh_b.get("sharpe", 9)) and \
+          (m_fix.get("cagr", -9) > m_bh_b.get("cagr", 9))
     h1c = n_h52 / max(len(picks), 1) >= 0.5
     print(f"\nH1a 協定 OOS 優於 0050 (夏普且 CAGR)      → {'✅通過' if h1a else '❌否定'}")
     print(f"H1b 固定贏家 arm 於同段 OOS 優於 0050      → {'✅通過' if h1b else '❌否定'}")
     print(f"H1c high52_prox 被選中 {n_h52}/{len(picks)} 年 (門檻 ≥50%) → {'✅通過' if h1c else '❌否定'}")
     return {"h1a": h1a, "h1b": h1b, "h1c": h1c, "picks": picks,
-            "m_oos": m_oos, "m_fix": m_fix, "m_bh": m_bh, "oos": oos}
+            "m_oos": m_oos, "m_fix": m_fix, "m_bh_a": m_bh_a, "m_bh_b": m_bh_b,
+            "ex_a": ex_a, "ex_b": ex_b, "oos": oos}
 
 
 # ==============================================================================
@@ -401,6 +552,7 @@ def run_h2(P: Panel) -> dict:
         m = met(v)
         print(f"{k:<26}{m.get('cagr', np.nan):>9.2f}{m.get('sharpe', np.nan):>8.2f}"
               f"{m.get('mdd', np.nan):>9.1f}{m.get('n', 0):>7}{turnover(tmask[k])*100:>10.1f}")
+        warn_clock(k, v, P.bench)
     mb = met(P.bench)
     print(f"{'0050 含息買進持有':<26}{mb['cagr']:>9.2f}{mb['sharpe']:>8.2f}{mb['mdd']:>9.1f}{mb['n']:>7}{0.0:>10.1f}")
 

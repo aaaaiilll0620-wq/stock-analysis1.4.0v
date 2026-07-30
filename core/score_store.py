@@ -178,17 +178,27 @@ def _f(x) -> Optional[float]:
 # ------------------------------------------------------------------------------
 # 核心:算一列 (複用評分 pipeline;等同 backtest._score_one 的輸出,轉成 scores 列)
 # ------------------------------------------------------------------------------
-def score_row(bundle: HistoryBundle, as_of: str, mode: str, engines=None) -> Optional[dict]:
+def score_row(bundle: HistoryBundle, as_of: str, mode: str, engines=None,
+              strict: bool = False) -> Optional[dict]:
     """
     以 as_of 為基準,對單一 bundle 跑完整評分 pipeline,回傳一列 scores dict (失敗回 None)。
     pipeline 與 core.backtest._score_one 一致:
         build_pit_stockdata → fund.evaluate → val.evaluate → scorer.calculate_score → advisor.advise
     advise 之後 score.total_score 即『五維綜合分』(已含動態權重),為跨股排名主鍵。
+
+    例外紀律(strict 分流 —— Codex 第二輪第 4 點):
+      · `build_pit_stockdata` 回 None = **預期的資料缺口**(該 stock-month 沒有足夠歷史),
+        兩種模式都乾淨回 None,呼叫端據此記 no_data。
+      · 評分管線**丟例外** = 非預期(程式 bug 或資料異常)。
+          - strict=False(預設,live App 的 build_scores 用):吞例外回 None,保住
+            「一支壞股不殺整批排名」的韌性。
+          - strict=True(研究建置器 build_realbody_scores 用):log 後 **re-raise**,
+            讓呼叫端把它記成 score_error(完整型別+訊息),不與資料缺口混為一談。
     """
     fund, val, scorer, advisor = engines or _engines(mode)
     stock = build_pit_stockdata(bundle, as_of)
     if stock is None:
-        return None
+        return None                                       # 預期資料缺口:兩種模式都乾淨回 None
     try:
         fund_res = fund.evaluate(vars(stock))
         val_res = val.evaluate(vars(stock))
@@ -197,6 +207,8 @@ def score_row(bundle: HistoryBundle, as_of: str, mode: str, engines=None) -> Opt
         advisor.advise(stock, fund_res, val_res, score)   # in-place 補齊 composite/rating/五維
     except Exception as e:
         logger.warning(f"[{bundle.symbol}] {as_of} {mode} 評分失敗: {e}")
+        if strict:
+            raise                                         # 研究建置器:讓真正的錯誤浮上來,不稀釋成缺口
         return None
 
     # --- 資料缺口偵測 (供 app 篩選器抓『有沒有缺』+ 標示『缺什麼』) ---

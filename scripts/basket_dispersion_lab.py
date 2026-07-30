@@ -379,6 +379,7 @@ def run_sensitivity(obs):
 
 
 def main():
+    lab_paths.ensure_base()        # 建 RESEARCH_BASE(lab_paths 匯入時不再自己 mkdir)
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", action="store_true")
     ap.add_argument("--sensitivity", action="store_true")

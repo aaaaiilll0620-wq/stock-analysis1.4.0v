@@ -69,6 +69,18 @@ ERAS = [
 ]
 
 
+def _assert_unique(df: pd.DataFrame, name: str, keys=("as_of", "stock_id")) -> None:
+    """(as_of, stock_id) 必須唯一。與 scripts/lab_paths.assert_unique 同一條規則,
+    在此獨立實作是為了 honest_backtest 能單獨 import(不依賴 scripts/ 在 sys.path 上)。"""
+    k = list(keys)
+    dup = df.duplicated(subset=k, keep=False)
+    if dup.any():
+        raise ValueError(
+            f"{name} 的 {tuple(k)} 不唯一:{int(dup.sum())} / {len(df)} 列重複。"
+            f"範例 {df.loc[dup, k].head(5).to_dict('records')}。"
+            "重複鍵會重複計權並灌高覆蓋率 —— 修產生面板的 build 腳本,不要在下游去重。")
+
+
 class Engine:
     def __init__(self, adv_floor: float = 2e7, cost_rt: float = COST_RT + SLIPPAGE_RT):
         self.cost = cost_rt
@@ -78,6 +90,7 @@ class Engine:
         self.tr = self._build_tr_panel(adv_floor)          # 個股月度總報酬面板
         self.asofs = sorted(self.tr["as_of"].unique())
         self.bench = self._build_benchmark()               # {as_of: 0050 月總報酬%}
+        self._align_clock()                                # 兩腿共用同一組 as_of
 
     # ---- 個股總報酬面板 (可執行線,已含息) ----
     def _build_tr_panel(self, adv_floor) -> pd.DataFrame:
@@ -90,18 +103,52 @@ class Engine:
         obs = pd.read_parquet(OBS_ALPHA, columns=["as_of", "stock_id", "fwd", "adv20", "listed_ok"])
         obs = obs[(obs["listed_ok"] == True) & (obs["adv20"] >= adv_floor)].copy()  # noqa: E712
         ex = pd.read_parquet(EXEC_RET, columns=["as_of", "stock_id", "fwd_x"])
+        # 主鍵唯一性:這條路徑的重複鍵**會**灌進 pool / universe_ew(等權母體那一階),
+        # 讓同一支股佔兩份權重,並讓 run() 的 turn(用 set 算交集)與 n(用 list 算)脫鉤。
+        _assert_unique(obs, "honest_backtest: obs_alpha(過濾後)")
+        _assert_unique(ex, "honest_backtest: exec_ret")
+        n0 = len(obs)
         obs = obs.merge(ex, on=["as_of", "stock_id"], how="left")
+        if len(obs) > n0:
+            raise ValueError(f"obs_alpha ⋈ exec_ret 後列數由 {n0:,} 膨脹到 {len(obs):,}")
         obs["tr"] = obs["fwd_x"]          # fwd_x 已內含 dividend_yield_TSE/12
         return obs[["as_of", "stock_id", "tr", "fwd"]].dropna(subset=["tr"])
+
+    # ---- 共同時鐘:策略腿有、0050 沒有的 as_of 一律裁掉 ----
+    # run() / ladder() 的策略指標跑 self.asofs,0050 指標跑 dropna(bench) → 面板最後一個月
+    # (出場日落在面板之外,_build_benchmark 算不出來)會只算進策略腿,策略等於免費多一個月行情。
+    # 實測那一個月讓受測策略 CAGR 虛高 0.35~0.50pp、夏普虛高 0.02。
+    # 只裁頭尾;中間缺基準 raise —— 裁掉會把不相鄰的兩個月接成「相鄰」,run() 的換手率就錯了。
+    def _align_clock(self) -> None:
+        if not self.bench:
+            return                              # 完全無基準(僅單機無資料時)→ 不動,report 會說沒基準
+        keep = [i for i, a in enumerate(self.asofs) if a in self.bench]
+        if len(keep) == len(self.asofs):
+            return
+        lo, hi = keep[0], keep[-1]
+        interior = [self.asofs[i] for i in range(lo, hi + 1) if self.asofs[i] not in self.bench]
+        if interior:
+            raise RuntimeError(
+                f"0050 基準在面板**中間**缺 {len(interior)} 個月:{interior[:12]}。"
+                "頭尾缺可裁,中間缺會讓 run() 把不相鄰的月份當相鄰、換手率算錯 —— 請先補基準。")
+        dropped = [a for a in self.asofs if a not in self.bench]
+        self.asofs = self.asofs[lo:hi + 1]
+        self._pool = None
+        print(f"[Engine] 裁掉 0050 無基準的 {len(dropped)} 個月 {dropped} —— "
+              f"策略腿與基準腿共用同一時鐘,剩 {len(self.asofs)} 月")
 
     # ---- 0050 基準:首選 TEJ 還原價(含息,2005+);後備 finmind(未還原,2019+,補概略殖利率) ----
     def _build_benchmark(self) -> dict:
         import bisect
         if BENCH_TR.exists():
-            # TEJ 還原收盤價已內含股息再投入 → 直接算總報酬,不補 BENCH_YIELD
-            b = pd.read_parquet(BENCH_TR)[["date", "adj_close"]].sort_values("date").reset_index(drop=True)
+            # TEJ 還原收盤價已內含股息再投入 → 直接算總報酬,不補 BENCH_YIELD。
+            # 2026-07-30:與 high52_lab.Panel._benchmark 對齊 —— 有 adj_open 就用開盤錨(策略腿也是
+            # 開盤),兩路徑必須用同一個錨,否則基準檔一補開盤價、兩條路徑就分岔(Codex 審查點 4)。
+            bcols = pd.read_parquet(BENCH_TR).columns
+            self.bench_px_col = "adj_open" if "adj_open" in bcols else "adj_close"
+            b = pd.read_parquet(BENCH_TR)[["date", self.bench_px_col]].sort_values("date").reset_index(drop=True)
             b["date"] = b["date"].astype(str)
-            col, yield_addon = "adj_close", 0.0
+            col, yield_addon = self.bench_px_col, 0.0
         elif FINMIND_0050.exists():
             # 後備:未還原價,需分割還原 + 概略殖利率補息
             b = pd.read_parquet(FINMIND_0050)[["date", "close"]].sort_values("date").reset_index(drop=True)
