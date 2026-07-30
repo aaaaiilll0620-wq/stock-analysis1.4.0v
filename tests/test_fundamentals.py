@@ -29,8 +29,22 @@ class TestHardFilters:
         assert result["is_passed"] is True
         assert result["reasons"] == []
 
-    def test_fails_when_debt_to_asset_too_high(self):
+    def test_high_debt_with_healthy_liquidity_passes_as_good_debt(self):
+        # v4.4（2026-07-13）「好負債 vs 壞負債」：高負債比但流動性健康且獲利 → 視為營運槓桿，放行。
+        # （舊測試假設負債超標即硬擋，是 v4.4 之前的規則。）
         result = self.engine.evaluate(good_data(debt_to_asset=90.0))
+        assert result["is_passed"] is True
+        assert not any("Debt too high" in r for r in result["reasons"])
+
+    def test_high_debt_with_weak_liquidity_fails_as_bad_debt(self):
+        # 高負債 + 流動性不足（current_ratio<100）→ 真正的償債風險，擋。
+        result = self.engine.evaluate(good_data(debt_to_asset=90.0, current_ratio=80.0))
+        assert result["is_passed"] is False
+        assert any("Debt too high" in r for r in result["reasons"])
+
+    def test_extreme_debt_fails_even_when_healthy(self):
+        # 極端高負債（>92%，非金融）守住底線，即使流動性/獲利健康也擋。
+        result = self.engine.evaluate(good_data(debt_to_asset=95.0))
         assert result["is_passed"] is False
         assert any("Debt too high" in r for r in result["reasons"])
 
@@ -176,11 +190,20 @@ class TestCashFlowHealth:
         # ratio = 0.1 < 0.5 threshold
         assert result["risk_level"] == "watch"
 
-    def test_negative_fcf_downgrades_healthy_to_watch(self):
+    def test_negative_fcf_with_positive_ocf_stays_healthy_growth_capex(self):
+        # v4.4（2026-07-13）：自由現金流為負但本業現金流為正 → 研判為成長型資本支出（擴廠/投資），
+        # 不扣分，維持 healthy。（舊測試假設任何負 FCF → watch，是 v4.4 之前的規則。）
         result = self.engine._evaluate_cash_flow_health({
             "operating_cash_flow": 1000.0, "net_income": 800.0, "free_cash_flow": -50.0
         })
-        assert result["risk_level"] == "watch"
+        assert result["risk_level"] == "healthy"
+
+    def test_negative_ocf_is_cash_burn_high_risk(self):
+        # 本業現金流為負且非高速成長 → 真正的資金壓力，high_risk。
+        result = self.engine._evaluate_cash_flow_health({
+            "operating_cash_flow": -100.0, "net_income": 800.0, "free_cash_flow": -50.0
+        })
+        assert result["risk_level"] == "high_risk"
 
     def test_all_healthy_when_no_red_flags(self):
         result = self.engine._evaluate_cash_flow_health({

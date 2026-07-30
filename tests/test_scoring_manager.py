@@ -54,39 +54,80 @@ class TestTechnicalScore:
 
 
 class TestMomentumScore:
+    """v4.4 動能面（因子歸因重寫，見 core/scoring_manager._get_momentum_score 的 docstring）：
+        A 中期價格動能（mom_6m / mom_3m，≤45） + B 營收動能（≤30） + C 短線量能/乖離確認（≤25）。
+    舊版以 change_percent（單日漲幅）為核心，因 Rank IC 為負（−0.027，短線追高偵測器）於 2026-07-13
+    v4.4 整段重寫；change_percent 已**完全不計分**。本測試同步改為鎖 v4.4 的三段分數帶。
+    （舊測試假設 change_percent 驅動 35 分，是 v4.4 之前的公式。）
+    """
+
     def setup_method(self):
         self.sm = ScoringManager(mode="balanced")
 
-    def test_zero_liquidity_low_volume_floor(self, stock_factory):
-        stock = stock_factory(change_percent=-5, volume=100, volume_spike=0.5, ma20_bias=-20)
-        score = self.sm._get_momentum_score(stock)
-        assert score == 0.0
+    # A/B/C 全部歸零的基準：中期動能<=-8（A=0）、營收全缺（B=0）、量能不足且明顯破線（C=0）。
+    _ZERO = dict(mom_6m=-10.0, mom_3m=-10.0,
+                 revenue_accel=None, revenue_cum_yoy=None, revenue_growth_streak=0,
+                 volume=100, volume_spike=0.5, ma20_bias=-15.0)
 
-    def test_full_momentum_breakout(self, stock_factory):
-        stock = stock_factory(change_percent=8, volume=1000, volume_spike=3.0, ma20_bias=5)
-        score = self.sm._get_momentum_score(stock)
-        # 35 (漲幅) + 35 (爆量) + 30 (健康正乖離) = 100
-        assert score == 100.0
+    def _score(self, stock_factory, **ov):
+        base = dict(self._ZERO)
+        base.update(ov)
+        return self.sm._get_momentum_score(stock_factory(**base))
 
-    def test_low_volume_zombie_stock_capped_regardless_of_spike_ratio(self, stock_factory):
-        # 量能太小 (< 200 張)，即使 spike 比率很高也不該被視為有效爆量
-        stock = stock_factory(change_percent=0.5, volume=50, volume_spike=10.0, ma20_bias=0)
-        score = self.sm._get_momentum_score(stock)
-        # 13 (漲幅 0<c<=2) + 0 (量能太小，兩個門檻都不到) + 22 (貼近均線) = 35
-        assert score == 35.0
+    def test_all_weak_floors_at_zero(self, stock_factory):
+        # 中期動能弱 + 無營收動能 + 量能不足 + 破線 → 觸地板 0
+        assert self._score(stock_factory) == 0.0
+
+    def test_full_breakout_maxes_at_100(self, stock_factory):
+        # A 45（m6>40 +30、m3>20 +15）+ B 30（accel>8 +14、cum>25 +10、streak>=6 +6）
+        #   + C 25（量能爆發 +10、健康乖離 +10、OBV 上升確認 +5）= 100
+        s = self._score(stock_factory, mom_6m=50, mom_3m=25,
+                        revenue_accel=10, revenue_cum_yoy=30, revenue_growth_streak=6,
+                        volume=1000, volume_spike=3.0, ma20_bias=5, obv_rising=True)
+        assert s == 100.0
+
+    @pytest.mark.parametrize("m6,m3,expected", [
+        (50, 25, 45),    # 近6月>40(+30) + 近3月>20(+15)
+        (30, 10, 36),    # >25(+25) + >8(+11)
+        (15, 1, 26),     # >12(+19) + >0(+7)
+        (5, -1, 15),     # >3(+12) + >-8(+3)
+        (-5, -6, 9),     # >-8(+6) + >-8(+3)
+        (-10, -10, 0),   # 皆<=-8 → 0
+        (30, -6, 20),    # 近6月強(+25)+近3月(+3) 但近3月轉弱觸發衰竭抑制(-8) = 20
+    ])
+    def test_midterm_price_momentum_bands(self, stock_factory, m6, m3, expected):
+        # B=C 歸零（沿用 _ZERO 的 volume/spike/bias/營收），只驗 A 中期動能分量
+        assert self._score(stock_factory, mom_6m=m6, mom_3m=m3) == expected
+
+    @pytest.mark.parametrize("volume,spike,expected", [
+        (1000, 3.0, 10),   # 量足 + 爆量(spike>2.0)
+        (1000, 1.5, 7),    # 量足 + 放量(spike>1.3)
+        (1000, 1.0, 4),    # 量足 + 微幅(spike>0.8)
+        (1000, 0.8, 0),    # 量足但 spike 不到門檻
+        (100, 5.0, 0),     # spike 很高但量能<500 → 不算有效爆量
+    ])
+    def test_volume_confirmation_bands(self, stock_factory, volume, spike, expected):
+        # A=B=0、乖離=-15(0 分)，只驗 C 的量能確認分量
+        assert self._score(stock_factory, volume=volume, volume_spike=spike) == expected
+
+    def test_low_volume_zombie_spike_does_not_leak(self, stock_factory):
+        # 量能太小（<500 張）即使 spike=10 也不給量能分；此處只剩健康乖離(+10)
+        s = self._score(stock_factory, volume=50, volume_spike=10.0, ma20_bias=5)
+        assert s == 10.0
 
     @pytest.mark.parametrize("bias,expected", [
-        (5, 30),    # 溫和偏多
-        (10, 20),   # 偏強
-        (-3, 22),   # 貼均線整理
-        (20, 8),    # 過度正乖離
-        (-8, 12),   # 弱勢超跌
-        (-15, 0),   # 明顯破線
+        (5, 10),     # 溫和偏多 0<b<=8，最健康
+        (3, 10),     # 同上帶
+        (-3, 8),     # 貼均線整理 -5<=b<=0
+        (0, 8),      # 邊界 0 落在 -5<=b<=0 帶
+        (10, 5),     # 稍追高 8<b<=15
+        (20, 1),     # 過度追高 b>15
+        (-8, 3),     # 弱勢超跌 -12<=b<-5
+        (-15, 0),    # 明顯破線 b<-12
     ])
     def test_bias_bands(self, stock_factory, bias, expected):
-        stock = stock_factory(change_percent=-3, volume=50, volume_spike=1.0, ma20_bias=bias)
-        score = self.sm._get_momentum_score(stock)
-        assert score == expected
+        # A=B=0、量能不足(volume=100)，只驗 C 的乖離分量
+        assert self._score(stock_factory, ma20_bias=bias) == expected
 
 
 class TestWhaleScore:
