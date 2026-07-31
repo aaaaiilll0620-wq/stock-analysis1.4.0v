@@ -25,9 +25,10 @@ warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 # 只匯入純資料常數(honest_backtest 頂層僅 numpy/pandas,不碰 core → 無網路)。
-# bt_bundle / core.score_store 會透過 core.data_provider 的 `_api = DataLoader()`(class-body)
-# 在**匯入時**觸發 FinMind 登入(Codex 第二輪第 1 點)。因此改成 lazy import,只在真的要評分的
-# worker 裡才拉進來 —— 匯入本模組(例如測 _is_canonical_name / out_path_for)不再碰網路。
+# 歷史原因:core.data_provider 的 class-body `_api = DataLoader()` 會讓 bt_bundle /
+# core.score_store 在**匯入時**觸發 FinMind 登入(Codex 第二輪第 1 點),當時以 lazy import 止血。
+# 根因已於 2026-07-31 修掉(`DataProvider._get_api()` 延遲建立,見 tests/test_import_hygiene.py),
+# 此處的 lazy import 保留:仍可省下 worker 外的 SDK 匯入成本,且是防呆的第二道。
 from beat_0050.honest_backtest import OBS_ALPHA
 
 RB_DIR = Path(__file__).resolve().parents[2] / "data" / "research_base"
@@ -93,6 +94,12 @@ def _init_worker():
     global _ENG
     warnings.filterwarnings("ignore")
     from core.score_store import _engines          # lazy:worker 內才拉 core(避免匯入即登入)
+    from core.data_provider import DataProvider
+    # fail-closed 閘門(Codex 第一輪審查 §三-1):產業別對照表是研究建置路徑上唯一會碰 FinMind
+    # 的地方,而它下游有四層連續吞錯,終點會**靜默**改變 f_fund(金融股豁免全失效)。
+    # 研究建置不接受靜默降級 → 顯式 strict=True,取不到就讓這個 worker 直接死掉。
+    # 註:快取新鮮(<30 天)時這行只是讀 JSON,不連網。
+    DataProvider._ensure_industry_map(strict=True)
     _ENG = _engines(MODE)
 
 

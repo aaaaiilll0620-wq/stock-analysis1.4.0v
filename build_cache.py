@@ -110,7 +110,7 @@ def _load_pool():
 def build(symbols, workers=5, force_full=False, throttle=0.0):
     """限流並行建庫 / 更新。回傳總 API 呼叫次數。"""
     DataProvider._ensure_login()
-    api = data_cache.unwrap(DataProvider._api)   # 用底層原始 loader,直接建庫、不走代理的新鮮度判斷
+    api = data_cache.unwrap(DataProvider._get_api())   # 用底層原始 loader,直接建庫、不走代理的新鮮度判斷
     # 產業別對照表抓一次 (供 sector / is_financial;本身有 30 天磁碟快取)
     try:
         DataProvider._ensure_industry_map()

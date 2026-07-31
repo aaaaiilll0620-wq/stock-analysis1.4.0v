@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
-from FinMind.data import DataLoader
 from core.models import StockData
 from core.technical_analysis import TechnicalEngine
 from typing import Optional, Dict, List, Any
@@ -19,8 +18,14 @@ TEJ_CACHE_DIR = os.environ.get("TEJ_CACHE", os.path.join(os.path.expanduser("~")
 MARKET_CACHE_DIR = os.environ.get("MARKET_CACHE", os.path.join(os.path.expanduser("~"), "market_cache"))
 
 class DataProvider:
-    # 使用 SDK 初始化一次,避免重複建立連接
-    _api = DataLoader()
+    # 使用 SDK 初始化一次,避免重複建立連接。
+    # ⚠ 但**不能在 class body 建**:`DataLoader.__init__` 會呼叫 `login_by_token()`,
+    #   實測那一行就是連網登入(bare `from FinMind.data import DataLoader` 不會)。
+    #   放在 class body → 任何 transitive 匯入 core.data_provider 的模組(core.backtest →
+    #   core.score_store → build_realbody_scores、app.py、每一支 lab、每一個 pytest)
+    #   在 import 當下就登入一次 → 離線/CI 不可重現、多 worker 重複登入。
+    #   改為延遲建立:第一次真正要用資料時才建(見 _get_api)。
+    _api = None
     _tech_engine = TechnicalEngine()
     _logged_in = False
     _name_map: Optional[dict] = None
@@ -72,40 +77,79 @@ class DataProvider:
     # 登入管理
     # ------------------------------------------------------------------
     @classmethod
+    def _get_api(cls):
+        """取得 FinMind SDK 單例(延遲建立)。
+
+        **匯入本模組不會連網;第一次呼叫本方法才會。** `DataLoader()` 的建構子內含
+        `login_by_token()`,所以「建構」本身就是連網動作,不可放在 import path 上。
+        注意這裡只保證「不在 import 時連網」,不吞任何錯誤 —— SDK 建不起來就照樣往上拋。
+        """
+        if cls._api is None:
+            from FinMind.data import DataLoader
+            cls._api = DataLoader()
+        return cls._api
+
+    @classmethod
     def login(cls, token: str):
         """外部顯式登入(main.py 傳 token 時使用)"""
         if token:
-            cls._api.login_by_token(api_token=token)
+            cls._get_api().login_by_token(api_token=token)
             cls._logged_in = True
 
     @classmethod
-    def _ensure_login(cls):
+    def _ensure_login(cls, strict: bool = False):
         """
         【修正】原本主流程完全沒有登入 FinMind:main.py 的 Config.FINMIND_TOKEN 預設
         為空字串,而 config.py 的 fm 物件又沒被主流程 import,導致 data_provider 的
         _api 一直是匿名狀態(每日額度極低,大量呼叫會被擋)。這裡改為自動從 .env
         讀取 FINMIND_TOKEN 登入,找不到時明確警告。
+
+        ------------------------------------------------------------------
+        **三種錯誤的語意**(2026-07-31 依 Codex 第一輪審查 §三-1 定案,不要再各自解讀):
+
+        | 錯誤 | `strict=False`(**線上 App 的容錯**) | `strict=True`(**研究建置**) |
+        |---|---|---|
+        | `_get_api()` 建構失敗(SDK 壞/裝不起來) | **raise** | **raise** |
+        | 缺 token / `login_by_token` 失敗 | 降級匿名 + warning | **raise** |
+        | 快取代理安裝失敗 | 降級直連 + warning | **raise** |
+
+        `strict=False` 的匿名降級是**線上 App 的容錯設計**(一個訪客沒 token 不該讓整個
+        App 掛掉),**不是研究建置模式該有的行為**。研究路徑要 fail-closed 就顯式傳
+        `strict=True`,不靠預設值 —— 靜默降級在研究側會變成「數字正常但母體/欄位已經變了」。
+
+        注意 `_get_api()` 刻意**移到 try 外面**:建構失敗屬於「環境壞掉」,兩種模式都不該
+        被吞成匿名模式(舊版把它包在 try 內,會把 SDK 裝不起來誤報成「登入失敗」)。
         """
         if cls._logged_in:
             return
+        api = cls._get_api()          # 建構失敗 → 一律往上拋(見 docstring 表格第 1 列)
         load_dotenv()
         token = os.getenv("FINMIND_TOKEN")
         if token:
             try:
-                cls._api.login_by_token(api_token=token)
+                api.login_by_token(api_token=token)
                 cls._logged_in = True
                 logger.info("FinMind 登入成功 (透過 .env FINMIND_TOKEN)")
             except Exception as e:
+                if strict:
+                    raise RuntimeError(
+                        f"FinMind 登入失敗且 strict=True(研究建置不得靜默降級成匿名): {e}") from e
                 logger.warning(f"FinMind 登入失敗,將以匿名模式呼叫(額度受限): {e}")
         else:
+            if strict:
+                raise RuntimeError(
+                    "未找到 FINMIND_TOKEN 且 strict=True —— 研究建置不得以匿名額度取資料。"
+                    "請設定 .env 的 FINMIND_TOKEN,或確認這條路徑本來就不該打 FinMind。")
             logger.warning("未找到 FINMIND_TOKEN,將以匿名模式呼叫 FinMind(每日額度受限)")
         # 讀寫穿透快取:把 _api 包一層,之後所有查詢 (回測 / 個股分析) 自動落地並重用本機快取。
         try:
             from core import data_cache
             if data_cache.CACHE_ENABLED:
-                cls._api = data_cache.install(cls._api)
+                cls._api = data_cache.install(cls._get_api())
                 logger.info(f"已啟用本機快取代理 (FINMIND_CACHE={data_cache.CACHE_DIR})")
         except Exception as e:
+            if strict:
+                raise RuntimeError(f"本機快取代理安裝失敗且 strict=True: {e}") from e
             logger.warning(f"本機快取代理啟用失敗,改用直連 (不影響功能): {e}")
 
     # ------------------------------------------------------------------
@@ -155,7 +199,7 @@ class DataProvider:
             # 3) 最後才動 FinMind (兩份本機對照都沒有時)
             if not m:
                 try:
-                    info = cls._api.get_data(dataset='TaiwanStockInfo')
+                    info = cls._get_api().get_data(dataset='TaiwanStockInfo')
                     if info is not None and not info.empty and 'stock_id' in info.columns:
                         m = dict(zip(info['stock_id'].astype(str), info['stock_name']))
                 except Exception as e:
@@ -668,7 +712,7 @@ class DataProvider:
         # ---- 損益表(季)----
         inc_df = None
         try:
-            inc_df = cls._api.get_data(
+            inc_df = cls._get_api().get_data(
                 dataset='TaiwanStockFinancialStatements',
                 data_id=symbol, start_date='2023-01-01'
             )
@@ -737,7 +781,7 @@ class DataProvider:
         # ---- 資產負債表(季)----
         bs_df = None
         try:
-            bs_df = cls._api.get_data(
+            bs_df = cls._get_api().get_data(
                 dataset='TaiwanStockBalanceSheet',
                 data_id=symbol, start_date='2023-01-01'
             )
@@ -767,7 +811,7 @@ class DataProvider:
         # ---- 現金流量表(季)---- 只多這一支 API
         cf_df = None
         try:
-            cf_df = cls._api.get_data(
+            cf_df = cls._get_api().get_data(
                 dataset='TaiwanStockCashFlowsStatement',
                 data_id=symbol, start_date='2023-01-01'
             )
@@ -1023,7 +1067,7 @@ class DataProvider:
         try:
             cls._ensure_login()
             start = (datetime.now() - timedelta(days=400)).strftime("%Y-%m-%d")
-            idx = cls._api.get_data(dataset='TaiwanStockTotalReturnIndex', data_id='TAIEX', start_date=start)
+            idx = cls._get_api().get_data(dataset='TaiwanStockTotalReturnIndex', data_id='TAIEX', start_date=start)
             if idx is not None and not idx.empty and 'price' in idx.columns:
                 p = pd.to_numeric(idx['price'], errors='coerce').dropna().reset_index(drop=True)
                 if len(p) >= 60:
@@ -1101,14 +1145,33 @@ class DataProvider:
     # 對外入口
     # ------------------------------------------------------------------
     @classmethod
-    def _ensure_industry_map(cls) -> dict:
+    def _ensure_industry_map(cls, strict: bool = False) -> dict:
         """
         一次性載入全市場產業別 (TaiwanStockInfo,免費,不帶 data_id → 整批一次到位)。
         優先讀本機快取 (data/industry_map.json,30 天內視為新鮮),否則抓一次並存檔。
         失敗回傳空 dict (分類器會退回外資持股+波動度判斷),不中斷流程。
+
+        ------------------------------------------------------------------
+        **為什麼這個函式需要 strict**(2026-07-31 稽核發現,Codex 第一輪審查 §三-1):
+
+        它是**研究建置路徑上唯一會碰 FinMind 的地方**
+        (`build_pit_stockdata():613` → 這裡 → `_ensure_login()` → `get_data('TaiwanStockInfo')`),
+        而它下游有一條**四層連續吞錯**的鏈,終點會靜默改變 `f_fund`:
+
+            ① 登入失敗被吞 → 匿名          ② 抓 TaiwanStockInfo 失敗被吞 → m = {}
+            ③ **空表也寫進 30 天快取**      ④ build_pit_stockdata 的產業分流吞掉例外
+
+        結果:`is_financial = False` 對**全市場**成立 → `FundamentalEngine` 的三個金融股豁免
+        (負債比 >85%、流動比率 <50%、`asset_turnover`)全部失效 → 金融股 `f_fund` 被系統性
+        壓低,**而且面板上沒有任何欄位看得出來**。
+
+        兩個處置:
+          · `strict=True`(研究建置用):取不到 / 空表 / 一檔金融股都沒有 → **raise**,不回空 dict。
+          · 空表**一律不寫入快取**(不論 strict)—— 舊行為「即使空表也快取」會讓一次網路失敗
+            鎖死 30 天,期間每一次建置都拿到空產業表。
         """
         if cls._industry_map is not None:
-            return cls._industry_map
+            return cls._check_industry_map(cls._industry_map, strict)
 
         # 快取目錄:PyInstaller 打包 (--onefile) 時 __file__ 指向唯讀暫存區,
         #   改用 exe 所在目錄,確保快取可寫入且跨次保留。
@@ -1127,15 +1190,15 @@ class DataProvider:
                     with open(cache_path, "r", encoding="utf-8") as f:
                         cls._industry_map = json.load(f)
                         logger.info(f"產業別快取載入 {len(cls._industry_map)} 檔 (快取 {age_days:.1f} 天)")
-                        return cls._industry_map
+                        return cls._check_industry_map(cls._industry_map, strict)
         except Exception as e:
             logger.warning(f"讀取產業別快取失敗,改為重新抓取: {e}")
 
         # 2) 抓一次全市場 TaiwanStockInfo
         m: dict = {}
         try:
-            cls._ensure_login()
-            info = cls._api.get_data(dataset='TaiwanStockInfo')
+            cls._ensure_login(strict=strict)
+            info = cls._get_api().get_data(dataset='TaiwanStockInfo')
             if info is not None and not info.empty and 'stock_id' in info.columns:
                 for _, r in info.iterrows():
                     sid = str(r.get('stock_id', '')).strip()
@@ -1161,15 +1224,45 @@ class DataProvider:
             except Exception as e2:
                 logger.warning(f"TEJ 產業對照表備援亦失敗: {e2}")
 
-        # 3) 存檔 (即使空表也快取,避免每檔重試;空表 age 到期會再抓)
-        try:
-            os.makedirs(cache_dir, exist_ok=True)
-            with open(cache_path, "w", encoding="utf-8") as f:
-                json.dump(m, f, ensure_ascii=False)
-        except Exception as e:
-            logger.warning(f"產業別快取寫入失敗 (不影響執行): {e}")
+        # 3) 存檔 —— **空表一律不寫**。
+        #    舊行為是「即使空表也快取,避免每檔重試」,但那讓一次網路/登入失敗鎖死 30 天,
+        #    期間每一次研究建置都拿到空產業表 → is_financial 全 False → f_fund 被靜默壓低。
+        #    重試的成本(每次 build 多打一次免費 API)遠低於一份被污染的面板。
+        if m:
+            try:
+                os.makedirs(cache_dir, exist_ok=True)
+                with open(cache_path, "w", encoding="utf-8") as f:
+                    json.dump(m, f, ensure_ascii=False)
+            except Exception as e:
+                logger.warning(f"產業別快取寫入失敗 (不影響執行): {e}")
+        else:
+            logger.warning("產業別對照表為空 —— **不寫入快取**(避免一次失敗鎖死 30 天)")
 
         cls._industry_map = m
+        return cls._check_industry_map(m, strict)
+
+    # 金融股識別關鍵字 —— 與 build_pit_stockdata / _fetch_full 的 is_financial 判定同一組。
+    _FIN_KEYWORDS = ("金融", "保險", "銀行", "證券")
+
+    @classmethod
+    def _check_industry_map(cls, m: dict, strict: bool) -> dict:
+        """strict=True 時把「產業表拿不到 / 空表 / 一檔金融股都沒有」變成 raise。
+
+        為什麼要查金融股數而不只查非空:`is_financial` 是 `FundamentalEngine` 三個豁免的唯一開關,
+        一份「有 3000 檔但金融股 0 檔」的表(例如備援來源欄名對不上)在筆數上看起來完全正常,
+        卻會讓金融股的 `f_fund` 全部被硬門檻壓低。這是本專案典型的靜默失效,要在入口擋掉。
+        """
+        if not strict:
+            return m
+        n_fin = sum(1 for v in (m or {}).values()
+                    if v and any(k in v for k in cls._FIN_KEYWORDS))
+        if not m or n_fin == 0:
+            raise RuntimeError(
+                f"產業別對照表不可用(strict=True):{len(m or {})} 檔、金融股 {n_fin} 檔。\n"
+                "研究建置若在此降級,`is_financial` 會對全市場為 False → FundamentalEngine 的\n"
+                "三個金融股豁免(負債比>85%、流動比率<50%、asset_turnover)全部失效 →\n"
+                "金融股 f_fund 被系統性壓低,而面板上看不出來。\n"
+                "處置:確認網路/FINMIND_TOKEN 可用後重跑,或補 tej_cache/industry_map.parquet。")
         return m
 
     @classmethod
@@ -1214,7 +1307,7 @@ class DataProvider:
                 price_df = local_pv[local_pv["date"] >= start_date].copy()
                 logger.info(f"[{symbol}] 日K走本機 (至 {price_df['date'].iloc[-1]},0 API)。")
             else:
-                price_df = cls._api.get_data(dataset='TaiwanStockPrice', data_id=symbol, start_date=start_date)
+                price_df = cls._get_api().get_data(dataset='TaiwanStockPrice', data_id=symbol, start_date=start_date)
 
             if price_df is None or price_df.empty:
                 logger.error(f"無法取得股票 {symbol} 的價格數據")
@@ -1349,7 +1442,7 @@ class DataProvider:
             if chip_df is not None:
                 logger.info(f"[{symbol}] 法人買賣超走本機 (至 {chip_df['date'].iloc[-1]},0 API)。")
             else:
-                chip_df = cls._api.get_data(
+                chip_df = cls._get_api().get_data(
                     dataset='TaiwanStockInstitutionalInvestorsBuySell',
                     data_id=symbol,
                     start_date=chip_start
@@ -1459,7 +1552,7 @@ class DataProvider:
                 logger.info(f"[{symbol}] 發行股數/外資比率走本機 (0 API)。")
             else:
                 try:
-                    sh_df = cls._api.get_data(dataset='TaiwanStockShareholding',
+                    sh_df = cls._get_api().get_data(dataset='TaiwanStockShareholding',
                                               data_id=symbol, start_date=chip_start)
                     if sh_df is not None and not sh_df.empty:
                         if 'NumberOfSharesIssued' in sh_df.columns:
@@ -1481,7 +1574,7 @@ class DataProvider:
                 if mg_df is not None:
                     logger.info(f"[{symbol}] 融資餘額走本機 (至 {mg_df['date'].iloc[-1]},0 API)。")
                 else:
-                    mg_df = cls._api.get_data(dataset='TaiwanStockMarginPurchaseShortSale',
+                    mg_df = cls._get_api().get_data(dataset='TaiwanStockMarginPurchaseShortSale',
                                               data_id=symbol, start_date=chip_start)
                 if mg_df is not None and not mg_df.empty and 'MarginPurchaseTodayBalance' in mg_df.columns:
                     bal = pd.to_numeric(mg_df['MarginPurchaseTodayBalance'], errors='coerce').dropna()
@@ -1532,7 +1625,7 @@ class DataProvider:
                 if rev_df is not None:
                     logger.info(f"[{symbol}] 月營收走本機 TEJ (至 {rev_df['date'].iloc[-1]:%Y-%m},0 API)。")
                 else:
-                    rev_df = cls._api.get_data(dataset='TaiwanStockMonthRevenue', data_id=symbol, start_date='2024-01-01')
+                    rev_df = cls._get_api().get_data(dataset='TaiwanStockMonthRevenue', data_id=symbol, start_date='2024-01-01')
                 rev_growth = cls._calc_rev_yoy(rev_df)              # 最新單月 YoY → revenue_growth
                 rev_trend = cls._calc_rev_yoy_smoothed(rev_df)      # 近3月平均 YoY → rev_cagr (趨勢)
                 rev_mom = cls._calc_rev_momentum(rev_df)            # 月增/累計年增/加速度/連續成長月數
@@ -1556,7 +1649,7 @@ class DataProvider:
                               .dropna(how="all", subset=["PER", "PBR", "dividend_yield"]))
                     logger.info(f"[{symbol}] PER/PBR/殖利率走本機 (0 API)。")
                 else:
-                    per_df = cls._api.get_data(dataset='TaiwanStockPER', data_id=symbol, start_date=per_start)
+                    per_df = cls._get_api().get_data(dataset='TaiwanStockPER', data_id=symbol, start_date=per_start)
                 if per_df is not None and not per_df.empty:
                     pe_col = 'PER' if 'PER' in per_df.columns else ('PE' if 'PE' in per_df.columns else None)
                     pb_col = 'PBR' if 'PBR' in per_df.columns else ('PB' if 'PB' in per_df.columns else None)

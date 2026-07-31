@@ -174,7 +174,10 @@ def _pit_revenue(symbol: str, fallback: Optional[pd.DataFrame]) -> Optional[pd.D
 
 def fetch_history(symbol: str, start_date: str = HISTORY_START) -> HistoryBundle:
     """抓取單檔回測所需的資料集完整歷史。失敗的資料集以 None 帶過。"""
-    api = DataProvider._api
+    # 注意順序:_get_api() 先取到「未包快取代理」的底層 loader,再 _ensure_login()。
+    # 這是本函式原本的行為(舊碼 `api = DataProvider._api` 也是在 login 前取值,
+    # 取到的是同一個物件,登入生效但不走 data_cache 代理),此處刻意保持不變。
+    api = DataProvider._get_api()
     DataProvider._ensure_login()
 
     def _get(dataset):
@@ -220,7 +223,7 @@ def cached_fetch_history(symbol: str, refresh: bool = False) -> HistoryBundle:
     api = None
     if refresh:
         DataProvider._ensure_login()
-        api = DataProvider._api
+        api = DataProvider._get_api()
     dfs = {}
     for field, dataset in data_cache.BUNDLE_DATASETS.items():
         if refresh and api is not None:

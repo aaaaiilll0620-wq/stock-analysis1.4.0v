@@ -26,3 +26,5 @@ This is a multi-modular Python quantitative stock analysis and backtesting syste
 - **Cache-First**: Leverage file attachments via `@` in Claude Desktop to reuse module code.
 - **Incremental Output**: DO NOT rewrite the entire file. ONLY output the specific methods, functions, or lines of code that need modification.
 - **Short Context**: Keep answers dense and direct. Use pseudo-code or logic steps before writing large code blocks if requested.
+
+動手前請先閱讀 docs/研究紀律_ResearchDiscipline.md，嚴格遵循專案硬規則與單發射擊制

@@ -81,7 +81,7 @@ def parse_symbols(raw: str):
 def fetch_names(symbols):
     try:
         DataProvider._ensure_login()
-        info = DataProvider._api.get_data(dataset="TaiwanStockInfo")
+        info = DataProvider._get_api().get_data(dataset="TaiwanStockInfo")
         if info is None or info.empty:
             return {}
         return {str(r.get("stock_id", "")).strip(): str(r.get("stock_name", "")).strip()
