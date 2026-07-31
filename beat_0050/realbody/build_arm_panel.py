@@ -121,34 +121,77 @@ def spliced_benchmark() -> pd.DataFrame:
 # ==============================================================================
 # arm 注入(**每個 arm 只碰一個消費端**)
 # ==============================================================================
+def reset_arm_state() -> None:
+    """把**每一個** arm 旋鈕都復位成 V0 狀態。
+
+    這是 `apply_arm()` 的第一步,不是可選的清理 —— 沒有它,同一個 Python 行程
+    連續套用兩個 arm 就會殘留前一個的狀態:
+      · `v0` / `A1` / `A2` 不會清 `RESEARCH_ARM`(A3/A4 的旗標);
+      · `A3` / `A4` 不會清 `_rs_bench_bundle` / `_bench_state`(A1/A2 的注入)。
+    兩個方向都會靜默污染,而且**分數看起來完全正常**,不會噴任何錯。
+
+    設計原則:`apply_arm()` **宣告完整狀態**,不是只碰一個旋鈕 ——
+    這樣結果就與「先前套用過哪個 arm」無關,順序無法影響它。
+    """
+    import core.backtest as bt
+    import core.score_store as ss
+    from core.valuation import ValuationEngine
+    # A3 / A4 的旗標
+    bt.RESEARCH_ARM = None
+    ValuationEngine.RESEARCH_ARM = None
+    # A1 的注入(RS 消費端)—— 復位成 lazy 未載入,下次呼叫會重讀生產快取
+    bt._rs_bench_bundle = None
+    bt._rs_mom_cache.clear()
+    # A2 的注入(regime 消費端)—— 同上
+    ss._bench_state = {"bundle": None, "tried": False}
+    ss._regime_by_asof.clear()
+
+
+def arm_state() -> dict:
+    """回目前的 arm 狀態指紋 —— 供測試與 log 斷言「現在到底套了什麼」。"""
+    import core.backtest as bt
+    import core.score_store as ss
+    from core.valuation import ValuationEngine
+    return {
+        "bt.RESEARCH_ARM": bt.RESEARCH_ARM,
+        "val.RESEARCH_ARM": ValuationEngine.RESEARCH_ARM,
+        "rs_injected": bt._rs_bench_bundle is not None,
+        "regime_injected": ss._bench_state.get("bundle") is not None,
+    }
+
+
 def apply_arm(arm: str) -> None:
-    """在 worker 內套用 arm。除了指定的那一個模組級全域,什麼都不動。"""
+    """套用 arm。**先把所有旋鈕復位成 V0,再打開這個 arm 要的那一個。**
+
+    「宣告完整狀態」而不是「只碰一個旋鈕」—— 所以同一行程連跑多個 arm 也不會互相污染。
+    """
+    if arm not in ARMS:
+        raise SystemExit(f"❌ 未知 arm {arm!r};本檔只實作 {ARMS}")
+    reset_arm_state()                      # ← 一律先復位,這一步不可省
     if arm == "v0":
-        return
-    # --- A3 / A4:設生產模組的 arm 旗標(預設 None = V0 行為)。**arm 之間不得混合** ---
-    if arm in ("A3", "A4"):
+        return                             # V0 = 全部旋鈕都在復位狀態
+    if arm == "A3":
         import core.backtest as bt
+        bt.RESEARCH_ARM = "A3"
+        return
+    if arm == "A4":
         from core.valuation import ValuationEngine
-        # 互斥設定:一次只有一個 arm 生效,另一個必須明確是 None
-        bt.RESEARCH_ARM = "A3" if arm == "A3" else None
-        ValuationEngine.RESEARCH_ARM = "A4" if arm == "A4" else None
+        ValuationEngine.RESEARCH_ARM = "A4"
         return
     S = spliced_benchmark()
     if arm == "A1":
-        # RS 消費端:core.backtest.benchmark_trailing_return 的 lazy 全域
+        # 只碰 RS 消費端:core.backtest.benchmark_trailing_return 的 lazy 全域。
+        # regime 消費端維持復位 → 逐月讀生產快取 → current_regime 與 V0 相同。
         import core.backtest as bt
         bt._rs_bench_bundle = S
         bt._rs_mom_cache.clear()
-        # regime 消費端刻意不動 → advisor.current_regime 逐月與 V0 相同
     elif arm == "A2":
-        # regime 消費端:core.score_store._regime_at 的 lazy 全域
+        # 只碰 regime 消費端:core.score_store._regime_at 的 lazy 全域。
+        # RS 消費端維持復位 → 逐月讀生產快取 → rs_3m/rs_6m 與 V0 相同。
         import core.score_store as ss
         from core.backtest import HistoryBundle
         ss._bench_state = {"bundle": HistoryBundle(symbol="0050", price=S), "tried": True}
         ss._regime_by_asof.clear()
-        # RS 消費端刻意不動 → rs_3m / rs_6m 逐月與 V0 相同
-    else:
-        raise SystemExit(f"❌ 未知 arm {arm!r};本檔只實作 {ARMS}")
 
 
 def out_path_for(arm: str, adv_floor: float, partial: str | None) -> Path:
