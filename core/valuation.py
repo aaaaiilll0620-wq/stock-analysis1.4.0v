@@ -47,6 +47,21 @@ class ValuationEngine:
     #   資料:core/industry_value.py (market_cache 參考表);查無值退回現行 PEG+位階配方。
     USE_INDUSTRY_RELATIVE = True
 
+    # ==========================================================================
+    # FaceRedesignV2 candidate arm 旗標(預註冊 2026-08-01 凍結,基準 commit 4164993)
+    # ==========================================================================
+    #   `RESEARCH_ARM = None` → **V0 行為,與凍結前逐位相同**。生產與 live 永遠是 None。
+    #   只有 build_arm_panel.py 會在 worker init 顯式設定。arm 之間不得混合。
+    #
+    #   `"A4"` = 預註冊 §4-2「f_val 配方統一」,凍結規格四條:
+    #     1. 關閉路徑①(產業內位階)—— 它 2019-04 前覆蓋率 0%;
+    #     2. **只有 peg_score 與 rel_score 都算得出來**才用固定 0.85 / 0.15;
+    #     3. **任一腿缺 → 不做權重重分配、不退路徑③**,直接判「估值資料不足」
+    #        → score 0.0 + status '估值資料不足' → advisor 的 bucket 用 50;
+    #     4. 路徑③(絕對門檻)在 A4 中**完全停用**。
+    #   **不得新增任何未預註冊的 fallback**(Codex 第十二輪硬條件)。
+    RESEARCH_ARM = None
+
     # 本益比歷史高檔的交叉驗證門檻
     PE_PERCENTILE_HIGH = 80.0    # 本益比歷史位階 >= 此值才做「成長溢價 vs 昂貴泡泡」分類
     GROWTH_STRONG = 15.0         # 累計營收年增 >= 此值視為成長強勁
@@ -74,7 +89,8 @@ class ValuationEngine:
         pe = data.get("pe_ratio")
 
         # ---- v4.5:全市場產業內位階 (開關見 USE_INDUSTRY_RELATIVE 註解) ----
-        if self.USE_INDUSTRY_RELATIVE:
+        # A4:關閉路徑①(凍結規格第 1 條)
+        if self.USE_INDUSTRY_RELATIVE and self.RESEARCH_ARM != "A4":
             ind_pct = data.get("industry_value_percentile")
             if ind_pct is not None and not pd.isna(ind_pct):
                 score = float(round(float(ind_pct), 2))
@@ -152,7 +168,11 @@ class ValuationEngine:
         #   → 判定為『訊號品質』問題而非因子本質 → 加重 PEG 至 0.85。
         #   保留 0.15 位階:2022 空頭段位階 IC +0.039 (熊市價值有效),且昂貴泡泡交叉驗證仍需它;
         #   純 PEG (100/0) 全期最好但 2022 綜合 −1.34% 明顯變差,故不取。
-        if peg_score is not None or rel_score is not None:
+        # A4(凍結規格第 2 條):**兩腿都有值**才計分;任一腿缺就直接落到「估值資料不足」
+        #   —— 不做權重重分配(V0 會用 wsum 重新正規化),也不退路徑③(第 3/4 條)。
+        _a4 = (self.RESEARCH_ARM == "A4")
+        _mix_ok = (peg_score is not None and rel_score is not None) if _a4             else (peg_score is not None or rel_score is not None)
+        if _mix_ok:
             parts, wsum = 0.0, 0.0
             if peg_score is not None:
                 parts += peg_score * 0.85
@@ -198,6 +218,22 @@ class ValuationEngine:
             }
 
         # ---- C. 絕對門檻 (前兩者皆缺) ----
+        # A4(凍結規格第 3/4 條):路徑③**完全停用**,兩腿沒同時湊齊就明確判「估值資料不足」
+        #   → advisor 的 val_bucket 會用中性 50(`core/advisor.py` 的 val_override 分支)。
+        #   **刻意不做**任何 fallback:寧可讓「算不出來」明確變成中性,也不要讓
+        #   「因為哪一腿有值而換配方」在面板上偽裝成同一個因子(預註冊 §4-2)。
+        if self.RESEARCH_ARM == "A4":
+            missing = [k for k in ("peg", "rel") ]
+            return {
+                "valuation_score": 0.0,
+                "valuation_status": "估值資料不足",
+                "valuation_label": "",
+                "valuation_basis": "估值資料不足(A4:PEG 與歷史位階未同時可得)",
+                "per_metric": {},
+                "inputs": {},
+                "missing_fields": missing,
+                "confidence": 0.0,
+            }
         return self._evaluate_absolute(data)
 
     @staticmethod

@@ -119,6 +119,28 @@ def _back_adjust(price_df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame]:
     return df
 
 
+# ==============================================================================
+# FaceRedesignV2 candidate arm 旗標(預註冊 2026-08-01 凍結,基準 commit 4164993)
+# ==============================================================================
+#   `RESEARCH_ARM = None` → **V0 行為,與凍結前逐位相同**。生產與 live 永遠是 None。
+#   只有 `beat_0050/realbody/build_arm_panel.py` 會在 worker init 顯式設定它。
+#
+#   `"A3"` = 預註冊 §4-1「缺值語意中性化」:build_pit_stockdata 的**五個填值**改成 None,
+#            讓 FundamentalEngine 自己的 `_avg_present` / `critical_checks` 決定怎麼處理
+#            (引擎邏輯一行不改)。**A3 的 None 必須一路保留到引擎**,不得被任何
+#            fallback 偷換回 10.0 / 0.0 / 100.0 —— 這是 Codex 第十二輪的硬條件。
+#
+#   arm 之間**不得混合**:這個變數一次只能是一個值。
+RESEARCH_ARM: Optional[str] = None
+
+
+def _arm_fill(v, v0_default, arm: Optional[str]):
+    """A3 的填值語意:`arm == 'A3'` → 缺值保持 None;否則沿用 V0 的哨兵預設值。"""
+    if v is not None:
+        return v
+    return None if arm == "A3" else v0_default
+
+
 # 是否嘗試 FinMind 還原股價 (TaiwanStockPriceAdj)。此資料集需付費 (Sponsor) 等級,
 # 免費 (register) 帳號會抓取失敗。預設 False → 直接用免費股價 + 跳空回補 (_back_adjust)。
 # 升級付費後可設 True,優先採用官方還原股價 (仍保留跳空回補當兜底)。
@@ -442,8 +464,11 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
 
     # --- 基本面子集 (只用「已公告」的季報:季末 + 45 天 <= as_of) ---
     roe = net_margin = gross_margin = 0.0
-    debt_to_asset = 0.0
-    current_ratio = 100.0          # 中性預設 (剛好過流動比率門檻 50),待資產負債表覆寫
+    # A3:債務比 / 流動比的**初值**由哨兵改成 None(無資產負債表時就明確是「沒有」),
+    #     V0 行為維持 0.0 / 100.0。下面若有資產負債表會被實算值覆寫,兩者相同。
+    _arm = RESEARCH_ARM
+    debt_to_asset = None if _arm == "A3" else 0.0
+    current_ratio = None if _arm == "A3" else 100.0   # V0 中性預設剛好過流動比率門檻 50
     eps_growth = ni_growth = None
     net_inc_abs = None
     operating_profit_ratio = None
@@ -631,11 +656,12 @@ def build_pit_stockdata(bundle: HistoryBundle, as_of: str) -> Optional[StockData
         operating_cash_flow=operating_cash_flow, free_cash_flow=free_cash_flow,
         capex=capex, net_income=net_inc_abs, ocf_to_net_income=ocf_to_net_income,
         operating_profit_ratio=operating_profit_ratio,
-        pe_vs_industry=(pe_val if pe_val is not None else 10.0),   # 與 live 一致:餵入原始 PE 供 fundamentals 評分
+        # 與 live 一致:餵入原始 PE 供 fundamentals 評分。A3 → 缺 PE 保持 None
+        pe_vs_industry=_arm_fill(pe_val, 10.0, _arm),
         rev_cagr=(rev_trend if rev_trend is not None else rev_growth),
         revenue_growth=rev_growth,
-        eps_cagr=(eps_growth if eps_growth is not None else 0.0),
-        net_income_growth=(ni_growth if ni_growth is not None else 0.0),
+        eps_cagr=_arm_fill(eps_growth, 0.0, _arm),
+        net_income_growth=_arm_fill(ni_growth, 0.0, _arm),
         revenue_mom=mom.get("mom"),
         revenue_cum_yoy=mom.get("cum_yoy"), revenue_accel=mom.get("accel"),
         revenue_growth_streak=int(mom.get("streak") or 0),
