@@ -1,7 +1,8 @@
 # D2 方法驗證協定(synthetic method-validation protocol)—— 草案,未凍結
 
-**狀態**:🚧 **草案,未凍結**。Policy Register **P1–P6 的規格與政策值已凍結**(見 §2),
-但 **#2(main DGP 實際係數)尚未執行校準/驗證,實際數值尚未寫死,故整份文件狀態仍是草案**。
+**狀態**:🚧 **草案,未凍結**。**P1–P7 政策已凍結**(見 §2);**#1(timing 設計)與
+#2(main DGP 實際係數)仍開啟,因此文件仍是草案**。**P7 code-check 尚未執行只代表
+沒有執行結果,不代表 #5 設計仍開啟**(#5 設計已關閉,見 §3)。
 本檔由 Codex 於 2026-08-03(經 `GPT answer.md` 轉達)指示建立,歷經多輪修正與使用者政策裁定。
 
 **本檔不修改、不影響 Gate1 任何產物或既有裁定;不執行任何 calibration、validation、
@@ -29,7 +30,7 @@ c-sign preflight、timing pilot、synthetic 驗證、績效/OOS 或 prospective 
 
 ---
 
-## §2 Policy Register(P1–P6,已凍結規格)
+## §2 Policy Register(P1–P7,已凍結規格)
 
 ### P1 · 總量與分解
 
@@ -450,7 +451,96 @@ Stage1,且不計入正式 `K`/`FWER_target`**——這是 DGP 設計本身的前
 
 ---
 
-## §3 尚未關閉的項目
+### 2.D P7 · Code-check(2026-08-03 正式凍結)
+
+**已凍結政策值**:
+
+| 項目 | 值 |
+|---|---|
+| target tuple 定義 | `(mu_raw, mu_ind)` —— 分別指定 raw 序列與 ind 序列各自的注入均值 |
+| `targets` | `{(0, −.020), (−.020, 0)}`(2 組,互為 raw/ind 位置互換的重複稽核) |
+| `sigma_code` | `.020` |
+| `rho_code` | `.5` |
+| `R` | `2000`(單批,不進 `K`/`FWER_target`) |
+| `alpha_codecheck_family` | `.05` |
+| `alpha_component` | `.05 / 24` |
+| negative threshold | `.05` |
+
+**枚舉**:`6 個 DGP cells = 2 targets × 3 M`;C、D 共用同一份 draw,形成
+`12 個 method-evaluation cells`(6 DGP cells × 2 methods);每個 method-evaluation cell
+各有 raw、ind 兩項 assertion,共 **24 個 endpoint assertions**——target1 貢獻 6 個
+raw-zero + 6 個 ind-negative;target2 貢獻 6 個 raw-negative + 6 個 ind-zero;合計
+**12 個 zero assertion + 12 個 negative assertion**。
+
+**Direct-series DGP(不重複 P5/P6 的橫斷面/中性化測試,純檢查 C/D 方向、p-value 與
+AND wiring)**:
+```
+z_common_t, z_raw_t, z_ind_t ~ N(0,1) i.i.d.,  t = 1..M,三者互相獨立
+x_raw_t = mu_raw + sigma_code · ( √rho_code · z_common_t + √(1−rho_code) · z_raw_t )
+x_ind_t = mu_ind + sigma_code · ( √rho_code · z_common_t + √(1−rho_code) · z_ind_t )
+```
+方法 C、D 各自直接吃 `x_raw`(得 `reject_raw`)與 `x_ind`(得 `reject_ind`)。
+
+**Zero assertion(exact equal-tail Binomial,已解出具體邊界)**:
+```
+r = 該 assertion 觀測到的拒絕次數,X ~ Binom(n=2000, p=.05)
+PASS iff  binom.cdf(r, 2000, .05)   > alpha_component/2
+     AND  binom.sf(r-1, 2000, .05)  > alpha_component/2
+```
+**已解出的具體邊界**:`PASS iff 71 ≤ r ≤ 131`(嚴格不等式,避免 off-by-one;`cdf`/`sf`
+公式與此數值邊界同時保留於文件,供日後重算核對)。
+
+**Negative assertion(one-sided Clopper–Pearson upper bound,已解出具體邊界)**:
+```
+r = 該 assertion 觀測到的「錯誤正向拒絕」次數
+U = 1                                        若 r = 2000
+U = Beta.ppf(1 − alpha_component, r+1, 2000−r)   否則
+PASS iff  U ≤ .05
+```
+**已解出的具體邊界**:等價於 `r ≤ 72`(`r=72` 時 `U≈.049596≤.05`;`r=73` 時
+`U≈.050173>.05`,邊界已核對)。`.05` 取自 `alpha_test` 本身,由正向檢定的單調性
+推導,不改為 `.01`。
+
+**Joint-AND(不另設統計門檻,只做兩項確定性斷言,抓 wiring bug 不是抓統計問題)**:
+```
+逐 replicate assert:  reject_joint == (reject_raw AND reject_ind)
+逐 cell assert:       r_joint ≤ min(r_raw, r_ind)
+```
+不需要對 `r_joint` 另建統計門檻——`AND` 邏輯保證 `r_joint ≤ r_negative_component`,
+CP upper bound 對 `r` 單調遞增,negative assertion 通過已自動蘊含 joint 錯誤拒絕率
+可控。上述兩條純粹是防呆(抓 `AND` 這行程式碼寫錯的 bug)。
+
+**Alpha 語義(分開寫,不得籠統稱全部只控制 meta false-fail)**:
+- **Zero assertions** 控制的是「**正確的 size 實作被本檢查誤判為 fail**」的機率——
+  若程式真的正確(拒絕率恰為 `.05`),觀測值落在 `[71,131]` 之外(因而被誤判 fail)的
+  機率受 `alpha_component` 限制。
+- **Negative assertions** 控制的是「**錯誤(有 bug)的實作被本檢查誤判為 pass**」的
+  機率——要求以 `1−alpha_component` 信心上界確認真實錯誤拒絕率 `≤.05`,才允許通過。
+
+**Seed(不新增 root,沿用已凍結 Stage1 global cells 132..137)**:
+```
+canonical 順序沿用既有 target → M(§2.A.4 code-check 的 cell=0..5 不變)
+既有 outer seed → [DGP seed, D-raw bootstrap seed, D-ind bootstrap seed] 不變
+DGP seed → 固定 spawn [z_common_seed, z_raw_seed, z_ind_seed]
+```
+
+**Fail-closed(沿用 P4)**:任一 cell 數值計算失敗或缺失 → 該 cell 直接 fail,不得補抽
+或剔除。
+
+**P7 overall 判定**:
+```
+P7 overall PASS iff
+  - 24 個 endpoint assertions 全部 PASS;
+  - 每個 replicate 的 AND 布林恒等式(reject_joint == (reject_raw AND reject_ind))全部成立;
+  - 12 個 method-evaluation cells 的 count invariant(r_joint ≤ min(r_raw, r_ind))全部成立;
+  - 零數值失敗、NaN 或缺失。
+```
+**任一條失敗 → `P7 overall FAIL`,Stage1/Stage2 不得啟動。不得只刪除失敗的
+method、M 或 target 後繼續,也不得補抽。**
+
+---
+
+## §3 項目狀態(#1/#2 仍開啟;#5 設計已關閉)
 
 **#1 Timing-pilot 的設計要素**(cells/replicates/warm-up/計時邊界/平行化/重複次數/
 外推公式/go-no-go 判定統計量)—— 見 §4 逐項列表,全數未定義。**與 P5/P6 的 calibration/
@@ -461,8 +551,9 @@ sign-preflight static cost 是不同範疇**(那批屬 #2 的可行性參考資�
 (`a010_iid`/`a005_iid`/`a010_AR`/`a005_AR`)的 search/一次性 validation,以及 c-sign
 preflight,尚未執行,因此實際係數尚未寫死,#2 仍開啟。**
 
-**#5 code-check 的精確 PASS 門檻**(只知道 code-check 用 `targets=(0,−.020)/(−.020,0)`、
-`R=2000`,但「怎樣算通過」的具體數字門檻未給,不能只寫「看起來正確」這種模糊語意)。
+**#5 code-check 的精確 PASS 門檻**:**設計已關閉(見 §2.D 的 P7:24 個 endpoint
+assertion、`[71,131]`/`r≤72` 具體邊界、joint-AND 防呆斷言、alpha 語義區分均已定義並
+凍結),尚未執行 code-check**(未跑過任何 `x_raw`/`x_ind` 抽樣、未產生任何 `r` 觀測值)。
 
 ---
 
