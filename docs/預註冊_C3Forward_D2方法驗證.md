@@ -993,6 +993,63 @@ timing-pilot 無關,不應為此新增依賴。runner 啟動時,若實際安裝�
 Codex 審查與 protocol commit 均尚未完成前,仍不得執行任何 timing**(沿用
 §2.E.8 執行前要求)。
 
+### 2.E.10 P8.2 Environment-verification Erratum(2026-08-03)
+
+**定位聲明**:本節是安裝 psutil==7.2.2 並執行唯讀 API 驗證後,發現與
+§2.E.9.7 文字不符之處,提出的**環境驗證修正**。**不改寫、不重新開放
+2.E.1–2.E.9 已凍結的文字**(含 commit `dfab623`、`b23aeed`),本節補充
+實測結果與精確化修正,與 2.E.9 字面有出入之處以本節為準。與 P8/P8.1
+相同,**本節只是規格修正,不代表已實作 runner、不代表已執行任何 timing**。
+
+#### 2.E.10.1 實測環境紀錄
+
+```
+Python  = 3.12.10
+psutil  = 7.2.2(與 §2.E.9.9 鎖定版本一致,安裝 exit code=0,hash 核對通過)
+Process().cpu_times() 實測欄位 = (user, system, children_user, children_system)
+```
+此與 §2.E.9.7 原文「Windows `psutil.Process(pid).cpu_times()` → `pcputimes
+(user, system)`(無 children 欄位)」不符——實測欄位**確實包含**
+`children_user`/`children_system`,以下條文以實測結果為準修正。
+
+#### 2.E.10.2 CPU 計量規格修正
+
+```
+對每個 distinct frozen PID(parent 與 8 個 worker 各自):
+  delta_user_pid    = max(0, user_pid(after)   − user_pid(before))
+  delta_system_pid  = max(0, system_pid(after) − system_pid(before))
+  proc_cpu_pid      = delta_user_pid + delta_system_pid
+  # 只用 user/system 兩個欄位,children_user/children_system 一律不採用
+
+runner_tree_cpu_delta = Σ_{pid∈{parent}∪{8 workers}} proc_cpu_pid
+```
+
+**`children_user`/`children_system` 一律忽略,不要求其值為 0**——理由:
+parent 與全部 8 個 worker 已經**逐 PID**分別計算並加總,若再把 children
+欄位也算進去,對於 parent 而言(其子行程正是這 8 個 worker),會把「worker
+自己的 user/system」透過「parent 的 children_user/children_system」重複
+計算一次——這正是需要避免的 double-count,而不是這兩個欄位理論上該不該
+是 0 的問題。
+
+#### 2.E.10.3 API preflight 判定放寬
+
+```
+只要求 Process().cpu_times() 的欄位**至少包含** {user, system}
+(即 {'user','system'}.issubset(returned._fields)),
+**不得**用 exact tuple equality(如 fields == ('user','system'))拒絕
+目前這組含 children_user/children_system 的真實環境——那樣會誤判本機
+環境不合格。額外欄位一律允許存在、允許被忽略。
+```
+
+#### 2.E.10.4 Runner 必測 assertion(新增)
+
+```
+「防止 children CPU double-count」列為 runner 實作階段的必測 assertion——
+單元測試須驗證:runner_tree_cpu_delta 的計算路徑只讀取 (user, system)
+欄位,即使 psutil 回傳的 namedtuple 含有 children_user/children_system
+或未來版本新增其他欄位,也不會被意外納入加總。
+```
+
 ---
 
 ## §3 項目狀態(#2 仍開啟;#1、#5 設計已關閉)
