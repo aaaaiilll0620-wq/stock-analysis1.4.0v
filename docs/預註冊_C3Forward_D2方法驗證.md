@@ -8,8 +8,10 @@
 本檔由 Codex 於 2026-08-03(經 `GPT answer.md` 轉達)指示建立,歷經多輪修正與使用者政策裁定。
 
 **本檔不修改、不影響 Gate1 任何產物或既有裁定;不執行任何 calibration、validation、
-c-sign preflight、timing pilot、synthetic 驗證、績效/OOS 或 prospective collection;
-只修改此未追蹤檔案,未 `git add`/`stage`/`commit`。**
+c-sign preflight、timing pilot、synthetic 驗證、績效/OOS 或 prospective collection。
+本檔已於 `aab856f`(P7 code-check)、`dfab623`(P8 timing-pilot)兩次 commit 中
+追蹤、凍結;本輪(P8.1 amendment)寫入前為未 stage/commit 狀態,是否 stage/commit
+依當輪授權範圍而定,不假設沿用先前輪次的狀態。**
 
 ---
 
@@ -764,6 +766,233 @@ runner 實作、單元測試(含 `tcrit` 獨立驗證、failure side-record 路�
 獨立 Codex 審查、protocol commit 全部完成後,才能執行第一次 timing。截至本次
 修訂,本節只凍結設計本身,尚未執行任何 timing、未產生任何 `E_j`/`U_total` 數值。
 
+### 2.E.9 P8.1 Amendment(timing-pilot 實作精確化,2026-08-03)
+
+**定位聲明**:本節是對已凍結 P8(§2.E.1–2.E.8,commit `dfab623`)的**實作
+精確化修正**,由 luna_worker readiness review 發現的實作歧義觸發,**不改寫、
+不重新開放 2.E.1–2.E.8 已凍結的文字**——本節補充精確定義與新增的機器可
+判定門檻,凡與 2.E.1–2.E.8 字面有出入之處,以本節(2.E.9)為準。與 P8 本身
+相同,**本節只凍結設計,不代表已執行、不代表方法 D 可行**。
+
+#### 2.E.9.1 Chunk envelope + checkpoint(精確化 `rate_jM` 的量測邊界)
+
+```
+timed stream:40 個 chunk(chunk_index=0..39,每 chunk 25 outers);
+warmup stream:8 個 chunk(chunk_index=0..7)。
+
+chunk envelope:
+  pilot chunk key       = (repeat, stream_kind, stream_id, M, chunk_index)
+  production chunk key  = (phase, M, cell, batch, chunk_index)
+每個 chunk payload = { chunk_key, records: [25 筆,各帶完整 outer key(見
+2.E key schema)] }。worker 原樣回傳 chunk_key 與逐筆 outer key;parent 逐項
+核對,不符 → 依 §2.E.1 fail-closed。
+
+stream_start_ns < T200_jM < T800_jM < T1000_jM <= stream_stop_ns
+T200_jM/T800_jM/T1000_jM 分別在第 8/32/40 個 chunk **完成逐筆 checks/writes
+後**取得(不是 chunk 剛從 worker 回傳的當下)。duration component(如
+T800−T200 本身)須 finite 且 >=0;由其導出的 rate_jM 須嚴格 >0。
+
+rate_jM = (T800_jM − T200_jM) / 600
+```
+
+#### 2.E.9.2 Binding back-pressure(修正 `imap_unordered` 預取假設)
+
+```
+max_inflight_chunks = 16        # = 2×8 workers;imap_unordered 本身不保證
+                                   只預取 8 個,不得假設 8
+
+機制:threading.BoundedSemaphore(16);chunk iterator 每 yield 一個 chunk 前
+acquire 一個 token;parent 完成該 chunk 全部 key 核對/逐筆 check/寫回後才
+release token。不變式:任一時刻 (submitted_chunks − fully_processed_chunks)
+∈ [0,16],違反 → fail-closed。worker/pool 失敗時直接終止整個 pilot run,
+不得靠額外 submission 解除 deadlock。
+```
+
+#### 2.E.9.3 Worker health(限定 ready-barrier 範圍)
+
+```
+pool 完成「ready barrier」(全部 8 個 worker 完成一次 no-op 往返)後,凍結
+該時刻的 8 個 worker PID 為 frozen_pid_set。從 ready barrier 完成到 close
+開始這段穩態窗內,PID 集合與存活數必須恆為 frozen_pid_set / 8,任一時刻
+不符 → fail-closed。startup(pool 建立→ready barrier)與 close(close 開始
+→完全關閉)這兩段過渡期**不適用**此「恆為 8」的不變式。
+```
+
+#### 2.E.9.4 CPU affinity(全 process tree 共用同一組 ≤8 核,不多用一核)
+
+```
+eligible_cpus = 由 parent 啟動時實際可用的 affinity 集合取得
+                (Windows:psutil.Process().cpu_affinity())
+len(eligible_cpus) < 8 → precheck fail
+selected_cpus = sorted(eligible_cpus)[:8]        # 排序後取前 8 個,固定可重現
+parent 與全部 8 個 worker 啟動後,全部設定 affinity = selected_cpus
+(共用同一組最多 8 核的 affinity mask,由 OS 排程器在其內調度,不是每個
+process 各自獨佔一核,也不額外多用第 9 核——P3 的「8-core」上限涵蓋整個
+process tree)。
+```
+
+#### 2.E.9.5 計時時鐘
+
+```
+一律使用 time.perf_counter_ns()(整數奈秒,不受長時間運行後 float 精度漂移
+影響)。time.perf_counter()(float 秒)與 perf_counter_ns() 共用同一底層
+高解析度時鐘來源、解析度相同——選 perf_counter_ns() 的理由是精度不隨數值
+變大而漂移,不是「perf_counter() 只有秒解析度」(此為先前版本的錯誤說法,
+已撤回)。
+```
+
+#### 2.E.9.6 單一 `rate_jM` 的 phase-invariance 前提(明文化)
+
+```
+「單一 rate_jM 適用於 P7/Stage1/Stage2」這個假設,成立的前提是:worker 端
+執行的 D-only code path,在三個 phase 之間逐字元相同(同一函式、無 phase
+分支);DGP 生成(nonbinding)與 phase-level gate 成本(計入
+aggregation_bookkeeping_j)均不在 rate 內。若 runner 實作時三個 phase 的
+worker 端 D-only code path 出現任何差異——立即 fail-closed,不得沿用既有
+rate_jM 假裝仍然有效,須回頭重新設計(可能需要逐 phase 分開量測)。
+```
+
+#### 2.E.9.7 Background-load(兩層,精確 Windows psutil 欄位定義)
+
+```
+Windows psutil.cpu_times(percpu=True) → scputimes(user, system, idle,
+interrupt, dpc)。對每個 selected core、每個欄位先各自算 delta 並下限 0:
+  delta_user_i = max(0, user_i(after)−user_i(before));delta_system_i、
+  delta_interrupt_i、delta_dpc_i 同理。
+  busy_delta = Σ_{core∈selected_cpus} (delta_user_i+delta_system_i+delta_interrupt_i+delta_dpc_i)
+  (不得先加總 busy_before/busy_after 兩個總和再相減——逐欄位 clamp 後才加總,
+  避免遺漏個別欄位的非單調異常)
+
+Windows psutil.Process(pid).cpu_times() → pcputimes(user, system)(無
+children 欄位)。對 parent 與 8 個 worker 的 (user,system) 逐欄位同法算
+delta 並加總,得 runner_tree_cpu_delta。
+
+A. Boundary 前(precheck):只檢查 selected_cpus,連續 5 個 1 秒樣本。
+   PASS iff 5×8 樣本整體平均 busy ≤5%,且任一 (core,sample) 組合 busy ≤25%。
+
+B. Boundary 後(只在 ready-barrier→close-開始 的穩態窗內量測):對每條
+   warmup/timed stream 及整個 repeat 各自取前後 snapshot。
+   wall_delta = t_after − t_before(perf_counter() 秒,僅用於正規化)
+   background = max(0, busy_delta − runner_tree_cpu_delta) / (wall_delta × 8)
+   threshold = 5%(固定);background > threshold → 依 §2.E.1 fail-closed。
+   短於 1 秒的 component 不單獨判定,但仍涵蓋在整個 repeat 的穩態窗量測內。
+   **`global_seed_setup`/`startup_j`/`close_j` 完全不做 background 判定**
+   (不論單獨或透過 repeat 穩態窗——這三項結構上就在穩態窗之外),但其
+   wall time 仍完整計入 E_j。
+   telemetry invalid(視為量測本身不可信,直接 fail-closed):
+     - runner_tree_cpu_delta − busy_delta > 0.02 × (wall_delta×8)
+     - 任一 PID 的 cpu_times 讀取失敗
+     - psutil 呼叫本身丟出例外或回傳非數值
+```
+
+#### 2.E.9.8 Memory precheck(disposable pool 自我量測,不用猜測常數)
+
+```
+1. 建立獨立、可丟棄的 precheck pool(test-only root,與 TimingPilot_root
+   完全分離)。
+
+2. 在此 pool 內,量測 sum(worker_baseline_rss[0..7])——8 個 worker 各自
+   實測的 psutil.Process(pid).memory_info().rss 直接加總(不是量一個值
+   再乘以 8)。
+
+3. **由 parent 自己執行**(不得讓 worker 代跑)完整 432 批(264+6+162)
+   test-only seed 建立→釋放循環,鏡射 §2.E.4 的正式 cascade 結構。**取樣
+   方式**:parent 每次 `batch_seed.spawn(R)` 完成、該批 outer-seed list
+   仍存活且尚未 release 時,**立即同步讀取**整個 process-tree(parent+8
+   worker)的 RSS——432 批逐批取樣,取其中最大值減去測試開始前的 RSS,得
+   `seed_peak_delta_432`。**不得只靠背景輪詢**(定時器式取樣可能漏掉批次
+   間的短暫峰值,必須在「list 剛建完、尚未釋放」這個已知的高峰時間點同步
+   讀取)。鏡射完整 432 批(不是量單一 batch)是為了捕捉 Python allocator
+   在大量重複配置/釋放後可能出現的累積效應。
+
+4. **D scratch 改為實際並行量測**(不再用單一 worker 乘以 8 估計):
+   disposable precheck pool **同時**派送 8 個 test-only D task(M=48、
+   B=1,999),每個 worker 恰好一個,全部同時執行(不輸出/不記錄任何 p 值
+   或 reject 結果);量測整個 process-tree 在這 8 個並行任務執行期間的
+   peak RSS,減去任務派送前的 RSS,得 `D_concurrent_peak_delta`——此值
+   直接取代原本的「單一 worker 量測 × 8」,因為並行執行下的真實記憶體
+   峰值不保證等於單一量測值的線性倍數。
+
+5. Inflight peak 實測(不用 pickle.dumps 長度估計,且新增 ready-counter
+   同步機制避免競態):以 **spawn context 的 multiprocessing.Event**(**不得
+   用 threading.Event**——後者無法跨 process 同步),在 Pool 建立時透過
+   `initializer`/`initargs` 傳入每個 worker,連同一個 **spawn-context 的
+   Queue** 作為 ready 訊號通道;實際提交 16 個 M48、25-outer 的 test-only
+   chunk。每個 worker 完成該 chunk 的反序列化後,**先把自己的 frozen PID
+   放進 ready Queue**,再於共享 Event 上等待(暫停,尚未真正執行 D 運算)。
+   parent 必須收到 **8 個不同的 frozen worker PID** 的 ready 訊號後,才
+   讀取整個 process-tree 的 RSS 峰值——此時恰好 8 個 chunk 已反序列化並
+   held 在 worker 端,另外 8 個(合計 16,受 `max_inflight_chunks` 的
+   back-pressure/queue 約束)仍在等待被 worker 領取。PID 重複、收到的
+   distinct PID 少於 8、或等待逾時 → precheck fail。量測完成後,量測值
+   減去提交前的 RSS,得 `inflight_peak_delta_measured`;量畢後 set 該
+   Event 釋放全部 worker、清空 test-only 資料。
+
+6. 量測完成後,**關閉並銷毀此 precheck pool**。銷毀後,重新執行 §2.E.9.7
+   A 層(selected-core 5×1 秒 idle precheck)——確保量到的是拆掉 precheck
+   pool 之後的真實環境閒置狀態。
+
+7. observation boundary 之後,**每一個 repeat(含 repeat 0)都各自從零
+   建立全新 pool**,`startup_j` 從零完整計時。**禁止把 precheck pool
+   挪用為 repeat 0**——那樣 repeat 0 會因 pool 已經暖過而失去與其餘
+   repeat 的可比性。
+
+required_future_bytes = sum(worker_baseline_rss[0..7])      # 步驟 2,未來 5
+                                                                個 repeat 各自
+                                                                新建 pool 的
+                                                                8 個 worker
+                       + seed_peak_delta_432                  # 步驟 3
+                       + D_concurrent_peak_delta               # 步驟 4(取代
+                                                                  8×worker_D_scratch_peak_delta)
+                       + agg_bytes                             # R_max×AGG_DTYPE.itemsize,
+                                                                  未來才配置
+                       + inflight_peak_delta_measured          # 步驟 5
+
+**`x_fixed`/`pilot_input_root` 的陣列與 seed、以及 parent 自身既有 RSS,
+在 precheck 測 `available_bytes` 當下已經反映在裡面(已被扣掉),不得再
+額外加進 `required_future_bytes`**——那是已經花掉的成本,不是未來才發生
+的成本。
+
+PASS iff available_after_precheck_pool_closed >= 1.5 × required_future_bytes
+```
+
+#### 2.E.9.9 psutil binding dependency(已鎖定)
+
+```
+platform = Windows AMD64
+Python   = 3.12.x
+package  = psutil==7.2.2
+wheel    = psutil-7.2.2-cp37-abi3-win_amd64.whl
+SHA256   = eb7e81434c8d223ec4a219b5fc1c47d0417b12be7ea866e24fb5ad6e84b3d988
+```
+鎖定於獨立的 `requirements-d2-timing.txt`(專案根目錄),**不併入既有
+Streamlit `requirements.txt`**——後者是既有生產 app 的依賴清單,與本研究
+timing-pilot 無關,不應為此新增依賴。runner 啟動時,若實際安裝版本與上述
+鎖定版本不符,或 import 失敗 → precheck fail。Windows 專屬欄位(`cpu_times`
+的 `interrupt`/`dpc`、`Process.cpu_affinity()`、`Process.memory_info().rss`)
+須有平台整合測試,實際在目標環境驗證可用。**Codex 已於 2026-08-03 透過
+官方 PyPI 核對**:`psutil-7.2.2-cp37-abi3-win_amd64.whl`,
+`SHA256=eb7e81434c8d223ec4a219b5fc1c47d0417b12be7ea866e24fb5ad6e84b3d988`;
+標籤為 CPython 3.7+/Windows x86-64,涵蓋本研究 Python 3.12.10 AMD64 環境
+(此項核對由 Codex 執行並轉達,本 session 未自行連網重複驗證)。
+本機現況(已於前一輪獨立核實):`python -c "import psutil"` → `ModuleNotFoundError`;
+`requirements.txt` 未列出 psutil。
+
+#### 2.E.9.10 已接受的政策值(彙總)
+
+| 政策值 | 數值 |
+|---|---|
+| `max_inflight_chunks` | 16 |
+| Background A 層(boundary 前) | 5×1 秒樣本,整體平均 ≤5%、單核單樣本 ≤25% |
+| Background B 層(boundary 後) | `threshold=5%` |
+| Telemetry invalid 容忍度 | `2%` |
+| Memory 安全係數 | `1.5×` |
+| psutil 版本/wheel/hash | 見 2.E.9.9 |
+
+以上數值已由使用者正式接受,但**runner 尚未實作、單元測試尚未撰寫、獨立
+Codex 審查與 protocol commit 均尚未完成前,仍不得執行任何 timing**(沿用
+§2.E.8 執行前要求)。
+
 ---
 
 ## §3 項目狀態(#2 仍開啟;#1、#5 設計已關閉)
@@ -838,6 +1067,8 @@ Codex 獨立 df=4 t-density 數值積分核對,其餘統計設計本身**尚未�
 - 不宣稱 timing pilot 或 calibration/sign preflight 已可執行或已知可行。
 - 不影響、不修改 Gate1 任何產物或既有裁定。
 - 不構成 C3 正式前瞻預註冊,不解除 D1(window selection)的暫停狀態。
-- **本檔目前是明列 blockers 的 auditable design checkpoint**;本 session 未
-  stage/commit,**是否建立版本快照須由使用者另行授權**(凍結政策若一直只存在於
-  untracked 檔案,反而缺乏版本稽核軌跡,但本輪仍不得自行 stage/commit)。
+- **本檔是明列 blockers 的 auditable design checkpoint**;P7、P8 政策已分別
+  於 `aab856f`、`dfab623` 兩次 commit 中留下版本稽核軌跡。本輪(P8.1
+  amendment)寫入時的 stage/commit 狀態,依當輪 `GPT answer.md` 授權範圍
+  而定,不得未經明確授權逕自 stage/commit,也不得假設沿用先前輪次「未
+  stage/commit」的敘述。
