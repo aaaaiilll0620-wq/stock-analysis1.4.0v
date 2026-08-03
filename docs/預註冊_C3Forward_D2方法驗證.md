@@ -1,8 +1,10 @@
 # D2 方法驗證協定(synthetic method-validation protocol)—— 草案,未凍結
 
-**狀態**:🚧 **草案,未凍結**。**P1–P7 政策已凍結**(見 §2);**#1(timing 設計)與
-#2(main DGP 實際係數)仍開啟,因此文件仍是草案**。**P7 code-check 尚未執行只代表
-沒有執行結果,不代表 #5 設計仍開啟**(#5 設計已關閉,見 §3)。
+**狀態**:🚧 **草案,未凍結**。**P1–P8 政策已凍結**(見 §2);**#2(main DGP 實際
+係數)仍開啟,因此文件仍是草案**。**P7 code-check、P8 timing-pilot 均尚未執行,
+只代表沒有執行結果,不代表 #5、#1 設計仍開啟**(#5、#1 設計均已關閉,見 §3)。
+**P8 只凍結 timing-pilot 的設計規格本身——不代表方法 D 可行、不代表 72h 判定
+已經跑過、不代表 timing pilot 已執行。**
 本檔由 Codex 於 2026-08-03(經 `GPT answer.md` 轉達)指示建立,歷經多輪修正與使用者政策裁定。
 
 **本檔不修改、不影響 Gate1 任何產物或既有裁定;不執行任何 calibration、validation、
@@ -540,12 +542,238 @@ method、M 或 target 後繼續,也不得補抽。**
 
 ---
 
-## §3 項目狀態(#1/#2 仍開啟;#5 設計已關閉)
+### 2.E P8 · Timing-pilot 完整規格(2026-08-03 正式凍結)
 
-**#1 Timing-pilot 的設計要素**(cells/replicates/warm-up/計時邊界/平行化/重複次數/
-外推公式/go-no-go 判定統計量)—— 見 §4 逐項列表,全數未定義。**與 P5/P6 的 calibration/
-sign-preflight static cost 是不同範疇**(那批屬 #2 的可行性參考資訊,不受 P3 約束,
-也不在本項 timing-pilot 的設計範圍內)。
+**範圍聲明**:本節凍結的是方法 D timing-pilot 的**設計規格**——cells/replicates/
+warm-up/計時邊界/平行化/重複次數/外推公式/go-no-go 判定統計量全部要素(對應
+§3 #1、§4)。**本節不執行任何 timing、不產生任何計時數字、不代表方法 D 可行、
+不代表 72h 判定已經跑過**——那些仍待 runner 實作、單元測試、獨立 Codex 審查、
+protocol commit 全部完成後的首次執行。
+
+**Binding 範圍**:與 §4 既有聲明一致,timing-pilot 只對方法 D 具約束力,對應 P3
+的 72h/8-core 可行性上限。若同一次 pilot 過程中順便記錄方法 C 的耗時,只能是
+nonbinding diagnostic。
+
+**P7 是否併入 binding 總額**:**併入**——`N_M`(每個 M 的正式規模 outer-seed
+總數,涵蓋 P7+Stage1+Stage2)= **2,304,000**;三個 M 合計 outer-seed 總數 =
+**6,912,000**(= 5,280,000 + 12,000 + 1,620,000,見 2.E.4)。
+
+#### 2.E.1 Observation boundary
+
+boundary = `global_seed_setup`(見 2.E.5)計時開始的那一刻**之前**。boundary 前
+須完成:環境 precheck、`x_fixed_root`/`pilot_input_root` 全樹生成、runner 自檢。
+boundary 之後,任一 startup/outer_seed_setup/aggregation/warmup/timed/close 階段
+失敗、背景負載異常、repeat 缺失、或 CI 不可計算(含 `E_j` 非有限或非正)→
+**方法 D 直接判不可行,不得重跑**。boundary 前的 precheck 失敗可修正後視為首次
+執行,不算重跑。
+
+#### 2.E.2 Dispatch topology
+
+**Production**:單一長生命週期 8-worker pool(`multiprocessing.get_context('spawn').Pool(
+processes=8, initializer=<僅做環境初始化,不預載 x>)`),恰為 **3 條正式 phase
+stream**:`P7 → Stage1 → Stage2`,依序執行,含正式的 phase-level fail-closed gate
+(P7 fail → Stage1/Stage2 不得啟動;Stage2 qualification 依 §2.A.3 以 Stage1 各 M
+是否通過為前提)。每個 task 的 key 必含 `(phase, M, cell, batch, outer)`;不得每個
+cell/batch 各自重啟 pool,也不得另開 stream。
+
+**Pilot(每個 repeat)**:**與 production 的 3 條 stream 不是同一件事**——每個
+repeat 依序跑 **6 條 measurement stream**:先 3 條 phase-matched warm-up stream
+(P7/Stage1/Stage2 各一條,分配見 2.E.4 表),再 3 條 M-specific timed stream
+(M24/M36/M48 各一條)。**這 6 條都只是計時用的量測 stream,不是正式 stream 的
+縮小版重放**——warm-up 的 200 筆樣本只是量測 surrogate,**不得執行任何需要正式
+樣本數(`R_MC`/`R_power`/`R`)才有統計意義的 P7/Stage1/Stage2 判定 gate**(如
+P7 的 24 個 endpoint assertion、Stage1 的 rejection-count size 判定、Stage2 的
+Clopper–Pearson power 判定)——這些 gate 在 200 或 1,000 樣本下不具統計效力,
+pilot 只跑計算路徑本身、不下任何統計結論。
+
+**production 與 pilot 共用的部分**:task unit = 固定 chunk,`outer_per_task=25`;
+API 層 `pool.imap_unordered(worker_chunk, chunk_iterator, chunksize=1)`;每個
+outer payload = `(outer_index, M, x_raw_copy, x_ind_copy, outer_seed)`——parent
+傳已成形的 x(每個 outer 各自獨立 array copy,避免序列化時因物件 identity 被
+重複利用而使序列化成本失真),不用 pool initializer 預載 x;raw、ind 在同一個
+worker task 內完成。
+
+#### 2.E.3 固定輸入
+
+每個 M 各自一對固定、非退化 float64 陣列 `x_raw_fixed(M)`、`x_ind_fixed(M)`,
+純政策型 paired Gaussian,`mu_raw=mu_ind=0`、`sigma=.020`、`rho=.5`(鏡射 P7 §2.D
+的 `sigma_code`/`rho_code`,但不引用任何實際 C3/Gate1 資料):
+```
+x_raw_fixed_t = .020 · ( √.5·z_common_t + √.5·z_raw_t )
+x_ind_fixed_t = .020 · ( √.5·z_common_t + √.5·z_ind_t )        t = 1..M
+```
+在 observation boundary 前生成一次,此後三個 M 各自的全部 warm-up/timed outer
+重複使用同一對陣列(逐 outer 各自持有獨立 copy,見 2.E.2)。
+
+#### 2.E.4 Canonical seed tree
+
+```
+TimingPilot_root (0xb95ec2b993477c0216990dc8fcc61322)
+  .spawn(3) → [x_fixed_root, pilot_input_root, repeats_root]
+
+══════════ PRE-BOUNDARY(輸入準備,不計時)══════════
+
+x_fixed_root.spawn(3) → [x_seed_M24, x_seed_M36, x_seed_M48]
+  每個 x_seed_M.spawn(3) → [z_common_seed, z_raw_seed, z_ind_seed]
+    → x_raw_fixed(M)、x_ind_fixed(M)(見 2.E.3)
+    → 該 M 所需 1,200 個 outer(200 warmup+1,000 timed)各自獨立 array copy
+
+pilot_input_root.spawn(5) → [repeat_input_root_0..4]
+  每個 .spawn(6) → [warmup_P7, warmup_Stage1, warmup_Stage2, timed_M24, timed_M36, timed_M48]
+    warmup_P7.spawn(200)      → [0:75)→M24,[75:150)→M36,[150:200)→M48
+    warmup_Stage1.spawn(200)  → [0:50)→M24,[50:125)→M36,[125:200)→M48
+    warmup_Stage2.spawn(200)  → [0:75)→M24,[75:125)→M36,[125:200)→M48
+    timed_M24.spawn(1000)、timed_M36.spawn(1000)、timed_M48.spawn(1000)
+
+  全部在 boundary 前建好,與正式規模 outer-seed cascade(下方)完全分離的獨立
+  root,避免 pilot 自身量測所需的 seed 建立重複計入 outer_seed_setup_j。
+
+══════════ OBSERVATION BOUNDARY ══════════
+
+repeats_root.spawn(5) → global_seed_setup(計時,只一次)→ [repeat_seed_0..4]
+
+每個 repeat_seed.spawn(2) → [dummy_Stage1_root, dummy_Stage2_root]
+  (TimingPilot 專屬 dummy,非正式 Stage1 root 0xd8262df3d547bfa6df93cfa3148e1701、
+   非正式 Stage2 root 0x4e11b62641787fd8cfff76c57a32ac19)
+
+【outer_seed_setup_j 計時範圍 —— 完整正式 cascade,逐層皆計入同一項】
+  dummy_Stage1_root.spawn(138)                                        # 1 次
+  132 次 cell.spawn(2)   (cells 0..131,main+partial)
+  6 次   cell.spawn(1)   (cells 132..137,code-check)
+  dummy_Stage2_root.spawn(162)                                        # 1 次
+  162 次 cell.spawn(1)
+  共 432 次 batch.spawn(R)(R=20,000/2,000/10,000)→ 6,912,000 個 outer seed 物件
+  root 級、cell 級、batch 級各層 list/object,依正式 lifecycle 建立後釋放
+  (含丟棄與 refcount 歸零的釋放動作,全程在計時窗內;不強制 gc.collect(),
+   除非確認正式 runner 執行路徑本身固定會呼叫)
+
+  **dummy cascade 只建立並釋放這 6,912,000 個 outer seed 物件本身,不得對其呼叫
+  `.spawn(3)`**——worker 端 spawn(3) 的成本已經由 `rate_jM × (N_M−200)` 外推
+  涵蓋,dummy 若也執行等同重複計時。
+
+每個 outer(僅限 pilot 自身 warmup/timed payload,真正進 worker 執行 D 的那些):
+  outer_seed.spawn(3) → [x-DGP placeholder(未消耗)、D-raw bootstrap seed、
+  D-ind bootstrap seed]
+  在 worker 內、該 outer 所屬計時窗(warmup_time_j_phase 或對應 M 的 timed-1000
+  stream)內執行,每個 outer 只計一次。
+```
+
+phase-matched warm-up 分配表(逐 phase 各 200、逐 M 合計各 200):
+
+| phase | M=24 | M=36 | M=48 | phase 合計 |
+|---|---|---|---|---|
+| P7 | 75 | 75 | 50 | 200 |
+| Stage1 | 50 | 75 | 75 | 200 |
+| Stage2 | 75 | 50 | 75 | 200 |
+| 每 M 合計 | 200 | 200 | 200 | 600 |
+
+#### 2.E.5 E_j / U_total 公式
+
+```
+j = 0..4(5 個獨立 timing repeat,即 2.E.4 的 repeat_seed_0..4)
+
+E_j = global_seed_setup + startup_j + outer_seed_setup_j + aggregation_bookkeeping_j + close_j
+      + Σ_{phase∈{P7,Stage1,Stage2}} warmup_time_j_phase
+      + Σ_{M∈{24,36,48}} (N_M − 200) × rate_jM
+
+rate_jM = (T800_jM − T200_jM) / 600
+          # timed-1000 stream 內,第 200、第 800 個完成結果的累積時間;第 800 筆
+          # 完成時仍有 200 筆在 queue/in-flight,保證此區間 pipeline 全飽和,
+          # 不含 fill 也不含 tail drain。最後 200 筆仍須完整跑完並納入完整性
+          # 檢查,但不進 rate。
+
+U_total = mean(E_j) + tcrit × sd(E_j, ddof=1) / √5
+tcrit   = 2.131846786326649        # 已由 Codex 獨立 df=4 t-density 數值積分核對
+                                      (CDF=.95、one-tail=.05);runner 正式執行時
+                                      直接使用此硬編碼常數,不動態呼叫 SciPy
+                                      (repo 現無此依賴)
+
+alpha_timing = .05                  # 獨立 operational 政策值,與 alpha_test 無關
+
+PASS iff  U_total/3600 ≤ 72(等號算 PASS)
+```
+
+`startup_j`、`close_j`:repeat j 的 pool 啟閉時間(`repeat_seed.spawn(2)` 等粗
+粒度 spawn 歸 `startup_j`)。`global_seed_setup`:`repeats_root.spawn(5)` 一次性
+成本,同一值加到全部 5 個 `E_j`(平移 mean、不改變 sd)。`outer_seed_setup_j`、
+`aggregation_bookkeeping_j`:見 2.E.4、2.E.6。
+
+#### 2.E.6 Aggregation checks
+
+**① 逐筆**(每個 result 抵達,計入 `warmup_time_j_phase` 或對應 M 的 timed-1000
+stream 計時窗):key/index bounds 驗證;`written[index]` duplicate 檢查;raw、ind
+各自的 p 值與 reject 判定寫入;`fail_flag` 判斷與 failure side-record 處理。
+
+**pilot 自身的小型 aggregation 容器**(裝 2.E.2 六條 measurement stream 各自的
+200/1,000 筆結果):**配置在該 stream 的計時器啟動前**;**全部結果到齊後的 pilot
+完整性 final scan,在該 stream 計時器停止後執行**——這個 scan 用來驗證這次
+量測本身有沒有齊全(缺漏/重複/failure)。**此 scan 的執行成本不納入 `E_j`,
+避免與 `aggregation_bookkeeping_j` 重複計時;但其驗證結果是 binding。任何
+missing、duplicate、failure 或非有限值,均依 §2.E.1 在 observation boundary 後
+fail-closed,方法 D 判不可行且不得重跑。**原因(成本不納入 `E_j` 的部分):正式
+規模的 array allocation/final scan 已經完整計入 `aggregation_bookkeeping_j`
+(見下②③),pilot 小容器若在 warm-up/timed stream 計時窗內重複做一次同類型的
+allocation/scan,會把同一種成本算兩次。
+
+**② 正式規模 batch-level final scan**(432 個 batch 各一次,計入
+`aggregation_bookkeeping_j`,與上述 pilot 自身容器無關):
+```python
+np.all(written)
+np.any(fail_flag)
+np.isfinite(p_raw).all() and np.isfinite(p_ind).all()
+(reject_raw == (p_raw <= .05)).all()
+(reject_ind == (p_ind <= .05)).all()
+```
+missing/duplicate/failure 任一發生 → scan 輸出完整識別資訊 `(phase, M, cell,
+batch, outer)`,不得只回布林值。
+
+**Benchmark 特有規則**:`aggregation_bookkeeping_j` 的 dry-run 未真正執行
+bootstrap,故 final scan **前**須人工批次將 `written` 設 `True`(確保量到「掃描
+真正完整陣列」的成本);**此人工填值本身不計時**——逐筆寫入的真實成本已由
+`rate_jM` 涵蓋。array allocation、全部 final scan、array release 三者皆計入
+`aggregation_bookkeeping_j`。
+
+容器:NumPy structured array,dtype 含 `outer_index`(i8)、`reject_raw`(?)、
+`reject_ind`(?)、`p_raw`(f8)、`p_ind`(f8)、`fail_flag`(?)、`written`(?);一個
+batch 一個陣列,大小 = 該 batch 的 `R`;432 個 batch(264+6+162)各一次 final
+scan。
+
+**③ phase-level aggregation/gate evaluation**(恰 3 次:P7、Stage1、Stage2 各
+一次,同樣計入 `aggregation_bookkeeping_j`):每個 phase 全部 batch 完成後,把
+該 phase 的判定邏輯(P7 的 24 個 endpoint assertion 與 joint-AND 檢查、Stage1
+的 rejection-count size 判定、Stage2 的 Clopper–Pearson power 判定)實際跑一次,
+量測其計算成本。**dry-run 使用固定的 PASS fixture**(結構合法但非真實抽樣所得
+的資料),確保三個 phase 的判定邏輯都被量測到;**不得真的執行方法驗證,也不得
+產生任何科學結果**。
+
+**Failure side-record schema(固定)**:`(phase, M, cell, batch, outer, endpoint,
+reason, intermediates)`。正常 pilot 執行下應為空;寫入此路徑的程式碼須有獨立
+單元測試(人工注入失敗情境驗證)。
+
+#### 2.E.7 Go/no-go 與淘汰規則
+
+`U_total/3600 ≤ 72` → D 保留(`M=24/36/48` 一起,後續仍依 §2.A.3 的統計判定與
+「M 選擇順序 24→36→48」逐關驗證)。否則,或 boundary 後任一失敗條件觸發(見
+2.E.1)→ 同時移除 `(D,24)`、`(D,36)`、`(D,48)`,不得只移除觸發的那個 M,不得
+重跑。不得為了通過 72h 而降低 `R_MC`/`R_power`/`B_test`、刪 grid、減 endpoint,
+不得挑較好的 repeat。
+
+#### 2.E.8 執行前要求
+
+runner 實作、單元測試(含 `tcrit` 獨立驗證、failure side-record 路徑測試)、
+獨立 Codex 審查、protocol commit 全部完成後,才能執行第一次 timing。截至本次
+修訂,本節只凍結設計本身,尚未執行任何 timing、未產生任何 `E_j`/`U_total` 數值。
+
+---
+
+## §3 項目狀態(#2 仍開啟;#1、#5 設計已關閉)
+
+**#1 Timing-pilot 的設計要素**:**設計已關閉(見 §2.E 的 P8:observation boundary、
+dispatch topology、固定輸入、canonical seed tree、E_j/U_total 公式、aggregation
+checks、go/no-go 與淘汰規則均已定義並凍結),尚未執行任何 timing**(未產生任何
+`E_j`/`U_total` 觀測值,**不代表方法 D 可行、不代表 72h 判定已經跑過**)。與
+P5/P6 的 calibration/sign-preflight static cost 仍是不同範疇(那批屬 #2 的可行性
+參考資訊,不受 P3 約束,也不在 P8 的設計範圍內)。
 
 **#2 Main DGP 實際係數**:**設計與政策已凍結(見 §2.B/§2.C 的 P5/P6);四個係數
 (`a010_iid`/`a005_iid`/`a010_AR`/`a005_AR`)的 search/一次性 validation,以及 c-sign
@@ -561,16 +789,18 @@ assertion、`[71,131]`/`r≤72` 具體邊界、joint-AND 防呆斷言、alpha �
 
 | 要素 | 狀態 |
 |---|---|
-| pilot cells 數 | ❌ UNRESOLVED |
-| replicates(每 cell 重複次數) | ❌ UNRESOLVED |
-| warm-up(暖機/暖身期) | ❌ UNRESOLVED |
-| 計時邊界定義 | ❌ UNRESOLVED |
-| 平行化設定 | ❌ UNRESOLVED(是否與 P3 的「8 cores」規則直接對應未說明) |
-| 外推公式(pilot → 全量) | ❌ UNRESOLVED |
-| 重複次數(pilot 本身穩定性) | ❌ UNRESOLVED |
-| go-no-go 判定統計量 | ❌ UNRESOLVED |
+| pilot cells/streams 數 | ✅ 已定義(見 §2.E.2/2.E.4:每個 timing repeat 共 **6 條 measurement stream**——3 條 phase-matched warm-up + 3 條 M-specific timed) |
+| 每 stream 樣本數 | ✅ 已定義(見 §2.E.4:warm-up=200/phase;timed=1,000/M) |
+| timing repeats(pilot 本身穩定性) | ✅ 已定義(見 §2.E.5:`j=0..4`,共 5 次獨立 timing repeat;因 72h 判定已改為單一 U_total,不再需要對 M 做 Bonferroni;**不是「每 cell 重複次數」,不得混用**) |
+| warm-up(暖機/暖身期) | ✅ 已定義(見 §2.E.4 分配表:每 phase 200 outer、每 M 合計 200) |
+| 計時邊界定義 | ✅ 已定義(見 §2.E.1 observation boundary) |
+| 平行化設定 | ✅ 已定義(見 §2.E.2:production 為單一 8-worker pool、3 條依序正式 phase stream;pilot 另跑 6 條 measurement stream,對應 P3 的「8 cores」) |
+| 外推公式(pilot → 全量) | ✅ 已定義(見 §2.E.5 E_j/U_total 公式) |
+| go-no-go 判定統計量 | ✅ 已定義(見 §2.E.7) |
 
-在這些要素被明定之前,不得執行任何 timing pilot(本 session 未執行任何此類動作)。
+以上要素已於 P8(§2.E)定義並凍結。**設計凍結不代表已執行**——runner 實作、
+單元測試、獨立 Codex 審查、protocol commit 全部完成前,仍不得執行任何 timing
+pilot(本 session 未執行任何此類動作)。
 
 **Binding 範圍(修正含糊措辭)**:本表的 timing-pilot **只對方法 D 具有約束力**,
 對應 P3 的 `72h/8-core` 可行性上限,是唯一的 go/no-go 依據。**若在同一次 pilot 過程中
@@ -589,13 +819,22 @@ preflight)——這是 #2 尚未關閉的原因。§2 內部可交叉核對的�
 `126=7×3×2×3`、`162=9×6×3`、`18=3×6`、`T=83,403→84,000`、
 `static cost=8.2656e9`)已核對一致,列在文中供後續讀者覆核。
 
+P8(2.E)同樣是本 session 依 Codex 逐輪審查意見設計、經多輪修正後的結果——過程中
+修正過三個實質 bug(rate 計算誤把固定成本乘入斜率、`T1000−T200` 仍含 tail drain、
+`outer_seed_setup_j` 一度漏算/一度重複計算 outer-seed 建立成本)。可交叉核對的算術
+(`6,912,000=5,280,000+12,000+1,620,000`、`432=264+6+162`、phase-matched warm-up
+分配表逐 phase 與逐 M 皆恰為 200)已核對一致。`tcrit=2.131846786326649` 已由
+Codex 獨立 df=4 t-density 數值積分核對,其餘統計設計本身**尚未經本 session 獨立
+數值驗證**,與 #2 相同的限制同樣適用。
+
 ---
 
 ## §6 本文件的限制(逐條聲明)
 
 - 不宣稱 D2 已通過任何驗證(§2 是規格,不是執行結果)。
 - 不宣稱 #2 已關閉——四個係數的 search/validation 與 c-sign preflight 尚未執行。
-- 不宣稱 #1/#5 已有可執行定義。
+- 不宣稱 #1(P8)、#5(P7)的設計凍結等同已驗證、已執行,或已知可行——兩者都只是
+  把設計本身寫死,尚未產生任何一次真實觀測。
 - 不宣稱 timing pilot 或 calibration/sign preflight 已可執行或已知可行。
 - 不影響、不修改 Gate1 任何產物或既有裁定。
 - 不構成 C3 正式前瞻預註冊,不解除 D1(window selection)的暫停狀態。
