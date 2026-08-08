@@ -207,6 +207,99 @@ git commit(不 amend Checkpoint 22 的 commit,見文末 git 紀錄)。
   `AUTHORIZED_PATH`/`BUILD_NOT_RUN`/`PRODUCTION_NOT_APPROVED`/
   `trust_holding_pct=DIFF_UNRESOLVED`、所有不執行的禁止事項——這次只是
   修正一個具體的 git 身分定義錯誤,不是重新設計、也不解除任何禁止事項。
+- **Checkpoint 24(本次,2026-08-09)**:**使用者凍結第一份正式建置目標的
+  精確版本/平台**,是一次 pre-build 決策記錄,**不是**新一輪設計、**不**
+  解除任何禁止事項、**不**構成 lock 產生或 Phase B 執行的授權:
+  1. **精確目標凍結,區分「執行環境身分要觀測到的字面值」跟「uv 解析
+     引擎的目標平台字串」(Codex review 修正:原始版本把兩者混在同一個
+     `x86_64`/`cpython` 字面值裡,但 §C.1 `runtime_environment_source`
+     記錄的 `python_implementation`/`machine_arch` 是 `platform.
+     python_implementation()`/`platform.machine()` 在目標機器上實際
+     回傳的字串,不是 uv 命令列慣用的正規化標籤——兩者字面上不一樣,
+     混用會讓未來 receipt 跟這份 spec 對不上)**:
+     - **執行環境身分預期觀測值(§C.1 `runtime_environment_source`
+       語意,Phase B 執行時實際要觀測到的字面值)**:`python_implementation`
+       = 精確字面 `CPython`(`platform.python_implementation()` 在
+       CPython 直譯器上的回傳值,首字母大寫);`machine_arch` = 精確字面
+       `AMD64`(`platform.machine()` 在這個凍結的 Windows x86-64 目標上
+       預期回傳的值,**不是** `x86_64`);`os_system` = `Windows`,兩者
+       定義沒有變。
+     - **`python_version_full` 修正(Codex review 指出的第二個錯誤:
+       Checkpoint 24 原始版本誤把它寫成精確等於 `3.12.10`,跟 §C.1 既有
+       凍結定義矛盾)**:§C.1 對 `python_version_full` 的既有定義是**完整
+       觀測到的 `sys.version` 字串**(含編譯器/位元資訊,不只是版本號三
+       段式數字,例如 `"3.12.10 (tags/v3.12.10:0181aa3, ...) [MSC v.1942
+       64 bit (AMD64)]"` 這種完整格式)——這裡**沒有改**這個定義。
+       `3.12.10` 是**凍結的 CPython 直譯器/resolver 版本目標**,不是
+       `python_version_full` 這個欄位本身要記錄的完整值:未來 Phase B
+       前置檢查要核對的是「觀測到的直譯器版本三元組恰好等於
+       `(3, 12, 10)`」+「`implementation` 是 `CPython`」+「`os_system` 是
+       `Windows`」+「`machine_arch` 是 `AMD64`」——這個檢查通過之後,
+       `runtime_environment_source.python_version_full` 才記錄**那個新建
+       隔離環境裡實際觀測到的完整 `sys.version` 字串**。**這次 checkpoint
+       不凍結、也不假造那個完整字串**——正式的 uv 隔離環境現在還沒建立,
+       它的確切編譯器/建置字串現在觀測不到;就算兩次觀測都同樣是
+       CPython 3.12.10,只要完整 `sys.version` 字串不同位元組,
+       `runtime_environment_identity_v1` 依然必須不同(§C.1 canonical
+       序列化的既有語意,這裡沒有改)。
+     - **uv 解析引擎的目標平台字串(獨立的 uv 專屬語意,不跟上面混用)**:
+       `x86_64-pc-windows-msvc`——這是 uv `--python-platform` 接受的
+       target-triple 寫法,是 uv 內部用來決定「幫哪個平台解析套件相容性」
+       的字串,**不是**要求 Phase B 執行環境的 `platform.machine()` 回傳
+       這個字串本身(這個凍結的 Windows x86-64 目標預期回傳
+       `AMD64`——不是宣稱「Windows 底下永遠是 `AMD64`」這種絕對敘述,
+       Windows on ARM 這類環境會回傳別的值,只是不在這次凍結的目標範圍
+       內)。
+     §C.1 `runtime_environment_source` 的既有欄位定義本身**一個字都沒有
+     改**,這裡只是把「Phase B 實際執行時,這幾個欄位預期觀測到的值應該
+     是什麼」講成一個明確的 pre-build 決策,不是新增或修改身分公式。
+  2. **工具選擇現在是已解決的凍結決策,不再是「文件不代為決定」的懸案
+     (Codex review 指出:本項原始版本一邊記錄了 `uv pip compile` 的凍結
+     選擇,一邊又宣稱第 18 輪「這份文件不代為決定工具選擇」的舊措辭跟 §F
+     第 4 項的三選一寫法「維持原樣不改」——這兩件事互相矛盾,現在的
+     FROZEN/MISSING 狀態不能同時把工具選擇描述成「已解決」又「未解決」)**:
+     - `uv pip compile --generate-hashes`、未來安裝驗證用
+       `--require-hashes`、明確不使用 `--universal`,連同上面第 1 點的
+       精確 CPython 3.12.10/Windows AMD64 執行環境身分目標,現在是
+       **目前生效**的 FROZEN 決策——已經同步加進 §F `FROZEN` 清單(新增
+       一項)。
+     - 第 18 輪「這份文件不代為決定工具選擇」的原始措辭、§F 舊版第 4 項
+       的三選一寫法(`pip-compile`/`uv pip compile`/`poetry export` 三選
+       一),**保留成歷史紀錄**(不刪除、不竄改第 18 輪本文——那是那一輪
+       當下真實的狀態),但**只在工具選擇這一件事情上**被這次 Checkpoint
+       24 取代(superseded)——§F 目前生效的第 4 項文字已經改寫成反映這個
+       取代,不再讓現在的讀者誤以為工具選擇還沒決定。
+     - **沒有被取代、依然明確 `MISSING` 的部分**:真正的
+       `requirements-v2-data-build.in`/`.lock` 檔案本身、專用隔離環境
+       建立流程、marker 解析 + PEP 503 正規化 + 完整清單比對的實作、
+       對應測試——這些全部維持 `MISSING`,工具選擇被決定**不代表**這些
+       東西已經存在或已經實作。
+  3. **`--universal` 排除的理由**:第一份 lock 只服務「目前這一組固定
+     Windows/Python 環境」,不是要涵蓋多平台/多 Python 版本的通用解析
+     結果——`--universal` 產生的鎖定內容語意跟這裡的精確單一目標不同,
+     混用會讓「這份鎖定檔對應哪一個 `runtime_environment_identity_v1`」
+     變得不明確。
+  4. **未來版本遷移的語意規則(凍結規則本身,不凍結未來的儲存佈局)**:
+     `Python 3.14.6`(或任何未來版本)**不是** `3.12.10` 基準的可互換
+     替代品,也**不能**就地覆寫或改標成 `3.12.10` 這個基準——任何未來的
+     Python/平台升級,必須產生一個**新的**、擁有**自己獨立**
+     `dependency_lock_identity`/`runtime_environment_identity_v1`/
+     `snapshot_id_v1` 的遷移候選,`3.12.10` 基準的既有產出物維持不可變
+     (immutable)。這裡**只**凍結「未來環境是分開的身分,舊產出物不可變」
+     這條語意規則本身——**不**在這次 checkpoint 設計或凍結未來 3.14
+     儲存佈局的任何細節,那是另一個獨立、之後才需要的決定。
+  5. **授權範圍(明確劃線)**:這次 checkpoint **只**授權把上面的目標
+     版本/平台反映進 Phase A 的**純規格常數**(`scripts/build_v2_
+     candidate.py` 的 `LOCK_GENERATION_SPEC_V1`)跟對應的 synthetic
+     測試——**不**授權執行 `uv`、**不**授權產生真正的
+     `requirements-v2-data-build.in`/`.lock`、**不**授權安裝任何套件、
+     **不**授權 Phase B 解析/建置/binding verification/績效/OOS/Gate
+     存取、**不**授權寫入正式 `~/tej_cache`。
+  維持 `PREREG_READY_IMPLEMENTATION_NOT_AUTHORIZED`/`FROZEN`/
+  `AUTHORIZED_PATH`/`BUILD_NOT_RUN`/`PRODUCTION_NOT_APPROVED`/
+  `trust_holding_pct=DIFF_UNRESOLVED`、§F `MISSING_BEFORE_BUILD` 六個
+  項目——這次 checkpoint 沒有讓其中任何一項從 `MISSING` 變成「已完成」,
+  單純是把一個 pre-build 使用者決策透明記錄下來。
 
 ---
 
@@ -1661,6 +1754,37 @@ implementation_identity` 跟獨立的 `verifier_identity`——審查時要能�
   輪擴充:verifier 必須從獨立重讀的原始 cell 重建這些 accounting,不是
   只跟候選 parquet/sidecar 檔案內容互相比對)。
 - `trust_holding_pct=DIFF_UNRESOLVED`。
+- **依賴鎖定工具選擇 + 精確執行環境目標(Checkpoint 24 新增 FROZEN
+  項,2026-08-09,取代第 18 輪「這份文件不代為決定工具選擇」在工具選擇
+  這一件事情上的舊立場——第 18 輪原文保留成歷史紀錄,不刪除,見版本
+  紀錄)**:
+  - lock 工具:`uv pip compile`;hash 產生旗標 `--generate-hashes`;未來
+    安裝驗證旗標 `--require-hashes`;明確不使用 `--universal`(第一份
+    lock 只服務固定的 Windows/Python 目標,不是跨平台/跨版本的通用解析
+    結果)。
+  - 第一份正式 `requirements-v2-data-build.lock`/
+    `runtime_environment_identity_v1` 鎖定的**執行環境身分預期觀測值**
+    (§C.1 `runtime_environment_source` 語意):`python_implementation` =
+    精確字面 `CPython`、`os_system` = `Windows`、`machine_arch` = 精確
+    字面 `AMD64`(這個凍結的 Windows x86-64 目標預期回傳的值,不是
+    `x86_64`)。**`3.12.10` 是凍結的 CPython 直譯器/resolver 版本目標
+    (Phase B 前置檢查要核對觀測到的版本三元組恰好等於 `(3, 12, 10)`)
+    ——不是 `python_version_full` 這個欄位本身**;`python_version_full`
+    依 §C.1 既有定義維持是**完整觀測到的 `sys.version` 字串**(含編譯器/
+    位元資訊),要等正式的 uv 隔離環境真的建立後才能觀測、記錄,這次
+    checkpoint 不凍結、也不假造這個完整字串。
+  - uv 解析引擎另外使用的目標平台字串(獨立的 uv 專屬語意,不是
+    `runtime_environment_source` 要觀測的字面值):`x86_64-pc-windows-
+    msvc`(uv `--python-platform` 接受的 target-triple 寫法)。
+  - `Python 3.14.6`(或任何未來版本)不是 `3.12.10` 這個基準的可互換
+    替代品,不能就地覆寫或改標成這個基準——未來升級是獨立的遷移候選,
+    有自己的 `dependency_lock_identity`/`runtime_environment_identity_
+    v1`/`snapshot_id_v1`,`3.12.10` 基準的既有產出物維持不可變。
+  - **這一項只凍結「工具選什麼、目標環境的字面值是什麼」這個 pre-build
+    決策本身**——真正的 `requirements-v2-data-build.in`/`.lock` 檔案、
+    專用隔離環境建立流程、marker 解析/PEP 503 正規化/完整清單比對的
+    實作、對應測試,依然明確 `MISSING`(見下方 `MISSING_BEFORE_BUILD`
+    第 4 項)。
 
 ### PROPOSED_NOT_AUTHORIZED(尚待使用者/Codex 核准的選擇)
 
@@ -1678,7 +1802,7 @@ implementation_identity` 跟獨立的 `verifier_identity`——審查時要能�
 精確」,沒有引入新的未決架構矛盾。Checkpoint 22 只記錄使用者對輸出路徑
 的核准,同樣不是設計矛盾,也不會讓本節從空變成非空。**
 
-### MISSING_BEFORE_BUILD(需要實作 + 審查的程式碼/測試/receipt;Checkpoint 22 後每一項依然明確 MISSING,內容未變)
+### MISSING_BEFORE_BUILD(需要實作 + 審查的程式碼/測試/receipt;Checkpoint 22 後每一項依然明確 MISSING;Checkpoint 24 更新第 4 項的文字,反映工具選擇已解決,狀態依然是 MISSING,其餘各項內容未變)
 
 1. `tej_importer.py` 補上 §C.1 的顯式型別轉換(數值 `.astype("float64")`、
    字串欄位顯式轉型)+ §B 第 18 輪修正後的精確 schema 公式(欄位整檔缺席
@@ -1723,13 +1847,18 @@ implementation_identity` 跟獨立的 `verifier_identity`——審查時要能�
    run 層級單發 `.claim` 鎖機制(`<run_id>.binding_verification.claim`)
    + 驗證 receipt writer(§D 單發驗證規則,含 crash 持久性判定)+ 測試。
 4. `requirements-v2-data-build.lock`(§C.1 `dependency_lock_identity` 的
-   輸入,精確檔名已凍結)——選定工具(`pip-compile --generate-hashes`/
-   `uv pip compile --generate-hashes`/`poetry export --with-hashes` 之
-   一,這份文件不代為決定工具選擇)產生含精確版本+雜湊的鎖定內容,涵蓋
-   `pandas`/`pyarrow`/`openpyxl` 及其完整遞移相依鏈;建立資料建置專用
-   隔離環境(venv 或等價機制)的腳本/流程本身,以及 marker 解析(基於
-   `packaging.markers`)+ PEP 503 正規化 + 完整清單比對 + bootstrap
-   例外的實作 + 測試。
+   輸入,精確檔名已凍結)——**工具選擇已解決(Checkpoint 24,2026-08-09,
+   取代本項原本的三選一措辭)**:`uv pip compile --generate-hashes`,鎖定
+   精確目標 CPython 3.12.10/Windows AMD64(§F `FROZEN` 新增項有完整值,
+   uv 專用的 `--python-platform x86_64-pc-windows-msvc` 是分開的 uv 目標
+   平台字串,不是 `runtime_environment_source` 要觀測的字面值)。**工具
+   選擇本身已解決,不代表下面這些東西已經存在或已經實作——依然明確
+   `MISSING`**:真正的 `requirements-v2-data-build.in`/`.lock` 檔案本身
+   (含精確版本+雜湊的鎖定內容,涵蓋 `pandas`/`pyarrow`/`openpyxl` 及其
+   完整遞移相依鏈);建立資料建置專用隔離環境(venv 或等價機制)的腳本/
+   流程本身;marker 解析(基於 `packaging.markers`)+ PEP 503 正規化 +
+   完整清單比對 + bootstrap 例外的實作;對應測試。**不執行 `uv`、不產生
+   真正的 `.in`/`.lock`、不安裝套件**——這些依然是未授權的動作。
 5. import 白名單靜態檢查(§C.6),涵蓋 `tej_importer.py` 跟新 builder 腳本
    兩份檔案 + 測試。
 6. 上述 1-5 的實作完成後,對**整批**受影響檔案(含 §E.1 表格列出的、現在
