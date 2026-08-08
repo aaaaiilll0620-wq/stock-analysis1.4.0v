@@ -11,13 +11,15 @@ IMPLEMENTATION` 維持空。這個狀態**只代表預註冊文件本身已經�
 這份文件依 `docs/研究紀律_ResearchDiscipline.md` §2 的單發射擊制寫成:在任何
 一次真正的隔離建置執行之前,先把驗收標準、失敗語意、輸出路徑規則寫死。
 
-**Checkpoint 22(本次)只記錄使用者的路徑核准決定並凍結本文件,不執行
-任何東西、不代表 Phase A/B 獲得授權**:不匯入、不建 cache、不跑 pytest、
-不修改 `tej_importer.py`/`scripts/*`/任何 requirements/lock/manifest/
-來源資料/supplement/cache/receipt/已提交的政策文件、不建立已核准的輸出
-目錄本身。這次唯一的動作,是把 §C.4 已經寫好的建議路徑改記成「已核准」,
-以及依 Codex 指示做一次範圍精確限定在本文件的 scoped git commit(見文末
-git 紀錄)。
+**Checkpoint 23(本次)是一次文件勘誤,不是新一輪設計、不執行任何東西、
+不代表 Phase A/B 獲得授權**:Checkpoint 22 把 `preregistration_commit`
+定義成 `git rev-parse HEAD` 是一個具體的 git 身分語意錯誤(§C.1 有完整
+修正說明)——不匯入、不建 cache、不跑 pytest、不修改
+`tej_importer.py`/`scripts/*`/任何 requirements/lock/manifest/來源
+資料/supplement/cache/receipt/已提交的政策文件、不建立已核准的輸出目錄
+本身。這次唯一的動作,是修正 §C.1 的 `preregistration_commit` 定義跟
+§F 的對應敘述,以及依 Codex 指示做另一次範圍精確限定在本文件的 scoped
+git commit(不 amend Checkpoint 22 的 commit,見文末 git 紀錄)。
 
 依據:`AGENTS.md`、`docs/研究紀律_ResearchDiscipline.md`、已提交的
 `docs/資料快照遷移_DataExport0806.md`(commit `d46d45c96d738c2fe60497ddba2aa9f1fc5a009c`,
@@ -172,6 +174,39 @@ git 紀錄)。
   Phase B 執行的授權。這次 checkpoint 依 Codex 指示對本文件做一次範圍
   精確限定的 scoped git commit(見文末 git 紀錄,commit message
   `docs: freeze DataExport0806 V2 isolated build preregistration`)。
+- **Checkpoint 23(本次)**:Codex 獨立複查 Checkpoint 22 後指出
+  `preregistration_commit` 被定義成 `git rev-parse HEAD` 是一個具體的
+  git 身分語意錯誤,不是新一輪設計、也不構成 Phase A 授權,純粹是
+  勘誤,修補:
+  1. **`preregistration_commit` 改成 path-scoped 查詢**(§C.1)——
+     `HEAD` 代表整個 repository 現在指到哪裡,不是「這份文件最後一次被
+     凍結在哪個 commit」;只要未來發生任何其他不相干的 commit(含 Phase
+     A 實作本身的 commit),`HEAD` 就會前進,但這份文件沒有變。改成
+     `git log -1 --format=%H -- <這份文件的路徑>`,並加上「現場位元組
+     等於該 commit 的 blob」+「這個路徑沒有 staged/unstaged/untracked
+     替代版本」+「文件維持追蹤狀態」三項額外驗證。
+  2. **拿掉錯誤的「detached HEAD 是歧義」範例**——detached HEAD 只要能
+     解析成單一完整 commit 就不是歧義,第一版本的例子是錯的,已刪除。
+  3. **把「整個工作目錄必須乾淨」換成 scoped 乾淨度檢查**(§C.1)——這個
+     repository 長期存在大量跟這次隔離建置無關的既有修改/未追蹤檔案
+     (唯讀核對過,Checkpoint 22 commit 前的 `git status --short` 有
+     100 行以上跟這次建置無關的既有差異),要求整個工作目錄乾淨在這個
+     專案裡不可行也不必要;改成精確列舉「這次建置會用到的凍結建構/裁決
+     輸入」(本文件本身、importer、extractor、builder、verifier、依賴
+     鎖定檔、任何被明確 import 的共用 build 模組)清單,只檢查這份清單
+     裡的路徑,repository 其他地方的既有工作不受影響、也不會卡住建置。
+  4. **修正 §F MISSING_BEFORE_BUILD 最後一項**——Phase A 完整實作(含
+     builder/verifier 程式碼+測試)那次未來的 commit,是另一個獨立的
+     實作複查 checkpoint,**不是** `preregistration_commit`;個別程式碼
+     的位元組身分已經由 `importer_identity`/`extractor_identity`/
+     `builder_identity`/`verifier_identity`/`dependency_lock_identity`
+     各自涵蓋,彙總 receipt 可以另外把那次 Phase A 實作 commit 的 hash
+     當稽核用的中繼資料記錄下來,但不能被誤標成 `preregistration_
+     commit`。
+  維持 `PREREG_READY_IMPLEMENTATION_NOT_AUTHORIZED`/`FROZEN`/
+  `AUTHORIZED_PATH`/`BUILD_NOT_RUN`/`PRODUCTION_NOT_APPROVED`/
+  `trust_holding_pct=DIFF_UNRESOLVED`、所有不執行的禁止事項——這次只是
+  修正一個具體的 git 身分定義錯誤,不是重新設計、也不解除任何禁止事項。
 
 ---
 
@@ -350,36 +385,87 @@ preregistration_commit         = 見下方「`preregistration_commit` 的取得�
 candidate_schema_version       = "dataexport0806_v2_candidate_schema_v1"   # 字面常數,綁死本文件 §B 的輸出契約版本
 ```
 
-**`preregistration_commit` 的取得方式(Checkpoint 22 修正:拿掉自我指涉
-的循環論證)**——Codex 指出,先前的寫法容易被誤讀成「把這次 commit 自己
-的 hash 寫進這次 commit 的內容裡」:這是不可能的事,一個 commit 的 hash
-是它的內容(含這份文件的位元組)決定的,commit 完成之前不可能知道它自己
-的 hash,寫死一個字面值進文件本身就是自我指涉的循環。**正確的定義是**:
+**`preregistration_commit` 的取得方式(Checkpoint 22 拿掉了自我指涉的
+循環論證,但誤把它定義成 `git rev-parse HEAD`;Checkpoint 23 修正這個
+具體錯誤)**——Codex 指出 `git rev-parse HEAD` 是錯的:`HEAD` 代表**整個
+repository 現在指到哪個 commit**,不是「這份預註冊文件最後一次被凍結
+在哪個 commit」。這兩者在這個專案裡**必然**會分岔——未來只要發生任何
+其他 commit(例如 Phase A 實作程式碼的 commit、甚至任何跟這次建置完全
+無關的其他工作的 commit),`HEAD` 就會往前移動,但這份文件的內容(跟它
+被凍結的那個時間點)完全沒變。如果 `preregistration_commit` 綁定
+`HEAD`,`snapshot_id_v1` 會在文件根本沒被改過的情況下,因為專案裡任何
+其他不相干的 commit 而跟著改變——這既不是內容定址該有的行為,也違背了
+「這個身分只跟這份文件的凍結狀態有關」的原始意圖。**正確定義**:
 
-- `preregistration_commit` **不是**這份文件裡的一個字面欄位,文件本身
-  永遠不會寫出「這個值等於 XXXX」這種句子——連 Checkpoint 22 這次的
-  scoped commit 完成後,文件內文也不會回頭被編輯去嵌入那個 commit 的
-  hash(那樣做本身就要再一次 commit,而新 commit 的 hash 又不等於被
-  嵌入的那個值,循環會一直重演,而且違反「不可變歷史」的精神)。
-- `preregistration_commit` 是 builder 在 **Phase B 真正執行的當下**,
-  對 git repository **現場查詢**得到的值——例如 `git rev-parse HEAD`
-  (或等價的、能唯一決定當下 HEAD 對應之 commit 的指令)。
-- **三種情況都必須 fail-closed,不能算出一個暫時或猜測的
-  `snapshot_id_v1`**:
-  1. **查不到**(不是 git repository、找不到 `.git`、指令本身失敗)。
-  2. **工作目錄髒**(`git status --porcelain` 非空——表示現場檔案跟
-     `HEAD` 對應的已提交狀態不一致,這種情況下即使查得到一個 hash,那個
-     hash 也不能代表「現在正在跑的程式碼」)。
-  3. **HEAD 有歧義**(例如 detached HEAD 但同時有多個 tag/branch 指向
-     不同祖先、或其他任何無法唯一決定成單一 commit 的情況)。
+- `preregistration_commit` = **最後一次改動這份文件這個路徑的 commit**,
+  用一個明確 path-scoped、不含糊的 git 查詢取得,等價於:
+
+  ```
+  git log -1 --format=%H -- "docs/預註冊_DataExport0806_V2隔離建置.md"
+  ```
+
+  **不是** `git rev-parse HEAD`,也不是任何跟 `HEAD` 目前指向哪裡有關的
+  查詢——查詢對象永遠是**這個檔案路徑自己的最新一筆 commit 歷史**,不受
+  repository 裡其他路徑之後又發生了多少次不相干 commit 影響。
+- **額外的證據完整性檢查(Checkpoint 23 新增,不只查出一個 hash 就算數)**:
+  builder 除了查出上面的 commit hash,還必須驗證:
+  1. **現場檔案位元組等於該 commit 裡同一個路徑的 blob**——這個檔案在
+     磁碟上現在的內容,必須逐位元組等於 `preregistration_commit` 那個
+     commit 記錄的版本,不能是「查到了某個 commit hash,但磁碟上這個檔
+     案其實已經被繼續編輯過又沒有再 commit」這種脫節狀態。
+  2. **這個路徑沒有任何 staged/unstaged/untracked 的替代版本**——工作區
+     跟索引裡,這個特定路徑必須乾淨(沒有待commit的修改、沒有暫存的
+     修改、也沒有另一個未追蹤的同名檔案冒充)。
+  3. **這份文件必須維持在 git 追蹤狀態**——不能是已經被 `git rm` 從索引
+     移除、只留在磁碟上的孤兒檔案。
+  任一項不成立,直接 fail-closed,不產生 `snapshot_id_v1`。
+- **Fail-closed 條件精確化(Checkpoint 23 修正,移除第一版本錯誤地要求
+  「整個工作目錄乾淨」跟「detached HEAD 視為歧義」這兩條規則)**——只在
+  以下情況 fail-closed:
+  1. git 無法對這個路徑解析出唯一一筆 commit/blob(例如根本不是 git
+     repository、這個路徑從來沒被 commit 過、查詢指令本身失敗)。
+  2. 上面「額外的證據完整性檢查」三項裡任何一項不成立。
+  **detached HEAD 本身不是歧義**——只要它能解析成單一一個完整 commit,
+  就是明確的,不需要額外標記成 fail-closed 條件;第一版本把「detached
+  HEAD」直接當成歧義範例是錯的,已經拿掉,不再出現在這份文件裡。**這條
+  規則刻意不检查 repository 其他路徑乾不乾淨**——那是下方「Phase B 前置
+  的 scoped 乾淨度檢查」的職責,兩者故意分開,見下一段。
 - 這條規則**只是把「怎麼取得這個值」講清楚,不改變 `preregistration_
-  commit` 這個身分成分原本的意圖**——它原本就是指「Phase A 凍結(含
-  builder/verifier 程式碼跟這份文件本身)那一次 scoped commit 的 hash」
-  (§F MISSING_BEFORE_BUILD 最後一項),只是修正前不夠精確地暗示了「文件
-  裡要寫死這個值」這種不可能的做法。
-- **本文件在完成 Checkpoint 22 的 scoped commit 之後,不會、也不能在
-  文件裡任何地方寫出那次 commit 的 hash 字面值**——要查那個 hash,查
-  `git log` 本身,不是查這份文件。
+  commit` 這個身分成分原本的意圖**——它指的是「這份預註冊文件本身最後
+  一次被審查、凍結的那個 commit」,不是 Phase A 完整實作(builder/
+  verifier 程式碼+測試)那次未來的 commit——兩者是不同的 commit、不同的
+  概念,§F MISSING_BEFORE_BUILD 最後一項的敘述也已經修正,不再把兩者
+  混為一談(見 §F)。
+- **本文件不會、也不能在文件內文任何地方寫出任何一次 commit 的 hash
+  字面值**——要查 `preregistration_commit` 的實際值,查 `git log` 本身,
+  不是查這份文件。
+
+**Phase B 前置的 scoped 乾淨度檢查(Checkpoint 23 新增,取代第一版本
+誤植的「整個工作目錄必須乾淨」要求)**——這個專案的工作目錄裡,長期存在
+大量跟這次隔離建置完全無關的既有修改/未追蹤檔案(§E.1 表格以外的,例如
+`beat_0050/`、`core/`、其他 `docs/*.md` 研究文件——唯讀核對過,Checkpoint
+22 commit 前的 `git status --short` 有 100 行以上跟這次建置無關的既有
+差異)。**Phase B 的前置檢查範圍必須是精確列舉的「這次建置會用到的凍結
+建構/裁決輸入」清單,不是整個 repository**:
+
+- 這份預註冊文件(`docs/預註冊_DataExport0806_V2隔離建置.md`)。
+- `tej_importer.py`(importer)。
+- `scripts/extract_legacy_supplement.py`(extractor)。
+- 新 builder 腳本。
+- 獨立 verifier 腳本。
+- `requirements-v2-data-build.lock`(依賴鎖定檔)。
+- 任何被上述任一支程式**明確 import** 的共用 build 模組(如果實作階段
+  真的拆出這種共用模組的話)。
+
+以上**每一個**都要求:必須是 git 追蹤狀態、磁碟上現在的位元組必須等於
+它被審查/凍結的那個 commit 裡的版本(逐一對應 §C.1 各自的 identity 欄位
+——`importer_identity`/`extractor_identity`/`builder_identity`/
+`verifier_identity`/`dependency_lock_identity`/`preregistration_
+commit`)——任一項不符,Phase B 直接 fail-closed。**Repository 裡任何
+不在這份清單上的路徑,不管是已修改還是未追蹤,都不能、也不會進入這個
+判定,也不能讓建置卡住**——`beat_0050/`/`core/` 之類的既有研究工作繼續
+在同一個工作目錄裡進行,不受這次資料建置的 fail-closed 規則影響,兩者
+互不干擾。
 
 `verifier_identity`(獨立驗證器腳本的位元組 SHA-256)**依然刻意不進這個
 公式的任何一層**——第 16 輪就已凍結這個原則,第 17 輪的架構決定(§D)進一步
@@ -688,10 +774,11 @@ identity` 公式的第二層(新增第 5 個輸入),因此:**兩次建置只要�
 `bootstrap_tool_inventory`/`environment_creation_identity`(§C.5 有完整
 欄位定義)。
 
-**Fail-closed 條件(第 20 輪擴充,Checkpoint 22 修正 `preregistration_
-commit` 的取得方式敘述)**:任一個輸入檔案不存在、`preregistration_
-commit` 依上方「取得方式」現場查詢失敗(查不到/工作目錄髒/HEAD 有歧義,
-三種情況都算)、或建置當下**完整**的
+**Fail-closed 條件(第 20 輪擴充,Checkpoint 23 修正 `preregistration_
+commit` 的取得方式跟 fail-closed 判定)**:任一個輸入檔案不存在、
+`preregistration_commit` 依上方「取得方式」查不到唯一的 path-scoped
+commit/blob、上方「額外的證據完整性檢查」三項有任一項不成立、上方
+「Phase B 前置的 scoped 乾淨度檢查」清單裡任一項不符、或建置當下**完整**的
 `installed_inventory`(不只四個具名套件)跟 `requirements-v2-data-build.
 lock` 解析出的 `lock_selected_inventory` 不完全相符(缺席/版本不符/多出
 未宣告套件,三種情況都算不符,bootstrap 例外清單以外的任何差異都不能
@@ -1647,12 +1734,20 @@ implementation_identity` 跟獨立的 `verifier_identity`——審查時要能�
    兩份檔案 + 測試。
 6. 上述 1-5 的實作完成後,對**整批**受影響檔案(含 §E.1 表格列出的、現在
    就已經未提交的既有實作)執行一次 scoped git commit + 獨立複查——不能讓
-   Phase A 的「凍結雜湊」建立在一個從未被審查過的工作目錄狀態上。這次
-   commit 的 hash 就是 §C.1 的 `preregistration_commit`(**Checkpoint 22
-   只完成了本文件單獨一份的 scoped commit,不是這裡講的、含 builder/
-   verifier 程式碼+測試的那次 Phase A 完整 scoped commit——兩者是不同的
-   commit,`preregistration_commit` 指的是後者**)。這次(未來的)scoped
-   commit 也是 `authorized_verifier_identity`(§D)正式凍結的時間點。
+   Phase A 的「凍結雜湊」建立在一個從未被審查過的工作目錄狀態上。**這是
+   一次獨立的實作複查 checkpoint,它的 commit hash 不是 §C.1 的
+   `preregistration_commit`(Checkpoint 23 修正——`preregistration_
+   commit` 專指這份預註冊文件自己最後一次被改動的 commit,用
+   `git log -1 --format=%H -- <本文件路徑>` 查,不會因為之後任何其他
+   commit——含這裡講的 Phase A 實作 commit 本身——而改變)。**這次 Phase
+   A 實作 commit 涉及的每一支程式碼,身分已經各自由 `importer_identity`/
+   `extractor_identity`/`builder_identity`/`verifier_identity`/
+   `dependency_lock_identity` 涵蓋(§C.1);彙總 build receipt **可以**
+   額外把這次 Phase A 實作 commit 的 hash 記錄成稽核用的中繼資料(例如
+   `phase_a_implementation_commit` 這樣的獨立欄位),但**不能**把它寫成
+   或誤標成 `preregistration_commit`——兩者是不同語意、不同時間點的
+   commit。這次 Phase A 實作 commit 也是 `authorized_verifier_identity`
+   (§D)正式凍結的時間點。
 
 ### 最終狀態
 
