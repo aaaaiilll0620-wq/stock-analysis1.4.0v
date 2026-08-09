@@ -21,6 +21,7 @@ import os
 import sys
 import shutil
 import argparse
+import tempfile
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -48,14 +49,75 @@ def _cache_scores_dir() -> Path:
         return Path(base) / DATASET
 
 
-def _run(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
-    """在 repo 根目錄執行指令,輸出直接顯示。"""
+def _run(cmd: list, check: bool = True, cwd: Path | None = None) -> subprocess.CompletedProcess:
+    """執行指令,輸出直接顯示。cwd 預設 repo 根目錄(鏡像流程會指到 worktree)。"""
     print(f"→ {' '.join(cmd)}")
-    return subprocess.run(cmd, cwd=str(REPO_ROOT), check=check)
+    return subprocess.run(cmd, cwd=str(cwd or REPO_ROOT), check=check)
 
 
-def _git_output(cmd: list) -> str:
-    return subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True).stdout.strip()
+def _git_output(cmd: list, cwd: Path | None = None) -> str:
+    return subprocess.run(cmd, cwd=str(cwd or REPO_ROOT),
+                          capture_output=True, text=True).stdout.strip()
+
+
+# ------------------------------------------------------------------------------
+def _mirror_to_deploy_branch(deploy_branch: str, msg: str) -> int:
+    """把目前工作區的 cloud_cache/ 鏡像到部署分支並 push。
+
+    用 `git worktree` 在暫存目錄檢出部署分支,**完全不動目前工作區** ——
+    不切分支、不碰未提交的研究修改。這樣在功能分支上做研究的同時,
+    雲端快照仍然會每天更新。
+
+    註:快照同時被 commit 在目前分支與部署分支。日後功能分支併回部署分支時,
+    cloud_cache 底下的 parquet 會有 binary conflict —— 那是預期的,取任一邊即可
+    (兩邊都是同一天的快照)。
+    """
+    print(f"\n== 鏡像 cloud_cache 到部署分支 `{deploy_branch}` ==")
+    if _git_output(["git", "rev-parse", "--verify", "--quiet", deploy_branch]) == "":
+        print(f"[ERROR] 本機沒有分支 `{deploy_branch}`。請先 git fetch origin {deploy_branch}"
+              f" && git branch {deploy_branch} origin/{deploy_branch}")
+        return 1
+
+    tmp_parent = tempfile.mkdtemp(prefix="deploy_mirror_")
+    wt = Path(tmp_parent) / "wt"          # 葉節點必須不存在,worktree add 才會建立
+    try:
+        _run(["git", "fetch", "origin", deploy_branch])
+        try:
+            _run(["git", "worktree", "add", str(wt), deploy_branch])
+        except subprocess.CalledProcessError:
+            print(f"[ERROR] 無法檢出 `{deploy_branch}` 到暫存 worktree —— "
+                  f"通常是該分支已在別處被檢出。請先切離該分支再重跑。")
+            return 1
+
+        # 部署分支必須與遠端一致才 push,否則會 non-fast-forward 失敗
+        try:
+            _run(["git", "merge", "--ff-only", f"origin/{deploy_branch}"], cwd=wt)
+        except subprocess.CalledProcessError:
+            print(f"[ERROR] `{deploy_branch}` 與 origin/{deploy_branch} 已分岔,無法 fast-forward。"
+                  f"請手動處理後再重跑(本次沒有推送任何東西)。")
+            return 1
+
+        src = REPO_ROOT / "cloud_cache"
+        dst = wt / "cloud_cache"
+        if dst.exists():
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst)
+
+        _run(["git", "add", "cloud_cache"], cwd=wt)
+        if subprocess.run(["git", "diff", "--cached", "--quiet", "--", "cloud_cache"],
+                          cwd=str(wt)).returncode == 0:
+            print(f"  部署分支的 cloud_cache 已經是最新的,不需 commit/push。")
+            return 0
+
+        _run(["git", "commit", "-m", msg], cwd=wt)
+        _run(["git", "push", "origin", deploy_branch], cwd=wt)
+        print(f"  已推送到 origin/{deploy_branch} —— Streamlit Cloud 會自動重新部署。")
+        return 0
+    finally:
+        # 無論成敗都要拆掉 worktree,否則會在 .git/worktrees 留下孤兒紀錄
+        subprocess.run(["git", "worktree", "remove", "--force", str(wt)],
+                       cwd=str(REPO_ROOT), capture_output=True)
+        shutil.rmtree(tmp_parent, ignore_errors=True)
 
 
 # ------------------------------------------------------------------------------
@@ -69,8 +131,8 @@ def main() -> int:
     ap.add_argument("--message", default=None, help="自訂 commit 訊息")
     ap.add_argument("--deploy-branch", default=DEPLOY_BRANCH,
                     help=f"Streamlit Cloud 綁定的部署分支 (預設 {DEPLOY_BRANCH})")
-    ap.add_argument("--allow-branch-mismatch", action="store_true",
-                    help="⚠ 明知不在部署分支仍要 commit/push (快照不會出現在雲端網頁上)")
+    ap.add_argument("--no-mirror", action="store_true",
+                    help="⚠ 不在部署分支時,不要鏡像過去 (快照不會出現在雲端網頁上)")
     args = ap.parse_args()
 
     py = sys.executable
@@ -80,25 +142,21 @@ def main() -> int:
         print("❌ 這裡不是 git repo。請先 git init / git remote add origin … (見 DEPLOY_streamlit_cloud.md 步驟 3)。")
         return 1
 
-    # 0b) fail-closed:確認在部署分支上。**必須在任何複製/commit 之前**檢查,
-    #     否則會在功能分支上留下一個永遠到不了雲端的 commit (2026-08 的實際災情)。
+    # 0b) 確認部署分支。舊版在這裡用 rev-parse HEAD 當 push 目標,結果 2026-08-03~08-07
+    #     的快照全 commit 到功能分支,雲端停在 07-30 而腳本天天回報成功。
+    #     現在不在部署分支時**不是失敗**:快照照樣 commit 在目前分支(維持工作區乾淨),
+    #     另外用 git worktree 把同一份 cloud_cache 鏡像到部署分支並 push。
+    #     這一段刻意不用 emoji —— 直接執行(沒有 bat 的 PYTHONIOENCODING=utf-8)時,
+    #     cp950 主控台會讓 print 本身丟 UnicodeEncodeError,蓋掉最該被讀到的訊息。
     current = _git_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-    if current != args.deploy_branch and not args.allow_branch_mismatch:
-        # 這一段刻意不用 emoji:直接執行(沒有 bat 的 PYTHONIOENCODING=utf-8)時,
-        # cp950 主控台會讓 print 本身丟 UnicodeEncodeError —— 那會蓋掉這則最該被讀到的訊息。
-        print(f"\n[BLOCKED] 目前在分支 `{current}`,但 Streamlit Cloud 是從 `{args.deploy_branch}` 部署的。")
-        print("   在這裡 commit 快照,雲端網頁一輩子看不到 —— 而且腳本會回報成功,靜默停更。")
-        print("   \n   要更新雲端,請先切到部署分支:")
-        print(f"     git checkout {args.deploy_branch} && git merge --ff-only origin/{args.deploy_branch}")
-        print(f"   \n   若只想把目前分支的快照搬過去(不動程式碼):")
-        print(f"     git checkout {args.deploy_branch} && git merge --ff-only origin/{args.deploy_branch} \\")
-        print(f"       && git checkout {current} -- cloud_cache/ && git commit -m \"chore: sync cloud_cache snapshot\" \\")
-        print(f"       && git push origin {args.deploy_branch}")
-        print(f"   \n   確定要在 `{current}` 上留一個到不了雲端的 commit,才加 --allow-branch-mismatch。")
-        return 1
+    need_mirror = (current != args.deploy_branch) and not args.no_mirror
     if current != args.deploy_branch:
-        print(f"\n[WARN] --allow-branch-mismatch:在 `{current}` 上作業,"
-              f"這份快照**不會**出現在雲端(部署分支是 `{args.deploy_branch}`)。")
+        if args.no_mirror:
+            print(f"\n[WARN] 目前在 `{current}` 且指定了 --no-mirror:"
+                  f"這份快照**不會**出現在雲端(部署分支是 `{args.deploy_branch}`)。")
+        else:
+            print(f"\n[INFO] 目前在 `{current}`,不是部署分支 `{args.deploy_branch}`。"
+                  f"快照會先 commit 在本分支,再自動鏡像到部署分支。")
 
     # 1) (選用) 先重建 scores
     if args.update_all:
@@ -141,10 +199,14 @@ def main() -> int:
     _run(["git", "add", "cloud_cache"])
     staged = subprocess.run(["git", "diff", "--cached", "--quiet", "--", "cloud_cache"],
                             cwd=str(REPO_ROOT))
-    if staged.returncode == 0:
-        print("\nℹ️ cloud_cache 沒有變化 (scores 與上次快照相同),不需 commit/push。")
-        return 0
     msg = args.message or f"chore: update scores snapshot ({datetime.now():%Y-%m-%d %H:%M})"
+    if staged.returncode == 0:
+        print("\nℹ️ cloud_cache 相對本分支沒有變化,不需 commit。")
+        # 但部署分支可能仍落後 (例如本分支昨天就 commit 過、main 卻沒跟上),
+        # 所以鏡像照跑 —— 它自己會判斷部署分支那邊有沒有差異。
+        if need_mirror and not args.no_push:
+            return _mirror_to_deploy_branch(args.deploy_branch, msg)
+        return 0
     _run(["git", "commit", "-m", msg])
 
     # 提醒:若還有其他未提交的變更 (例如改了程式),本腳本只提交了 cloud_cache
@@ -169,6 +231,13 @@ def main() -> int:
         except subprocess.CalledProcessError:
             print("❌ push 仍失敗。請檢查:git remote -v 是否設好、GitHub 登入/權限是否正常。")
             return 1
+
+    # 5) 不在部署分支時,把同一份快照鏡像過去 —— 沒有這一步,雲端永遠看不到。
+    if need_mirror:
+        rc = _mirror_to_deploy_branch(args.deploy_branch, msg)
+        if rc != 0:
+            print("\n❌ 快照已 commit 到目前分支,但鏡像到部署分支失敗 —— **雲端還是舊的**。")
+            return rc
 
     print("\n🎉 完成!Streamlit Community Cloud 會自動重新部署,稍等幾分鐘選股分頁就是新的基準日。")
     return 0
