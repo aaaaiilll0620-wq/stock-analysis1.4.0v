@@ -41,3 +41,13 @@ tej_exports/inbox*/
 # ---- 例外:cloud_cache 是要『刻意提交』的 scores 快照,別忽略它 ----
 !cloud_cache/
 !cloud_cache/**
+
+# ---- Codex 審查輪的 pytest basetemp(可重生,不是證據) 2026-08-09 ----
+.pytest_codex_*/
+*.tmp
+
+# ---- 研究執行日誌:保留在本機當診斷紀錄,不進版控 ----
+# ⚠ 例外:被預註冊 §7 引用的日誌是證據,已用 ! 規則排除在忽略之外
+beat_0050/results/*.log
+beat_0050/results/*.err.log
+!beat_0050/results/overlay_all_2026-07-31.log
