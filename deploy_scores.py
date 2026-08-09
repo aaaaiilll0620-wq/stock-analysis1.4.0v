@@ -29,6 +29,11 @@ REPO_ROOT = Path(__file__).resolve().parent
 DATASET = "Scores"
 SNAPSHOT_DIR = REPO_ROOT / "cloud_cache" / DATASET
 
+# Streamlit Community Cloud 綁定的部署分支 (見 DEPLOY_streamlit_cloud.md 步驟 4)。
+# 快照推到別的分支 = 雲端看不到,而且腳本仍會回報成功 —— 2026-08-03~08-07 就是這樣
+# 靜默停更了 5 天。所以這裡改成 fail-closed:不在部署分支上就不做事、不 commit。
+DEPLOY_BRANCH = "main"
+
 
 # ------------------------------------------------------------------------------
 def _cache_scores_dir() -> Path:
@@ -62,6 +67,10 @@ def main() -> int:
                     help="先跑 build_cache.py (原始資料增量 + scores;會用 API) 再同步")
     ap.add_argument("--no-push", action="store_true", help="只同步 + commit,不 push")
     ap.add_argument("--message", default=None, help="自訂 commit 訊息")
+    ap.add_argument("--deploy-branch", default=DEPLOY_BRANCH,
+                    help=f"Streamlit Cloud 綁定的部署分支 (預設 {DEPLOY_BRANCH})")
+    ap.add_argument("--allow-branch-mismatch", action="store_true",
+                    help="⚠ 明知不在部署分支仍要 commit/push (快照不會出現在雲端網頁上)")
     args = ap.parse_args()
 
     py = sys.executable
@@ -70,6 +79,26 @@ def main() -> int:
     if not (REPO_ROOT / ".git").exists():
         print("❌ 這裡不是 git repo。請先 git init / git remote add origin … (見 DEPLOY_streamlit_cloud.md 步驟 3)。")
         return 1
+
+    # 0b) fail-closed:確認在部署分支上。**必須在任何複製/commit 之前**檢查,
+    #     否則會在功能分支上留下一個永遠到不了雲端的 commit (2026-08 的實際災情)。
+    current = _git_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+    if current != args.deploy_branch and not args.allow_branch_mismatch:
+        # 這一段刻意不用 emoji:直接執行(沒有 bat 的 PYTHONIOENCODING=utf-8)時,
+        # cp950 主控台會讓 print 本身丟 UnicodeEncodeError —— 那會蓋掉這則最該被讀到的訊息。
+        print(f"\n[BLOCKED] 目前在分支 `{current}`,但 Streamlit Cloud 是從 `{args.deploy_branch}` 部署的。")
+        print("   在這裡 commit 快照,雲端網頁一輩子看不到 —— 而且腳本會回報成功,靜默停更。")
+        print("   \n   要更新雲端,請先切到部署分支:")
+        print(f"     git checkout {args.deploy_branch} && git merge --ff-only origin/{args.deploy_branch}")
+        print(f"   \n   若只想把目前分支的快照搬過去(不動程式碼):")
+        print(f"     git checkout {args.deploy_branch} && git merge --ff-only origin/{args.deploy_branch} \\")
+        print(f"       && git checkout {current} -- cloud_cache/ && git commit -m \"chore: sync cloud_cache snapshot\" \\")
+        print(f"       && git push origin {args.deploy_branch}")
+        print(f"   \n   確定要在 `{current}` 上留一個到不了雲端的 commit,才加 --allow-branch-mismatch。")
+        return 1
+    if current != args.deploy_branch:
+        print(f"\n[WARN] --allow-branch-mismatch:在 `{current}` 上作業,"
+              f"這份快照**不會**出現在雲端(部署分支是 `{args.deploy_branch}`)。")
 
     # 1) (選用) 先重建 scores
     if args.update_all:
@@ -128,7 +157,8 @@ def main() -> int:
     if args.no_push:
         print("\n✅ 已 commit,未 push (--no-push)。確認後自行 git push。")
         return 0
-    branch = _git_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]) or "main"
+    # 用 0b 已驗證過的分支,不重新從 HEAD 推導 —— 重推導正是舊版靜默推到功能分支的原因。
+    branch = current or args.deploy_branch
     print(f"\n== push 到 origin/{branch} ==")
     try:
         _run(["git", "push", "origin", branch])
