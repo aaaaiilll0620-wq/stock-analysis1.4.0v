@@ -1,0 +1,112 @@
+{
+  "study": "P0-R1 Research / Production Identity Audit",
+  "phase": "Phase B — read-only preflight only (Phase C onward NOT authorized by this run)",
+  "run_note": "No writes to score_store, watchlist.txt, c2_fullpool_*, TEJ cache, PositionState, OrderIntent, or any research panel were performed. All commands below were reads (pandas/parquet reads, duckdb SELECT, git status/hash-object). `git hash-object -w` writes loose objects only, never touches the working tree, index, or any branch/commit.",
+
+  "resolved_callables": {
+    "R_engine": "beat_0050.strategies.high52_lab.Panel + beat_0050.strategies.high52_lab.dual_confirm_mask",
+    "P_A_source": "core.score_store.screen_by_composite_at(as_of, mode=\"balanced\")",
+    "P_B_source": "outputs/universe_pool/c2_fullpool_{as_of}.csv (written by scripts/universe_screen_daily.py)",
+    "P_fusion_path_1": "app.py tab_fusion inline block (line ~1645), description-level match, no dedicated function name claimed by prereg",
+    "P_fusion_path_2": "scripts.l4a_decision.compute_target_list(as_of, mode=\"balanced\", fusion_pct=FUSION_PCT, top_n=TOP_N) — corrected via errata E1 (see approval_receipt.json)"
+  },
+
+  "code_paths_git_status_sha256": [
+    {"path": "core/score_store.py", "git_status": "tracked-clean", "sha256": "58de00f76481ea1ce13fd6fa2f946ac0b2f3dae641e1d80f9b56319345bc7874", "in_commit_5f3f5d31": true},
+    {"path": "scripts/universe_screen_daily.py", "git_status": "tracked-modified", "sha256": "529c8ea0e83fcf399b6e98175e3e4fe6fb8ced000322023cdb10bacb935a36ae", "in_commit_5f3f5d31": false, "snapshot_git_blob_sha1": "ee6d9b836f765cb7469183ff2dde05b43fecfabc"},
+    {"path": "scripts/l4a_decision.py", "git_status": "untracked", "sha256": "74695d943c5bae9df5fb274c9a194f10b3004a688e8af1d37e32ba78a54de32e", "in_commit_5f3f5d31": false, "snapshot_git_blob_sha1": "c26de1c7436d1cee962927237e0d38beb319c5f8", "note": "not part of ANY commit — entirely untracked. This is the file containing the P-L4a fusion function (compute_target_list, per errata E1)."},
+    {"path": "app.py", "git_status": "tracked-modified", "sha256": "2eb834c3f92c2bf951835aeadc86b985db76a6072216f09636d9e499874a2f6b", "in_commit_5f3f5d31": false, "snapshot_git_blob_sha1": "60ac10a2c272674d58c0d55db432a6134ff2d23c"},
+    {"path": "beat_0050/strategies/high52_lab.py", "git_status": "tracked-clean", "sha256": "09fbe6efa34e5c6e8481adafddad58d073970227c7804c8a269e6ed29b0f72f8", "in_commit_5f3f5d31": true},
+    {"path": "core/canonical_universe.py", "git_status": "tracked-clean", "sha256": "a717f1f8e1c04efe4def04ae317e0fbd10d0340dbc6c06222eff35499e54e68b", "in_commit_5f3f5d31": true},
+    {"path": "scripts/lab_paths.py", "git_status": "tracked-clean", "sha256": "8cb132fc436d26f41c579932f636ecfa947a27f964a728f01a8d5e453528d0b0", "in_commit_5f3f5d31": true}
+  ],
+
+  "input_paths_sha256": {
+    "R": [
+      {"path": "data/research_base/obs_alpha.parquet", "sha256": "9cf8d193fcce951c8942320791888d8f143d7fcf7d5bc7314282a699c533a301", "git": "gitignored (data/)", "snapshot_git_blob_sha1": "285198c309c90417ab66943eb7c379cb03d2b014"},
+      {"path": "data/research_base/exec_ret.parquet", "sha256": "33fbc62359ddfcd88ee36d4aa027a1df526c111773a979d4e66bc5737646b3a3", "git": "gitignored (data/)", "snapshot_git_blob_sha1": "18861bf1131969f2465a0094e9be50b224512348"},
+      {"path": "data/research_base/realbody_scores_adv100w.parquet", "sha256": "a8a8bc4286d77023e36985238ba9d50a5a5ead5349e2b04c03c388bd8b4f21ab", "git": "gitignored (data/)", "snapshot_git_blob_sha1": "c45d08d16beb05a617783b8523006d9554f68d8f", "note": "resolve_realbody(1e6) selects this file exactly (F=1,000,000 == requested floor)"},
+      {"path": "beat_0050/data/benchmark/0050_tr.parquet", "sha256": "26a530b83fc31876d6205f7bdd9cf51ddebdad883afe91995f565bbeb049f3b5", "git": "gitignored (data/)", "snapshot_git_blob_sha1": "41f7991e3cae3f2e32b31b9622b76fa9c92a1915"}
+    ],
+    "P_A": [
+      {"path": "~/finmind_cache/Scores/ (per-stock parquet cache read via core/data_cache.py + duckdb)", "n_files": 972, "total_size_bytes_approx": 25165824, "batch_sha256_sorted_concat": "1f7527ba9509c1dd91fb19d104b74a3fee127ec3daf6011d919ea4abcd29a8ee", "git": "not a repo path — user home-directory cache, outside this git repository entirely", "note": "per-file sha256 + individual git-blob snapshot (git hash-object -w, works on any filesystem path regardless of repo membership) for all 972 files recorded in research/p0_r1_research_production_identity/scores_cache_blob_manifest.csv (not embedded here — too large for this JSON)."}
+    ],
+    "P_B": [
+      {"path": "outputs/universe_pool/c2_fullpool_2026-08-07.csv", "sha256": "56e37cb202d458f7405ef2ac8bb5b7cd22b3fa5373112c5a89305a229a4cd8f7", "git": "gitignored (outputs/)", "snapshot_git_blob_sha1": "15f899f241bfe1c4647728fbbbac4523f2359dd1"},
+      {"path": "outputs/universe_pool/c2_fullpool_2026-08-10.csv", "sha256": "f6c5cf2a7a0a2b4884feccace245fabd6b9049bdd721ab9c7e1f70b3e94ed036", "git": "gitignored (outputs/)", "snapshot_git_blob_sha1": "2bd865df6ec48cd47c3deaf6ee1075c47bc758b3"},
+      {"path": "outputs/universe_pool/c2_fullpool_2026-08-11.csv", "sha256": "95d65ed0c665fd0dc56eb90ce068d7592c3fcdecabb28b11fdce16471b0fc1d8", "git": "gitignored (outputs/)", "snapshot_git_blob_sha1": "d053aec53a413dfd00489d98b981d7d28976029d"}
+    ]
+  },
+
+  "fr35_resolution": {
+    "issue": "FR-35 requires a read-only snapshot or Git blob for any compared file not part of commit 5f3f5d31. data/ and outputs/ are entirely gitignored by project convention (NFR-8), so every data input is structurally 'not part of any commit'.",
+    "user_decision_2026-08-12_round_1": "Data files also require read-only snapshot/blob, not hash-only.",
+    "user_decision_2026-08-12_round_2": "`git hash-object -w` blobs are unreferenced loose objects and can be pruned by `git gc` — not durable on their own. Actual read-only, non-hard-link file copies MUST be kept in a gitignored snapshot directory, with a manifest recording per-file hash, aggregate hash, file count, size, and rebuild/verify commands.",
+    "action_taken": "Both mechanisms now exist: (1) git blobs from round 1, still present in .git/objects but explicitly documented as non-durable/secondary; (2) the authoritative durable record — genuine file copies (via `cp --no-preserve=links`, then chmod read-only) of all 979 data files (4 research parquet + 3 c2_fullpool CSVs + 972 Scores-cache parquet) under research/p0_r1_research_production_identity/data_snapshot/ (gitignored, ~82 MiB). Every copy was re-hashed and verified against the originally recorded sha256 — 0 mismatches. Full manifest: data_snapshot_manifest.json; per-file hash listing: data_snapshot_sha256sums.txt (979 lines, versionable, 154KB).",
+    "gate_r1_p_fr35_status": "satisfied via the durable snapshot (data_snapshot_manifest.json), not the git blobs alone"
+  },
+
+  "decision_dates": {
+    "R": {
+      "source": "beat_0050.strategies.high52_lab.Panel(realbody_floor=1e6).month_s (after benchmark truncation)",
+      "n_months": 255,
+      "first": "2005-01-31",
+      "last": "2026-03-31",
+      "frequency": "monthly (month-end)",
+      "truncation_note": "1 month (2026-04-30) dropped by Panel's own benchmark-clock truncation before this preflight ran — no additional truncation applied by R1."
+    },
+    "P_A": {
+      "source": "core.score_store.as_of_dates(mode)",
+      "by_mode": {
+        "balanced": {"n_dates": 24, "first": "2026-07-08", "last": "2026-08-11"},
+        "conservative": {"n_dates": 23, "first": "2026-07-09", "last": "2026-08-11"},
+        "aggressive": {"n_dates": 23, "first": "2026-07-09", "last": "2026-08-11"}
+      },
+      "frequency": "daily snapshots, not monthly decision dates"
+    },
+    "P_B": {
+      "source": "glob outputs/universe_pool/c2_fullpool_*.csv",
+      "n_dates": 3,
+      "dates": ["2026-08-07", "2026-08-10", "2026-08-11"]
+    },
+    "comparable_dates": {
+      "definition": "FR-2: full three-way date intersection of R, P-A(balanced), P-B",
+      "n_comparable_dates": 0,
+      "reason": "R's frozen decision-month range ends 2026-03-31; P-A/P-B data begins 2026-07-08/2026-08-07 respectively. No calendar overlap exists at any granularity, let alone monthly.",
+      "fr6_flag": "INSUFFICIENT_HISTORY (0 months, threshold is 24)",
+      "missing_month_marking": "Every one of R's 255 months is MISSING_P_A and MISSING_P_B. Every one of P-A's 24 / P-B's 3 dates is MISSING_R."
+    }
+  },
+
+  "contamination_check": {
+    "method": "static grep for 'bt_bundle' across repo, then confirmed absence in the specific compared-path files",
+    "files_checked": ["core/score_store.py", "scripts/l4a_decision.py", "app.py", "scripts/universe_screen_daily.py", "beat_0050/strategies/high52_lab.py", "core/canonical_universe.py", "scripts/lab_paths.py"],
+    "result": "no bt_bundle reference found in any compared-path file",
+    "caveat": "static grep only — full runtime process-module-manifest check (AC-2, NFR-2) is Phase D/E scope, not yet run"
+  },
+
+  "dirty_path_inventory_note": "Working tree has 102-103 changed paths total (git status --short) across this run, the large majority unrelated to R1 (per user instruction 2026-08-12: left as-is, not committed/stashed/reverted). Only the R1-relevant dirty/untracked files above were individually recorded and snapshotted; a full path inventory can be produced on request but was not embedded here to avoid mixing unrelated in-progress work into this study's identity claims.",
+
+  "gate_r1_p_preflight_validity": {
+    "spec_status_approved": true,
+    "all_input_paths_resolved": true,
+    "hashes_recorded": true,
+    "date_inventory_recorded": true,
+    "fr34_code_input_git_status_and_sha256_recorded": true,
+    "fr35_snapshot_for_non_baseline_files": true,
+    "no_prohibited_module_contamination_static_check": true,
+    "no_writes_to_protected_inputs": true,
+    "normalization_and_rank_semantics_frozen": "frozen at spec level in prereg (tolerance 1e-12, Top20%, native-rank-first per FR-15/18/19); not yet exercised by running code — that is Phase C/D scope",
+    "runtime_process_module_manifest_full_check": "NOT DONE this run — static grep only; full isolated-process import-graph capture is explicit Phase D/E scope (NFR-2, AC-2)",
+    "declared_result": "FAIL",
+    "overall": "Gate R1-P is declared FAIL. The individual checklist items above (paths/hashes/contamination/no-writes/etc.) were each individually satisfiable, but Gate R1-P exists to authorize entry into full reconciliation (prereg §11: \"否則 R1-P FAIL，不得進完整對帳\"), and comparable_dates = 0 means that purpose cannot be met — there is nothing to reconcile. Per user instruction 2026-08-12, this is recorded as an explicit gate FAIL, not a mechanical pass with a separate caveat."
+  },
+
+  "study_disposition": {
+    "decision_2026-08-12": "Stop after Phase B per user instruction (second closing correction, 2026-08-12). Result is NO_COMPARABLE_DATES / INSUFFICIENT_HISTORY. This finding does NOT claim null identity, does NOT claim research and production identity are the same, and does NOT claim any differences have been attributed — no comparison of any kind was possible, so no identity claim of any kind (same or different) can be made. Gate R1-P = FAIL; Gates R1-I / R1-A / R1-R = NOT EVALUATED.",
+    "finding": "comparable_dates (FR-2 three-way intersection of R, P-A, P-B) = 0. R's frozen monthly baseline ends 2026-03-31; P-A (score_store, all modes) and P-B (c2_fullpool_*.csv) both only have data starting 2026-07-08 / 2026-08-07 respectively. No D1–D5 row-level comparison is possible against the current production snapshots.",
+    "fr6_ec10_flag": "INSUFFICIENT_HISTORY (0 comparable months; threshold 24)",
+    "cause_not_investigated": "Whether score_store/c2_fullpool ever had longer history that was pruned/lost, or whether daily snapshotting is a new mechanism, was NOT investigated — out of R1's read-only-identity-audit scope per prereg. User indicated a possible separate follow-up task outside R1 to investigate this.",
+    "not_done": "Phase C (unit/synthetic validation), Phase D (freeze), Phase E (full identity reveal), Phase F (replay) were not started. No production functions were extracted for live use; no D0–D5 comparison tables were produced (there are no common dates to populate them with)."
+  }
+}

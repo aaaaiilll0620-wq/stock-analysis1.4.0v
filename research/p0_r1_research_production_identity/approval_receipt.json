@@ -1,0 +1,36 @@
+{
+  "study": "P0-R1 Research / Production Identity Audit",
+  "prereg_source": "docs/prereg_P0_R1_ResearchProductionIdentity_2026-08-12.md",
+  "approval": {
+    "approved_by": "user (chat, 2026-08-12)",
+    "user_approval": "APPROVED",
+    "approved_scope": "P0-R1 read-only identity audit only",
+    "approved_commit": {
+      "value": "5f3f5d31",
+      "note": "repository baseline only; MUST NOT be treated as representing the actual state of the compared production code/inputs (see prereg FR-33). Actual per-file git status recorded below and in preflight.json."
+    },
+    "approved_draft_sha256": "18fbd7f37735166c8bb0e5835b440b99e0686edaaf7aa9d5047e54334298be69",
+    "approved_draft_sha256_note": "sha256 of the prereg draft at the moment the user approved it (before Status/§17 fields were stamped in, and before errata E1).",
+    "implementation_authorized": "YES (scope limited to Phase B read-only preflight; Phase C onward requires separate user confirmation per prereg §17 note)",
+    "production_writes_authorized": "NO",
+    "performance_reveal_authorized": "N/A (future returns prohibited)"
+  },
+  "final_document_identity": {
+    "note": "Recorded here per user instruction — not written back into the prereg file itself. Reflects the prereg AS APPROVED, subsequently amended once via the prereg's own §3.2.1 errata process (E1, user-approved 2026-08-12).",
+    "file_path": "docs/prereg_P0_R1_ResearchProductionIdentity_2026-08-12.md",
+    "sha256_after_approval_and_errata_E1": "45cf802a04afcdbf425bcdb8e0fde47c94d66a7866180075496b383955f27130",
+    "git_blob_sha1_after_approval_and_errata_E1": "974e71c5a0e7f6351bbd5f454b1e9d3b5ffdf557",
+    "git_blob_note": "written via `git hash-object -w` — loose object only, no working-tree/index/commit change; repo untracked file at time of writing (docs/prereg_*.md was git-status '??')."
+  },
+  "errata_log": [
+    {
+      "id": "E1",
+      "date": "2026-08-12",
+      "location": "§3.2 fusion path 2",
+      "before": "scripts/l4a_decision.py::load_dual100_targets",
+      "after": "scripts/l4a_decision.py::compute_target_list(as_of, mode=\"balanced\", fusion_pct=FUSION_PCT, top_n=TOP_N)",
+      "basis": "Phase B preflight scan of scripts/l4a_decision.py found no `load_dual100_targets`; actual function is `compute_target_list` (file line 120). Docstring self-describes formula/data-source as verbatim-identical to app.py's dual-confirm tab.",
+      "approved_by": "user (chat, 2026-08-12)"
+    }
+  ]
+}

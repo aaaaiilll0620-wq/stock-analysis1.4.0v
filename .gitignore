@@ -58,3 +58,9 @@ beat_0050/results/*.err.log
 # metrics.json/canonical_universe_audit.csv/universe_audit.csv/
 # portfolio_monthly.csv/portfolio_diff.csv)進版控,逐日期明細留在本機。
 research/p0_u1_canonical_universe/canonical_universe_by_date/
+
+# ---- P0-R1 資料輸入唯讀快照封存(FR-35,2026-08-12 使用者裁決):
+# git hash-object -w 產生的 unreferenced loose object 可能被 git gc 清掉,
+# 不能當長期保存手段;改用獨立複本(非 hard-link)常駐,約 90MB,不進版控。
+# 只有彙總 manifest(data_snapshot_manifest.json)與逐檔 hash 進版控。
+research/p0_r1_research_production_identity/data_snapshot/

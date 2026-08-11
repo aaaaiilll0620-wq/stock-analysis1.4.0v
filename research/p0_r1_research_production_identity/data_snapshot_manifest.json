@@ -1,0 +1,61 @@
+{
+  "study": "P0-R1 Research / Production Identity Audit",
+  "purpose": "Durable read-only archive of the data inputs actually used by the Phase B preflight run (2026-08-12), superseding reliance on `git hash-object -w` loose objects alone — those are unreferenced by any commit/tag/ref and are eligible for `git gc` pruning, so they are not a safe long-term identity record on their own. This manifest + the snapshot directory are the durable record.",
+
+  "snapshot_dir": "research/p0_r1_research_production_identity/data_snapshot/ (gitignored — see .gitignore, NOT committed; large, ~82 MiB)",
+  "snapshot_method": "plain `cp --no-preserve=links` from each live source path — genuine independent file copies, NOT hard links, NOT git blobs. Files then chmod'd read-only (a-w) after copy.",
+  "created_at_context": "2026-08-12, during P0-R1 Phase B closing corrections (second round, per user instruction not to rely on loose objects alone)",
+
+  "file_count": 979,
+  "total_size_bytes": 85668969,
+  "aggregate_sha256": "4dbc234fde1f4ba1cc57e4a1857cd590c435d972f557ca40ad6011552bfb28b7",
+  "aggregate_sha256_definition": "sha256 of the sorted (`sort`) output of `sha256sum` run over every file in the snapshot (relative paths, GNU coreutils checksum-line format). Reproducible via the verify command below.",
+  "per_file_sha256_listing": "research/p0_r1_research_production_identity/data_snapshot_sha256sums.txt (979 lines, `sha256sum`-format, versionable — 154KB, unlike the snapshot itself)",
+
+  "contents": {
+    "research_base/": {
+      "n_files": 3,
+      "files": ["obs_alpha.parquet", "exec_ret.parquet", "realbody_scores_adv100w.parquet"],
+      "original_source": "data/research_base/ (gitignored live research input, may change over time — this snapshot pins the 2026-08-12 state)"
+    },
+    "benchmark/": {
+      "n_files": 1,
+      "files": ["0050_tr.parquet"],
+      "original_source": "beat_0050/data/benchmark/0050_tr.parquet"
+    },
+    "universe_pool/": {
+      "n_files": 3,
+      "files": ["c2_fullpool_2026-08-07.csv", "c2_fullpool_2026-08-10.csv", "c2_fullpool_2026-08-11.csv"],
+      "original_source": "outputs/universe_pool/ (production output, gitignored, grows daily — this snapshot pins only the 3 dates that existed 2026-08-12)"
+    },
+    "finmind_cache_scores/": {
+      "n_files": 972,
+      "original_source": "~/finmind_cache/Scores/*.parquet (production score_store live cache — NOT part of this git repository at all, user home-directory path)"
+    }
+  },
+
+  "integrity_verification_performed": {
+    "method": "Every one of the 979 copied files was re-hashed post-copy and compared against the sha256 already recorded in preflight.json / scores_cache_blob_manifest.csv (computed from the live source before copying).",
+    "result": "ALL 979 FILES VERIFIED — 0 mismatches, 0 missing."
+  },
+
+  "rebuild_command_if_snapshot_lost": [
+    "mkdir -p research/p0_r1_research_production_identity/data_snapshot/{research_base,benchmark,universe_pool,finmind_cache_scores}",
+    "cp --no-preserve=links data/research_base/{obs_alpha.parquet,exec_ret.parquet,realbody_scores_adv100w.parquet} research/p0_r1_research_production_identity/data_snapshot/research_base/",
+    "cp --no-preserve=links beat_0050/data/benchmark/0050_tr.parquet research/p0_r1_research_production_identity/data_snapshot/benchmark/",
+    "cp --no-preserve=links outputs/universe_pool/c2_fullpool_2026-08-0{7,}.csv outputs/universe_pool/c2_fullpool_2026-08-1{0,1}.csv research/p0_r1_research_production_identity/data_snapshot/universe_pool/  # or explicitly list the 3 dated files",
+    "cp --no-preserve=links ~/finmind_cache/Scores/*.parquet research/p0_r1_research_production_identity/data_snapshot/finmind_cache_scores/",
+    "chmod -R a-w research/p0_r1_research_production_identity/data_snapshot/",
+    "NOTE: this reproduces the SNAPSHOT MECHANISM, not necessarily identical BYTES — the live sources (data/research_base/, outputs/universe_pool/, ~/finmind_cache/Scores/) can change over time. Byte-identity to THIS 2026-08-12 snapshot can only be confirmed via the verify command below against data_snapshot_sha256sums.txt, which is the actual pinned record."
+  ],
+
+  "verify_command": [
+    "cd research/p0_r1_research_production_identity",
+    "find data_snapshot -type f \\( -name '*.parquet' -o -name '*.csv' \\) | sort | xargs sha256sum | sha256sum",
+    "# expected output: 4dbc234fde1f4ba1cc57e4a1857cd590c435d972f557ca40ad6011552bfb28b7",
+    "# for a per-file diff instead of just the aggregate:",
+    "find data_snapshot -type f \\( -name '*.parquet' -o -name '*.csv' \\) | sort | xargs sha256sum | diff - data_snapshot_sha256sums.txt"
+  ],
+
+  "relationship_to_git_blobs": "The earlier Phase B run also created `git hash-object -w` loose-object blobs for these same files (blob SHA1s recorded in preflight.json / approval_receipt.json). Those blobs still exist in .git/objects and were NOT removed by this step, but they are not referenced by any branch/tag/commit, so a future `git gc` (or `git gc --prune=now`) could delete them. This snapshot directory + this manifest is now the authoritative durable record for the data inputs; the git blobs are a redundant secondary copy, not the primary one."
+}
