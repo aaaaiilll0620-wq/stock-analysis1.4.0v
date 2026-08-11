@@ -1,0 +1,64 @@
+{
+  "study": "P0-U1 Canonical Ranking Universe Alignment",
+  "prereg": "docs/prereg_P0_U1_CanonicalUniverse_2026-08-11.md",
+  "frozen_at": "2026-08-11",
+  "scope_decision_recorded_in_chat": {
+    "target_pipeline": "research H1-H5-validated engine (beat_0050/strategies/dual100_lab.py + high52_lab.dual_confirm_mask + honest_backtest.Engine), NOT the production score_store/l4a_decision.py path",
+    "reason": "production path has never been through H1-H5 and has no full-history batch backtest loop; prereg Sec.18/21 require reusing the exact frozen H1-H5 framework, which only exists for the research engine",
+    "watchlist_question": "not applicable — the chosen engine's population A_t comes from obs_alpha (ADV-floor filtered), not watchlist.txt"
+  },
+  "git": {
+    "commit": "ef8a267e2a4040556e713f8378ade783422b368a",
+    "branch": "claude/fix-stale-scoring-tests",
+    "working_tree_dirty": true,
+    "note": "working tree had pre-existing uncommitted changes (not from this study) before U1 work began; commit hash alone does not pin the exact code state, hence explicit file sha256 hashes below."
+  },
+  "file_sha256": {
+    "docs/prereg_P0_U1_CanonicalUniverse_2026-08-11.md": "b75154fff2834960d7b40dd54bd2506be58d1fa1db1b3311bc4a60902860912e",
+    "core/canonical_universe.py": "a717f1f8e1c04efe4def04ae317e0fbd10d0340dbc6c06222eff35499e54e68b",
+    "beat_0050/strategies/high52_lab.py": "09fbe6efa34e5c6e8481adafddad58d073970227c7804c8a269e6ed29b0f72f8",
+    "beat_0050/strategies/dual100_lab.py": "391a28ecec87bf8407e466bd696d1dcfe44e6d83c36ff21a9d2478b81a0e9432",
+    "beat_0050/honest_backtest.py": "3a285817920da15db2a8b8dc09e86ddfa000ffe15f66d5af5cf4ebebc3a07578",
+    "core/scoring_manager.py": "aab73b7ff0891a4f45ac83f473866648729076fd5d6ed0b79a299fce8bba3dda"
+  },
+  "data_snapshot_sha256": {
+    "data/research_base/obs_alpha.parquet": "9cf8d193fcce951c8942320791888d8f143d7fcf7d5bc7314282a699c533a301",
+    "data/research_base/exec_ret.parquet": "33fbc62359ddfcd88ee36d4aa027a1df526c111773a979d4e66bc5737646b3a3",
+    "data/research_base/realbody_scores_adv100w.parquet": "a8a8bc4286d77023e36985238ba9d50a5a5ead5349e2b04c03c388bd8b4f21ab",
+    "beat_0050/data/benchmark/0050_tr.parquet": "26a530b83fc31876d6205f7bdd9cf51ddebdad883afe91995f565bbeb049f3b5",
+    "realbody_scores_adv100w_row_count": 263928,
+    "realbody_scores_adv100w_columns": ["as_of", "stock_id", "real_composite", "rating", "f_tech", "f_mom", "f_whale", "f_fund", "f_val"]
+  },
+  "watchlist_hash": null,
+  "watchlist_hash_note": "N/A for the chosen engine — see scope_decision_recorded_in_chat.watchlist_question",
+  "weights_version": {
+    "note": "no explicit weights_version column exists on the realbody panel; pinned instead via core/scoring_manager.py's sha256 above plus the frozen balanced-mode composite weights it currently defines",
+    "balanced_composite_weights": {"fundamental": 0.31, "valuation": 0.08, "technical": 0.19, "momentum": 0.27, "whale": 0.15}
+  },
+  "frozen_params": {
+    "TIER": "100萬",
+    "ADV_FLOOR": 1000000.0,
+    "TOP_PCT": 20,
+    "FUSION_PCT_equivalent": 20,
+    "TOP_N": null,
+    "TOP_N_note": "no TOP_N truncation concept exists at this engine layer (dual_confirm_mask returns the full intersection); TOP_N=15 concentration was separately rejected per docs/預註冊_TOP15濃縮.md and is unrelated to this engine",
+    "RET_COL": "fwd_x",
+    "source": "real",
+    "min_cov": 1.0,
+    "canonical_universe_legs": ["value_ind", "revenue_yoy", "high52_prox", "momentum"]
+  },
+  "cost_settings": {
+    "engine": "beat_0050/honest_backtest.py::Engine",
+    "COST_RT_pct_roundtrip": 0.47,
+    "SLIPPAGE_RT_pct_roundtrip": 0.25,
+    "FEE_RT_pct_roundtrip_matrix_path": 0.47,
+    "note": "these are the H1-H5 research-engine cost constants; they are NOT the same as scripts/l4b_execution.py's live BUY_COST=0.1585%/SELL_COST=0.4585% asymmetric costs — U1 does not touch the live deployment layer, see manifest.scope_decision_recorded_in_chat"
+  },
+  "reference_baseline_numbers_from_prereg_sec4": {
+    "dual100_OOS_Sharpe": 1.20,
+    "dual100_OOS_CAGR_pct": 22.79,
+    "bench_0050_Sharpe": 0.86,
+    "bench_0050_CAGR_pct": 16.52,
+    "note": "recorded here only as the prereg's own cited reference numbers, not yet re-derived by this run at freeze time (Phase A/B forbid viewing performance numbers)."
+  }
+}

@@ -51,3 +51,10 @@ tej_exports/inbox*/
 beat_0050/results/*.log
 beat_0050/results/*.err.log
 !beat_0050/results/overlay_all_2026-07-31.log
+
+# ---- P0-U1 逐日期稽核明細:255 檔 / 30MB,可由 build_structural_audit.py
+# 從 manifest.json 凍結的輸入完全重生(2026-08-12,使用者裁決)——比照上面
+# beat_0050/results/*.log 的先例,只有彙總產物(report.md/manifest.json/
+# metrics.json/canonical_universe_audit.csv/universe_audit.csv/
+# portfolio_monthly.csv/portfolio_diff.csv)進版控,逐日期明細留在本機。
+research/p0_u1_canonical_universe/canonical_universe_by_date/

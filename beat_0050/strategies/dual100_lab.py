@@ -112,9 +112,14 @@ def testable_tiers(P: Panel) -> list:
     return ok
 
 
-def tier_net(P: Panel, tier: str, slip: float | None = None) -> tuple:
-    """(月度淨報酬%, 遮罩)。slip=None 用面板實測 tick_slip;給數值則用常數。"""
-    M = dual_confirm_mask(P, tier, top_pct=TOP_PCT, source="real")
+def tier_net(P: Panel, tier: str, slip: float | None = None, canonical: bool = False) -> tuple:
+    """(月度淨報酬%, 遮罩)。slip=None 用面板實測 tick_slip;給數值則用常數。
+
+    canonical=False(預設)與抽取 --canonical 開關前逐位元相同(P0-U1 §9)。
+    canonical=True:套用 docs/prereg_P0_U1_CanonicalUniverse_2026-08-11.md 的
+    共同排名母體(A/B 同分母),唯一自變項,其餘門檻/流程完全不變。
+    """
+    M = dual_confirm_mask(P, tier, top_pct=TOP_PCT, source="real", canonical=canonical)
     S = P.SLIP if slip is None else const_slip(P, slip)
     return evaluate(M, P.RET, S), M
 
@@ -160,11 +165,11 @@ def run_verify() -> None:
 # ==============================================================================
 # H1 — 前置閘 + 兩路徑對帳(預註冊 §2 H1、§3 對帳)
 # ==============================================================================
-def run_h1(P: Panel) -> dict:
+def run_h1(P: Panel, canonical: bool = False) -> dict:
     print("\n" + "=" * 92)
-    print("H1  前置閘(in-sample):真身雙確認 @ADV≥100萬")
+    print(f"H1  前置閘(in-sample):真身雙確認 @ADV≥100萬{' [P0-U1 canonical]' if canonical else ''}")
     print("=" * 92)
-    net, M = tier_net(P, TARGET_TIER)
+    net, M = tier_net(P, TARGET_TIER, canonical=canonical)
     m = met(net)
     tn = turnover(M)
     print(f"\n{'策略':<30}{'CAGR%':>9}{'夏普':>8}{'MDD%':>9}{'月數':>7}{'月換手%':>10}")
@@ -188,7 +193,7 @@ def run_h1(P: Panel) -> dict:
     print("兩路徑對帳(矩陣 vs Engine;成本模型對齊為常數滑價 "
           f"{SLIPPAGE_RT}%)")
     print("-" * 92)
-    net_c, _ = tier_net(P, TARGET_TIER, slip=SLIPPAGE_RT)
+    net_c, _ = tier_net(P, TARGET_TIER, slip=SLIPPAGE_RT, canonical=canonical)
     em = eng.run(holdings)["monthly"]
     a = pd.Series({P.month_s[t]: net_c[t] for t in range(P.T) if np.isfinite(net_c[t])})
     b = pd.Series(em.set_index("as_of")["ret"])
@@ -214,12 +219,13 @@ def run_h1(P: Panel) -> dict:
 # ==============================================================================
 # H2 / H2b — walk-forward(主假設)
 # ==============================================================================
-def run_h2(P: Panel) -> dict:
+def run_h2(P: Panel, canonical: bool = False) -> dict:
     print("\n" + "=" * 92)
-    print("H2  walk-forward:把「選哪個 ADV 層」交給協定(high52 就是死在這關)")
+    print(f"H2  walk-forward:把「選哪個 ADV 層」交給協定(high52 就是死在這關)"
+          f"{' [P0-U1 canonical]' if canonical else ''}")
     print("=" * 92)
     tiers = testable_tiers(P)
-    NET = np.vstack([tier_net(P, t)[0] for t in tiers])
+    NET = np.vstack([tier_net(P, t, canonical=canonical)[0] for t in tiers])
     print(f"\n候選 {len(tiers)} 層 × {P.T} 月;訓練窗 ≥{WF_MIN_TRAIN} 月,每 {WF_STEP} 月重選")
 
     oos = np.full(P.T, np.nan)
@@ -279,12 +285,12 @@ def run_h2(P: Panel) -> dict:
 # ==============================================================================
 # H3 — 虛無對照(三組)+ DSR
 # ==============================================================================
-def run_h3(P: Panel, reps: int = 500) -> dict:
+def run_h3(P: Panel, reps: int = 500, canonical: bool = False) -> dict:
     print("\n" + "=" * 92)
-    print(f"H3  虛無對照(reps={reps})")
+    print(f"H3  虛無對照(reps={reps}){' [P0-U1 canonical]' if canonical else ''}")
     print("=" * 92)
     rng = np.random.default_rng(SEED)
-    net, M = tier_net(P, TARGET_TIER)
+    net, M = tier_net(P, TARGET_TIER, canonical=canonical)
     obs = met(net)
     print(f"觀測:真身雙確認 @{TARGET_TIER}  CAGR {obs['cagr']:.2f}%  夏普 {obs['sharpe']:.2f}")
 
@@ -321,7 +327,8 @@ def run_h3(P: Panel, reps: int = 500) -> dict:
     # ---- H3-3 配置置換(對宣告的搜尋空間)+ 解析式 DSR ----
     print("\n[H3-3] 配置置換:對宣告的 ADV 層搜尋空間取最大夏普的虛無分布…", flush=True)
     tiers = testable_tiers(P)
-    masks = {t: dual_confirm_mask(P, t, top_pct=TOP_PCT, source="real") for t in tiers}
+    masks = {t: dual_confirm_mask(P, t, top_pct=TOP_PCT, source="real", canonical=canonical)
+             for t in tiers}
     sh_obs = np.array([met(evaluate(masks[t], P.RET, P.SLIP)).get("sharpe", np.nan) for t in tiers])
     rng3 = np.random.default_rng(SEED + 2)
     nrep = max(50, reps // 5)
@@ -379,14 +386,14 @@ def run_h3(P: Panel, reps: int = 500) -> dict:
 # ==============================================================================
 # H4 — 滑價敏感度
 # ==============================================================================
-def run_h4(P: Panel) -> dict:
+def run_h4(P: Panel, canonical: bool = False) -> dict:
     print("\n" + "=" * 92)
-    print("H4  滑價敏感度(低 ADV 池的主要威脅)")
+    print(f"H4  滑價敏感度(低 ADV 池的主要威脅){' [P0-U1 canonical]' if canonical else ''}")
     print("=" * 92)
     print(f"\n{'來回滑價%':<12}{'CAGR%':>9}{'夏普':>8}{'MDD%':>9}{'vs 0050':>10}")
     out = {}
     for s in SLIP_GRID:
-        m = met(tier_net(P, TARGET_TIER, slip=s)[0])
+        m = met(tier_net(P, TARGET_TIER, slip=s, canonical=canonical)[0])
         out[s] = m
         mark = "✅" if m.get("sharpe", -9) > BENCH_SHARPE else "❌"
         print(f"{s:<12.2f}{m.get('cagr',np.nan):>9.2f}{m.get('sharpe',np.nan):>8.2f}"
@@ -409,11 +416,11 @@ def run_h4(P: Panel) -> dict:
 # ==============================================================================
 # H5 — 六時代穩健
 # ==============================================================================
-def run_h5(P: Panel) -> dict:
+def run_h5(P: Panel, canonical: bool = False) -> dict:
     print("\n" + "=" * 92)
-    print("H5  六時代穩健")
+    print(f"H5  六時代穩健{' [P0-U1 canonical]' if canonical else ''}")
     print("=" * 92)
-    net, M = tier_net(P, TARGET_TIER)
+    net, M = tier_net(P, TARGET_TIER, canonical=canonical)
     eng = Engine(adv_floor=ADV_FLOOR)
     ew_net = np.full(P.T, np.nan)
     ewm = eng.run(eng.universe_ew())["monthly"].set_index("as_of")["ret"]
@@ -464,9 +471,19 @@ def main() -> None:
     ap.add_argument("--part", default="verify",
                     choices=["verify", "h1", "h2", "h3", "h4", "h5", "all"])
     ap.add_argument("--reps", type=int, default=500)
+    ap.add_argument("--canonical", action="store_true",
+                    help="P0-U1(docs/prereg_P0_U1_CanonicalUniverse_2026-08-11.md):"
+                         "A/B 百分位改用共同排名母體 C_t,唯一自變項。預設關閉"
+                         "(=現行 frozen baseline,逐位元不變,§9)。")
     a = ap.parse_args()
     OUTDIR.mkdir(parents=True, exist_ok=True)
     _announce_cov_gate()
+    if a.canonical:
+        print("=" * 92)
+        print("⚠⚠ P0-U1 canonical universe 模式已開啟 —— 這不是 frozen baseline。")
+        print("   A(real_composite)與 B(c2 四腳)百分位改在共同母體 C_t 內計算,")
+        print("   其餘門檻/流程完全不變(docs/prereg_P0_U1_CanonicalUniverse_2026-08-11.md)。")
+        print("=" * 92)
 
     if a.part == "verify":
         run_verify()
@@ -479,20 +496,20 @@ def main() -> None:
 
     res = {}
     if a.part in ("h1", "all"):
-        res.update(run_h1(P))
+        res.update(run_h1(P, canonical=a.canonical))
         if a.part == "all" and not res.get("h1"):
             print("\n" + "=" * 92)
             print("H1 前置閘未過 → 依預註冊 §4,結案。不執行 H2~H5。")
             print("=" * 92)
             return
     if a.part in ("h2", "all"):
-        res.update(run_h2(P))
+        res.update(run_h2(P, canonical=a.canonical))
     if a.part in ("h3", "all"):
-        res.update(run_h3(P, a.reps))
+        res.update(run_h3(P, a.reps, canonical=a.canonical))
     if a.part in ("h4", "all"):
-        res.update(run_h4(P))
+        res.update(run_h4(P, canonical=a.canonical))
     if a.part in ("h5", "all"):
-        res.update(run_h5(P))
+        res.update(run_h5(P, canonical=a.canonical))
 
     if a.part == "all":
         print("\n" + "=" * 92)

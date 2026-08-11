@@ -1,0 +1,84 @@
+{
+  "study": "P0-U1 Canonical Ranking Universe Alignment",
+  "engine": "beat_0050/strategies/dual100_lab.py --part all [--canonical]",
+  "generated_from_logs": {
+    "baseline": "research/p0_u1_canonical_universe/baseline_full_stdout.log",
+    "u1_canonical": "research/p0_u1_canonical_universe/u1_single_reveal_stdout.log"
+  },
+  "H1_in_sample_full_period": {
+    "n_months": 255,
+    "baseline": {"cagr_pct": 20.80, "sharpe": 0.89, "mdd_pct": -68.7, "turnover_pct_monthly": 71.1},
+    "u1_canonical": {"cagr_pct": 20.66, "sharpe": 0.88, "mdd_pct": -68.7, "turnover_pct_monthly": 71.1},
+    "bench_0050": {"cagr_pct": 14.18, "sharpe": 0.68, "mdd_pct": -52.9}
+  },
+  "H1_benchmark_ladder_engine_path": {
+    "baseline": {"strategy_cagr_pct": 20.73, "strategy_sharpe": 0.89, "strategy_mdd_pct": -68.7,
+                "equal_weight_pool_cagr_pct": 11.42, "equal_weight_pool_sharpe": 0.48,
+                "matched_random_median_sharpe": 0.19, "bench_0050_cagr_pct": 14.18, "bench_0050_sharpe": 0.68,
+                "selection_effect_pp": 9.30, "footprint_effect_pp": 15.40, "opportunity_cost_pp": 6.55},
+    "u1_canonical": {"strategy_cagr_pct": 20.59, "strategy_sharpe": 0.88, "strategy_mdd_pct": -68.7,
+                     "equal_weight_pool_cagr_pct": 11.42, "equal_weight_pool_sharpe": 0.48,
+                     "matched_random_median_sharpe": 0.17, "bench_0050_cagr_pct": 14.18, "bench_0050_sharpe": 0.68,
+                     "selection_effect_pp": 9.17, "footprint_effect_pp": 15.78, "opportunity_cost_pp": 6.41},
+    "reconciliation_matrix_vs_engine_max_diff_pp": {"baseline": 0.0000, "u1_canonical": 0.0000}
+  },
+  "H2_walk_forward_OOS_main_hypothesis": {
+    "n_months": 195,
+    "oos_period": "2010-01-29 ~ 2026-03-31",
+    "n_reselections": 17,
+    "n_reselections_picked_target_tier": 17,
+    "baseline": {"cagr_pct": 22.79, "sharpe": 1.20, "mdd_pct": -28.5},
+    "u1_canonical": {"cagr_pct": 22.67, "sharpe": 1.19, "mdd_pct": -28.9},
+    "bench_0050_same_window": {"cagr_pct": 16.52, "sharpe": 0.86, "mdd_pct": -29.4},
+    "note": "baseline numbers here reproduce docs/prereg_P0_U1_CanonicalUniverse_2026-08-11.md Sec.4 and docs/預註冊_雙確認ADV100萬.md exactly (Sharpe 1.20 / CAGR 22.79%), confirming the dual_confirm_mask refactor (canonical=False default path) is bit-for-bit non-regressive."
+  },
+  "H2b_fixed_target_tier_OOS": {
+    "baseline": {"cagr_pct": 22.79, "sharpe": 1.20, "mdd_pct": -28.5},
+    "u1_canonical": {"cagr_pct": 22.67, "sharpe": 1.19, "mdd_pct": -28.9}
+  },
+  "H3_null_controls": {
+    "baseline": {"h3_1_p": 0.000, "h3_2_p": 0.0000, "h3_3_max_sharpe_permutation_p95": 0.357,
+                "h3_3_observed_sharpe": 0.888, "dsr": 0.9998, "dsr_p": 0.0002},
+    "u1_canonical": {"h3_1_p": 0.000, "h3_2_p": 0.0000, "h3_3_max_sharpe_permutation_p95": 0.358,
+                     "h3_3_observed_sharpe": 0.882, "dsr": 0.9998, "dsr_p": 0.0002}
+  },
+  "H4_slippage_sensitivity": {
+    "grid_pct_roundtrip": [0.25, 0.40, 0.60, 0.80],
+    "baseline": {"sharpe_at_grid": [0.89, 0.82, 0.73, 0.64], "breakeven_slippage_pct": 0.71},
+    "u1_canonical": {"sharpe_at_grid": [0.88, 0.81, 0.72, 0.63], "breakeven_slippage_pct": 0.70},
+    "pass_threshold": {"slippage_pct": 0.60, "sharpe_must_exceed": 0.68}
+  },
+  "H5_six_era_robustness": {
+    "eras": ["2005-2009(海嘯)", "2010-2014", "2015-2018", "2019-2021", "2022空頭", "2023-2026"],
+    "baseline": {"strategy_cagr_pct": [14.55, 17.94, 19.73, 33.36, 8.57, 29.70],
+                "strategy_sharpe": [0.42, 0.92, 1.20, 1.48, 0.35, 1.70],
+                "win_vs_equal_weight": 6, "win_vs_0050_sharpe": 4},
+    "u1_canonical": {"strategy_cagr_pct": [14.35, 17.66, 19.50, 33.35, 8.45, 29.90],
+                     "strategy_sharpe": [0.41, 0.91, 1.19, 1.48, 0.35, 1.71],
+                     "win_vs_equal_weight": 6, "win_vs_0050_sharpe": 4},
+    "thresholds": {"win_ew_min": 4, "win_bh_min": 3}
+  },
+  "holdings": {
+    "baseline": {"mean_active_months": 48.19, "median_active_months": 46.0,
+                "mean_holdings_oos_window": 53.47},
+    "u1_canonical": {"mean_active_months": 48.18, "median_active_months": 46.0,
+                     "mean_holdings_oos_window": 53.47}
+  },
+  "costs": {
+    "fee_roundtrip_pct": 0.47,
+    "slippage_roundtrip_pct": 0.25,
+    "total_roundtrip_pct": 0.72
+  },
+  "turnover_pct_monthly": {"baseline": 71.1, "u1_canonical": 71.1},
+  "gates": {
+    "U1_S_structural": "PASS",
+    "U1_V_validation": "PASS",
+    "H1": {"baseline": true, "u1_canonical": true},
+    "H2": {"baseline": true, "u1_canonical": true},
+    "H2b": {"baseline": true, "u1_canonical": true},
+    "H3": {"baseline": true, "u1_canonical": true},
+    "H4": {"baseline": true, "u1_canonical": true},
+    "H5": {"baseline": true, "u1_canonical": true}
+  },
+  "decision_tree_case": "Case A (prereg Sec.29): Structural PASS + H1-H5 PASS -> canonical universe correction may be retained as a candidate, but does NOT replace live production; next step is P0-R1 (Research/Live Identity)."
+}

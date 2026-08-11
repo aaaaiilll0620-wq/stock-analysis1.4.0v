@@ -37,8 +37,11 @@ if hasattr(sys.stdout, "reconfigure"):
 
 PROJ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJ / "scripts"))
+if str(PROJ) not in sys.path:
+    sys.path.insert(0, str(PROJ))
 from lab_paths import (resolve_realbody, REALBODY_ADV_FLOOR,   # noqa: E402
                        assert_unique, assert_no_row_growth, PANEL_KEYS)
+from core import canonical_universe                             # noqa: E402
 
 TEJ_CACHE = Path(os.environ.get("TEJ_CACHE", str(Path.home() / "tej_cache")))
 OBS_ALPHA = PROJ / "data" / "research_base" / "obs_alpha.parquet"
@@ -387,9 +390,17 @@ def full_scan(P: Panel, RET: np.ndarray | None = None, verbose: bool = True,
 # 必須明寫 source="proxy" 才跑得動,且結論不可與真身層直接並列比較。
 # ==============================================================================
 def dual_confirm_mask(P: Panel, tier: str, top_pct: int = 20,
-                      source: str = "real", min_cov: float = 1.0) -> np.ndarray:
+                      source: str = "real", min_cov: float = 1.0,
+                      canonical: bool = False) -> np.ndarray:
     # min_cov 預設 1.0(零靜默損失,Codex 第三輪第 1 點):真身分數必須覆蓋該層母體的**全部**,
     # 少一格就 raise。三層實測皆 100%。要在已知合法缺口的探索面板上跑才顯式放寬 min_cov。
+    #
+    # canonical=True(P0-U1,docs/prereg_P0_U1_CanonicalUniverse_2026-08-11.md,唯一自變項):
+    # 把 A(real_composite)與 B(c2 四腳)的百分位分母對齊到同一個共同排名母體
+    # C_t = tier_valid ∩ {real_composite 有效} ∩ {c2 四腳皆有效},取代下面各自在
+    # tier_valid 內各算各分母的現行(canonical=False)做法——A 因 min_cov=1.0 本來就
+    # 100% 覆蓋 tier_valid,真正會縮小分母的只有 B(c2 四腳任一缺值即整檔剔除)。
+    # canonical=False(預設)時,行為與抽取前逐位元相同(§9,不得藉重構改演算法)。
     valid = P.tier_valid[tier]
     if source not in ("real", "proxy"):
         raise ValueError(f"source 只能是 'real' 或 'proxy',收到 {source!r}")
@@ -406,16 +417,14 @@ def dual_confirm_mask(P: Panel, tier: str, top_pct: int = 20,
                 f"  python -m beat_0050.realbody.build_realbody_scores --adv-floor {thr:.0f}\n"
                 "只想看舊的替身結果請明寫 source='proxy'(不可與真身層並列)。")
 
+    if canonical:
+        if source != "real":
+            raise ValueError("canonical=True 目前只支援 source='real'(P0-U1 只驗真身層)。")
+        valid = canonical_universe.build_canonical_valid_mask(
+            valid, P.REAL_COMP, P.F, legs=canonical_universe.C2_LEGS)
+
     def pct(name):
-        v = P.F[name]
-        ok = valid & np.isfinite(v)
-        x = np.where(ok, v, -np.inf).astype(np.float64)
-        order = np.argsort(-x, axis=1, kind="stable")
-        rk = np.empty(order.shape, dtype=np.float64)
-        np.put_along_axis(rk, order, np.arange(1, P.S + 1, dtype=np.float64)[None, :], axis=1)
-        nv = ok.sum(1).astype(float)[:, None]
-        out = np.where(ok, 100.0 * (1.0 - (rk - 1) / np.maximum(nv, 1)), np.nan)
-        return out
+        return canonical_universe.rank_pct_desc(P.F[name], valid)
 
     f, v = pct("revenue_yoy"), pct("value_ind")
     m = pct("momentum")
@@ -427,14 +436,12 @@ def dual_confirm_mask(P: Panel, tier: str, top_pct: int = 20,
         composite = 0.31 * f + 0.08 * v + 0.19 * t + 0.27 * m + 0.15 * w
     c2 = (v + f + pct("high52_prox") + (100 - m)) / 4
 
+    if canonical:
+        canonical_universe.assert_canonical_invariants(
+            valid, composite, c2, P.stocks, P.months)
+
     def topk(score):
-        ok = valid & np.isfinite(score)
-        x = np.where(ok, score, -np.inf)
-        order = np.argsort(-x, axis=1, kind="stable")
-        rk = np.empty(order.shape, dtype=np.int32)
-        np.put_along_axis(rk, order, np.arange(1, P.S + 1, dtype=np.int32)[None, :], axis=1)
-        kk = np.maximum(1, (ok.sum(1) * top_pct // 100).astype(int))
-        return (rk <= kk[:, None]) & ok
+        return canonical_universe.topk_mask_desc(score, valid, top_pct)
 
     return topk(composite) & topk(c2)
 
