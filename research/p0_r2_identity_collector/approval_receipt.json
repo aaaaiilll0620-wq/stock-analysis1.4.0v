@@ -1,0 +1,58 @@
+{
+  "study": "P0-R2 Production History Gap Diagnosis / Forward Identity Collector",
+  "prereg_path": "docs/prereg_P0_R2_ProductionHistoryGap_ForwardIdentityCollector_2026-08-13.md",
+  "approval_event": {
+    "stage": "Stage 1",
+    "date": "2026-08-13",
+    "user_approval": "APPROVED",
+    "approved_scope": [
+      "Phase H — read-only history gap diagnosis",
+      "Offline tests (Phase C failing-tests-first)",
+      "Collector offline implementation and dry-run (Phase C minimal implementation + Phase D synthetic/frozen-snapshot dry run; no live evidence roots, no scheduling changes)",
+      "R-FWD parity adapter offline implementation and testing (Phase B/C adapter code + parity suite, offline only; R-FWD forward/live collection remains Stage 2)"
+    ],
+    "explicitly_not_authorized_this_stage": [
+      "Primary evidence root creation",
+      "Mirror evidence root creation",
+      "R-FWD forward/live collection",
+      "Collector live writes",
+      "Task Scheduler install/modify",
+      "Production calculation/state writes"
+    ]
+  },
+
+  "approved_draft": {
+    "note": "The exact pre-stamp draft content the user substantively reviewed and approved (i.e. before Status/User-approval fields were stamped into the document in this same turn).",
+    "sha256": "f609b12fb7410cc1123ac8bc35976aeac0102c92212d636c0ae4da20707f92d4",
+    "byte_length": 39462,
+    "git_blob_sha1": null,
+    "git_blob_note": "Not separately captured as a git blob before the stamping edit was applied in place; only the sha256 was recorded and reported to the user at review time. See final_stamped_document below for the durable git-object record of the actual repository state after approval."
+  },
+
+  "final_stamped_document": {
+    "note": "The document as it exists on disk immediately after this approval event (Status: APPROVED, User approval: APPROVED, and related §15 field edits applied). This is the 'final document identity' that the prereg's own §15 rule says MUST NOT be self-written into the document body.",
+    "sha256": "6e0a232e91ced5cfd8c63a37b113b9113fbfa3e2481e5e4f93fa218f5dd2d91d",
+    "byte_length": 41538,
+    "git_blob_sha1": "0cb95ce851c166a2b0d8f506f70df4875a378b2d",
+    "git_blob_capture_method": "git hash-object -w docs/prereg_P0_R2_ProductionHistoryGap_ForwardIdentityCollector_2026-08-13.md — writes a loose object only; does not touch the working tree, index, or any branch/commit.",
+    "git_blob_committed_to_any_branch": false
+  },
+
+  "approved_repository_baseline_commit": {
+    "sha1": "0337af0ce27a9c9781bb901ee6c7701e6afb016f",
+    "subject": "chore: daily auto update scores snapshot",
+    "verified_as_head_at_approval_time": true
+  },
+
+  "gates_status_at_approval": {
+    "Gate H-D": "NOT EVALUATED — Phase H not yet run",
+    "Gate C-P": "NOT EVALUATED — Phase B/C not yet run",
+    "Gate C-R": "NOT EVALUATED — Phase B/C/D not yet run",
+    "Gate C-S": "NOT EVALUATED — Phase C/D not yet run",
+    "Gate C-A": "NOT EVALUATED — Activation not requested this stage"
+  },
+
+  "stage_2_reminder": "Per user instruction 2026-08-13: after Phase H and offline tests/implementation are complete, Gates H-D/C-P/C-R/C-S MUST be disclosed to the user before any Stage 2 request. Stage 2 (live evidence roots, R-FWD forward/live collection, collector live writes, Task Scheduler install/modify, production calculation/state writes) remains entirely unauthorized until the user separately approves it.",
+
+  "no_production_side_effects_this_event": "This approval-recording action (writing this file and creating one unreferenced git blob object) made no changes to any production file, data, schedule, or state. No Phase H diagnosis, no tests, no collector code, and no evidence roots were created as part of this event."
+}
