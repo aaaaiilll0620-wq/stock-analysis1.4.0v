@@ -1,0 +1,122 @@
+{
+  "study": "P0-R2 Phase H — History Gap Diagnosis",
+  "prereg_path": "docs/prereg_P0_R2_ProductionHistoryGap_ForwardIdentityCollector_2026-08-13.md",
+  "phase": "Phase H (read-only diagnosis)",
+  "run_date": "2026-08-13",
+  "repository_baseline_commit": "0337af0ce27a9c9781bb901ee6c7701e6afb016f",
+  "approval_commit": "4e99e2fbd55d44c3c96bceb4a3607fdf5b9202de",
+
+  "method_note": "All findings below are read-only: git log/show/log -S (pickaxe), file mtimes, pandas/pyarrow read of committed and working-tree parquet/csv content, and grep across tracked source. No Scores/c2_fullpool/cloud_cache/scheduling/production files were created, moved, deleted, or modified. See protected_paths_integrity for before/after hash verification (AC-2).",
+
+  "sources": [
+    {
+      "source_id": "P-A",
+      "description": "core.score_store.screen_by_composite_at(as_of, mode) reading ~/finmind_cache/Scores/*.parquet (live local production cache; gitignored, machine-local)",
+      "date_range_examined": "earliest possible through 2026-08-13",
+      "primary_cause": "NOT_PRODUCED",
+      "confidence": "high",
+      "rationale": "core/score_store.py (the only code that ever writes this dataset) was introduced in commit 50abd0dd (2026-07-11, 'deploy: streamlit app + scores snapshot'); `git log --follow` finds no earlier ancestor of this file. The very first git-committed snapshot from that SAME commit already contains only as_of=2026-07-09 (a single date, one row per mode) for the sampled ticker (1216) -- i.e. the mechanism's first-ever invocation, not a truncated later state. There is no generation record of any kind (commit, log, backup, or file-system trace) for any as_of date before 2026-07-08/09, because the code that could have produced one did not exist yet.",
+      "evidence_refs": [
+        "git log --follow --format=... -- core/score_store.py (introducing commit 50abd0dd498fd5eb79f6ef37e7dde5a3ae671cbd, 2026-07-11)",
+        "git show 50abd0dd:cloud_cache/Scores/1216.parquet (as_of=2026-07-09 only, 1 row/mode)",
+        "research/p0_r1_research_production_identity/preflight.json decision_dates.P_A (24 dates, balanced mode first=2026-07-08, last=2026-08-11, as of 2026-08-12)"
+      ],
+      "fr3_check": "PASS -- distinguished 'code can append' (score_store.py's (as_of, mode) dedup design, confirmed unchanged since introduction) from 'history was actually produced' (no generation record exists before the code itself existed); NOT_PRODUCED was not inferred merely from current file absence."
+    },
+    {
+      "source_id": "P-A deployment mirror",
+      "description": "cloud_cache/Scores/*.parquet -- git-tracked snapshot pushed to the Streamlit Cloud deploy branch, refreshed by deploy_scores.py",
+      "date_range_examined": "2026-07-11 (introduction) through 2026-08-13 (HEAD)",
+      "primary_cause": "NOT_PRODUCED",
+      "confidence": "high",
+      "rationale": "Same root cause as P-A: this mirror is not an independent archive. deploy_scores.py performs shutil.rmtree(SNAPSHOT_DIR) followed by shutil.copytree(src, SNAPSHOT_DIR) on every successful run (source code, lines 176-178), i.e. a full wholesale wipe-and-recopy of the LOCAL finmind_cache/Scores/ source, every day. It structurally cannot retain history the local source has already lost, and cannot have ever held history the local source never had. Its date range at HEAD (2026-07-08..2026-08-12 for a sampled currently-tracked ticker) matches P-A's own range for the same reason: it IS a same-day copy of P-A.",
+      "evidence_refs": [
+        "deploy_scores.py:176-178 (rmtree + copytree)",
+        "cloud_cache/Scores/1102.parquet at HEAD: 25 distinct as_of dates, 2026-07-08..2026-08-12 (pandas read, 2026-08-13)"
+      ],
+      "secondary_finding": {
+        "description": "Three specific tickers (0050, 1101, 1201) had their cloud_cache/Scores/*.parquet content reduced to exactly 0 bytes in commit 817b9d59 (2026-07-23, 'fix: 重同步 cloud_cache/Scores 為新 schema (33欄) — 修雲端 DuckDB BinderException'), while other tickers were resized/migrated in the same commit and some newly appeared.",
+        "primary_cause": "OVERWRITTEN_OR_TRUNCATED",
+        "confidence": "medium -- fact of truncation is high-confidence (direct commit-diff evidence); the upstream causal mechanism is not fully disambiguated between two candidate explanations found in the same evidence window",
+        "candidate_mechanisms": [
+          "(a) Same-day scheduled-task crash: commit f5d2e42f (2026-07-23) documents 'wscript 中途死於 255' (scheduled run died mid-execution, exit 255) requiring a manual '補 deploy'; the three files may have been mid-write or skipped when the crash interrupted the pipeline.",
+          "(b) Universe redefinition: daily_auto_update.bat records that on 2026-07-21 the scored universe switched from a 45-stock hand-picked watchlist to an ~900-stock TEJ-derived L1 pool; 0050 (benchmark ticker, never a stock-selection candidate) and possibly 1101/1201 may have simply fallen out of the new universe and were legitimately absent from the local source that the mirror wholesale-copies from."
+        ],
+        "not_resolved": "Which mechanism (or both) explains the specific 3-ticker loss is UNRESOLVED as a matter of root cause; the OVERWRITTEN_OR_TRUNCATED classification describes the observed artifact-level fact (non-zero bytes -> 0 bytes in one commit), which is independently well-evidenced regardless of upstream cause.",
+        "materiality_note": "Does not affect the primary P-A/P-B NOT_PRODUCED conclusion; noted for completeness per FR-1's per-source-and-date-range granularity requirement, and because it demonstrates that cloud_cache/Scores/ is not fully immune to ticker-level content loss even within its short existing history."
+      },
+      "evidence_refs_secondary": [
+        "git show 817b9d59 --stat (0050.parquet, 1101.parquet, 1201.parquet: Bin N -> 0 bytes)",
+        "git show 817b9d59^:cloud_cache/Scores/2330.parquet vs git show 817b9d59:cloud_cache/Scores/2330.parquet (schema migration confirmed non-destructive for tickers that persisted)",
+        "commit f5d2e42f0bc131e0fba3ca2e45e5134553235cc5 message",
+        "commit 912b6007f9d4bbe861f675bf8e145069915c3d1a and daily_auto_update.bat changelog comment (2026-07-21 universe switch)"
+      ]
+    },
+    {
+      "source_id": "P-B",
+      "description": "outputs/universe_pool/c2_fullpool_{as_of}.csv, written by scripts/universe_screen_daily.py (full-pool c2 percentile block, ADV>=100萬, no PE-validity/value-trap filter)",
+      "date_range_examined": "earliest possible through 2026-08-13",
+      "primary_cause": "NOT_PRODUCED",
+      "confidence": "high",
+      "rationale": "The code that produces this artifact does not exist in ANY git commit (git log -S\"c2_fullpool\" -- scripts/universe_screen_daily.py returns zero commits across the file's entire history). It exists ONLY as an uncommitted working-tree diff (43 insertions, git status: tracked-modified). The diff's own code comment self-documents its introduction date: '全池 c2(2026-08-10 新增,附加輸出,不影響上面既有的 pool/shortlist)'. The script file's filesystem mtime (2026-08-10 21:09:05) corroborates this. The earliest as_of=2026-08-07 output file was demonstrably backfilled, not contemporaneous: its own mtime is 2026-08-10 (three days after its as_of label), and the actual scheduled production run that executed on 2026-08-07 (job log outputs/logs/daily_update_20260807.log, normal successful completion, no crash) contains zero mentions of c2_fullpool/全池, proving the code was not present in that day's actual run.",
+      "evidence_refs": [
+        "git log -S\"c2_fullpool\" --format=... -- scripts/universe_screen_daily.py (0 results)",
+        "git diff HEAD -- scripts/universe_screen_daily.py (uncommitted patch, self-dated comment '2026-08-10 新增')",
+        "filesystem mtime: scripts/universe_screen_daily.py = 2026-08-10 21:09:05",
+        "filesystem mtime: outputs/universe_pool/c2_fullpool_2026-08-07.csv = 2026-08-10 00:23:16 (backdated as_of label)",
+        "outputs/logs/daily_update_20260807.log: grep -c 'c2_fullpool|全池' = 0"
+      ],
+      "fr3_check": "PASS -- distinguished 'code exists (even uncommitted) and could append' from 'history was actually produced': the code did not exist in ANY form (committed or uncommitted-but-present-on-disk-that-day) before 2026-08-10, so NOT_PRODUCED before that date is a generation-record-based conclusion, not an inference from current-file-absence alone.",
+      "operational_risk_note": "Not one of the six cause-taxonomy values, but material to report: this production-critical code has never been committed to git. If the working tree were reset, cleaned, or freshly re-cloned, c2_fullpool production would stop entirely on that copy. This is a durability risk for the Collector's P-B source, independent of the history-gap question itself."
+    },
+    {
+      "source_id": "P-B deployment mirror",
+      "description": "Search for any git-tracked or cloud-synced mirror of c2_fullpool_{as_of}.csv",
+      "date_range_examined": "N/A",
+      "primary_cause": "NOT_PRODUCED",
+      "confidence": "high",
+      "rationale": "No such mirror exists. deploy_scores.py (the only script that pushes anything to cloud_cache/) only ever syncs two datasets: Scores -> cloud_cache/Scores/, and shortlist/pool/digest -> cloud_cache/UniversePool/ (lines 182-196). c2_fullpool is never referenced by deploy_scores.py. cloud_cache/UniversePool/pool_*.csv superficially resembles P-B but is confirmed (by column-schema comparison) to be a materially different population and ranking: pool_*.csv uses '_pool_pct' percentiles over the L0-L2-filtered (PE-valid, non-value-trap) population; c2_fullpool_*.csv uses '_full_pct' percentiles over the unfiltered ADV>=100萬 population. They are not interchangeable and one cannot substitute for the other as P-B evidence.",
+      "evidence_refs": [
+        "deploy_scores.py:182-196 (full sync-scope enumeration, no c2_fullpool reference)",
+        "column comparison: cloud_cache/UniversePool/pool_2026-08-12.csv (24 cols, '_pool_pct'-suffixed) vs outputs/universe_pool/c2_fullpool_2026-08-12.csv (9 cols, '_full_pct' concept as 'c2_score_full')"
+      ]
+    },
+    {
+      "source_id": "Scheduling",
+      "description": "Windows Task Scheduler jobs and their execution record",
+      "date_range_examined": "2026-07-13 (mechanism first mentioned) through 2026-08-13",
+      "primary_cause": "N/A -- not a preservation-gap source itself; documented as supporting evidence for P-A/P-B",
+      "confidence": "high (for what is documented in-repo); UNRESOLVED for live Task Scheduler run-history beyond what job logs capture",
+      "rationale": "Two scheduled tasks are defined in-repo: 'FinMind_DailyUpdate' (scripts/register_daily_task.ps1, weekdays 18:00, StartWhenAvailable+WakeToRun) and a separate Market_SnapshotCollector task (scripts/register_market_snapshot_task.ps1, 17:30). Job logs (outputs/logs/daily_update_*.log, 30-day retained) and marker logs (%LOCALAPPDATA%\\FinMind\\daily_update_*.marker.log, 30-day retained) provide execution history back to 2026-07-15 (earliest surviving log given the 30-day retention window measured from today, 2026-08-13). One confirmed crash-with-no-trace event (2026-07-22, exit 255, 'wscript 中途死於255' per commit and script comments) and a documented 5-day silent cloud-deployment stall (2026-08-03..08-07, wrong git branch, since fixed) were found.",
+      "evidence_refs": [
+        "scripts/register_daily_task.ps1 (task definition + changelog comments)",
+        "scripts/daily_auto_update.bat (pipeline steps + log paths + retention)",
+        "outputs/logs/daily_update_*.log (20 files present, 2026-07-15..2026-08-12)",
+        "commit f5d2e42f0bc131e0fba3ca2e45e5134553235cc5 (2026-07-23 crash/manual-patch note)",
+        "deploy_scores.py:33-36 (2026-08-03..08-07 silent branch-mismatch stall, code comment)"
+      ],
+      "not_available": "Live Windows Task Scheduler run-history (Task Scheduler's own internal event log / 'last run result') was NOT queried -- this diagnosis runs in a sandboxed checkout that is not confirmed to be the same physical machine that executes the registered scheduled task, and `schtasks /query` returned a shell/tooling error in this environment (not a meaningful 'task absent' result). Marked NOT_AVAILABLE per FR-2 rather than inferred from either job logs or absence."
+    }
+  ],
+
+  "active_cleanup_or_pruning_affecting_evidence_roots": false,
+  "active_cleanup_or_pruning_affecting_evidence_roots_confidence": "conditional -- see caveat",
+  "active_cleanup_or_pruning_affecting_evidence_roots_caveat": "Primary/Mirror evidence roots have not been chosen yet (Stage 2, PENDING). A repo-wide read-only search found exactly two active, currently-running cleanup/pruning mechanisms, both narrowly scoped: (1) scripts/daily_auto_update.bat lines 123-128, a 30-day forfiles prune limited to the directories outputs\\logs\\ and %LOCALAPPDATA%\\FinMind\\ and the filename patterns daily_update_*.log / daily_update_*.marker.log; (2) deploy_scores.py's daily shutil.rmtree+copytree wipe-and-refresh, limited to the two named, git-tracked directories cloud_cache/Scores/ and cloud_cache/UniversePool/. No generic, wildcard, or path-independent cleanup routine was found anywhere else in the tracked codebase (repo-wide grep for forfiles/shutil.rmtree/os.remove/os.unlink/retention/purge). Given FR-37/FR-40 already require Primary/Mirror evidence roots to be NEW, independent, gitignored paths -- structurally outside cloud_cache/, outputs/logs/, and %LOCALAPPDATA%\\FinMind\\ -- neither known mechanism can reach them BY CONSTRUCTION, so FALSE is well-supported for any root choice that respects those constraints. This is not a blanket guarantee for an arbitrary future path choice: if Stage 2 ever proposed placing an evidence root inside outputs\\logs\\, %LOCALAPPDATA%\\FinMind\\, or cloud_cache\\, this flag would need to be re-evaluated as TRUE for that specific proposal. Recommend Gate C-A re-verify this specific check mechanically once concrete Primary/Mirror paths are proposed in Stage 2 (cheap: confirm neither path is a subpath of the three named directories/patterns above). Additionally, per project convention documented in core/data_cache.py:29 and build_cache.py:16, the live production cache (finmind_cache) is deliberately kept OUTSIDE OneDrive sync to avoid file-locking/sync interference that was an open suspect in the 2026-07-22/07-23 scheduling crashes; the same convention is worth following for evidence roots, though this is a recommendation, not a Phase H finding of an active threat.",
+
+  "protected_paths_integrity": {
+    "method": "sha256 recomputed at end of Phase H session; cross-checked against research/p0_r1_research_production_identity/preflight.json's independently recorded hashes from 2026-08-12 (one day prior) for the two files that preflight also captured.",
+    "results": [
+      {"path": "core/score_store.py", "sha256_now": "58de00f76481ea1ce13fd6fa2f946ac0b2f3dae641e1d80f9b56319345bc7874", "matches_p0_r1_preflight_2026-08-12": true},
+      {"path": "scripts/universe_screen_daily.py", "sha256_now": "529c8ea0e83fcf399b6e98175e3e4fe6fb8ced000322023cdb10bacb935a36ae", "matches_p0_r1_preflight_2026-08-12": true},
+      {"path": "deploy_scores.py", "sha256_now": "29713bf55a830ad90e4ed449c231a697430308fc8c798a86b972c568020ed891", "matches_p0_r1_preflight_2026-08-12": "not captured by P0-R1; recorded here as this session's own baseline"},
+      {"path": "scripts/daily_auto_update.bat", "sha256_now": "4726ab40b16c570b52dcedeb0222221c3a9bc6c2f2621146f2d7e6db6969126d", "matches_p0_r1_preflight_2026-08-12": "not captured by P0-R1; recorded here as this session's own baseline"}
+    ],
+    "no_mutations_performed": "Confirmed via git status --short scoped to core/, scripts/, cloud_cache/, outputs/, deploy_scores.py before and after the investigation: the set of dirty/untracked paths is identical to the pre-existing working-tree state (the same ~101 unrelated dirty paths noted in P0-R1's preflight.json 'dirty_path_inventory_note', none newly touched by this session). No Scores, c2_fullpool, cloud_cache, scheduling config, or production state file was created, moved, deleted, or modified by this Phase H run."
+  },
+
+  "unresolved_items": [
+    "Exact causal mechanism for the 2026-07-23 zeroing of cloud_cache/Scores/{0050,1101,1201}.parquet (crash vs. universe redefinition vs. both) -- see P-A deployment mirror secondary_finding.",
+    "Live Windows Task Scheduler run-history (beyond what job/marker logs capture) -- marked NOT_AVAILABLE, not inferred.",
+    "Whether any daily_update_*.log/marker.log for dates before 2026-07-15 ever existed and was pruned by the 30-day retention job, vs. never having existed at all -- cannot be determined because the retention job's own action is, by design, evidence-destroying; marked NOT_AVAILABLE per FR-2/EC-15 (log absence does not prove non-production)."
+  ]
+}
