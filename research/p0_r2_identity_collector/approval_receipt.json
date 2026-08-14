@@ -54,5 +54,95 @@
 
   "stage_2_reminder": "Per user instruction 2026-08-13: after Phase H and offline tests/implementation are complete, Gates H-D/C-P/C-R/C-S MUST be disclosed to the user before any Stage 2 request. Stage 2 (live evidence roots, R-FWD forward/live collection, collector live writes, Task Scheduler install/modify, production calculation/state writes) remains entirely unauthorized until the user separately approves it.",
 
-  "no_production_side_effects_this_event": "This approval-recording action (writing this file and creating one unreferenced git blob object) made no changes to any production file, data, schedule, or state. No Phase H diagnosis, no tests, no collector code, and no evidence roots were created as part of this event."
+  "no_production_side_effects_this_event": "This approval-recording action (writing this file and creating one unreferenced git blob object) made no changes to any production file, data, schedule, or state. No Phase H diagnosis, no tests, no collector code, and no evidence roots were created as part of this event.",
+
+  "phase_b_design_approval_event": {
+    "date": "2026-08-15",
+    "user_approval": "APPROVED",
+    "approved_subjects": [
+      "P0-R2 Phase B offline design freeze revision 13",
+      "collector_schema.json revision 13",
+      "Prereg erratum E2 revision 9"
+    ],
+    "approved_scope": [
+      "Stage 1 offline Phase C failing-tests-first work",
+      "Stage 1 collector minimal offline implementation",
+      "Stage 1 synthetic and frozen-snapshot capacity dry-run",
+      "Stage 1 R-FWD parity adapter offline implementation and testing"
+    ],
+    "explicitly_not_authorized": [
+      "Primary evidence root creation",
+      "Mirror evidence root creation",
+      "R-FWD forward/live collection",
+      "Collector live writes",
+      "Task Scheduler install/modify",
+      "Production calculation/state writes"
+    ],
+    "repository_head_at_approval_time": "addef5d355861179952581ed5ab15c50e85b3c02",
+    "design_baseline_commit": "099b9b15171c1e2ffb17e932295ec3c76f60725a",
+    "approved_pre_stamp_documents": {
+      "collector_schema.json": {
+        "sha256": "33f89ae82581a6c0d11f70fe2eb0bfc96ec02ae7eee218113aee251ca406bc15",
+        "byte_length": 184424
+      },
+      "phase_b_design_freeze.md": {
+        "sha256": "9f38450809932d593527971e260d5ad77a7bf7a8398a503a9261367797877679",
+        "byte_length": 92796
+      },
+      "errata_E2_capacity_dry_run_receipt.md": {
+        "sha256": "2ff5bbaaaa8c964996694e4eaf23c50fcbf258408e9e3d3602ef6d5affad2dc0",
+        "byte_length": 21157
+      }
+    },
+    "final_stamped_documents": {
+      "collector_schema.json": {
+        "sha256": "cdf3a9677699416136cbb5d9dea1158ed961383ec43ee88cad35a909ea6442fe",
+        "byte_length": 184537,
+        "git_blob_sha1": "bbfcb6a920775bd43874059d45174a3ac78b0974",
+        "git_blob_content_sha256": "cdf3a9677699416136cbb5d9dea1158ed961383ec43ee88cad35a909ea6442fe",
+        "git_blob_byte_length": 184537
+      },
+      "phase_b_design_freeze.md": {
+        "sha256": "64598b3a3ec21c2ee329d0783c63d25b49e46370de29c134740152be05c77a78",
+        "byte_length": 94154,
+        "git_blob_sha1": "e8b8fbadcdc52953420abd8e091f65e3038daea7",
+        "git_blob_content_sha256": "e1983f4943bb25e77b42c3f64395081316af6b9091eda1e82e7e0861903b7a8b",
+        "git_blob_byte_length": 93657
+      },
+      "errata_E2_capacity_dry_run_receipt.md": {
+        "sha256": "f3d793b00789581ad65e26d17b7253cafb75e4f676fa249c419c42c38f0c9ee1",
+        "byte_length": 20725,
+        "git_blob_sha1": "bf087512969b5d5e0272c01ab893b6e3b4b5a9c0",
+        "git_blob_content_sha256": "551d5dc122e39cb54d8ccf3da61655701c9c778ee4189ffdaa300a6826d04087",
+        "git_blob_byte_length": 20641
+      }
+    },
+    "approved_prereg_integrity": {
+      "path": "docs/prereg_P0_R2_ProductionHistoryGap_ForwardIdentityCollector_2026-08-13.md",
+      "sha256": "6e0a232e91ced5cfd8c63a37b113b9113fbfa3e2481e5e4f93fa218f5dd2d91d",
+      "body_rewritten": false,
+      "note": "E2 is approved as an external erratum; the previously-approved prereg remains byte-identical."
+    },
+    "phase_transition": {
+      "phase_b_design_status": "APPROVED",
+      "erratum_e2_status": "APPROVED",
+      "phase_c_work_performed_during_approval_event": false,
+      "stage_2_status": "NOT AUTHORIZED"
+    },
+    "gates_status_at_phase_b_approval": {
+      "Gate H-D": "PASS — archived by commit 099b9b15171c1e2ffb17e932295ec3c76f60725a",
+      "Gate C-P": "NOT EVALUATED — Phase C/D capacity and persistence work not yet run",
+      "Gate C-R": "NOT EVALUATED — COMPARABLE_IDENTITY remains structurally blocked",
+      "Gate C-S": "NOT EVALUATED — offline implementation and tests not yet run",
+      "Gate C-A": "NOT EVALUATED — Stage 2 activation remains unauthorized",
+      "cleanup_pruning_note": "Phase H's FALSE finding remains conditional; concrete Stage 2 evidence roots must be mechanically re-checked before Gate C-A can be evaluated."
+    },
+    "verification_after_receipt_write": {
+      "collector_schema_sha256": "cdf3a9677699416136cbb5d9dea1158ed961383ec43ee88cad35a909ea6442fe",
+      "phase_b_design_freeze_sha256": "64598b3a3ec21c2ee329d0783c63d25b49e46370de29c134740152be05c77a78",
+      "erratum_e2_sha256": "f3d793b00789581ad65e26d17b7253cafb75e4f676fa249c419c42c38f0c9ee1",
+      "line_ending_policy": "The sha256/byte_length pairs above identify approval-time working-tree bytes. Because core.autocrlf=true, git_blob_sha1/git_blob_content_sha256/git_blob_byte_length separately identify the normalized content archived by Git and remain the durable cross-checkout identity.",
+      "note": "Final stamped document hashes were re-measured after all approval-status edits. This object is intentionally external to those documents to avoid self-reference."
+    }
+  }
 }

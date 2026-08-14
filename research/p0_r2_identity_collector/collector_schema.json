@@ -1,0 +1,4216 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/p0r2/collector_schema.json",
+  "$comment": "APPROVED 2026-08-15 for Stage 1 offline Phase C only. Phase B design freeze revision 13; companion erratum E2 revision 9 approved in the same event. design_baseline_commit records the source-code state resolved-callable hashes/constants were verified against -- not a claim that this file existed in that commit. No Phase C work occurred during the approval event. Stage 2 remains unauthorized: no evidence-root creation, live writes, R-FWD forward/live collection, Task Scheduler changes, or production calculation/state writes. Round 13 fixes one P1 blocker found in round 12's own work, plus one P2 documentation-consistency issue: (1) RFwdQualificationRef pinned the ATTEMPT by record_hash (round 9) but resolved the RESOLUTION half of the reference by scanning for 'the latest RFwdQualificationResolutionEvent' at VALIDATION time (round 12) -- meaning two validations of the SAME immutable run receipt, one before and one after a later resolution event is appended, could disagree about whether the receipt's reference is valid. This is exactly the reinterpretation-by-future-append failure RFwdQualificationRef exists to prevent (round 9's own stated purpose), reintroduced one level down for the sub-case round 9 never had to consider (attempts could not be PENDING before round 11). Fixed by adding RFwdQualificationRef.resolution_record_hash, pinning the SPECIFIC resolution event (or null, if the attempt was already QUALIFIED at write time) a receipt relied on, at write time -- check #10 (rewritten) resolves this pinned value, never the latest ledger entry, and additionally requires the pinned resolution's generated_at be no later than the receipt's own completed_at. A receipt referencing a still-unresolved QUALIFICATION_PENDING attempt (resolution_record_hash left null) is now rejected outright -- there is no longer any way to write a reference that becomes valid only later. (2) phase_b_design_freeze.md's own historical sections describing check #10's pre-round-13 behavior are marked superseded, and the test-matrix header's stale 'Notes as of revision 8' is corrected to the current revision number.",
+  "schema_version": "p0r2-collector-schema-v1",
+  "design_baseline_commit": "099b9b15171c1e2ffb17e932295ec3c76f60725a",
+  "revision_date": "2026-08-14",
+  "revision": 13,
+  "approval_status": "APPROVED — Stage 1 offline Phase C only",
+  "approval_date": "2026-08-15",
+  "depends_on_erratum": "E2 rev.9 APPROVED 2026-08-15 (errata_E2_capacity_dry_run_receipt.md)",
+  "definitions": {
+    "Sha256Hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Lowercase 64-hex SHA-256 digest, per scripts/build_v2_candidate.py's convention: sha256(json.dumps(obj, ensure_ascii=True, separators=(',',':'), sort_keys=True).encode('utf-8')).hexdigest() for objects, or a streaming 8 MiB chunked sha256 for files."
+    },
+    "Sha256HexOrNull": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "AbsolutePathHeuristic": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^([A-Za-z]:[\\\\/]|/)",
+      "description": "WEAK schema-level heuristic. Real guarantee is the semantic validator's os.path.isabs()+os.path.realpath() check."
+    },
+    "RelativeArtifactPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!.*\\.\\.)(?!.*\\\\)(?![A-Za-z]:)(?![\\\\/]).+$",
+      "description": "Rejects absolute paths (drive-letter or leading slash), backslashes (forward-slash only for cross-platform canonical stability), and any '..' substring. Used as propertyNames pattern so uniqueness is structural (JSON object keys), not a separate check."
+    },
+    "TaipeiUtcTimestampPair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "utc",
+        "local_taipei"
+      ],
+      "properties": {
+        "utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "local_taipei": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "EC-13. JSON Schema cannot verify same-instant+8:00 offset -- semantic validator."
+    },
+    "ArtifactFileEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bytes",
+        "sha256"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        }
+      }
+    },
+    "ArtifactHashManifest": {
+      "description": "Used for source_hashes.p_a/p_b/r_fwd -- production's own Scores-dataset-internal file layout, which this design does not (and need not) pin to a fixed named set, unlike the collector's own output artifacts. Still structurally garbage-rejecting: paths pattern-constrained (no absolute, no '..'), each entry closed to exactly {bytes, sha256}, non-empty.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "files",
+        "aggregate_sha256"
+      ],
+      "properties": {
+        "files": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "$ref": "#/definitions/RelativeArtifactPath"
+          },
+          "additionalProperties": {
+            "$ref": "#/definitions/ArtifactFileEntry"
+          }
+        },
+        "aggregate_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        }
+      }
+    },
+    "ArtifactHashManifestOrNull": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ArtifactHashManifest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "LiveOutputManifestPOnly": {
+      "description": "Closed, named-file manifest for a run that never touches R-FWD. Completeness is PROVEN structurally (additionalProperties:false + all 10 required) -- not asserted by a boolean. Shared between RunReceiptSuccess.output_hashes and CapacityDryRunReceipt.payload_files (per user instruction round 5 item 4: dry-run must measure every live-equivalent artifact category).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_manifest.json",
+        "code_config_manifest.json",
+        "p_a_raw_snapshot.parquet",
+        "p_a_screen_by_composite_parity.parquet",
+        "p_b_fullpool.parquet",
+        "p_app_fusion.csv",
+        "p_l4a_fusion.csv",
+        "rank_audit.csv",
+        "process_import_manifest.json",
+        "replay_manifest.json"
+      ],
+      "properties": {
+        "source_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "code_config_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_a_raw_snapshot.parquet": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_a_screen_by_composite_parity.parquet": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_b_fullpool.parquet": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_app_fusion.csv": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_l4a_fusion.csv": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "rank_audit.csv": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "process_import_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "replay_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        }
+      }
+    },
+    "LiveOutputManifestComparable": {
+      "description": "As LiveOutputManifestPOnly, plus both R-FWD files required. A Comparable-mode manifest missing either R-FWD file fails schema validation outright.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_manifest.json",
+        "code_config_manifest.json",
+        "p_a_raw_snapshot.parquet",
+        "p_a_screen_by_composite_parity.parquet",
+        "p_b_fullpool.parquet",
+        "p_app_fusion.csv",
+        "p_l4a_fusion.csv",
+        "rank_audit.csv",
+        "process_import_manifest.json",
+        "replay_manifest.json",
+        "r_fwd_scores.parquet",
+        "r_fwd_fusion.csv"
+      ],
+      "properties": {
+        "source_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "code_config_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_a_raw_snapshot.parquet": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_a_screen_by_composite_parity.parquet": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_b_fullpool.parquet": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_app_fusion.csv": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "p_l4a_fusion.csv": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "rank_audit.csv": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "process_import_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "replay_manifest.json": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "r_fwd_scores.parquet": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        },
+        "r_fwd_fusion.csv": {
+          "$ref": "#/definitions/ArtifactFileEntry"
+        }
+      }
+    },
+    "PartialOutputManifest": {
+      "description": "RunReceiptFailure.output_hashes only. A failed run may have produced zero-to-many outputs (never the full named set, or FR-34 would have committed it) -- open-ended but still structurally garbage-rejecting (path pattern, closed per-entry shape).",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/definitions/RelativeArtifactPath"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/ArtifactFileEntry"
+      }
+    },
+    "SourceHashManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "p_a",
+        "p_b",
+        "r_fwd"
+      ],
+      "properties": {
+        "p_a": {
+          "$ref": "#/definitions/ArtifactHashManifest"
+        },
+        "p_b": {
+          "$ref": "#/definitions/ArtifactHashManifest"
+        },
+        "r_fwd": {
+          "$ref": "#/definitions/ArtifactHashManifestOrNull"
+        }
+      }
+    },
+    "PartialSourceHashManifest": {
+      "description": "RunReceiptFailure only -- each of p_a/p_b/r_fwd independently nullable (a source may never have been obtained).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "p_a",
+        "p_b",
+        "r_fwd"
+      ],
+      "properties": {
+        "p_a": {
+          "$ref": "#/definitions/ArtifactHashManifestOrNull"
+        },
+        "p_b": {
+          "$ref": "#/definitions/ArtifactHashManifestOrNull"
+        },
+        "r_fwd": {
+          "$ref": "#/definitions/ArtifactHashManifestOrNull"
+        }
+      }
+    },
+    "RFwdOracleHashes": {
+      "description": "No longer part of per-run CodeHashManifest. These 5 files are the FROZEN HISTORICAL reference the R-FWD adapter is qualified against (see RFwdAdapterQualificationRecord below) -- an ongoing/future LIVE run never touches Panel/high52_lab.py/dual100_lab.py/exec_ret at all (\u00a76 of phase_b_design_freeze.md), so requiring these hashes on every COMPARABLE_IDENTITY run was itself part of round 6's wrong per-date-parity model. Retained only inside RFwdAdapterQualificationRecord, one entry in the append-only qualification ledger.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "high52_lab_sha256",
+        "dual100_lab_sha256",
+        "canonical_universe_sha256",
+        "lab_paths_sha256",
+        "build_arm_panel_sha256"
+      ],
+      "properties": {
+        "high52_lab_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "dual100_lab_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "canonical_universe_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "lab_paths_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "build_arm_panel_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "beat_0050/realbody/build_arm_panel.py -- part of the \u771f\u8eab/arm-panel construction chain feeding Panel's REAL_COMP merge. Currently uncommitted (git status M)."
+        }
+      }
+    },
+    "AuditEvidenceArtifact": {
+      "description": "A real, durable, hash-identified evidence file backing an audit claim. Round 10 (blocker 4): relative_path is now explicitly ANCHORED -- round 9 left 'relative to what?' undefined, so the path identified nothing resolvable. Paths are relative to the qualification bundle root (see QualificationBundleLocation), and artifact_role restricts them to the fixed, enumerated artifact set that bundle is defined to contain.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_role",
+        "relative_path",
+        "bytes",
+        "sha256"
+      ],
+      "properties": {
+        "artifact_role": {
+          "type": "string",
+          "enum": [
+            "PROCESS_IMPORT_MANIFEST",
+            "FUTURE_INPUT_ACCESS_TRACE"
+          ],
+          "description": "Round 10: the fixed artifact set a qualification bundle contains. Not free-form -- an evidence file with no defined role cannot be referenced."
+        },
+        "relative_path": {
+          "$ref": "#/definitions/RelativeArtifactPath",
+          "description": "Resolved against QualificationBundleLocation.bundle_relative_root, under BOTH primary_root and mirror_root (qualification evidence is dual-copy-durable on the same terms as run evidence -- FR-37/FR-38). Semantic validator check #19 verifies the path matches the canonical filename for artifact_role."
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        }
+      }
+    },
+    "QualificationBundleLocation": {
+      "description": "New round 10 (blocker 4): defines WHERE qualification evidence durably lives, so AuditEvidenceArtifact.relative_path resolves and so the evidence is retained on the same dual-copy terms as run evidence (FR-36 indefinite retention, FR-37/FR-38 dual-copy). Without this, round 9's audit artifacts were paths into nowhere. Round 11 (item 2): the bundle is now closed end-to-end, not just at artifact_set's key set -- artifact_set carries its own recomputable aggregate_sha256, mirror_verification is pinned to the CLOSED two-file shape (MirrorPerFileVerificationQualificationBundle) instead of MirrorVerification's open-ended default (which only required minProperties:1 -- a single-file 'verification' of a two-file bundle previously validated), and new semantic checks #22/#23 tie every file's bytes/sha256 across artifact_set, mirror_verification, and the audit-evidence artifacts referenced from process_isolation_audit/future_input_access_audit. A missing file, an extra file, or any bytes/sha256 divergence across those three references is now rejected.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundle_relative_root",
+        "artifact_set",
+        "dual_copy_required",
+        "mirror_verification"
+      ],
+      "properties": {
+        "bundle_relative_root": {
+          "type": "string",
+          "pattern": "^r_fwd_qualification/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "description": "Keyed by the record's own UUID (record_id minus the 'rfwdq-' prefix), under primary_root/mirror_root -- e.g. r_fwd_qualification/<uuid>/. Distinct from the per-run <identity_epoch>/<as_of>/<run_id>/ tree, because a qualification is not a run."
+        },
+        "artifact_set": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "process_import_manifest.json",
+            "future_input_access_trace.json",
+            "aggregate_sha256"
+          ],
+          "properties": {
+            "process_import_manifest.json": {
+              "$ref": "#/definitions/ArtifactFileEntry"
+            },
+            "future_input_access_trace.json": {
+              "$ref": "#/definitions/ArtifactFileEntry"
+            },
+            "aggregate_sha256": {
+              "$ref": "#/definitions/Sha256Hex",
+              "description": "Round 11 (item 2): sha256_hex(canonical_json({relative_path: sha256 for each of the two files above}, sort_keys=true)) per AggregateHashFormula's artifact_selector (ArtifactFileEntry.sha256). Previously artifact_set had no aggregate of its own at all -- only mirror_verification's primary/mirror aggregates existed, leaving the artifact_set's OWN two-file hash-of-hashes unrecorded and unrecomputable. Semantic check #22 recomputes it; check #23 additionally ties it to mirror_verification.primary_aggregate_sha256 (both describe the same two files on the primary copy, so they must agree)."
+            }
+          },
+          "description": "Round 10: the CLOSED, named artifact set -- exactly two files, matching the two AuditEvidenceArtifact roles. Same closed-manifest discipline as LiveOutputManifestPOnly. Round 11: gains aggregate_sha256, closing the gap where this set's own aggregate was never defined."
+        },
+        "dual_copy_required": {
+          "const": true,
+          "description": "Qualification evidence is written to BOTH roots and verified, exactly as run evidence is -- a qualification whose evidence exists on only one volume is not durable."
+        },
+        "mirror_verification": {
+          "description": "Round 11 (item 2): per-file + aggregate primary/mirror comparison over artifact_set, reusing MirrorVerification's status/aggregate rules verbatim (VERIFIED requires primary_aggregate_sha256==mirror_aggregate_sha256, real hashes throughout -- check #7), but with per_file_verification now pinned CLOSED to exactly the two qualification-bundle files via MirrorPerFileVerificationQualificationBundle, not the generic minProperties:1 shape. A mirror_verification naming only one of the two files, or a third file, is rejected at the schema layer. status MUST be VERIFIED for the record to be QUALIFIED (allOf on RFwdAdapterQualificationRecord); MUST be PENDING for QUALIFICATION_PENDING (round 11).",
+          "allOf": [
+            {
+              "$ref": "#/definitions/MirrorVerification"
+            },
+            {
+              "properties": {
+                "per_file_verification": {
+                  "$ref": "#/definitions/MirrorPerFileVerificationQualificationBundle"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LedgerHeadCheckpointPayload": {
+      "description": "New round 11 (item 4, corrected this round): a hash chain proves nothing about TRUNCATION -- an attacker or an accident can delete the tail and leave a shorter, still internally-consistent chain. This payload pins the ledger's current head (sequence + record_hash) plus a running count, and is dual-copy durable via LedgerHeadCheckpointRecord (below), so tail-truncation becomes detectable. Applies to both r_fwd_adapter_qualification_ledger.jsonl and the main evidence ledger. THIS object -- and only this object -- is what gets serialized (canonical_json convention) and written byte-identically to `<primary_root>/<relative_path>` and `<mirror_root>/<relative_path>` as the actual checkpoint FILE. It carries no hash of itself and no storage/verification metadata, precisely so that its own canonical-JSON hash is unambiguous and computable by a third party from `payload` alone, with nothing self-referential to exclude.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ledger_name",
+        "head_sequence",
+        "head_record_hash",
+        "record_count",
+        "checkpointed_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "ledger_name": {
+          "type": "string",
+          "enum": [
+            "r_fwd_adapter_qualification_ledger.jsonl",
+            "collector_ledger.jsonl"
+          ]
+        },
+        "head_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "head_record_hash": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "record_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "MUST equal head_sequence for a gapless 1-based ledger -- semantic validator check #20 asserts the equality AND that the on-disk ledger's actual tail matches head_sequence/head_record_hash, which is what makes truncation detectable."
+        },
+        "checkpointed_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        }
+      }
+    },
+    "LedgerHeadCheckpointRecord": {
+      "description": "Round 11 (item 4), corrected this round (user's exact repro): round-10/round-11-first-draft's `LedgerHeadCheckpoint` embedded `content_sha256` (a hash of six of its OWN sibling fields) inside the SAME object that also carried `storage.mirror_verification`, which required a per-file `primary_sha256`/`mirror_sha256` to equal that `content_sha256` -- but the actual on-disk checkpoint FILE, if it is this whole object, includes `storage`/`protection_scope`/`content_sha256` itself, so the real file's bytes (and their real SHA256) are NOT what `content_sha256` describes. A schema-valid, check-#20-passing instance is constructible where `content_sha256` recomputes correctly, `storage.mirror_verification`'s hash equals `content_sha256`, and yet the true on-disk `checkpoint.json` file's own SHA256 differs -- exactly the record_hash/record_id self-reference class of bug this schema has hit and fixed before (§4.1a), reintroduced here in a new shape. **Correction: split into two objects with disjoint roles.** `LedgerHeadCheckpointPayload` (above) is the ONLY thing serialized as the physical `<relative_path>` file on primary_root/mirror_root -- it carries no hash of itself. THIS type, `LedgerHeadCheckpointRecord`, is a SEPARATE record (written alongside, at `<relative_path>_receipt.json`, same discipline as `run_receipt.json` describing -- but never being -- the payload files it attests to): it embeds a copy of `payload` for reconstructibility, `payload_sha256`/`payload_bytes` computed over that embedded copy AFTER it is fully formed (no self-reference, same construction discipline as `CapacityDryRunReportAttempt.receipt_sha256`), and `storage.mirror_verification`, whose per-file hash is now legitimately compared against `payload_sha256` -- because `payload_sha256` is defined over `payload` ALONE, which is also the ONLY content of the physical file being dual-copy-verified. This record's own bytes are not themselves recursively dual-copy-verified, by the same design choice `run_receipt.json` makes for its own bytes: trust comes from atomic-write discipline (FR-34) plus independent recomputability of `payload_sha256` from the embedded `payload`, not from a further embedded self-hash.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "payload",
+        "payload_sha256",
+        "payload_bytes",
+        "storage",
+        "protection_scope"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "payload": {
+          "$ref": "#/definitions/LedgerHeadCheckpointPayload",
+          "description": "Embedded verbatim copy of the payload this record describes -- the same discipline as CapacityDryRunReportAttempt.receipt. Reconstructibility: a third party recomputes payload_sha256/payload_bytes from THIS field alone and compares to the stored values (semantic check #20, extended)."
+        },
+        "payload_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(payload, sort_keys=true)) -- computed over the embedded `payload` field alone, AFTER it is fully formed. This is the same value the physical checkpoint file's real on-disk SHA256 must equal, since that file's content IS canonical_json(payload) and nothing else. Never computed over any field of THIS record (schema_version/storage/protection_scope excluded by construction, not merely by convention -- they are not part of `payload`)."
+        },
+        "payload_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "len(canonical_json(payload, sort_keys=true).encode('utf-8'))."
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "relative_path",
+            "dual_copy_required",
+            "mirror_verification"
+          ],
+          "properties": {
+            "relative_path": {
+              "$ref": "#/definitions/RelativeArtifactPath",
+              "description": "Round 11: fixed per payload.ledger_name by the allOf below (<ledger_name>.checkpoint.json) -- the PAYLOAD file's own path, directly under BOTH primary_root and mirror_root, a sibling of the ledger file itself, not versioned in git (same non-evidence-root exclusion as the ledgers, FR-40). This record itself (LedgerHeadCheckpointRecord, e.g. `<ledger_name>.checkpoint_receipt.json`) is written alongside as a sibling file, not at this path -- relative_path names the PAYLOAD, not this record."
+            },
+            "dual_copy_required": {
+              "const": true
+            },
+            "mirror_verification": {
+              "description": "Round 11 (corrected this round): reuses MirrorVerification's status/aggregate rules, but per_file_verification is constrained to exactly ONE entry (maxProperties:1 -- MirrorVerification's own minProperties:1 already floors it) whose key MUST equal storage.relative_path and whose primary_sha256 (and mirror_sha256, when status=VERIFIED) MUST equal payload_sha256 -- both cross-field, schema-inexpressible, semantic check #20 (extended). This equality is now non-circular: payload_sha256 describes the PAYLOAD file's real bytes, a different, disjoint object from this record.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MirrorVerification"
+                },
+                {
+                  "properties": {
+                    "per_file_verification": {
+                      "maxProperties": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "protection_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "detects",
+            "does_not_detect",
+            "note"
+          ],
+          "properties": {
+            "detects": {
+              "const": [
+                "single_sided_ledger_truncation_without_checkpoint_update"
+              ]
+            },
+            "does_not_detect": {
+              "const": [
+                "simultaneous_rollback_of_ledger_and_checkpoint_to_a_consistent_earlier_state"
+              ]
+            },
+            "note": {
+              "const": "This checkpoint proves the ledger has not been shortened WITHOUT also rewriting the checkpoint (semantic check #20's tail-match). It provides NO protection if an actor rewrites both the ledger tail and this checkpoint together to an earlier, internally-consistent state -- head_sequence/head_record_hash/record_count/payload_sha256 would all still agree with each other and with the (rolled-back) ledger tail, just at an earlier point. Full protection against a simultaneous rollback would require an external, independently-controlled anchor (third-party timestamping, WORM storage, or an append log this collector does not itself control) -- out of scope for this design freeze. This is a deliberately NARROWED claim, not a claim of complete rollback protection; the earlier 'dual-copy durable, so tail-truncation becomes detectable' phrasing above must be read against this scope, not beyond it."
+            }
+          },
+          "description": "Round 11 (user instruction): the durability contract must not claim more than the mechanism provides. detects/does_not_detect/note are const so the narrowed scope travels with every checkpoint instance, not only with the design document's prose."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "payload": {
+                "properties": {
+                  "ledger_name": {
+                    "const": "r_fwd_adapter_qualification_ledger.jsonl"
+                  }
+                },
+                "required": [
+                  "ledger_name"
+                ]
+              }
+            },
+            "required": [
+              "payload"
+            ]
+          },
+          "then": {
+            "properties": {
+              "storage": {
+                "properties": {
+                  "relative_path": {
+                    "const": "r_fwd_adapter_qualification_ledger.jsonl.checkpoint.json"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "storage": {
+                "properties": {
+                  "relative_path": {
+                    "const": "collector_ledger.jsonl.checkpoint.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "AggregateHashFormula": {
+      "description": "New round 10 (blocker 4): FREEZES the aggregate-hash canonicalization that round 9 referred to as 'recomputed' without ever defining. Every aggregate_sha256 / primary_aggregate_sha256 / mirror_aggregate_sha256 in this schema is computed by exactly this formula; two implementations disagreeing on canonicalization would produce different 'correct' aggregates and silently break every recomputation check. Round 11 (item 4): member_selector -- a single field picking ONE of three enum values -- is replaced by `selectors`, three INDEPENDENTLY FIXED consts. The problem: one RFwdAdapterQualificationRecord now needs all three aggregates self-described at once -- artifact_set.aggregate_sha256 (round 11, over ArtifactFileEntry.sha256), mirror_verification.primary_aggregate_sha256 (over MirrorFileComparisonEntry.primary_sha256), and mirror_verification.mirror_aggregate_sha256 (over MirrorFileComparisonEntry.mirror_sha256) -- but a formula object that stores only ONE selector cannot describe the other two aggregates the same record actually contains. Storing all three as fixed consts in one object keeps the record self-describing for every aggregate it holds, not just whichever one was named last.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formula",
+        "canonical_json_rule",
+        "selectors",
+        "sort_rule",
+        "encoding"
+      ],
+      "properties": {
+        "formula": {
+          "const": "sha256_hex(canonical_json({relative_path: member_sha256 for each file}, sort_keys=true))"
+        },
+        "canonical_json_rule": {
+          "const": "json.dumps(obj, ensure_ascii=True, separators=(',',':'), sort_keys=True)",
+          "description": "Identical to the convention used everywhere else in this design (scripts/build_v2_candidate.py)."
+        },
+        "selectors": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "artifact_selector",
+            "primary_selector",
+            "mirror_selector"
+          ],
+          "properties": {
+            "artifact_selector": {
+              "const": "ArtifactFileEntry.sha256",
+              "description": "Feeds QualificationBundleLocation.artifact_set.aggregate_sha256 (round 11)."
+            },
+            "primary_selector": {
+              "const": "MirrorFileComparisonEntry.primary_sha256",
+              "description": "Feeds mirror_verification.primary_aggregate_sha256."
+            },
+            "mirror_selector": {
+              "const": "MirrorFileComparisonEntry.mirror_sha256",
+              "description": "Feeds mirror_verification.mirror_aggregate_sha256."
+            }
+          },
+          "description": "Round 11 (item 4): all three are const -- nothing is actually 'chosen' per instance, they are simultaneously frozen so the SAME formula object self-describes every aggregate the enclosing record contains. Replaces round 10's single member_selector enum pick, which could name only one of the three at a time."
+        },
+        "sort_rule": {
+          "const": "keys sorted by Unicode code point via sort_keys=True; no locale, no case folding, no path normalization"
+        },
+        "encoding": {
+          "const": "utf-8"
+        }
+      }
+    },
+    "ProcessIdentity": {
+      "description": "New round 9 (blocker 2): identifies the actual OS process that performed an audited activity, so a PASS claim is attributable rather than anonymous.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pid",
+        "executable_path",
+        "argv_sha256",
+        "started_at"
+      ],
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "executable_path": {
+          "$ref": "#/definitions/AbsolutePathHeuristic"
+        },
+        "argv_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(argv_list, sort_keys=false-preserving-order)) -- the exact command line, hashed rather than stored verbatim to avoid embedding absolute paths/secrets in the ledger."
+        },
+        "started_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        }
+      }
+    },
+    "RFwdAdapterQualificationRecord": {
+      "description": "One ATTEMPT entry in an APPEND-ONLY, HASH-CHAINED ledger -- research/p0_r2_identity_collector/r_fwd_adapter_qualification_ledger.jsonl, one JSON object per line, never overwritten in place. Round 9 (blocker 1): the append-only claim is now MECHANICAL, not textual -- sequence/prior_record_hash/record_hash mirror LedgerEvent's own chain fields exactly, so test_ledger_hash_chain has real fields to assert against (round 8's version had none, while the test matrix already claimed coverage). Round 9 (blocker 2): process_isolation_audit and future_input_access_audit now require real evidence artifacts + process identity, not a bare PASS string. qualification_status is a three-way partition (round 11, item 1): QUALIFIED requires ALL FOUR research gates (FR-25 membership exact match, FR-26 raw-score parity within tolerance, FR-24 process isolation, FR-28 future-input-access) PLUS the evidence bundle dual-copy VERIFIED; QUALIFICATION_PENDING requires the same four gates but the bundle still mirror-PENDING; QUALIFICATION_FAILED requires at least one of the four gates to have actually failed. Only a QUALIFIED record may be pinned by a live run's r_fwd_qualification_ref (semantic check #10) -- QUALIFICATION_PENDING is not durable enough to be relied on by evidence. Round 11 (corrected this round, user's exact repro): this record is IMMUTABLE at write time -- there is no append-only-safe way to flip a written record's own qualification_status from QUALIFICATION_PENDING to QUALIFIED once the bundle finishes mirroring (editing it in place would break record_hash and violate append-only discipline; appending a brand-new record with a NEW record_id cannot represent 'the same evidence finished verifying', because bundle_location.bundle_relative_root is keyed by record_id -- a new UUID would point at a different, nonexistent bundle path than the one that actually finished mirroring). record_id is therefore the STABLE ATTEMPT IDENTIFIER for this attempt's entire lifecycle, never reissued. Resolution of a PENDING attempt to QUALIFIED happens via a SEPARATE, later-appended RFwdQualificationResolutionEvent entry in the SAME hash-chained ledger stream (entry_kind discriminates the two entry shapes; RFwdQualificationLedgerEntry is the oneOf wrapper) referencing this attempt by record_id + record_hash -- the same append-only-recovery pattern LedgerEvent's 'mirror' event_type already uses for run receipts (RunReceiptSuccess.persistence_status=PENDING_MIRROR -> effective_persistence_status=COMMITTED). Round 13 correction (P1 blocker): the EFFECTIVE qualification status of an attempt is therefore a derived join (attempt.qualification_status + the SPECIFIC resolution event, if any, that a referencing receipt pins by hash) -- round 11/12 computed this join by scanning for 'the latest resolution event referencing it' at validation time, which let two validations of the same immutable referencing receipt disagree depending on whether they ran before or after a later resolution was appended. Round 13 moves the pin onto the REFERENCING receipt itself (RFwdQualificationRef.resolution_record_hash) rather than leaving it to be resolved dynamically -- see RFwdQualificationRef and semantic check #10.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "entry_kind",
+        "sequence",
+        "prior_record_hash",
+        "record_hash",
+        "record_id",
+        "generated_at",
+        "r_fwd_adapter_sha256",
+        "oracle_hashes",
+        "qualification_status",
+        "bundle_location",
+        "aggregate_hash_formula",
+        "membership_parity_result",
+        "raw_score_parity_result",
+        "process_isolation_audit",
+        "future_input_access_audit"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "entry_kind": {
+          "const": "attempt",
+          "description": "Round 11 (new): discriminates this entry shape from RFwdQualificationResolutionEvent within the same hash-chained ledger stream -- see RFwdQualificationLedgerEntry."
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Round 9: 1-based position in the qualification ledger. Same semantics as LedgerEvent.sequence. Round 11: this is now a SHARED sequence space with RFwdQualificationResolutionEvent entries -- one unified append-only chain per ledger file, not a chain of attempts alone."
+        },
+        "prior_record_hash": {
+          "$ref": "#/definitions/Sha256HexOrNull",
+          "description": "Round 9: record_hash of the preceding ledger entry; null iff sequence==1 (enforced by allOf below, same rule LedgerEvent uses). This is what makes 'append-only' verifiable -- rewriting or deleting any earlier record breaks every subsequent link."
+        },
+        "record_hash": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(this_record_without_record_hash, sort_keys=true)) -- every field of this record EXCEPT record_hash itself (which therefore COVERS record_id, sequence, prior_record_hash and all evidence fields). No self-reference. Semantic validator check #13 recomputes it."
+        },
+        "record_id": {
+          "type": "string",
+          "pattern": "^rfwdq-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "description": "Round 10 (blocker 1): FIXED CIRCULARITY. Round 9 defined record_id = 'rfwdq-' + record_hash[:16] while record_hash was computed over a body that INCLUDED record_id -- mutually dependent, and unverifiable: any arbitrary record_id yielded a self-consistent record_hash, so the stated derivation could not actually be checked (the user's exact repro). record_id is now an INDEPENDENTLY PRE-GENERATED RFC-4122 version-4 UUID (prefixed 'rfwdq-'), minted BEFORE hashing and then covered BY record_hash. Generation order is strictly: (1) mint record_id, (2) assemble the record body, (3) compute record_hash over that body. Nothing is derived from record_hash. Semantic validator check #13 verifies the UUIDv4 form and that record_id is unique across the ledger; check #17 (new round 10) verifies no record_id is a prefix-derivative of its own record_hash, guarding against the round-9 construction being reintroduced."
+        },
+        "generated_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "r_fwd_adapter_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256 of the adapter code being qualified by THIS record."
+        },
+        "oracle_hashes": {
+          "$ref": "#/definitions/RFwdOracleHashes",
+          "description": "The frozen historical reference this qualification attempt was compared against -- not a per-run dependency."
+        },
+        "qualification_status": {
+          "type": "string",
+          "enum": [
+            "QUALIFIED",
+            "QUALIFICATION_PENDING",
+            "QUALIFICATION_FAILED"
+          ],
+          "description": "Round 11 (item 1): QUALIFICATION_PENDING added. Round 10's binary QUALIFIED/QUALIFICATION_FAILED had no legal value for 'all four research gates (membership/raw-score/process-isolation/future-input-access) already PASS, but bundle_location.mirror_verification is still status=PENDING' -- QUALIFIED requires the bundle VERIFIED (unmet), and QUALIFICATION_FAILED's own allOf required at least one gate to have actually failed (none had), so that real, ordinary in-flight state validated against neither value. The three values now partition exhaustively and mutually-exclusively (allOf below): QUALIFIED = all four gates PASS AND bundle VERIFIED; QUALIFICATION_PENDING = all four gates PASS AND bundle NOT YET VERIFIED; QUALIFICATION_FAILED = at least one gate FAILED, irrespective of bundle status."
+        },
+        "bundle_location": {
+          "$ref": "#/definitions/QualificationBundleLocation",
+          "description": "Round 10 (blocker 4): where this record's audit evidence durably lives, dual-copy verified. Its bundle_relative_root UUID MUST equal this record's record_id minus the 'rfwdq-' prefix (semantic validator check #19)."
+        },
+        "aggregate_hash_formula": {
+          "$ref": "#/definitions/AggregateHashFormula",
+          "description": "Round 10 (blocker 4): the frozen canonicalization used for every aggregate in this record's bundle_location.mirror_verification. Embedded rather than merely referenced so the record stays self-describing if the schema later evolves."
+        },
+        "membership_parity_result": {
+          "description": "FR-25.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "months_tested",
+            "exact_match_count",
+            "mismatched_months"
+          ],
+          "properties": {
+            "months_tested": {
+              "const": 255,
+              "description": "FR-25: the frozen research 255 months."
+            },
+            "exact_match_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "mismatched_months": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "exact_match_count": {
+                    "const": 255
+                  }
+                },
+                "required": [
+                  "exact_match_count"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "mismatched_months": {
+                    "maxItems": 0
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "not": {
+                  "properties": {
+                    "exact_match_count": {
+                      "const": 255
+                    }
+                  },
+                  "required": [
+                    "exact_match_count"
+                  ]
+                }
+              },
+              "then": {
+                "properties": {
+                  "mismatched_months": {
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "raw_score_parity_result": {
+          "description": "New round 8 (FR-26 was entirely unchecked through round 7): 'parity suite \u5c0d\u5171\u540c raw-score keys MUST value-equivalent\uff1b\u9810\u8a2d tolerance 1e-12'.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "common_keys_count",
+            "max_abs_diff",
+            "tolerance",
+            "within_tolerance"
+          ],
+          "properties": {
+            "common_keys_count": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of common raw-score keys actually compared. Zero is illegal -- a qualification with nothing to compare cannot pass."
+            },
+            "max_abs_diff": {
+              "type": "number",
+              "minimum": 0
+            },
+            "tolerance": {
+              "const": "1e-12"
+            },
+            "within_tolerance": {
+              "type": "boolean"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "within_tolerance": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "within_tolerance"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "max_abs_diff": {
+                    "maximum": 1e-12
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "within_tolerance": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "within_tolerance"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "max_abs_diff": {
+                    "exclusiveMinimum": 1e-12
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "process_isolation_audit": {
+          "description": "FR-24: the qualification RUN itself must have been process-isolated from production capture. Round 9 (blocker 2): a PASS now requires attributable process identities for BOTH sides plus a durable, hash-identified import manifest -- round 8's version accepted a bare {status:'PASS', notes:'...'} from anyone.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "r_fwd_process",
+            "production_capture_process",
+            "import_manifest_artifact",
+            "bt_bundle_absent_from_production_process",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL"
+              ]
+            },
+            "r_fwd_process": {
+              "$ref": "#/definitions/ProcessIdentity"
+            },
+            "production_capture_process": {
+              "$ref": "#/definitions/ProcessIdentity",
+              "description": "MUST have a different pid than r_fwd_process (FR-24's core requirement). Cross-field inequality is schema-inexpressible -- semantic validator check #14."
+            },
+            "import_manifest_artifact": {
+              "$ref": "#/definitions/AuditEvidenceArtifact",
+              "description": "The durable record of what each process actually imported (e.g. a dump of sys.modules keys per process, or an equivalent import trace), so the isolation claim is re-checkable from bytes rather than trusted."
+            },
+            "bt_bundle_absent_from_production_process": {
+              "type": "boolean",
+              "description": "FR-24: the production-capture side MUST NOT have loaded beat_0050.realbody.bt_bundle or any known indirect contaminant. Must be true when status=PASS (allOf below)."
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "bt_bundle_absent_from_production_process": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "future_input_access_audit": {
+          "description": "FR-28: audit proving the adapter's LIVE execution path never reaches exec_ret.parquet/obs_alpha.parquet. This is what makes future runs safe to use the adapter WITHOUT re-checking FR-28 per date (phase_b_design_freeze.md \u00a75). Round 9 (blocker 2): a PASS now requires the enumerated forbidden-target list, the audit tool's own identity/version, and a durable hash-identified evidence artifact -- round 8's version accepted a bare {status, method, notes}.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "method",
+            "audit_tool_sha256",
+            "audited_entrypoint",
+            "forbidden_targets",
+            "forbidden_targets_reached",
+            "evidence_artifact",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL"
+              ]
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "STATIC_IMPORT_GRAPH",
+                "RUNTIME_IMPORT_MONITOR"
+              ]
+            },
+            "audit_tool_sha256": {
+              "$ref": "#/definitions/Sha256Hex",
+              "description": "sha256 of the audit tool's own source -- so 'the audit passed' is attributable to a specific, re-runnable checker, not an unnamed procedure."
+            },
+            "audited_entrypoint": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The exact module:function whose transitive reachability was audited, e.g. 'scripts.identity_collector.r_fwd_adapter:compute_forward_membership'."
+            },
+            "forbidden_targets": {
+              "type": "array",
+              "minItems": 2,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Explicit enumeration of what must be unreachable. MUST include at least the two FR-28-named artifacts (exec_ret.parquet, obs_alpha.parquet); semantic validator check #15 asserts both are present, since JSON Schema cannot require specific array members alongside uniqueItems in draft-07 without contains-per-value."
+            },
+            "forbidden_targets_reached": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Subset of forbidden_targets the audit actually found reachable. MUST be empty when status=PASS (allOf below) -- this is the field that makes PASS falsifiable."
+            },
+            "evidence_artifact": {
+              "$ref": "#/definitions/AuditEvidenceArtifact",
+              "description": "The durable import-graph / access-trace output backing this verdict."
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "forbidden_targets_reached": {
+                    "maxItems": 0
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "forbidden_targets_reached": {
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "qualification_status": {
+                "const": "QUALIFIED"
+              }
+            },
+            "required": [
+              "qualification_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "membership_parity_result": {
+                "properties": {
+                  "exact_match_count": {
+                    "const": 255
+                  }
+                }
+              },
+              "raw_score_parity_result": {
+                "properties": {
+                  "within_tolerance": {
+                    "const": true
+                  }
+                }
+              },
+              "process_isolation_audit": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  }
+                }
+              },
+              "future_input_access_audit": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  }
+                }
+              },
+              "bundle_location": {
+                "properties": {
+                  "mirror_verification": {
+                    "properties": {
+                      "status": {
+                        "const": "VERIFIED"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "QUALIFIED requires ALL FIVE to hold simultaneously -- membership exact match, raw-score tolerance, process isolation, future-input-access audit, and (round 10) the evidence bundle being dual-copy VERIFIED. Any one failing makes the whole record either QUALIFICATION_PENDING or QUALIFICATION_FAILED (round 11), never a partial QUALIFIED."
+        },
+        {
+          "if": {
+            "properties": {
+              "qualification_status": {
+                "const": "QUALIFICATION_PENDING"
+              }
+            },
+            "required": [
+              "qualification_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "membership_parity_result": {
+                "properties": {
+                  "exact_match_count": {
+                    "const": 255
+                  }
+                }
+              },
+              "raw_score_parity_result": {
+                "properties": {
+                  "within_tolerance": {
+                    "const": true
+                  }
+                }
+              },
+              "process_isolation_audit": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  }
+                }
+              },
+              "future_input_access_audit": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  }
+                }
+              },
+              "bundle_location": {
+                "properties": {
+                  "mirror_verification": {
+                    "properties": {
+                      "status": {
+                        "const": "PENDING"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "New round 11 (item 1): QUALIFICATION_PENDING requires ALL FOUR research gates to hold (same as QUALIFIED) but the evidence bundle's mirror_verification is NOT YET VERIFIED (forced to PENDING here -- MirrorVerification's own status enum has only VERIFIED/PENDING, so this is exhaustive). This is the honest label for 'the research proved itself, durability hasn't landed yet' -- distinct from an actual research failure. A record cannot sit in this state with any gate showing FAIL: that combination belongs to QUALIFICATION_FAILED below."
+        },
+        {
+          "if": {
+            "properties": {
+              "qualification_status": {
+                "const": "QUALIFICATION_FAILED"
+              }
+            },
+            "required": [
+              "qualification_status"
+            ]
+          },
+          "then": {
+            "not": {
+              "properties": {
+                "membership_parity_result": {
+                  "properties": {
+                    "exact_match_count": {
+                      "const": 255
+                    }
+                  }
+                },
+                "raw_score_parity_result": {
+                  "properties": {
+                    "within_tolerance": {
+                      "const": true
+                    }
+                  }
+                },
+                "process_isolation_audit": {
+                  "properties": {
+                    "status": {
+                      "const": "PASS"
+                    }
+                  }
+                },
+                "future_input_access_audit": {
+                  "properties": {
+                    "status": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "QUALIFICATION_FAILED requires at least one of the FOUR RESEARCH gates to have actually failed (bundle_location status is irrelevant to this value -- per user instruction, only a real research-gate failure earns FAILED; an incomplete bundle over four passing gates is QUALIFICATION_PENDING, not FAILED). Forbids claiming failure while every individual research gate shows PASS."
+        },
+        {
+          "if": {
+            "properties": {
+              "sequence": {
+                "const": 1
+              }
+            },
+            "required": [
+              "sequence"
+            ]
+          },
+          "then": {
+            "properties": {
+              "prior_record_hash": {
+                "const": null
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "prior_record_hash": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Round 9 (blocker 1): identical chain rule to LedgerEvent -- the first record has no predecessor; every later record MUST link to one. Chain CONTINUITY across records (record N's prior_record_hash == record N-1's record_hash) is cross-object and therefore schema-inexpressible -- semantic validator check #13. Round 11: 'record' here means any RFwdQualificationLedgerEntry (attempt OR resolution) -- the chain is shared across both entry_kinds."
+        }
+      ]
+    },
+    "RFwdQualificationResolutionEvent": {
+      "description": "New round 11 (corrected this round, user's exact repro): resolves a QUALIFICATION_PENDING attempt to QUALIFIED once its evidence bundle finishes mirror verification, WITHOUT editing the original attempt record and WITHOUT minting a new record_id (which would point bundle_location.bundle_relative_root at a nonexistent path). Modeled directly on LedgerEvent's 'mirror' event_type, which already solves the identical problem for RunReceiptSuccess.persistence_status=PENDING_MIRROR -> COMMITTED: an immutable original + an append-only recovery event + a derived effective status, never a mutated field. One-directional only (PENDING -> QUALIFIED) -- there is no QUALIFICATION_FAILED resolution, symmetric with LedgerEvent's own 'mirror' event forbidding a VERIFIED->PENDING regression: a resolution event only ever confirms durability catching up to research gates that already passed at attempt time, never adjudicates a gate outcome (gate results are frozen in the attempt record and cannot change).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "entry_kind",
+        "sequence",
+        "prior_record_hash",
+        "record_hash",
+        "resolves_attempt_record_id",
+        "resolves_attempt_record_hash",
+        "previous_qualification_status",
+        "new_qualification_status",
+        "mirror_verification",
+        "generated_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "entry_kind": {
+          "const": "resolution",
+          "description": "Discriminates this entry shape from RFwdAdapterQualificationRecord (entry_kind=\"attempt\") within the same hash-chained ledger stream."
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Continues the SAME 1-based sequence space as attempt entries in this ledger file -- one unified append-only chain, interleaving attempts and resolutions in write order. minimum:2 (not 1, unlike RFwdAdapterQualificationRecord): a resolution always resolves an EARLIER attempt, so it can never legally be the first entry in the ledger -- schema-structural, not deferred to a semantic check."
+        },
+        "prior_record_hash": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "record_hash of the immediately preceding ledger entry (attempt OR resolution). Always a real hash, never null -- sequence's own minimum:2 already guarantees a predecessor exists, so the null-iff-sequence==1 case RFwdAdapterQualificationRecord must handle never arises here."
+        },
+        "record_hash": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(this_entry_without_record_hash, sort_keys=true)) -- every field of this entry EXCEPT record_hash itself. Semantic validator check #13 (extended round 11 to cover both entry_kinds) recomputes it."
+        },
+        "resolves_attempt_record_id": {
+          "type": "string",
+          "pattern": "^rfwdq-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "description": "The STABLE record_id of the attempt entry being resolved -- the same UUID minted for that attempt, never a new one. This is what lets the resolution point at the SAME bundle_location.bundle_relative_root the attempt already established."
+        },
+        "resolves_attempt_record_hash": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "The EXACT record_hash of the original attempt entry being resolved -- binds this resolution to specific immutable bytes, not merely to a record_id (which alone would not detect the attempt having been tampered with). Same discipline as LedgerEvent's mirror-event payload.original_receipt_sha256. Semantic check #10 (extended round 11) resolves this reference and requires the attempt it points to actually exist, have entry_kind=\"attempt\", and have qualification_status=QUALIFICATION_PENDING at write time."
+        },
+        "previous_qualification_status": {
+          "const": "QUALIFICATION_PENDING",
+          "description": "Structurally the only resolvable starting state -- a QUALIFIED or QUALIFICATION_FAILED attempt is already terminal and has nothing to resolve."
+        },
+        "new_qualification_status": {
+          "const": "QUALIFIED",
+          "description": "One-directional: PENDING -> QUALIFIED only. There is no PENDING -> QUALIFICATION_FAILED resolution -- a bundle that never finishes mirroring simply stays PENDING (mirrors NFR-9/FR-39's fail-closed-but-never-destructive posture for run evidence); if mirror verification instead reveals a hash MISMATCH (EC-9-style), that is an operational incident to investigate, not a valid resolution event -- no resolution event with a mismatched mirror_verification can be constructed (mirror_verification.status is forced VERIFIED below)."
+        },
+        "mirror_verification": {
+          "description": "The NOW-COMPLETE evidence bundle verification for the SAME bundle at the attempt's own bundle_location.bundle_relative_root -- reuses QualificationBundleLocation's mirror_verification shape verbatim (MirrorVerification + MirrorPerFileVerificationQualificationBundle's closed 2-file constraint), status forced VERIFIED. Semantic check #10 (extended) additionally requires this mirror_verification's per-file primary hashes agree with the referenced attempt's bundle_location.artifact_set -- the same three-way consistency discipline check #23 already applies at attempt time, reapplied here so a resolution cannot silently attest to different bytes than the attempt described.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/MirrorVerification"
+            },
+            {
+              "properties": {
+                "status": {
+                  "const": "VERIFIED"
+                },
+                "per_file_verification": {
+                  "$ref": "#/definitions/MirrorPerFileVerificationQualificationBundle"
+                }
+              }
+            }
+          ]
+        },
+        "generated_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        }
+      }
+    },
+    "RFwdQualificationLedgerEntry": {
+      "description": "New round 11: convenience oneOf wrapper for validating an arbitrary line of r_fwd_adapter_qualification_ledger.jsonl, now that the ledger is a mixed stream of attempts and resolutions sharing one hash chain. Discriminated by entry_kind. Mirrors the RunReceipt oneOf[RunReceiptSuccess, RunReceiptFailure] wrapper pattern.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/RFwdAdapterQualificationRecord"
+        },
+        {
+          "$ref": "#/definitions/RFwdQualificationResolutionEvent"
+        }
+      ]
+    },
+    "RFwdQualificationRef": {
+      "description": "New round 9 (blocker 1, second half): a run pins the EXACT qualification record it relied on, by immutable hash, rather than deferring to 'whatever the latest ledger entry says'. Under round 8's latest-wins rule, appending a later requalification record silently changed the meaning of every already-written run receipt -- evidence written in the past must not be reinterpretable by future appends. All fields must agree with the referenced ledger entries (semantic validator check #10, rewritten round 9 to resolve by record_hash instead of scanning for the newest entry). Round 13 correction (P1 blocker, user's exact repro): round 11/12's fix for the ATTEMPT half of this reference (record_id+record_hash, pinned) reintroduced the identical latest-wins bug one level down, for the RESOLUTION half -- check #10 resolved 'effective qualification status' by joining the pinned attempt with 'the LATEST RFwdQualificationResolutionEvent referencing it' at VALIDATION time, not at receipt-WRITE time. Two re-validations of the SAME immutable receipt, run before and after a resolution event is later appended, could return two different verdicts for identical bytes -- exactly the reinterpretation-by-future-append failure this field type exists to prevent, now leaking back in through the one sub-reference round 9 never had to consider (attempts couldn't be PENDING before round 11). resolution_record_hash (new) closes it: the SPECIFIC resolution event (if any) a receipt relied on is now pinned by hash, at write time, exactly like the attempt itself already was.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "record_hash",
+        "r_fwd_adapter_sha256",
+        "resolution_record_hash"
+      ],
+      "properties": {
+        "record_id": {
+          "type": "string",
+          "pattern": "^rfwdq-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "description": "Round 10: matches RFwdAdapterQualificationRecord.record_id's UUIDv4 form -- no longer a record_hash prefix."
+        },
+        "record_hash": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "The referenced ATTEMPT record's record_hash. Immutable by construction -- if anyone edits that ledger entry, this reference stops resolving, which is the intended failure mode."
+        },
+        "r_fwd_adapter_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "Redundantly pinned here so a receipt is self-describing about WHICH adapter it used; MUST equal both the referenced attempt's r_fwd_adapter_sha256 and this receipt's own code_hashes.r_fwd_adapter_sha256 (semantic check #10)."
+        },
+        "resolution_record_hash": {
+          "$ref": "#/definitions/Sha256HexOrNull",
+          "description": "New round 13 (P1 blocker, closes the reinterpretation gap): pins the EXACT RFwdQualificationResolutionEvent this receipt relied on, by immutable hash -- no 'latest' lookup at any point. MUST be null iff the referenced attempt's OWN qualification_status was already QUALIFIED at attempt-write-time (self-sufficient, nothing to resolve -- and structurally nothing COULD resolve it, since RFwdQualificationResolutionEvent.previous_qualification_status is const QUALIFICATION_PENDING, so no resolution event can even exist for an attempt that was never PENDING). MUST be a real, resolvable resolution's record_hash iff the referenced attempt's OWN qualification_status was QUALIFICATION_PENDING at attempt-write-time -- semantic check #10 (rewritten round 13) requires that exact resolution exist, have entry_kind=\"resolution\", resolve THIS attempt (resolves_attempt_record_id/resolves_attempt_record_hash matching), have new_qualification_status=QUALIFIED, and have generated_at no later than this receipt's own completed_at (the resolution must have already existed at the time this receipt could have consulted it -- an explicit temporal check, on top of the causal ordering hash-pinning already implies). A run receipt referencing a PENDING attempt with resolution_record_hash left null is rejected outright: with this field required and this rule in force, there is no longer any way to write a valid reference to an attempt that has not YET been resolved, closing the 'write now, becomes valid later' race entirely -- a receipt can only ever cite a resolution that already exists, by its exact, unchangeable content."
+        }
+      }
+    },
+    "CodeHashManifest": {
+      "description": "Independent code hashes grounding what computation produced (or attempted to produce) this evidence.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "score_store_sha256",
+        "scoring_manager_sha256",
+        "fundamentals_sha256",
+        "valuation_sha256",
+        "advisor_sha256",
+        "backtest_sha256",
+        "regime_sha256",
+        "app_py_sha256",
+        "l4a_decision_sha256",
+        "technical_analysis_sha256",
+        "data_provider_sha256",
+        "industry_value_sha256",
+        "ranking_adapter_sha256",
+        "universe_screen_daily_sha256",
+        "build_cache_loader_sha256",
+        "r_fwd_adapter_sha256"
+      ],
+      "properties": {
+        "score_store_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "scoring_manager_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "fundamentals_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "valuation_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "advisor_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "backtest_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "regime_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "core/regime.py:regime_multipliers -- applied to mode_weights inside InvestmentAdvisor.advise() BEFORE the composite sum (advisor.py:108-111)."
+        },
+        "app_py_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "l4a_decision_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "technical_analysis_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "core/technical_analysis.py -- TechnicalEngine, imported as _tech in both core/backtest.py and core/score_store.py."
+        },
+        "data_provider_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "core/data_provider.py -- DataProvider, supplies percentile-rank/rev-growth/volume-concentration helpers consumed inside build_pit_stockdata."
+        },
+        "industry_value_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "core/industry_value.py -- industry_value_pct(symbol, as_of), the sector/industry-map dependency (backtest.py:340-341, imported lazily inside _industry_value_pct_safe)."
+        },
+        "ranking_adapter_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "universe_screen_daily_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "build_cache_loader_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "r_fwd_adapter_sha256": {
+          "$ref": "#/definitions/Sha256HexOrNull",
+          "description": "The hash of the SAME adapter code that produced this run's R-FWD computation, if any. Non-null only when identity_status=COMPARABLE_IDENTITY. Round 12 correction (residual pre-round-9 text): this field does NOT resolve to 'the latest qualification record' for this hash. The run's own r_fwd_qualification_ref pins one EXACT ledger entry by record_hash (round 9); THIS field is redundantly stored on the receipt so it is self-describing about which adapter it used, and semantic validator check #10 requires it agree with both the referenced entry's r_fwd_adapter_sha256 and r_fwd_qualification_ref's own copy of the same hash -- three independent copies of one value, cross-checked, never a 'latest wins' lookup. check #10 also requires the referenced entry's EFFECTIVE qualification status be QUALIFIED -- round 13 correction: this is now resolved via r_fwd_qualification_ref.resolution_record_hash, a SPECIFIC resolution event pinned by hash at receipt-write-time (never 'the latest resolution event', which round 12 used and which reintroduced the identical latest-wins problem for the resolution half of the reference)."
+        }
+      }
+    },
+    "MirrorFileComparisonEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_sha256",
+        "mirror_sha256",
+        "match"
+      ],
+      "properties": {
+        "primary_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "mirror_sha256": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        },
+        "match": {
+          "type": "boolean"
+        }
+      }
+    },
+    "MirrorPerFileVerificationPOnly": {
+      "description": "Round 6 fix (item 3b): per_file_verification's key SET must exactly match the 10-file P-only live artifact manifest -- round 5 only required minProperties:1 (any non-empty subset), which the user's re-test found accepted a single-file 'verification'. required + minProperties=maxProperties=10 together force exactly these 10 keys, no more, no fewer.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/MirrorFileComparisonEntry"
+      },
+      "propertyNames": {
+        "$ref": "#/definitions/RelativeArtifactPath"
+      },
+      "minProperties": 10,
+      "maxProperties": 10,
+      "required": [
+        "source_manifest.json",
+        "code_config_manifest.json",
+        "p_a_raw_snapshot.parquet",
+        "p_a_screen_by_composite_parity.parquet",
+        "p_b_fullpool.parquet",
+        "p_app_fusion.csv",
+        "p_l4a_fusion.csv",
+        "rank_audit.csv",
+        "process_import_manifest.json",
+        "replay_manifest.json"
+      ]
+    },
+    "MirrorPerFileVerificationComparable": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/MirrorFileComparisonEntry"
+      },
+      "propertyNames": {
+        "$ref": "#/definitions/RelativeArtifactPath"
+      },
+      "minProperties": 12,
+      "maxProperties": 12,
+      "required": [
+        "source_manifest.json",
+        "code_config_manifest.json",
+        "p_a_raw_snapshot.parquet",
+        "p_a_screen_by_composite_parity.parquet",
+        "p_b_fullpool.parquet",
+        "p_app_fusion.csv",
+        "p_l4a_fusion.csv",
+        "rank_audit.csv",
+        "process_import_manifest.json",
+        "replay_manifest.json",
+        "r_fwd_scores.parquet",
+        "r_fwd_fusion.csv"
+      ]
+    },
+    "MirrorPerFileVerificationQualificationBundle": {
+      "description": "New round 11 (item 2): the qualification-bundle analogue of MirrorPerFileVerificationPOnly/Comparable -- per_file_verification's key SET must exactly match QualificationBundleLocation.artifact_set's two files, no more, no fewer. Without this, QualificationBundleLocation.mirror_verification fell back to MirrorVerification's generic minProperties:1 shape, which a single-file 'verification' of a two-file bundle satisfied.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/MirrorFileComparisonEntry"
+      },
+      "propertyNames": {
+        "$ref": "#/definitions/RelativeArtifactPath"
+      },
+      "minProperties": 2,
+      "maxProperties": 2,
+      "required": [
+        "process_import_manifest.json",
+        "future_input_access_trace.json"
+      ]
+    },
+    "MirrorVerification": {
+      "description": "Redesigned round 5 (item 6): preserves primary/mirror PER-FILE and aggregate comparison, not a single mirror hash. Round 6: per_file_verification's file-set completeness against the live artifact manifest is enforced by the caller (RunReceiptSuccess, which knows identity_status and can pick MirrorPerFileVerificationPOnly/Comparable) -- this definition alone constrains only the per-status (VERIFIED/PENDING) value shape, since it does not itself know identity_status. Round 11: QualificationBundleLocation is a third caller, pinning MirrorPerFileVerificationQualificationBundle the same way.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "primary_aggregate_sha256",
+        "mirror_aggregate_sha256",
+        "per_file_verification"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "VERIFIED",
+            "PENDING"
+          ]
+        },
+        "primary_aggregate_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "Always known -- primary write succeeded whenever a RunReceiptSuccess exists at all."
+        },
+        "mirror_aggregate_sha256": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        },
+        "per_file_verification": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "$ref": "#/definitions/RelativeArtifactPath"
+          },
+          "additionalProperties": {
+            "$ref": "#/definitions/MirrorFileComparisonEntry"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "VERIFIED"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mirror_aggregate_sha256": {
+                "type": "string"
+              },
+              "per_file_verification": {
+                "additionalProperties": {
+                  "properties": {
+                    "mirror_sha256": {
+                      "type": "string"
+                    },
+                    "match": {
+                      "const": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "per_file_verification": {
+                "additionalProperties": {
+                  "properties": {
+                    "match": {
+                      "const": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "primary_aggregate_sha256 == mirror_aggregate_sha256 (the cross-field equality itself) is schema-inexpressible without $data -- semantic validator check #7."
+        }
+      ]
+    },
+    "SourceAttemptStatus": {
+      "description": "Part of AttemptedInputManifest. AVAILABLE requires a real observed_date + aggregate_sha256; MISSING (attempted, not found) and NOT_ATTEMPTED (never got far enough to try) both force both to null -- the schema does not let either be fabricated.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "observed_date",
+        "aggregate_sha256"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "AVAILABLE",
+            "MISSING",
+            "NOT_ATTEMPTED"
+          ]
+        },
+        "observed_date": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "aggregate_sha256": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "AVAILABLE"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "observed_date": {
+                "type": "string"
+              },
+              "aggregate_sha256": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "observed_date": {
+                "const": null
+              },
+              "aggregate_sha256": {
+                "const": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PreflightObservation": {
+      "description": "Round 11 (item 3): lock_holder_pid and disk_free_bytes now carry explicit schema maximum bounds. Previously neither field had an upper bound, so LiveReceiptProjectionPlaceholderPolicy's claim to hold 'the measured maximum-length legal value' for these two fields (lock_holder_pid=4294967295, disk_free_bytes=9223372036854775807) was an assertion the schema could not itself check -- nothing prevented a real value exceeding that assumed ceiling, which would silently make the capacity projection anti-conservative again. lock_holder_pid is bounded to 4294967295 (0xFFFFFFFF, a Windows DWORD PID -- this collector targets Windows Task Scheduler per FR-47/\u00a78). disk_free_bytes is bounded to 9223372036854775807 (int64 max, the ceiling any 64-bit free-space API can return). Semantic check #18 (extended round 11) verifies the placeholder policy's chosen values equal these schema maxima exactly, not merely that they are long strings.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lock_state",
+        "lock_holder_pid",
+        "disk_check_status",
+        "disk_free_bytes"
+      ],
+      "properties": {
+        "lock_state": {
+          "type": "string",
+          "enum": [
+            "FREE",
+            "HELD",
+            "STALE_DETECTED"
+          ]
+        },
+        "lock_holder_pid": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 4294967295,
+          "description": "Round 11: explicit maximum, a Windows DWORD PID ceiling (0xFFFFFFFF)."
+        },
+        "disk_check_status": {
+          "type": "string",
+          "enum": [
+            "OK",
+            "LOW",
+            "UNKNOWN"
+          ]
+        },
+        "disk_free_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854775807,
+          "description": "Round 11: explicit maximum, int64 max -- the ceiling any 64-bit free-space API can report."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "lock_state": {
+                "enum": [
+                  "HELD",
+                  "STALE_DETECTED"
+                ]
+              }
+            },
+            "required": [
+              "lock_state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "lock_holder_pid": {
+                "type": "integer"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "lock_holder_pid": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "disk_check_status": {
+                "const": "UNKNOWN"
+              }
+            },
+            "required": [
+              "disk_check_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "disk_free_bytes": {
+                "const": null
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "disk_free_bytes": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "AttemptedInputManifest": {
+      "description": "New this round (user instruction item 1). ALWAYS computable, regardless of how early a run fails -- p_a/p_b/r_fwd default to NOT_ATTEMPTED before any capture is tried, so input_bundle_sha256 (= sha256_hex(canonical_json(this object, sort_keys=true))) never needs a null fallback. Different failure scenarios naturally produce different manifests (different status combinations, different preflight observations) and therefore different hashes -- run_id collisions across genuinely different failure situations are structurally avoided without a special-cased marker formula.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "p_a",
+        "p_b",
+        "r_fwd",
+        "preflight"
+      ],
+      "properties": {
+        "p_a": {
+          "$ref": "#/definitions/SourceAttemptStatus"
+        },
+        "p_b": {
+          "$ref": "#/definitions/SourceAttemptStatus"
+        },
+        "r_fwd": {
+          "$ref": "#/definitions/SourceAttemptStatus"
+        },
+        "preflight": {
+          "$ref": "#/definitions/PreflightObservation"
+        }
+      }
+    },
+    "RunReceiptSuccess": {
+      "description": "A LIVE evidence run that produced usable evidence (COMMITTED or PENDING_MIRROR). Never carries failure_code. input_bundle_sha256 is always non-null (\u00a7 AttemptedInputManifest) -- run_id is always the plain FR-31 triple, no special case.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "run_id",
+        "as_of",
+        "identity_epoch",
+        "collector_version",
+        "input_bundle_sha256",
+        "attempted_input_manifest",
+        "persistence_status",
+        "identity_status",
+        "monthly_status",
+        "source_mutation",
+        "revision_of",
+        "started_at",
+        "completed_at",
+        "capture_process_started",
+        "process_isolation",
+        "source_hashes",
+        "code_hashes",
+        "collector_config_hash",
+        "collector_schema_sha256",
+        "output_hashes",
+        "mirror_verification",
+        "announcement_date_pit_status",
+        "r_fwd_qualification_ref",
+        "primary_root",
+        "mirror_root",
+        "temp_cleanup_status"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "r_fwd_qualification_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RFwdQualificationRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Round 9 (blocker 1): non-null exactly when identity_status=COMPARABLE_IDENTITY (allOf below), pinning the EXACT qualification ledger record this run relied on. Round 8's design stored only the adapter hash and resolved 'the latest ledger record', which let a later requalification retroactively change how an already-written run's evidence reads."
+        },
+        "announcement_date_pit_status": {
+          "const": "BLOCKED",
+          "description": "New round 6 (user blocker 2, Gate C-R): PUBLISH_LAG_DAYS=45's announcement-date safety is documented elsewhere in this repository as an OPEN, unresolved leak suspicion (docs/\u9810\u8a3b\u518a_FaceRedesign.md, docs/\u8840\u7de3\u7a3d\u6838_\u4e94\u7dad\u5ea6_2026-07-31.md, Claude_\u63a8\u85a6\u6295\u7d44\u7cfb\u7d71V2_Phase1_Review1.md -- 'formal financial validation is BLOCKED'). This field is hard-locked to the single legal value BLOCKED in this schema revision -- there is no enum, no path to a value of VERIFIED anywhere in this document. Combined with the identity_status allOf below (which requires this field equal VERIFIED whenever identity_status=COMPARABLE_IDENTITY), COMPARABLE_IDENTITY is therefore STRUCTURALLY UNSATISFIABLE in this schema revision -- not merely discouraged. Unblocking requires a future schema revision that changes this const to an enum, only after a separate, evidenced decision proves announcement-date PIT safety -- not a decision this design-freeze round can make."
+        },
+        "run_id": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "FR-31, unconditional: sha256_hex(canonical_json({as_of, collector_version, input_bundle_sha256}, sort_keys=true)). No other formula exists for any receipt type."
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date"
+        },
+        "identity_epoch": {
+          "type": "string",
+          "pattern": "^epoch-[0-9a-f]{16}$"
+        },
+        "collector_version": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "Expanded this round (item 7): hashes collector code files + collector_schema_sha256 + the full resolved_callables (code_hashes) manifest + identity-defining constants -- not just the collector's own .py files. See phase_b_design_freeze.md \u00a75.4b."
+        },
+        "input_bundle_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(attempted_input_manifest, sort_keys=true)). Always non-null."
+        },
+        "attempted_input_manifest": {
+          "$ref": "#/definitions/AttemptedInputManifest"
+        },
+        "persistence_status": {
+          "type": "string",
+          "enum": [
+            "COMMITTED",
+            "PENDING_MIRROR"
+          ]
+        },
+        "identity_status": {
+          "type": "string",
+          "enum": [
+            "P_ONLY_EVIDENCE",
+            "COMPARABLE_IDENTITY",
+            "PRODUCTION_INTERNAL_DIVERGENCE",
+            "R_FWD_UNAVAILABLE"
+          ]
+        },
+        "monthly_status": {
+          "type": "string",
+          "enum": [
+            "DAILY_DIAGNOSTIC",
+            "QUALIFICATION_PENDING",
+            "MONTHLY_ELIGIBLE"
+          ]
+        },
+        "source_mutation": {
+          "type": "boolean"
+        },
+        "revision_of": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        },
+        "started_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "completed_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "capture_process_started": {
+          "const": true
+        },
+        "process_isolation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "production_capture_pid",
+            "r_fwd_pid",
+            "bt_bundle_absent_from_production_process"
+          ],
+          "properties": {
+            "production_capture_pid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967295
+            },
+            "r_fwd_pid": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1,
+              "maximum": 4294967295
+            },
+            "bt_bundle_absent_from_production_process": {
+              "const": true
+            }
+          }
+        },
+        "source_hashes": {
+          "$ref": "#/definitions/SourceHashManifest"
+        },
+        "code_hashes": {
+          "$ref": "#/definitions/CodeHashManifest"
+        },
+        "collector_config_hash": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "collector_schema_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "output_hashes": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LiveOutputManifestPOnly"
+            },
+            {
+              "$ref": "#/definitions/LiveOutputManifestComparable"
+            }
+          ]
+        },
+        "mirror_verification": {
+          "$ref": "#/definitions/MirrorVerification"
+        },
+        "primary_root": {
+          "$ref": "#/definitions/AbsolutePathHeuristic"
+        },
+        "mirror_root": {
+          "$ref": "#/definitions/AbsolutePathHeuristic"
+        },
+        "temp_cleanup_status": {
+          "type": "string",
+          "enum": [
+            "CLEANED",
+            "NOT_APPLICABLE"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "persistence_status": {
+                "const": "COMMITTED"
+              }
+            },
+            "required": [
+              "persistence_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mirror_verification": {
+                "properties": {
+                  "status": {
+                    "const": "VERIFIED"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "mirror_verification": {
+                "properties": {
+                  "status": {
+                    "const": "PENDING"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_mutation": {
+                "const": true
+              }
+            },
+            "required": [
+              "source_mutation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "revision_of": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "revision_of": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "identity_status": {
+                "const": "COMPARABLE_IDENTITY"
+              }
+            },
+            "required": [
+              "identity_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_hashes": {
+                "properties": {
+                  "r_fwd": {
+                    "type": "object"
+                  }
+                }
+              },
+              "code_hashes": {
+                "properties": {
+                  "r_fwd_adapter_sha256": {
+                    "type": "string"
+                  }
+                }
+              },
+              "r_fwd_qualification_ref": {
+                "type": "object"
+              },
+              "output_hashes": {
+                "$ref": "#/definitions/LiveOutputManifestComparable"
+              },
+              "mirror_verification": {
+                "properties": {
+                  "per_file_verification": {
+                    "$ref": "#/definitions/MirrorPerFileVerificationComparable"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "source_hashes": {
+                "properties": {
+                  "r_fwd": {
+                    "const": null
+                  }
+                }
+              },
+              "code_hashes": {
+                "properties": {
+                  "r_fwd_adapter_sha256": {
+                    "const": null
+                  }
+                }
+              },
+              "r_fwd_qualification_ref": {
+                "type": "null"
+              },
+              "output_hashes": {
+                "$ref": "#/definitions/LiveOutputManifestPOnly"
+              },
+              "mirror_verification": {
+                "properties": {
+                  "per_file_verification": {
+                    "$ref": "#/definitions/MirrorPerFileVerificationPOnly"
+                  }
+                }
+              }
+            }
+          },
+          "description": "per_file_verification's file-SET completeness is tied to identity_status here, at the point where the manifest shape is already being selected for output_hashes. Round 9: r_fwd_qualification_ref's presence is tied to the same condition -- a COMPARABLE_IDENTITY run must pin an exact qualification record, a P-only run must not carry one."
+        },
+        {
+          "if": {
+            "properties": {
+              "identity_status": {
+                "const": "COMPARABLE_IDENTITY"
+              }
+            },
+            "required": [
+              "identity_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "announcement_date_pit_status": {
+                "const": "VERIFIED"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RunReceiptFailure": {
+      "description": "A LIVE evidence run that did NOT produce committed evidence. Redesigned this round: input_bundle_sha256 is now ALWAYS non-null (via attempted_input_manifest, item 1) -- the round-4 null-fallback run_id formula is REMOVED entirely. identity_epoch, by contrast, MAY be null for pre-source failures (item 2) -- it depends on reading weights_version from a captured P-A row, which cannot happen if P-A/the process itself never got that far; forcing a value there would be fabrication.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "run_id",
+        "as_of",
+        "identity_epoch",
+        "identity_epoch_unavailable_reason",
+        "collector_version",
+        "input_bundle_sha256",
+        "attempted_input_manifest",
+        "persistence_status",
+        "failure_code",
+        "identity_status",
+        "monthly_status",
+        "source_mutation",
+        "revision_of",
+        "started_at",
+        "completed_at",
+        "capture_process_started",
+        "process_isolation",
+        "source_hashes",
+        "code_hashes",
+        "collector_config_hash",
+        "collector_schema_sha256",
+        "output_hashes",
+        "primary_root",
+        "mirror_root",
+        "temp_cleanup_status"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "run_id": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "FR-31, same unconditional formula as RunReceiptSuccess -- sha256_hex(canonical_json({as_of, collector_version, input_bundle_sha256}, sort_keys=true)). No fallback/marker formula exists (round-4 approach withdrawn this round)."
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date"
+        },
+        "identity_epoch": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^epoch-[0-9a-f]{16}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "identity_epoch_unavailable_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "LOCK_HELD_BEFORE_CAPTURE",
+            "LOW_DISK_BEFORE_CAPTURE",
+            "P_A_NOT_CAPTURED_BEFORE_EPOCH_READ",
+            "P_B_NOT_CAPTURED_BEFORE_EPOCH_READ",
+            "DATE_MISMATCH_BEFORE_EPOCH_READ",
+            "SOURCE_DATE_CONFLICT_BEFORE_EPOCH_READ",
+            null
+          ],
+          "description": "Fixed enum. Round 6: the 1:1 binding to failure_code (and cross-check against attempted_input_manifest's own status fields) is now enforced by 6 dedicated allOf branches below -- round 5's grouped if/then only forced null-ness together, but let any of the 6 reasons pair with any of the 6 codes, and never checked attempted_input_manifest at all. User found this by re-running the schema (round 6 item 3a: MISSING_P_A paired with LOCK_HELD_BEFORE_CAPTURE and p_a.status=AVAILABLE was accepted)."
+        },
+        "collector_version": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "input_bundle_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "Always non-null -- computed from attempted_input_manifest regardless of how early the failure occurred."
+        },
+        "attempted_input_manifest": {
+          "$ref": "#/definitions/AttemptedInputManifest"
+        },
+        "persistence_status": {
+          "const": "FAILED"
+        },
+        "failure_code": {
+          "type": "string",
+          "enum": [
+            "MISSING_P_A",
+            "MISSING_P_B",
+            "DATE_MISMATCH",
+            "SOURCE_DATE_CONFLICT",
+            "HASH_MISMATCH",
+            "SCHEMA_FAILURE",
+            "LOW_DISK",
+            "LOCK_HELD",
+            "PARTIAL_WRITE"
+          ]
+        },
+        "identity_status": {
+          "type": "string",
+          "enum": [
+            "P_ONLY_EVIDENCE",
+            "PRODUCTION_INTERNAL_DIVERGENCE",
+            "R_FWD_UNAVAILABLE"
+          ],
+          "description": "COMPARABLE_IDENTITY excluded (user instruction item 6): a failed run cannot claim it achieved comparable identity."
+        },
+        "monthly_status": {
+          "type": "string",
+          "enum": [
+            "DAILY_DIAGNOSTIC",
+            "QUALIFICATION_PENDING"
+          ],
+          "description": "MONTHLY_ELIGIBLE excluded (item 6): a failed run cannot be monthly-eligible."
+        },
+        "source_mutation": {
+          "type": "boolean"
+        },
+        "revision_of": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        },
+        "started_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "completed_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "capture_process_started": {
+          "type": "boolean",
+          "description": "false ONLY when failure_code=LOCK_HELD -- the mutex was held by another run, so this attempt never started a capture process at all (no PID exists to report). All other failure codes imply a process did start (even LOW_DISK, checked as the first step of an already-running process)."
+        },
+        "process_isolation": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "production_capture_pid",
+                "r_fwd_pid",
+                "bt_bundle_absent_from_production_process"
+              ],
+              "properties": {
+                "production_capture_pid": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4294967295
+                },
+                "r_fwd_pid": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 1,
+                  "maximum": 4294967295
+                },
+                "bt_bundle_absent_from_production_process": {
+                  "const": true
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "null when capture_process_started=false -- no PID is fabricated for a process that never ran."
+        },
+        "source_hashes": {
+          "$ref": "#/definitions/PartialSourceHashManifest"
+        },
+        "code_hashes": {
+          "$ref": "#/definitions/CodeHashManifest"
+        },
+        "collector_config_hash": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "collector_schema_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "output_hashes": {
+          "$ref": "#/definitions/PartialOutputManifest"
+        },
+        "primary_root": {
+          "$ref": "#/definitions/AbsolutePathHeuristic"
+        },
+        "mirror_root": {
+          "$ref": "#/definitions/AbsolutePathHeuristic"
+        },
+        "temp_cleanup_status": {
+          "type": "string",
+          "enum": [
+            "CLEANED",
+            "CLEANUP_FAILED",
+            "NOT_APPLICABLE"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "const": "LOCK_HELD"
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "capture_process_started": {
+                "const": false
+              },
+              "process_isolation": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "capture_process_started": {
+                "const": true
+              },
+              "process_isolation": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "const": "LOCK_HELD"
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "identity_epoch": {
+                "const": null
+              },
+              "identity_epoch_unavailable_reason": {
+                "const": "LOCK_HELD_BEFORE_CAPTURE"
+              },
+              "attempted_input_manifest": {
+                "properties": {
+                  "preflight": {
+                    "properties": {
+                      "lock_state": {
+                        "enum": [
+                          "HELD",
+                          "STALE_DETECTED"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "const": "LOW_DISK"
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "identity_epoch": {
+                "const": null
+              },
+              "identity_epoch_unavailable_reason": {
+                "const": "LOW_DISK_BEFORE_CAPTURE"
+              },
+              "attempted_input_manifest": {
+                "properties": {
+                  "preflight": {
+                    "properties": {
+                      "disk_check_status": {
+                        "const": "LOW"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "const": "MISSING_P_A"
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "identity_epoch": {
+                "const": null
+              },
+              "identity_epoch_unavailable_reason": {
+                "const": "P_A_NOT_CAPTURED_BEFORE_EPOCH_READ"
+              },
+              "attempted_input_manifest": {
+                "properties": {
+                  "p_a": {
+                    "properties": {
+                      "status": {
+                        "const": "MISSING"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "const": "MISSING_P_B"
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "identity_epoch": {
+                "const": null
+              },
+              "identity_epoch_unavailable_reason": {
+                "const": "P_B_NOT_CAPTURED_BEFORE_EPOCH_READ"
+              },
+              "attempted_input_manifest": {
+                "properties": {
+                  "p_b": {
+                    "properties": {
+                      "status": {
+                        "const": "MISSING"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "const": "DATE_MISMATCH"
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "identity_epoch": {
+                "const": null
+              },
+              "identity_epoch_unavailable_reason": {
+                "const": "DATE_MISMATCH_BEFORE_EPOCH_READ"
+              },
+              "attempted_input_manifest": {
+                "properties": {
+                  "p_a": {
+                    "properties": {
+                      "status": {
+                        "enum": [
+                          "AVAILABLE",
+                          "MISSING"
+                        ]
+                      }
+                    }
+                  },
+                  "p_b": {
+                    "properties": {
+                      "status": {
+                        "enum": [
+                          "AVAILABLE",
+                          "MISSING"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "DATE_MISMATCH/SOURCE_DATE_CONFLICT require both sources to have actually been looked at (status != NOT_ATTEMPTED) -- a date conflict cannot be determined about a source that was never examined."
+        },
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "const": "SOURCE_DATE_CONFLICT"
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "identity_epoch": {
+                "const": null
+              },
+              "identity_epoch_unavailable_reason": {
+                "const": "SOURCE_DATE_CONFLICT_BEFORE_EPOCH_READ"
+              },
+              "attempted_input_manifest": {
+                "properties": {
+                  "p_a": {
+                    "properties": {
+                      "status": {
+                        "enum": [
+                          "AVAILABLE",
+                          "MISSING"
+                        ]
+                      }
+                    }
+                  },
+                  "p_b": {
+                    "properties": {
+                      "status": {
+                        "enum": [
+                          "AVAILABLE",
+                          "MISSING"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "failure_code": {
+                "enum": [
+                  "HASH_MISMATCH",
+                  "SCHEMA_FAILURE",
+                  "PARTIAL_WRITE"
+                ]
+              }
+            },
+            "required": [
+              "failure_code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "identity_epoch": {
+                "type": "string"
+              },
+              "identity_epoch_unavailable_reason": {
+                "const": null
+              }
+            }
+          },
+          "description": "Post-source failure codes: P-A was at least raw-captured before these occur, so identity_epoch is computable and required non-null."
+        },
+        {
+          "if": {
+            "properties": {
+              "source_mutation": {
+                "const": true
+              }
+            },
+            "required": [
+              "source_mutation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "revision_of": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "revision_of": {
+                "const": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RunReceipt": {
+      "description": "Convenience oneOf wrapper for validating an arbitrary run_receipt.json.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/RunReceiptSuccess"
+        },
+        {
+          "$ref": "#/definitions/RunReceiptFailure"
+        }
+      ]
+    },
+    "LiveReceiptProjectionPlaceholderPolicy": {
+      "description": "A FIXED, disclosed, schema-const placeholder policy -- so a third party knows EXACTLY which bytes in the projection are placeholders and which are real gathered data (actual_inputs). Round 10 (blocker 3): every placeholder is now a documented MAXIMUM-LENGTH value for its field, not merely a same-shape one. Round 9's placeholders were in several cases the SHORTEST legal form (disk_free_bytes=0 is 1 character where a real value is up to 19; the 'Z'-suffixed second-precision timestamp is shorter than the offset-and-microsecond form a real receipt may emit), which made the projection ANTI-conservative -- it could under-state the real receipt in exactly the direction capacity planning must never err. Hash-shaped placeholders were already length-exact (sha256 hex is fixed at 64 chars) and are unchanged; only the variable-length fields needed correcting.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id_placeholder",
+        "identity_epoch_placeholder",
+        "collector_version_placeholder",
+        "input_bundle_sha256_placeholder",
+        "attempted_input_manifest_placeholder",
+        "started_at_placeholder",
+        "completed_at_placeholder",
+        "mirror_hash_placeholder",
+        "live_timestamp_format",
+        "conservatism_note"
+      ],
+      "properties": {
+        "run_id_placeholder": {
+          "const": "0000000000000000000000000000000000000000000000000000000000000000",
+          "description": "Length-exact: sha256 hex is always 64 chars."
+        },
+        "identity_epoch_placeholder": {
+          "const": "epoch-0000000000000000",
+          "description": "Length-exact: the epoch pattern is fixed-width."
+        },
+        "collector_version_placeholder": {
+          "const": "0000000000000000000000000000000000000000000000000000000000000000",
+          "description": "Length-exact sha256. collector_version is not knowable at dry-run time (the collector code does not exist yet in Phase B)."
+        },
+        "input_bundle_sha256_placeholder": {
+          "const": "0000000000000000000000000000000000000000000000000000000000000000",
+          "description": "Length-exact sha256."
+        },
+        "attempted_input_manifest_placeholder": {
+          "description": "Round 10: MAXIMUM-length form, subject to PreflightObservation's OWN conditional rules -- 'longest' must also be LEGAL, and the first draft of this placeholder was not (it paired disk_check_status=UNKNOWN with a non-null disk_free_bytes, which PreflightObservation forbids; the round-10 validator caught it). All three sources AVAILABLE (the largest status form, since MISSING/NOT_ATTEMPTED null out two subfields). preflight uses lock_state=STALE_DETECTED (the longest enum member vs FREE's 4 chars) with a maximum-width lock_holder_pid=4294967295, consistent because that lock_state REQUIRES a non-null pid. disk_check_status=LOW is chosen over the longer-looking UNKNOWN because UNKNOWN forces disk_free_bytes=null: measured, that pair serializes to 54 bytes while LOW with disk_free_bytes=9223372036854775807 (int64 max, 19 digits) serializes to 65. Round 9's OK/0 pair was shorter still, under-stating every real run. Dates stay 10-char ISO, already length-exact.",
+          "const": {
+            "p_a": {
+              "status": "AVAILABLE",
+              "observed_date": "1970-01-01",
+              "aggregate_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+            },
+            "p_b": {
+              "status": "AVAILABLE",
+              "observed_date": "1970-01-01",
+              "aggregate_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+            },
+            "r_fwd": {
+              "status": "AVAILABLE",
+              "observed_date": "1970-01-01",
+              "aggregate_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+            },
+            "preflight": {
+              "lock_state": "STALE_DETECTED",
+              "lock_holder_pid": 4294967295,
+              "disk_check_status": "LOW",
+              "disk_free_bytes": 9223372036854775807
+            }
+          }
+        },
+        "live_timestamp_format": {
+          "const": "%Y-%m-%dT%H:%M:%S.%f%:z",
+          "description": "Round 10 (blocker 3): the LIVE receipt's timestamp emission format is now FROZEN here, so the placeholder can be length-exact against it rather than guessing. Microsecond precision and an explicit numeric offset (never a bare 'Z') are mandated for both the utc and local_taipei members -- this is a real constraint on the collector's serializer, not merely on this placeholder. Any live receipt emitting a shorter form would violate this frozen format."
+        },
+        "started_at_placeholder": {
+          "const": {
+            "utc": "1970-01-01T00:00:00.000000+00:00",
+            "local_taipei": "1970-01-01T08:00:00.000000+08:00"
+          },
+          "description": "Round 10: matches live_timestamp_format exactly (32 chars each). Round 9's '1970-01-01T00:00:00Z' was 20 chars -- 12 short per timestamp, 24 across the pair, under-stating every real receipt."
+        },
+        "completed_at_placeholder": {
+          "const": {
+            "utc": "1970-01-01T00:00:00.000000+00:00",
+            "local_taipei": "1970-01-01T08:00:00.000000+08:00"
+          }
+        },
+        "mirror_hash_placeholder": {
+          "const": "0000000000000000000000000000000000000000000000000000000000000000",
+          "description": "Length-exact sha256."
+        },
+        "conservatism_note": {
+          "const": "Every placeholder is the maximum-length legal value for its field, so projected_object_bytes is an upper bound on the corresponding live receipt's serialized size, never an under-estimate. Semantic validator check #18 re-derives each placeholder's length against its field's maximum and fails if any placeholder is shorter.",
+          "description": "Round 10: recorded in-band so the conservatism property travels with the artifact rather than living only in the design document."
+        }
+      }
+    },
+    "ProjectionTemplateIdentity": {
+      "description": "Pins the template's repository path, Git blob id, content hash, and version, so the assembly ALGORITHM is genuinely recoverable rather than merely fingerprinted. Round 10 (blocker 4): a blob id ALONE is not durable -- a loose Git object not reachable from any ref is eligible for garbage collection, so round 9's reference could silently evaporate. reachable_commit_sha1 pins a commit that contains the blob, and durable_copy pins a byte copy inside the dual-copy evidence roots, so the template survives independently of Git GC entirely.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "template_version",
+        "repo_relative_path",
+        "git_blob_sha1",
+        "reachable_commit_sha1",
+        "content_sha256",
+        "durable_copy"
+      ],
+      "properties": {
+        "template_version": {
+          "type": "string",
+          "pattern": "^v[0-9]+$"
+        },
+        "repo_relative_path": {
+          "$ref": "#/definitions/RelativeArtifactPath",
+          "description": "e.g. scripts/identity_collector/live_receipt_projection_template.py -- the file that defines the deterministic assembly function."
+        },
+        "git_blob_sha1": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "Git object id of the exact template content."
+        },
+        "reachable_commit_sha1": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "Round 10: a commit, reachable from a ref, whose tree contains git_blob_sha1 at repo_relative_path. This is what makes the blob GC-safe -- semantic validator check #21 verifies reachability (`git cat-file -e <commit>^{commit}` plus `git rev-parse <commit>:<path>` equalling git_blob_sha1), not merely that the blob currently exists."
+        },
+        "content_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "durable_copy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "relative_path",
+            "bytes",
+            "sha256"
+          ],
+          "properties": {
+            "relative_path": {
+              "$ref": "#/definitions/RelativeArtifactPath",
+              "description": "Path under the capacity-dry-run report's own durable location (dual-copy, like all other evidence) holding a verbatim byte copy of the template. Belt-and-braces alongside reachable_commit_sha1: the projection stays reproducible even if the repository itself becomes unavailable."
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/definitions/Sha256Hex",
+              "description": "MUST equal content_sha256 -- the durable copy is byte-identical to the Git blob. Cross-field equality is schema-inexpressible; semantic validator check #21."
+            }
+          }
+        }
+      }
+    },
+    "LiveReceiptProjectionManifest": {
+      "description": "Round 9 (blocker 4): actual_inputs now carries EVERY RunReceiptSuccess field that is genuinely known at dry-run time, and placeholder_policy covers every remaining one -- together they are exhaustive over RunReceiptSuccess's required-key set, which is what makes the round-8 claim ('recomputable from placeholder_policy + actual_inputs alone') actually true rather than aspirational. Round 8's version was missing as_of, the receipt status fields, process_isolation, attempted_input_manifest, and the r_fwd qualification reference. projection_only=true (const) keeps this structurally never a RunReceipt.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "projection_only",
+        "projection_template",
+        "placeholder_policy",
+        "actual_inputs",
+        "projected_object_sha256",
+        "projected_object_bytes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "projection_only": {
+          "const": true,
+          "description": "Structural marker: this object is NEVER a RunReceipt and must never be validated against RunReceiptSuccess/RunReceiptFailure/RunReceipt."
+        },
+        "projection_template": {
+          "$ref": "#/definitions/ProjectionTemplateIdentity",
+          "description": "Round 9: replaces the bare projection_template_sha256 -- a hash alone told a third party nothing about how to obtain the template."
+        },
+        "placeholder_policy": {
+          "$ref": "#/definitions/LiveReceiptProjectionPlaceholderPolicy"
+        },
+        "actual_inputs": {
+          "description": "Round 9: every RunReceiptSuccess field knowable at dry-run time. as_of/sizing-derived status fields MUST equal the enclosing CapacityDryRunReceipt's own corresponding values (semantic validator check #16) -- a projection describing a different run than the attempt it sits inside would silently mis-size capacity.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "as_of",
+            "persistence_status",
+            "identity_status",
+            "monthly_status",
+            "source_mutation",
+            "revision_of",
+            "capture_process_started",
+            "process_isolation",
+            "primary_root",
+            "mirror_root",
+            "source_hashes",
+            "code_hashes",
+            "collector_config_hash",
+            "collector_schema_sha256",
+            "output_hashes_equivalent",
+            "announcement_date_pit_status",
+            "r_fwd_qualification_ref",
+            "temp_cleanup_status"
+          ],
+          "properties": {
+            "as_of": {
+              "type": "string",
+              "enum": [
+                "2026-08-07",
+                "2026-08-10",
+                "2026-08-11"
+              ],
+              "description": "MUST equal the enclosing CapacityDryRunReceipt.as_of (semantic check #16)."
+            },
+            "persistence_status": {
+              "const": "COMMITTED",
+              "description": "The projection deliberately models the LARGEST live receipt: COMMITTED carries a fully-populated mirror_verification, so sizing is conservative."
+            },
+            "identity_status": {
+              "type": "string",
+              "enum": [
+                "P_ONLY_EVIDENCE",
+                "COMPARABLE_IDENTITY"
+              ],
+              "description": "MUST correspond to the enclosing receipt's sizing_mode (semantic check #16)."
+            },
+            "monthly_status": {
+              "type": "string",
+              "enum": [
+                "DAILY_DIAGNOSTIC",
+                "QUALIFICATION_PENDING",
+                "MONTHLY_ELIGIBLE"
+              ]
+            },
+            "source_mutation": {
+              "type": "boolean"
+            },
+            "revision_of": {
+              "$ref": "#/definitions/Sha256HexOrNull"
+            },
+            "capture_process_started": {
+              "const": true
+            },
+            "process_isolation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "production_capture_pid",
+                "r_fwd_pid",
+                "bt_bundle_absent_from_production_process"
+              ],
+              "properties": {
+                "production_capture_pid": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4294967295
+                },
+                "r_fwd_pid": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 1,
+                  "maximum": 4294967295
+                },
+                "bt_bundle_absent_from_production_process": {
+                  "const": true
+                }
+              }
+            },
+            "primary_root": {
+              "$ref": "#/definitions/AbsolutePathHeuristic",
+              "description": "The REAL configured root -- its actual string length materially affects the projected byte count, so a placeholder would under- or over-state it."
+            },
+            "mirror_root": {
+              "$ref": "#/definitions/AbsolutePathHeuristic"
+            },
+            "source_hashes": {
+              "$ref": "#/definitions/SourceHashManifest"
+            },
+            "code_hashes": {
+              "$ref": "#/definitions/CodeHashManifest"
+            },
+            "collector_config_hash": {
+              "$ref": "#/definitions/Sha256Hex"
+            },
+            "collector_schema_sha256": {
+              "$ref": "#/definitions/Sha256Hex"
+            },
+            "output_hashes_equivalent": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/LiveOutputManifestPOnly"
+                },
+                {
+                  "$ref": "#/definitions/LiveOutputManifestComparable"
+                }
+              ],
+              "description": "Same object as the enclosing receipt's payload_files (semantic check #16) -- real, already-gathered, reused rather than re-fabricated."
+            },
+            "announcement_date_pit_status": {
+              "type": "string",
+              "enum": [
+                "BLOCKED",
+                "VERIFIED"
+              ],
+              "description": "Round 11 (item 3): no longer unconditionally BLOCKED. Pinned to VERIFIED for a COMPARABLE_IDENTITY projection by the allOf below -- BLOCKED (7 chars) is the SHORTER of the two legal strings, so a Comparable-mode projection that used it, as round 10 did unconditionally, under-sized every Comparable capacity estimate in exactly the mode that needs the most space. This does NOT assert Gate C-R currently permits COMPARABLE_IDENTITY (it still structurally does not, on the LIVE RunReceiptSuccess type -- see that type's own const:BLOCKED) -- it sizes what a future-viable receipt would actually carry once Gate C-R unblocks, which is the conservative and only coherent basis for a Comparable-mode capacity number gathered ahead of that unblock."
+            },
+            "r_fwd_qualification_ref": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RFwdQualificationRef"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Round 9: RunReceiptSuccess gained this field, so the projection must model it too or systematically under-size every COMPARABLE_IDENTITY run."
+            },
+            "temp_cleanup_status": {
+              "type": "string",
+              "enum": [
+                "CLEANED",
+                "NOT_APPLICABLE"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "identity_status": {
+                    "const": "COMPARABLE_IDENTITY"
+                  }
+                },
+                "required": [
+                  "identity_status"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "source_hashes": {
+                    "properties": {
+                      "r_fwd": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "code_hashes": {
+                    "properties": {
+                      "r_fwd_adapter_sha256": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "r_fwd_qualification_ref": {
+                    "type": "object"
+                  },
+                  "output_hashes_equivalent": {
+                    "$ref": "#/definitions/LiveOutputManifestComparable"
+                  },
+                  "announcement_date_pit_status": {
+                    "const": "VERIFIED"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "source_hashes": {
+                    "properties": {
+                      "r_fwd": {
+                        "const": null
+                      }
+                    }
+                  },
+                  "code_hashes": {
+                    "properties": {
+                      "r_fwd_adapter_sha256": {
+                        "const": null
+                      }
+                    }
+                  },
+                  "r_fwd_qualification_ref": {
+                    "type": "null"
+                  },
+                  "output_hashes_equivalent": {
+                    "$ref": "#/definitions/LiveOutputManifestPOnly"
+                  },
+                  "announcement_date_pit_status": {
+                    "const": "BLOCKED"
+                  }
+                }
+              },
+              "description": "Round 10 (blocker 2): MIRRORS RunReceiptSuccess's own identity_status conditional exactly. Round 9 allowed identity_status=COMPARABLE_IDENTITY alongside null r_fwd_qualification_ref / null source_hashes.r_fwd / null code_hashes.r_fwd_adapter_sha256 / P-only output manifest -- the user mechanically confirmed such a manifest passed schema while assembling into an object that could NEVER validate as RunReceiptSuccess, and which was also systematically SMALLER than a real Comparable receipt (so capacity was under-sized in exactly the mode that needs the most space). Round 11 (item 3): announcement_date_pit_status joins this same conditional -- BLOCKED for P-only, VERIFIED for Comparable (the longer, conservative, future-viable value; see the property's own description)."
+            }
+          ]
+        },
+        "projected_object_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(assembled_projection_dict, sort_keys=true)), where assembled_projection_dict is built by projection_template's pinned algorithm from placeholder_policy + actual_inputs, which together cover every RunReceiptSuccess required key. Independently recomputable by a third party (semantic validator check #12, which as of round 10 ALSO validates the assembled object against ProjectedRunReceipt -- recomputing a hash of a structurally invalid object is not sufficient)."
+        },
+        "projected_object_bytes": {
+          "type": "integer",
+          "minimum": 500,
+          "description": "len(canonical_json(assembled_projection_dict, sort_keys=true).encode('utf-8')). minimum:500 is only a sanity floor -- real auditability comes from semantic validator check #12."
+        }
+      }
+    },
+    "ProjectedRunReceipt": {
+      "description": "New round 10 (blocker 2): the schema the ASSEMBLED projection object must satisfy. Structurally identical to RunReceiptSuccess in every required key and every conditional rule, EXCEPT that placeholder-supplied fields carry the fixed placeholder values (which are legal-shaped but not real hashes/timestamps). Semantic check #12 now validates the assembled dict against THIS definition before accepting projected_object_sha256/_bytes -- so a projection can no longer describe an object that could never exist as a live receipt. Deliberately a separate definition rather than a $ref to RunReceiptSuccess: the placeholder timestamps (1970-01-01) and all-zero hashes are intentionally not real, so reusing RunReceiptSuccess verbatim would either fail or force the placeholders to be indistinguishable from real values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "run_id",
+        "as_of",
+        "identity_epoch",
+        "collector_version",
+        "input_bundle_sha256",
+        "attempted_input_manifest",
+        "persistence_status",
+        "identity_status",
+        "monthly_status",
+        "source_mutation",
+        "revision_of",
+        "started_at",
+        "completed_at",
+        "capture_process_started",
+        "process_isolation",
+        "source_hashes",
+        "code_hashes",
+        "collector_config_hash",
+        "collector_schema_sha256",
+        "output_hashes",
+        "mirror_verification",
+        "announcement_date_pit_status",
+        "r_fwd_qualification_ref",
+        "primary_root",
+        "mirror_root",
+        "temp_cleanup_status"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "run_id": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date"
+        },
+        "identity_epoch": {
+          "type": "string",
+          "pattern": "^epoch-[0-9a-f]{16}$"
+        },
+        "collector_version": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "input_bundle_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "attempted_input_manifest": {
+          "$ref": "#/definitions/AttemptedInputManifest"
+        },
+        "persistence_status": {
+          "const": "COMMITTED"
+        },
+        "identity_status": {
+          "type": "string",
+          "enum": [
+            "P_ONLY_EVIDENCE",
+            "COMPARABLE_IDENTITY"
+          ]
+        },
+        "monthly_status": {
+          "type": "string",
+          "enum": [
+            "DAILY_DIAGNOSTIC",
+            "QUALIFICATION_PENDING",
+            "MONTHLY_ELIGIBLE"
+          ]
+        },
+        "source_mutation": {
+          "type": "boolean"
+        },
+        "revision_of": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        },
+        "started_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "completed_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "capture_process_started": {
+          "const": true
+        },
+        "process_isolation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "production_capture_pid",
+            "r_fwd_pid",
+            "bt_bundle_absent_from_production_process"
+          ],
+          "properties": {
+            "production_capture_pid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967295
+            },
+            "r_fwd_pid": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1,
+              "maximum": 4294967295
+            },
+            "bt_bundle_absent_from_production_process": {
+              "const": true
+            }
+          }
+        },
+        "source_hashes": {
+          "$ref": "#/definitions/SourceHashManifest"
+        },
+        "code_hashes": {
+          "$ref": "#/definitions/CodeHashManifest"
+        },
+        "collector_config_hash": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "collector_schema_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "output_hashes": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LiveOutputManifestPOnly"
+            },
+            {
+              "$ref": "#/definitions/LiveOutputManifestComparable"
+            }
+          ]
+        },
+        "mirror_verification": {
+          "$ref": "#/definitions/MirrorVerification"
+        },
+        "announcement_date_pit_status": {
+          "type": "string",
+          "enum": [
+            "BLOCKED",
+            "VERIFIED"
+          ],
+          "description": "Round 11 (item 3): matches LiveReceiptProjectionManifest.actual_inputs's own fix -- pinned to VERIFIED for identity_status=COMPARABLE_IDENTITY by the allOf below (the value a future-viable receipt would carry once Gate C-R unblocks; longer and therefore conservative), BLOCKED for P_ONLY_EVIDENCE. Round 10's unconditional const:BLOCKED made this definition's own description ('structurally identical to RunReceiptSuccess in every required key and conditional rule') false for this one field, and under-sized every Comparable-mode projection that validated against it."
+        },
+        "r_fwd_qualification_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RFwdQualificationRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "primary_root": {
+          "$ref": "#/definitions/AbsolutePathHeuristic"
+        },
+        "mirror_root": {
+          "$ref": "#/definitions/AbsolutePathHeuristic"
+        },
+        "temp_cleanup_status": {
+          "type": "string",
+          "enum": [
+            "CLEANED",
+            "NOT_APPLICABLE"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "identity_status": {
+                "const": "COMPARABLE_IDENTITY"
+              }
+            },
+            "required": [
+              "identity_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_hashes": {
+                "properties": {
+                  "r_fwd": {
+                    "type": "object"
+                  }
+                }
+              },
+              "code_hashes": {
+                "properties": {
+                  "r_fwd_adapter_sha256": {
+                    "type": "string"
+                  }
+                }
+              },
+              "r_fwd_qualification_ref": {
+                "type": "object"
+              },
+              "output_hashes": {
+                "$ref": "#/definitions/LiveOutputManifestComparable"
+              },
+              "mirror_verification": {
+                "properties": {
+                  "per_file_verification": {
+                    "$ref": "#/definitions/MirrorPerFileVerificationComparable"
+                  }
+                }
+              },
+              "announcement_date_pit_status": {
+                "const": "VERIFIED"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "source_hashes": {
+                "properties": {
+                  "r_fwd": {
+                    "const": null
+                  }
+                }
+              },
+              "code_hashes": {
+                "properties": {
+                  "r_fwd_adapter_sha256": {
+                    "const": null
+                  }
+                }
+              },
+              "r_fwd_qualification_ref": {
+                "type": "null"
+              },
+              "output_hashes": {
+                "$ref": "#/definitions/LiveOutputManifestPOnly"
+              },
+              "mirror_verification": {
+                "properties": {
+                  "per_file_verification": {
+                    "$ref": "#/definitions/MirrorPerFileVerificationPOnly"
+                  }
+                }
+              },
+              "announcement_date_pit_status": {
+                "const": "BLOCKED"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_mutation": {
+                "const": true
+              }
+            },
+            "required": [
+              "source_mutation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "revision_of": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "revision_of": {
+                "const": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CapacityDryRunReceipt": {
+      "description": "Per erratum E2 (rev.9, PENDING). One per dry-run attempt. Ephemeral in the sense that its temp-directory COPY is deleted after measurement, but its full content is durably preserved by embedding (see CapacityDryRunReportAttempt) -- 'deleted' no longer means 'unreconstructible'. payload_files is now the same closed, named, mode-conditional manifest type used for live evidence (item 4: every live-equivalent artifact category must be measured, not just an aggregate).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "as_of",
+        "sizing_mode",
+        "started_at",
+        "completed_at",
+        "artifact_set_complete",
+        "r_fwd_artifacts_included",
+        "payload_files",
+        "payload_bytes",
+        "payload_sha256",
+        "live_receipt_projection",
+        "elapsed_seconds",
+        "source_hashes",
+        "code_hashes",
+        "collector_config_hash",
+        "collector_schema_sha256"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "as_of": {
+          "type": "string",
+          "enum": [
+            "2026-08-07",
+            "2026-08-10",
+            "2026-08-11"
+          ]
+        },
+        "sizing_mode": {
+          "type": "string",
+          "enum": [
+            "P_ONLY_EVIDENCE",
+            "COMPARABLE_IDENTITY"
+          ]
+        },
+        "started_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "completed_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "artifact_set_complete": {
+          "const": true,
+          "description": "Retained as a declarative field, but NOT the real completeness guarantee (item 5: 'cannot self-certify via boolean alone') -- payload_files' closed required-key schema is what actually makes an incomplete set fail validation, independent of this flag's value."
+        },
+        "r_fwd_artifacts_included": {
+          "type": "boolean"
+        },
+        "payload_files": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LiveOutputManifestPOnly"
+            },
+            {
+              "$ref": "#/definitions/LiveOutputManifestComparable"
+            }
+          ]
+        },
+        "payload_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "MUST equal sum(payload_files[*].bytes). Semantic validator check."
+        },
+        "payload_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(payload_files, sort_keys=true)) -- computed over the payload manifest BEFORE this receipt object is constructed."
+        },
+        "live_receipt_projection": {
+          "$ref": "#/definitions/LiveReceiptProjectionManifest",
+          "description": "Round 8 fix (blocker 3): replaces the round-7 bare integer projected_live_receipt_bytes, which was an unauditable self-declared number (even 0 was schema-legal, and the semantic check only verified the FORMULA used it, never that the number itself was correctly derived). The full manifest discloses the placeholder policy, the real gathered inputs, and the resulting hash/byte-count -- independently recomputable by a third party (semantic validator check #12). attempt_total_bytes (on CapacityDryRunReportAttempt) now reads receipt.live_receipt_projection.projected_object_bytes."
+        },
+        "elapsed_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "source_hashes": {
+          "$ref": "#/definitions/SourceHashManifest"
+        },
+        "code_hashes": {
+          "$ref": "#/definitions/CodeHashManifest"
+        },
+        "collector_config_hash": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "collector_schema_sha256": {
+          "$ref": "#/definitions/Sha256Hex"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "sizing_mode": {
+                "const": "COMPARABLE_IDENTITY"
+              }
+            },
+            "required": [
+              "sizing_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "r_fwd_artifacts_included": {
+                "const": true
+              },
+              "source_hashes": {
+                "properties": {
+                  "r_fwd": {
+                    "type": "object"
+                  }
+                }
+              },
+              "code_hashes": {
+                "properties": {
+                  "r_fwd_adapter_sha256": {
+                    "type": "string"
+                  }
+                }
+              },
+              "payload_files": {
+                "$ref": "#/definitions/LiveOutputManifestComparable"
+              },
+              "live_receipt_projection": {
+                "properties": {
+                  "actual_inputs": {
+                    "properties": {
+                      "output_hashes_equivalent": {
+                        "$ref": "#/definitions/LiveOutputManifestComparable"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "r_fwd_artifacts_included": {
+                "const": false
+              },
+              "source_hashes": {
+                "properties": {
+                  "r_fwd": {
+                    "const": null
+                  }
+                }
+              },
+              "code_hashes": {
+                "properties": {
+                  "r_fwd_adapter_sha256": {
+                    "const": null
+                  }
+                }
+              },
+              "payload_files": {
+                "$ref": "#/definitions/LiveOutputManifestPOnly"
+              },
+              "live_receipt_projection": {
+                "properties": {
+                  "actual_inputs": {
+                    "properties": {
+                      "output_hashes_equivalent": {
+                        "$ref": "#/definitions/LiveOutputManifestPOnly"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CapacityDryRunReportAttempt": {
+      "description": "Redesigned this round (item 3): embeds the FULL CapacityDryRunReceipt (not a scalar summary) so receipt_sha256/receipt_bytes are independently recomputable from preserved content alone -- re-serialize `receipt` via the canonical-JSON convention and re-hash/re-measure; the result must equal the stored receipt_sha256/receipt_bytes. This is also why the receipt itself still never contains its own hash (no circularity): receipt_sha256 is computed over the object AFTER it is fully formed, and stored one level up, in this wrapper, never inside the receipt.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt",
+        "receipt_sha256",
+        "receipt_bytes",
+        "attempt_total_bytes"
+      ],
+      "properties": {
+        "receipt": {
+          "$ref": "#/definitions/CapacityDryRunReceipt"
+        },
+        "receipt_sha256": {
+          "$ref": "#/definitions/Sha256Hex",
+          "description": "sha256_hex(canonical_json(receipt, sort_keys=true)) -- the canonical serialization's hash, not the original ephemeral file's raw on-disk bytes (whose formatting is not preserved/relevant). Deterministically recomputable from `receipt` alone."
+        },
+        "receipt_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "len(canonical_json(receipt, sort_keys=true).encode('utf-8')) -- same canonical-form convention as receipt_sha256, for the same recomputability reason. A proxy for on-disk size, not a re-measurement of the (deleted) ephemeral file."
+        },
+        "attempt_total_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Round 8 correction (blocker 3): = receipt.payload_bytes + receipt.live_receipt_projection.projected_object_bytes -- NOT + receipt_bytes (this wrapper's own CapacityDryRunReceipt-size field). CapacityDryRunReceipt is a small ephemeral non-evidence object; the thing that actually occupies disk on every LIVE run is the much larger RunReceiptSuccess/Failure, whose size the (now fully auditable, round 8) live_receipt_projection estimates. receipt_bytes/receipt_sha256 remain useful for this wrapper's own reconstructibility audit (\u00a74 of phase_b_design_freeze.md) but are not part of the capacity formula. Semantic validator check #6 (arithmetic) and #12 (projection recomputability)."
+        }
+      }
+    },
+    "CapacityDryRunReport": {
+      "description": "Per erratum E2 (rev.9, PENDING). Durable, small, versioned -- research/p0_r2_identity_collector/capacity_dry_run_report.json.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "generated_at",
+        "sizing_mode",
+        "attempts",
+        "bootstrap_bytes_per_run",
+        "bootstrap_formula"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "generated_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "sizing_mode": {
+          "type": "string",
+          "enum": [
+            "P_ONLY_EVIDENCE",
+            "COMPARABLE_IDENTITY"
+          ],
+          "description": "Single value for the whole cycle; every embedded receipt's own sizing_mode must agree (enforced below)."
+        },
+        "attempts": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/definitions/CapacityDryRunReportAttempt"
+          },
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "receipt": {
+                    "properties": {
+                      "as_of": {
+                        "const": "2026-08-07"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "receipt": {
+                    "properties": {
+                      "as_of": {
+                        "const": "2026-08-10"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "contains": {
+                "properties": {
+                  "receipt": {
+                    "properties": {
+                      "as_of": {
+                        "const": "2026-08-11"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "description": "Exactly 3 items, each item's receipt.as_of restricted to the 3-date enum, all 3 exact dates required present -- duplicate dates structurally impossible (pigeonhole)."
+        },
+        "bootstrap_bytes_per_run": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bootstrap_formula": {
+          "const": "ceil(1.5 * max(attempts[*].attempt_total_bytes))",
+          "description": "attempt_total_bytes = receipt.payload_bytes + receipt.live_receipt_projection.projected_object_bytes (round 8; was + receipt_bytes through round 6, an unaudited flat integer through round 7 -- see CapacityDryRunReportAttempt.attempt_total_bytes). The outer formula string itself is unchanged across all rounds; only what attempt_total_bytes means has been corrected twice. Arithmetic equality is schema-inexpressible -- semantic validator check."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "sizing_mode": {
+                "const": "COMPARABLE_IDENTITY"
+              }
+            },
+            "required": [
+              "sizing_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "attempts": {
+                "items": {
+                  "properties": {
+                    "receipt": {
+                      "properties": {
+                        "r_fwd_artifacts_included": {
+                          "const": true
+                        },
+                        "sizing_mode": {
+                          "const": "COMPARABLE_IDENTITY"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "attempts": {
+                "items": {
+                  "properties": {
+                    "receipt": {
+                      "properties": {
+                        "r_fwd_artifacts_included": {
+                          "const": false
+                        },
+                        "sizing_mode": {
+                          "const": "P_ONLY_EVIDENCE"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "Gate C-P FAIL rule, now also enforcing that every embedded receipt's sizing_mode agrees with the report-level field (closes the round-4 gap where cross-attempt sizing_mode agreement needed a separate semantic check -- now schema-structural)."
+        }
+      ]
+    },
+    "CollectorConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "collector_config_schema_version",
+        "primary_root",
+        "mirror_root",
+        "resolved_callables",
+        "frozen_constants",
+        "lock_lease_minutes",
+        "capacity"
+      ],
+      "properties": {
+        "collector_config_schema_version": {
+          "const": "p0r2-collector-config-v1"
+        },
+        "primary_root": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AbsolutePathHeuristic"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mirror_root": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AbsolutePathHeuristic"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolved_callables": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "frozen_constants": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "lock_lease_minutes": {
+          "const": 120
+        },
+        "capacity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "p95_window",
+            "bootstrap_multiplier",
+            "safety_multiplier",
+            "scheduled_runs_horizon"
+          ],
+          "properties": {
+            "p95_window": {
+              "const": 20
+            },
+            "bootstrap_multiplier": {
+              "const": 1.5
+            },
+            "safety_multiplier": {
+              "const": 2
+            },
+            "scheduled_runs_horizon": {
+              "const": 90
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "primary_root": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "primary_root"
+            ]
+          },
+          "then": {
+            "required": [
+              "mirror_root"
+            ],
+            "properties": {
+              "mirror_root": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "mirror_root": {
+                "const": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    "LedgerEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "event_type",
+        "run_id",
+        "prior_event_hash",
+        "event_hash",
+        "payload",
+        "recorded_at"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "run",
+            "qualification",
+            "revision",
+            "epoch",
+            "failure",
+            "mirror",
+            "unlock"
+          ]
+        },
+        "run_id": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "prior_event_hash": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        },
+        "event_hash": {
+          "$ref": "#/definitions/Sha256Hex"
+        },
+        "payload": {
+          "type": "object"
+        },
+        "recorded_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "sequence": {
+                "const": 1
+              }
+            },
+            "required": [
+              "sequence"
+            ]
+          },
+          "then": {
+            "properties": {
+              "prior_event_hash": {
+                "const": null
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "prior_event_hash": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "unlock"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "type": "object",
+                "required": [
+                  "run_id_of_lock",
+                  "expected_run_id_provided",
+                  "operator",
+                  "reason"
+                ],
+                "properties": {
+                  "run_id_of_lock": {
+                    "$ref": "#/definitions/Sha256Hex"
+                  },
+                  "expected_run_id_provided": {
+                    "$ref": "#/definitions/Sha256Hex"
+                  },
+                  "operator": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "mirror"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "run_id",
+                  "previous_status",
+                  "new_status",
+                  "mirror_verification",
+                  "original_receipt_sha256",
+                  "original_output_aggregate_sha256"
+                ],
+                "properties": {
+                  "run_id": {
+                    "$ref": "#/definitions/Sha256Hex"
+                  },
+                  "previous_status": {
+                    "type": "string",
+                    "enum": [
+                      "VERIFIED",
+                      "PENDING"
+                    ]
+                  },
+                  "new_status": {
+                    "type": "string",
+                    "enum": [
+                      "VERIFIED",
+                      "PENDING"
+                    ]
+                  },
+                  "mirror_verification": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/MirrorVerification"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "A recovery claiming new_status=VERIFIED must carry the SAME full per-file evidence the initial commit required (MirrorVerification reused verbatim -- its own VERIFIED-status allOf forces every per_file_verification entry to match=true with a real mirror_sha256). null is legal only when new_status=PENDING (a logged recovery attempt that did not succeed)."
+                  },
+                  "original_receipt_sha256": {
+                    "$ref": "#/definitions/Sha256Hex",
+                    "description": "Round 9 (blocker 3): sha256 of the ORIGINAL, immutable run_receipt.json this recovery pertains to. Binds the recovery to specific bytes rather than to a run_id alone -- if the original receipt were altered, this reference stops resolving."
+                  },
+                  "original_output_aggregate_sha256": {
+                    "$ref": "#/definitions/Sha256Hex",
+                    "description": "Round 9 (blocker 3): the original receipt's own output aggregate hash. Semantic validator check #11 (rewritten this round) additionally requires, PER FILE, that mirror_verification.per_file_verification[f].primary_sha256 == original_receipt.output_hashes[f].sha256 for every f, and recomputes both the primary and mirror aggregates from those per-file hashes. Round 8's check compared only FILE NAMES, so a recovery could present the same 10 filenames with entirely different primary_sha256 values and still pass every layer."
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "new_status": {
+                          "const": "VERIFIED"
+                        }
+                      },
+                      "required": [
+                        "new_status"
+                      ]
+                    },
+                    "then": {
+                      "properties": {
+                        "mirror_verification": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "const": "VERIFIED"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "previous_status": {
+                          "const": "VERIFIED"
+                        }
+                      },
+                      "required": [
+                        "previous_status"
+                      ]
+                    },
+                    "then": {
+                      "properties": {
+                        "new_status": {
+                          "const": "VERIFIED"
+                        }
+                      }
+                    },
+                    "description": "Forbids a VERIFIED->PENDING regression -- once mirror-verified, a later mirror event cannot silently un-verify it."
+                  }
+                ]
+              }
+            }
+          },
+          "description": "Formalizes PENDING_MIRROR-recovery as an append-only ledger event, never a mutation of the original RunReceiptSuccess file. The original receipt is immutable; current true status = original receipt + the latest 'mirror' event for that run_id. Cross-object checks that JSON Schema cannot express: payload.run_id == enclosing LedgerEvent.run_id (semantic check #9); per-file primary_sha256 identity with the original receipt's output_hashes plus aggregate recomputation (semantic check #11, rewritten round 9)."
+        }
+      ]
+    },
+    "HealthSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "generated_at",
+        "last_success_run_id",
+        "last_success_at",
+        "last_failure_run_id",
+        "last_failure_at",
+        "last_failure_code",
+        "pending_mirror_count",
+        "monthly_eligible_count",
+        "comparable_identity_count",
+        "source_mutation_count",
+        "current_lock_state",
+        "current_lock_holder_pid"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "p0r2-collector-schema-v1"
+        },
+        "generated_at": {
+          "$ref": "#/definitions/TaipeiUtcTimestampPair"
+        },
+        "last_success_run_id": {
+          "$ref": "#/definitions/Sha256HexOrNull",
+          "description": "Round 7 correction (blocker 2): MUST derive from a RunReceiptSuccess whose EFFECTIVE persistence status is COMMITTED -- defined as (persistence_status==COMMITTED) OR (persistence_status==PENDING_MIRROR AND the latest 'mirror' LedgerEvent for this run_id has new_status==VERIFIED). The receipt's own persistence_status field is NEVER mutated (append-only discipline) -- effective_persistence_status is a query-time-only derived value, computed by whoever builds this HealthSummary by joining the receipt with the ledger, never written back anywhere. Round 6's wording ('MUST derive only from... persistence_status=COMMITTED') was a bug: it made recovery via a mirror ledger event permanently unable to satisfy this field, since the literal receipt field never changes. Cross-object rollup rule, schema-inexpressible within HealthSummary alone -- semantic validator check #8 (updated round 7 to simulate ledger-based recovery)."
+        },
+        "last_success_at": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TaipeiUtcTimestampPair"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_failure_run_id": {
+          "$ref": "#/definitions/Sha256HexOrNull"
+        },
+        "last_failure_at": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TaipeiUtcTimestampPair"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_failure_code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "MISSING_P_A",
+            "MISSING_P_B",
+            "DATE_MISMATCH",
+            "SOURCE_DATE_CONFLICT",
+            "HASH_MISMATCH",
+            "SCHEMA_FAILURE",
+            "LOW_DISK",
+            "LOCK_HELD",
+            "PARTIAL_WRITE",
+            null
+          ]
+        },
+        "pending_mirror_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Round 7: counts receipts whose EFFECTIVE persistence status is still PENDING_MIRROR (original PENDING_MIRROR with no VERIFIED mirror ledger event yet) -- a receipt that has been recovered via a mirror event no longer counts here, it moves to the COMMITTED-derived counters."
+        },
+        "monthly_eligible_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Round 7 correction: counts RunReceiptSuccess with EFFECTIVE persistence status COMMITTED (see last_success_run_id) and monthly_status=MONTHLY_ELIGIBLE -- includes recovered PENDING_MIRROR->COMMITTED receipts. Any FAILED receipt never contributes (structurally impossible anyway, since RunReceiptFailure.monthly_status excludes MONTHLY_ELIGIBLE)."
+        },
+        "comparable_identity_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Same corrected rule -- effective-COMMITTED with identity_status=COMPARABLE_IDENTITY. Structurally impossible for FAILED receipts (identity_status enum excludes COMPARABLE_IDENTITY there); currently impossible for ANY receipt while announcement_date_pit_status stays const:BLOCKED (\u00a77 of phase_b_design_freeze.md)."
+        },
+        "source_mutation_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "current_lock_state": {
+          "type": "string",
+          "enum": [
+            "FREE",
+            "HELD",
+            "STALE_DETECTED"
+          ]
+        },
+        "current_lock_holder_pid": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 4294967295
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "current_lock_state": {
+                "const": "HELD"
+              }
+            },
+            "required": [
+              "current_lock_state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "current_lock_holder_pid": {
+                "type": "integer"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "current_lock_holder_pid": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "last_success_run_id": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "last_success_at": {
+                "const": null
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "last_success_at": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "last_failure_run_id": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "last_failure_at": {
+                "const": null
+              },
+              "last_failure_code": {
+                "const": null
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "last_failure_at": {
+                "type": "object"
+              },
+              "last_failure_code": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "semantic_validation_rules_note": "See phase_b_design_freeze.md: (1) production_capture_pid != r_fwd_pid, (2) utc/local_taipei same instant at +8:00, (3) primary_root/mirror_root genuinely absolute+independent, (4) hash values match recomputed content, (5) [schema-structural] cross-attempt sizing_mode consistency, (6) bootstrap_bytes_per_run equals recomputed ceil(1.5*max(payload_bytes+live_receipt_projection.projected_object_bytes)), (7) MirrorVerification.primary_aggregate_sha256 == mirror_aggregate_sha256 when status=VERIFIED, (8) HealthSummary counters/last_success_* derive from EFFECTIVE persistence status, (9) LedgerEvent.run_id == payload.run_id for 'mirror' events, (10) [rewritten round 13, P1 blocker] RunReceiptSuccess.r_fwd_qualification_ref resolves BY record_hash to an exact attempt record whose record_id/r_fwd_adapter_sha256 agree with the ref and with the receipt's own code_hashes -- never 'latest wins'. If the attempt's OWN qualification_status is QUALIFIED, resolution_record_hash MUST be null and the reference resolves directly (self-sufficient). If the attempt's OWN qualification_status is QUALIFICATION_PENDING, resolution_record_hash MUST be a real resolution event's record_hash: that exact resolution MUST exist, have entry_kind=resolution, resolve THIS attempt (resolves_attempt_record_id/resolves_attempt_record_hash matching), have new_qualification_status=QUALIFIED, and have generated_at no later than this receipt's own completed_at (the resolution must already have existed at the time this receipt could have consulted it). If the attempt's OWN qualification_status is QUALIFICATION_FAILED, or resolution_record_hash is null while the attempt is PENDING, or resolution_record_hash is non-null while the attempt is already QUALIFIED, or the pinned resolution_record_hash does not resolve to a matching real resolution event, the reference is rejected -- exactly as a dangling reference is. Round 11/12 instead computed this by scanning for 'the latest RFwdQualificationResolutionEvent' at validation time, which let two validations of the identical immutable receipt disagree depending on whether a later resolution had since been appended -- round 13 closes that by requiring the SPECIFIC resolution be pinned on the referencing receipt itself, at write time, never resolved dynamically, (11) a mirror LedgerEvent's mirror_verification must, PER FILE, have primary_sha256 identical to the original receipt's output_hashes[file].sha256, plus recomputed aggregates matching and original_receipt_sha256 resolving, (12) [extended round 10, round 11] LiveReceiptProjectionManifest's projected_object_sha256/_bytes are recomputable from placeholder_policy + actual_inputs AND the assembled object validates against ProjectedRunReceipt -- round 11 additionally confirms a COMPARABLE_IDENTITY assembly carries announcement_date_pit_status=VERIFIED (never the shorter BLOCKED) and still validates against ProjectedRunReceipt's own now-conditional rule for that field, (13) [extended round 10, round 11] qualification-ledger chain continuity + record_hash recomputation + record_id is a well-formed UUIDv4 and unique across the ledger -- round 11: the chain now spans BOTH entry_kinds (RFwdAdapterQualificationRecord and RFwdQualificationResolutionEvent) as one unified stream (a resolution's sequence==1 is already schema-rejected via RFwdQualificationResolutionEvent.sequence's minimum:2), and resolves_attempt_record_id/resolves_attempt_record_hash on every resolution entry must resolve to a real, earlier-sequenced attempt entry, (14) process_isolation_audit.r_fwd_process.pid != production_capture_process.pid, (15) future_input_access_audit.forbidden_targets contains at least exec_ret.parquet and obs_alpha.parquet, (16) [extended round 10] live_receipt_projection.actual_inputs agrees with the enclosing CapacityDryRunReceipt on as_of, identity_status/sizing_mode, output_hashes_equivalent/payload_files, AND the four redundantly-stored fields source_hashes, code_hashes, collector_config_hash, collector_schema_sha256, (17) [new round 10] no record_id is a prefix-derivative of its own record_hash (guards against reintroducing round 9's circular construction), (18) [new round 10, extended round 11] every placeholder in LiveReceiptProjectionPlaceholderPolicy is the maximum-length legal value for its field -- re-derived per field, so an anti-conservative placeholder fails; round 11 additionally asserts the attempted_input_manifest_placeholder's lock_holder_pid/disk_free_bytes equal PreflightObservation's own schema maximum bounds (4294967295 / 9223372036854775807) exactly, not merely 'a long value', (19) [new round 10] AuditEvidenceArtifact.relative_path matches the canonical filename for its artifact_role, and bundle_location.bundle_relative_root's UUID equals record_id minus the 'rfwdq-' prefix, (20) [new round 10, extended round 11, corrected this round] LedgerHeadCheckpointRecord.payload.record_count == payload.head_sequence and the on-disk ledger tail matches payload.head_sequence/payload.head_record_hash (tail-truncation detection); round 11 additionally recomputes payload_sha256/payload_bytes from the embedded payload field ALONE (disjoint from this record's own storage/protection_scope -- corrected this round from an earlier draft that hashed six fields living in the SAME object as the mirror_verification checking them, which could not distinguish 'the payload's real bytes' from 'this record's own bytes') and requires storage.mirror_verification's sole per_file_verification key to equal storage.relative_path with primary_sha256 (and mirror_sha256 when VERIFIED) equal to payload_sha256 -- and, per protection_scope, explicitly does NOT attempt to detect a simultaneous ledger+checkpoint rollback, (21) [new round 10] ProjectionTemplateIdentity.reachable_commit_sha1 is a real commit whose tree holds git_blob_sha1 at repo_relative_path, and durable_copy.sha256 == content_sha256, (22) [new round 11, item 2] QualificationBundleLocation.artifact_set.aggregate_sha256 recomputes correctly via AggregateHashFormula.selectors.artifact_selector over the two artifact_set files, (23) [new round 11, item 2] for both qualification-bundle files, artifact_set[f].bytes/sha256 == mirror_verification.per_file_verification[f].primary_sha256 (bytes compared where available) == the corresponding AuditEvidenceArtifact's bytes/sha256 (process_isolation_audit.import_manifest_artifact for process_import_manifest.json, future_input_access_audit.evidence_artifact for future_input_access_trace.json) -- a missing file, an extra file, or any divergence across these three references is rejected, and artifact_set.aggregate_sha256 must equal mirror_verification.primary_aggregate_sha256 (both describe the same two files on the primary copy), (24) [new round 11, corrected this round] RFwdQualificationResolutionEvent.resolves_attempt_record_hash resolves to a real RFwdAdapterQualificationRecord (entry_kind=\"attempt\") whose own qualification_status was QUALIFICATION_PENDING at write time, and the resolution's mirror_verification per-file primary hashes agree with that attempt's bundle_location.artifact_set -- reapplying check #23's three-way consistency to the resolution event, so a resolution cannot attest to different bytes than the attempt it resolves described.",
+  "live_artifacts": {
+    "directory_pattern": "<primary_root>/<identity_epoch>/<as_of>/<run_id>/  (mirrored under <mirror_root>). NOTE: identity_epoch may be null-shaped for a RunReceiptFailure with a pre-source failure_code -- such a failure receipt is written to a run_id-keyed path that does not include an identity_epoch segment (design detail: <primary_root>/_no_epoch/<as_of>/<run_id>/), since no epoch was ever established.",
+    "files": [
+      "run_receipt.json (validates as RunReceipt = oneOf[RunReceiptSuccess, RunReceiptFailure])",
+      "source_manifest.json",
+      "code_config_manifest.json",
+      "p_a_raw_snapshot.parquet",
+      "p_a_screen_by_composite_parity.parquet (produced by the ranking adapter at scripts/identity_collector/ranking_adapter.py -- never a second live call)",
+      "p_b_fullpool.parquet",
+      "p_app_fusion.csv",
+      "p_l4a_fusion.csv",
+      "r_fwd_scores.parquet [only when identity_status == COMPARABLE_IDENTITY]",
+      "r_fwd_fusion.csv [only when identity_status == COMPARABLE_IDENTITY]",
+      "rank_audit.csv",
+      "process_import_manifest.json",
+      "replay_manifest.json"
+    ],
+    "atomicity": "Each file MUST be written to a temporary path, schema/hash-validated, then atomic-renamed into place (FR-34); a run directory containing anything less than the full required set for its identity_status MUST NOT be marked persistence_status=COMMITTED."
+  },
+  "capacity_dry_run_artifacts": {
+    "directory_pattern": "OS-temp directory, never under primary_root/mirror_root. Deleted after measurement -- but see CapacityDryRunReportAttempt: the receipt (and therefore a full description of every payload file's path/bytes/sha256) survives durably even though the physical bytes on disk do not.",
+    "files": [
+      "capacity_dry_run_receipt.json (validates as CapacityDryRunReceipt)",
+      "source_manifest.json",
+      "code_config_manifest.json",
+      "p_a_raw_snapshot.parquet",
+      "p_a_screen_by_composite_parity.parquet",
+      "p_b_fullpool.parquet",
+      "p_app_fusion.csv",
+      "p_l4a_fusion.csv",
+      "rank_audit.csv",
+      "process_import_manifest.json",
+      "replay_manifest.json",
+      "r_fwd_scores.parquet [only when sizing_mode == COMPARABLE_IDENTITY]",
+      "r_fwd_fusion.csv [only when sizing_mode == COMPARABLE_IDENTITY]"
+    ],
+    "explicit_exclusion_note": "run_receipt.json is NEVER part of this list: a dry-run produces capacity_dry_run_receipt.json, never a RunReceipt.",
+    "completeness_note": "This list now matches live_artifacts.files exactly except for the receipt-file name itself (item 4: every live-equivalent artifact category must be measured, not a partial subset)."
+  }
+}
