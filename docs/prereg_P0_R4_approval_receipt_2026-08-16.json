@@ -1,0 +1,67 @@
+{
+  "study": "P0-R4 Historical Raw-Source Remediation, PIT Semantics, and Live Identity Resolution",
+  "prereg_path": "docs/prereg_P0_R4_HistoricalRawSourceRemediation_PITIdentity_2026-08-16.md",
+
+  "approval_event": {
+    "stage": "Phase A",
+    "date": "2026-08-16",
+    "user_approval": "APPROVED",
+    "approved_scope": [
+      "Track A / Gate R4-V (§6) — read-only investigation of whether historical vintage (first-vintage values) exists for each dataset",
+      "Gate R4-A / Gate R4-P provenance evidence (§7.2-7.4, §10.2, §10.5) — read-only verification of authoritative raw-source provenance and PIT/availability documentation, obtained only through §11.1's read-only browsing boundary",
+      "Gate R4-H / Gate R4-S (§7.1, §7.5, §10.3, §10.6) — read-only confirmation of 255-canonical-month coverage, schema, duplicate-key, and missingness integrity, full-corpus per AC-R4-14",
+      "Track C / Gate R4-L (§8, §10.1) — read-only confirmation of the actual live process, code, and environment-variable resolution, Windows-Git-scoped per §4",
+      "Gate R4-D, existence-check-and-read-only-verify mode only (§5, §10.7) — checking whether durable identity already exists (reachable committed blob, or read-only verification of a PREEXISTING_DOCUMENTED_BYTE_COPY); Phase B creates, copies, or modifies no byte copy under any circumstance"
+    ],
+    "explicitly_not_authorized_this_stage": [
+      "Downloading any raw dataset, export, attachment, or bulk archive from any TEJ/TDCC/vendor site, or invoking any importer/collector tool in any mode (§11.1 item 2)",
+      "Logging into, or paying for access to, any vendor/paid service — login/payment/download-gated evidence is recorded BLOCKED/UNAVAILABLE, never obtained (§11.1 item 3)",
+      "Any data import, backfill, or transformation of any dataset",
+      "Any byte copy CREATION or MODIFICATION — code or data, for any purpose, including to establish durable identity (§5, §8, AC-R4-35). Read-only verification of an already-existing copy is the sole permitted interaction",
+      "Any data snapshot of any kind",
+      "Any modification to core/data_provider.py, tej_importer.py, or any other production/cache/Scheduler code or configuration",
+      "Any test or adapter code",
+      "Any production or Task Scheduler operation",
+      "Any other, unnamed Phase C+ remediation action of any kind — anything not explicitly listed under approved_scope above remains unauthorized by default"
+    ],
+    "binding_reminder": "Phase B is read-only diagnosis only — it does not download, import, backfill, transform, copy, snapshot, or modify anything. Gate R4-D in Phase B may only check/verify existing durable identity, never create it. Each item in explicitly_not_authorized_this_stage requires its own separate, explicit, future user approval (§10.0/§11)."
+  },
+
+  "approved_draft": {
+    "note": "The exact pre-stamp draft content the user substantively reviewed and approved (i.e. the round-3 revision, before Status/User-approval/§15 fields were stamped into the document in this same turn).",
+    "sha256": "9ffd6a9b79ad932df8d94b7b36f34759c357ce3af9ab2c8ecdd649f6557f31a7",
+    "byte_length": 92555,
+    "line_count": 575
+  },
+
+  "final_stamped_document": {
+    "note": "The document as it exists on disk immediately after this approval event (Status: APPROVED, Approval event, User approval, Implementation authorized header fields, and the full §15 Approval fields block edited in place, including the 9-item explicitly-not-authorized list and its catch-all closing item). This is the 'final document identity' that the prereg's own §15 rule says MUST NOT be self-written into the document body.",
+    "sha256": "f87d133eb31172ddefb774a0108aff35d08f1adedc2d74f2968b872e692d6915",
+    "byte_length": 97488,
+    "line_count": 593,
+    "git_blob_sha1": "df6634f70cac90c667f505f4488c6a9d0365b258",
+    "git_blob_capture_method": "git hash-object docs/prereg_P0_R4_HistoricalRawSourceRemediation_PITIdentity_2026-08-16.md — computed prior to staging; deterministic, matches the blob git records upon commit; does not itself write a loose object or touch the working tree/index/any ref.",
+    "git_blob_committed_this_event": true
+  },
+
+  "approved_repository_baseline_commit": {
+    "sha1": "f5dc275ef320c63e76b5cac49279f68cff286793",
+    "subject": "research(P0-R3): archive Phase B blocked source-lineage result",
+    "verified_as_head_at_approval_time": true
+  },
+
+  "gates_status_at_approval": {
+    "R4-L": "NOT_EVALUATED — Phase B not yet run",
+    "R4-A": "NOT_EVALUATED — Phase B not yet run",
+    "R4-V": "NOT_EVALUATED — Phase B not yet run",
+    "R4-H": "NOT_EVALUATED — Phase B not yet run",
+    "R4-P": "NOT_EVALUATED — Phase B not yet run",
+    "R4-S": "NOT_EVALUATED — Phase B not yet run",
+    "R4-D": "NOT_EVALUATED — Phase B not yet run",
+    "R4-X": "NOT_EVALUATED — Phase B not yet run (continuous cross-cutting audit, has no independent PASS/FAIL of its own until other gates produce findings)"
+  },
+
+  "phase_reminder": "Per §10.0/§10.9/§11 (per-track matrix, no shared upstream gate): Track A is R4-A->R4-V->R4-D; Track B is R4-A->{R4-H,R4-P,R4-S}->R4-D; Track C is R4-L->R4-D; R4-X audits continuously. Any Phase C+ remediation action (download, import, backfill, transform, byte-copy creation, production/cache/Scheduler code modification, snapshot) requires its own separate, explicit, future approval, per track, contingent on that track's own Phase B findings. This approval does not extend to any of it.",
+
+  "no_production_side_effects_this_event": "This approval-recording action (stamping the prereg document's header/§15 fields and writing this external receipt file) made no changes to any production file, data, schedule, or state. No Gate R4-L/A/V/H/P/S/D/X evaluation, no vendor-website browsing, no dataset inspection, and no byte copy of tej_cache/market_cache/TEJ_RUNTIME_OVERLAY_DIR or any code file was created as part of this event. The only writes performed were to these exact two files (this receipt and the prereg document above), which were then precisely staged and committed together — no other file was added, modified, or staged; see the accompanying commit for its exact identity."
+}
