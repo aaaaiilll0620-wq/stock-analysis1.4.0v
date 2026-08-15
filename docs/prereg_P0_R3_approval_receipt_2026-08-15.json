@@ -1,0 +1,61 @@
+{
+  "study": "P0-R3 Source-Lineage Adjudication, Raw Snapshot, and Full R-FWD Qualification",
+  "prereg_path": "docs/prereg_P0_R3_SourceLineage_RawSnapshot_RfwdQualification_2026-08-15.md",
+
+  "approval_event": {
+    "stage": "Phase A",
+    "date": "2026-08-15",
+    "approved_by": "iam102038@gmail.com",
+    "user_approval": "APPROVED",
+    "approved_scope": [
+      "Phase A — this document, as approved (round-5 revision content, unchanged)",
+      "Phase B step 1 — Gate R3-L per-field static callable/import tracing for all 6 target fields (§7.1)",
+      "Phase B step 2 — if and only if Gate R3-L PASSes: Gate R3-S (source sufficiency, §6/§7.2) and Gate R3-P (PIT/announcement-date validity, §7.4) evaluation over the frozen D*",
+      "Phase B step 3 — the §8 per-leg freeze record (callable chain, code SHA256, input fields, constants, window, merge key, industry fallback, NaN/tie/ranking semantics, formula) for the A-leg and all 4 B-legs"
+    ],
+    "explicitly_not_authorized_this_stage": [
+      "Phase C — snapshot creation (§9)",
+      "Phase D — tests / minimal offline adapter implementation (§11)",
+      "Phase E — single-shot R3-U/R3-B/R3-Q/R3-I/R3-N parity/membership/isolation/future-input reveal (§7.6/§11)",
+      "Any production, cache, or Task Scheduler write of any kind (§12)",
+      "Any diagnostic-only snapshot (§7.0) — remains a separate, explicit future approval"
+    ],
+    "binding_reminder": "Phase B MUST NOT run parity, membership, raw-score comparison, or any performance computation (§11, restated). It is read-only tracing, cataloging, and (for R3-S/R3-P) sufficiency/evidence adjudication over already-existing files' metadata/schema only."
+  },
+
+  "approved_draft": {
+    "note": "The exact pre-stamp draft content the user substantively reviewed and approved (i.e. the round-5 revision, before Status/User-approval/§14 fields were stamped into the document in this same turn).",
+    "sha256": "f08c289c048600e7cf47225d40267a8e7b3baec4dbf2ab1148125da30887a7a2",
+    "byte_length": 89603,
+    "line_count": 564
+  },
+
+  "final_stamped_document": {
+    "note": "The document as it exists on disk immediately after this approval event (Status: APPROVED, Approval event, User approval, Implementation authorized, Drafting-scope header fields, and the full §14 Approval fields block edited in place). This is the 'final document identity' that the prereg's own §14 rule says MUST NOT be self-written into the document body.",
+    "sha256": "15e0e72fdb63be78e6e414b26326c3e5b790a82d573e9fc43629f33b74edbf32",
+    "byte_length": 93457,
+    "line_count": 574
+  },
+
+  "approved_repository_baseline_commit": {
+    "sha1": "497a03ee04d676aa44f5948dcfc69d9c8edd3ebf",
+    "subject": "research(P0-R2): archive partial Phase D offline validation",
+    "verified_as_head_at_approval_time": true
+  },
+
+  "gates_status_at_approval": {
+    "Gate R3-L": "NOT_EVALUATED — Phase B not yet run",
+    "Gate R3-S": "NOT_EVALUATED — Phase B not yet run",
+    "Gate R3-P": "NOT_EVALUATED — Phase B not yet run",
+    "Gate R3-F": "NOT_EVALUATED — Phase C not yet run",
+    "Gate R3-U": "NOT_EVALUATED — Phase E not yet run",
+    "Gate R3-B": "NOT_EVALUATED — Phase E not yet run",
+    "Gate R3-Q": "NOT_EVALUATED — Phase E not yet run",
+    "Gate R3-I": "NOT_EVALUATED — Phase E not yet run",
+    "Gate R3-N": "NOT_EVALUATED — Phase E not yet run"
+  },
+
+  "phase_reminder": "Per §7.0/§11: Phase C requires its own separate, explicit approval, granted only after Gate R3-L PASS + Gate R3-S PASS + Gate R3-P PASS, D* disclosed in full, and the Phase B design-freeze document (including the §8 per-leg formula freeze) complete — or, as the sole exception, a separately approved diagnostic-only snapshot that can never feed a qualification verdict. This approval does not extend to Phase C, Phase D, Phase E, or any production/cache/Scheduler write.",
+
+  "no_production_side_effects_this_event": "This approval-recording action (stamping the prereg document's header/§14 fields and writing this external receipt file) made no changes to any production file, data, schedule, or state. No Gate R3-L tracing, no Phase B design-freeze document, no dataset inventory, no snapshot, no manifest, no test, and no adapter/collector code was created as part of this event."
+}
