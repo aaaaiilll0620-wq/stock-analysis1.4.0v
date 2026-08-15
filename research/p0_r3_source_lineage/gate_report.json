@@ -1,0 +1,148 @@
+{
+  "study": "P0-R3 Source-Lineage Adjudication, Raw Snapshot, and Full R-FWD Qualification",
+  "prereg_path": "docs/prereg_P0_R3_SourceLineage_RawSnapshot_RfwdQualification_2026-08-15.md",
+  "phase": "B",
+  "scored_at": "2026-08-15",
+  "repository_baseline_commit": "b97d31602ff21b150f2f8e0abc3d3ad527f32241",
+  "prereg_approved_baseline_commit": "497a03ee04d676aa44f5948dcfc69d9c8edd3ebf",
+  "baseline_note": "b97d3160 is 497a03ee plus 2 docs-only commits (Phase A approval stamping); every lineage-relevant code file is byte-identical between the two refs, reconfirmed this round (git diff --stat).",
+  "design_freeze_doc": "research/p0_r3_source_lineage/phase_b_design_freeze.md",
+  "correction_note": "Same-day revision per user review, 6 fixes: (1) financial_statements/monthly_revenue schema drift promoted to an independent Gate R3-S FAIL reason (SCHEMA_DRIFT_UNRESOLVED), not a disclosed-but-moot note; (2) institutional_gross/tdcc_weekly's self-contradictory unverified-optimistic+genuine_field/PASS classification corrected to a single unresolved/fixed_offset_proxy/FAIL classification on Gate R3-P, and added to failing_datasets; (3) reason_code fields changed from singular to reason_codes arrays to hold multiple independent grounds per gate; (4) new duplicate_key_audit block, status NOT_FULLY_EVALUATED; (5) new durable_identity block, DURABLE_IDENTITY_NOT_ESTABLISHED added to both R3-S and R3-P reason_codes; (6) R3-L summary/scope_note now explicitly limits the PASS to the approved committed baseline and marks the live working tree NOT_EVALUATED. Overall disposition (R3-L PASS scoped / R3-S FAIL / R3-P FAIL / R3-F,U,B,Q,I,N NOT_EVALUATED / NULL_BLOCKED_RESULT) is unchanged.",
+
+  "gate_results": [
+    {
+      "gate_id": "R3-L",
+      "status": "PASS",
+      "scope_note": "PASS is scoped strictly to the approved committed repository baseline (497a03ee...) and its docs-only descendant commits (current HEAD b97d3160...). The current LIVE WORKING TREE for core/data_provider.py and tej_importer.py carries substantial uncommitted changes (see phase_b_design_freeze.md §1.2.2) that are NOT part of this gate's evidence basis. This PASS does not evaluate, and must not be read as evaluating, the live working-tree production lineage.",
+      "scored_in_phase": "B",
+      "reason_codes": [],
+      "evidence_refs": ["phase_b_design_freeze.md#1", "phase_b_design_freeze.md#1.7"],
+      "summary": "All 6 target fields (decision-time universe, A-leg real_composite, value_ind, revenue_yoy, high52_prox, momentum) traced to a complete, unambiguous raw-dataset lineage, anchored to the committed baseline. D* frozen (first freeze).",
+      "not_evaluated_this_round": [
+        "Live working-tree production lineage for core/data_provider.py / tej_importer.py (uncommitted TEJ_RUNTIME_OVERLAY_DIR merge layer, rewritten importer) — disclosed as a monitoring item, not scored."
+      ]
+    },
+    {
+      "gate_id": "R3-S",
+      "status": "FAIL",
+      "scored_in_phase": "B",
+      "reason_codes": ["COVERAGE_INSUFFICIENT", "SCHEMA_DRIFT_UNRESOLVED", "DURABLE_IDENTITY_NOT_ESTABLISHED"],
+      "evidence_refs": ["phase_b_design_freeze.md#2"],
+      "summary": "4 of 8 D* datasets FAIL, on two independent reason categories (coverage, schema drift); additionally, no D* dataset has an established durable corpus identity this round, and duplicate-key integrity was not fully evaluated (fail-fast/short-circuit, decisive FAIL already established on other grounds).",
+      "failing_datasets": [
+        {
+          "dataset": "monthly_revenue",
+          "reason_codes": ["COVERAGE_INSUFFICIENT", "SCHEMA_DRIFT_UNRESOLVED"],
+          "missing_months": 168,
+          "total_months": 255,
+          "missing_range": "2005-01-31 .. 2018-12-28",
+          "actual_on_disk_range": "2019-01-01 .. 2026-06-01",
+          "schema_drift": "8/1952 per-stock files have release_date typed null (all-null column, i.e. 100% fallback-proxy for those 8 stocks) vs string in the remaining 1944 files."
+        },
+        {
+          "dataset": "institutional_gross",
+          "reason_codes": ["COVERAGE_INSUFFICIENT"],
+          "missing_months": 255,
+          "total_months": 255,
+          "missing_range": "2005-01-31 .. 2026-03-31 (entire target range)",
+          "actual_on_disk_range": "2026-04-01 .. 2026-07-16",
+          "note": "Contradicts tej_importer.py's own (currently uncommitted) docstring claim of 2004-01-02+ coverage; on-disk data matches that same docstring's description of the OLD pre-expansion seed window instead."
+        },
+        {
+          "dataset": "tdcc_weekly",
+          "reason_codes": ["COVERAGE_INSUFFICIENT"],
+          "missing_months": 168,
+          "total_months": 255,
+          "missing_range": "2005-01-31 .. 2018-12-28",
+          "actual_on_disk_range": "2019-01-04 .. 2026-07-09"
+        },
+        {
+          "dataset": "financial_statements",
+          "reason_codes": ["SCHEMA_DRIFT_UNRESOLVED"],
+          "coverage_note": "Structurally near-full (2005-06-01 .. 2026-03-01); not a coverage failure. This dataset was INCORRECTLY recorded SUFFICIENT in an earlier draft — corrected this round: schema drift is an independent FAIL ground under AC-R3-2, not a disclosed-but-moot note.",
+          "schema_drift": "187/2287 per-stock files have net_income/total_assets/total_liabilities/equity/operating_cash_flow/capex typed int64 instead of double."
+        }
+      ],
+      "duplicate_key_audit": {
+        "status": "NOT_FULLY_EVALUATED",
+        "what_was_done": "Single-file sample (stock 1101) checked for duplicate (stock_id, date) rows in 4 of 8 D* datasets (price_valuation, revenue_growth, financial_statements, monthly_revenue); zero duplicates found in that one file per dataset.",
+        "what_was_not_done": "No full-corpus sweep (covers <0.1% of files for the 4 sampled datasets, 0% for industry_map/institutional_flow/institutional_gross/tdcc_weekly). Cannot support a per-dataset SUFFICIENT/INSUFFICIENT verdict under AC-R3-3.",
+        "rationale": "Fail-fast / short-circuit: Gate R3-S already has decisive, independently-established FAIL grounds (coverage + schema drift). A full-corpus duplicate-key sweep would not change this round's disposition and was not performed; not requested for this round either.",
+        "revision_policy_check": "NOT_ATTEMPTED this round, out of scope given the fail-fast disposition."
+      },
+      "durable_identity": {
+        "status": "NOT_ESTABLISHED",
+        "detail": "None of the 8 D* datasets received an independent byte copy or NFR-R3-3-compliant frozen corpus reference this round. tej_cache is not git-tracked; no byte copy was made (that action would itself have the shape of a partial Phase C snapshot, out of this round's authorized scope). All coverage/schema findings above are OBSERVED-CURRENT-CORPUS findings — valid to support this round's FAIL, not a claim of long-term reproducibility. See phase_b_design_freeze.md §2.7."
+      }
+    },
+    {
+      "gate_id": "R3-P",
+      "status": "FAIL",
+      "scored_in_phase": "B",
+      "reason_codes": ["FIXED_OFFSET_PROXY_UNCONDITIONAL", "DURABLE_IDENTITY_NOT_ESTABLISHED"],
+      "evidence_refs": ["phase_b_design_freeze.md#3"],
+      "summary": "5 of 8 D* datasets classified fixed_offset_proxy or unresolved/fixed_offset_proxy per AC-R3-7 (no genuine per-row evidence actually consumed by, or verified for, the producing chain); Gate R3-P FAILs unconditionally for each in the qualification track. Durable corpus identity not established for any D* dataset this round.",
+      "correction_this_round": "institutional_gross was previously (incorrectly) classified genuine_field/PASS in this same document while separately being described as 'potentially unverified-optimistic' — a self-contradictory pairing. institutional_gross and tdcc_weekly are now both classified unresolved/fixed_offset_proxy and moved into failing_datasets below (previously institutional_gross was absent from this list and tdcc_weekly sat in a softer 'flagged_not_yet_resolved' bucket).",
+      "failing_datasets": [
+        {"dataset": "revenue_growth", "reason": "No disclosure-date field exists at all (confirmed via tej_importer.py's own documentation)."},
+        {"dataset": "monthly_revenue", "reason": "Genuine release_date present 2019-01+ only; fixed +9d fallback elsewhere; partial coverage does not cure per AC-R3-7 item 1. Also fails Gate R3-S independently (coverage + schema drift)."},
+        {"dataset": "financial_statements", "reason": "Genuine release_date now exists in the raw dataset (2026-08-06 re-export) but is not read by core.tej_bundle._to_long(); a uniform 45-day fixed lag (PUBLISH_LAG_DAYS) is applied instead. Also fails Gate R3-S independently (schema drift)."},
+        {"dataset": "institutional_gross", "reason": "Zero PIT lag applied by core.tej_bundle._tej_shareholding() with no confirmed genuine per-row availability evidence backing that treatment. Also fails Gate R3-S independently (coverage)."},
+        {"dataset": "tdcc_weekly", "reason": "Zero PIT lag applied by A-leg's shareholding path; a separate consumer (alpha_gate_lab.py, non-target field) applies an explicit 4-day lag to the same dataset, evidence against treating zero-lag as safe. No confirmed genuine per-row availability evidence. Also fails Gate R3-S independently (coverage)."}
+      ],
+      "durable_identity": {
+        "status": "NOT_ESTABLISHED",
+        "detail": "Same basis as Gate R3-S's durable_identity block above — the dataset-level PIT classifications rest on the same non-durable, observed-current-corpus evidence. See phase_b_design_freeze.md §2.7."
+      }
+    },
+    {"gate_id": "R3-F", "status": "NOT_EVALUATED", "scored_in_phase": null, "reason_codes": ["PHASE_C_BLOCKED"]},
+    {"gate_id": "R3-U", "status": "NOT_EVALUATED", "scored_in_phase": null, "reason_codes": ["PHASE_C_BLOCKED"]},
+    {"gate_id": "R3-B", "status": "NOT_EVALUATED", "scored_in_phase": null, "reason_codes": ["PHASE_C_BLOCKED"]},
+    {"gate_id": "R3-Q", "status": "NOT_EVALUATED", "scored_in_phase": null, "reason_codes": ["PHASE_C_BLOCKED"]},
+    {"gate_id": "R3-I", "status": "NOT_EVALUATED", "scored_in_phase": null, "reason_codes": ["PHASE_C_BLOCKED"]},
+    {"gate_id": "R3-N", "status": "NOT_EVALUATED", "scored_in_phase": null, "reason_codes": ["PHASE_C_BLOCKED"]}
+  ],
+
+  "disposition": {
+    "result_type": "NULL_BLOCKED_RESULT",
+    "rule_applied": "prereg §7.0 / AC-R3-23",
+    "statement": "Gate R3-S and Gate R3-P both FAIL. Per §7.0, Phase C does not proceed. The study stops at Phase B. No snapshot, no qualification claim, no adapter, no tests, no further phase attempted this round.",
+    "affected_legs": {
+      "A_leg_real_composite": "BLOCKED — depends on monthly_revenue (R3-S coverage+schema, R3-P), institutional_gross (R3-S coverage, R3-P), tdcc_weekly (R3-S coverage, R3-P), financial_statements (R3-S schema, R3-P)",
+      "B_leg_value_ind": "no failing dependency of its own; BLOCKED anyway per AC-R3-24 (five legs qualified as one unit)",
+      "B_leg_revenue_yoy": "BLOCKED — depends on revenue_growth (R3-P)",
+      "B_leg_high52_prox": "no failing dependency of its own; BLOCKED anyway per AC-R3-24",
+      "B_leg_momentum": "no failing dependency of its own; BLOCKED anyway per AC-R3-24",
+      "decision_time_universe": "no failing dependency of its own; BLOCKED anyway per AC-R3-24"
+    },
+    "sole_permitted_continuation": "A separately, explicitly approved DIAGNOSTIC_ONLY — NOT QUALIFICATION-ELIGIBLE snapshot (§7.0). Not requested, not authorized, not built this round."
+  },
+
+  "dstar_manifest": {
+    "version": 1,
+    "is_first_freeze": true,
+    "frozen_at": "2026-08-15",
+    "datasets": ["price_valuation", "revenue_growth", "industry_map", "monthly_revenue",
+                 "financial_statements", "institutional_flow", "institutional_gross", "tdcc_weekly"],
+    "durable_identity_status": "NOT_ESTABLISHED for any dataset this round (see gate_results[R3-S].durable_identity) — this manifest freezes the SET of required datasets (Gate R3-L's output), not a byte-durable corpus identity for their contents (that is Gate R3-S/Phase C's separate, unmet responsibility).",
+    "change_history": []
+  },
+
+  "scope_performed_this_round": [
+    "Read-only Gate R3-L per-field callable-chain/lineage tracing (6 target fields), scoped to the approved committed baseline",
+    "Read-only Gate R3-S dataset schema/coverage inspection (pyarrow metadata scan + sampled full-column reads, no parity/performance computation)",
+    "Read-only Gate R3-P PIT-evidence classification per D* dataset",
+    "§8 per-leg formula/code-identity freeze (A-leg + 4 B-legs + decision-time universe)",
+    "One read-only sanity check of an existing, pre-study output file (realbody_scores_adv100w.parquet) to confirm the coverage-gap finding's downstream effect",
+    "This correction pass: reattributed schema-drift findings as independent Gate R3-S FAIL grounds, resolved the institutional_gross/tdcc_weekly self-contradictory classification, labeled duplicate-key audit NOT_FULLY_EVALUATED, added explicit durable-identity-not-established findings, and scoped Gate R3-L's PASS to the committed baseline only"
+  ],
+  "scope_not_performed_this_round": [
+    "No snapshot / SnapshotManifest / byte copy of any tej_cache file",
+    "No test file",
+    "No adapter code",
+    "No parity / membership / raw-score / performance computation",
+    "No write to tej_cache, market_cache, data/runtime_cache, or any production/cache/Scheduler path",
+    "No full-corpus duplicate-key sweep (fail-fast; not needed given decisive FAIL already established)",
+    "No git add / commit"
+  ]
+}
