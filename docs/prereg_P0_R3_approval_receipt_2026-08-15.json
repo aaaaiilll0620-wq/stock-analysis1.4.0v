@@ -31,10 +31,41 @@
   },
 
   "final_stamped_document": {
-    "note": "The document as it exists on disk immediately after this approval event (Status: APPROVED, Approval event, User approval, Implementation authorized, Drafting-scope header fields, and the full §14 Approval fields block edited in place). This is the 'final document identity' that the prereg's own §14 rule says MUST NOT be self-written into the document body.",
+    "note": "SUPERSEDED by same_day_consistency_correction below — this was the document's identity immediately after the initial approval-stamping edit (commit 76aaf35120a36fda8940c70a644b731d065c4f43), before two residual pre-approval-state contradictions were found and corrected the same day. Retained here for audit continuity; the current on-disk identity is same_day_consistency_correction.corrected_document.",
     "sha256": "15e0e72fdb63be78e6e414b26326c3e5b790a82d573e9fc43629f33b74edbf32",
     "byte_length": 93457,
     "line_count": 574
+  },
+
+  "same_day_consistency_correction": {
+    "date": "2026-08-15",
+    "trigger": "User-reported review finding two residual pre-approval-state sentences left un-updated by the initial stamping pass, contradicting the just-recorded Phase A/Phase B approval.",
+    "findings": [
+      {
+        "location": "§8, prior line 238",
+        "old_text": "An incomplete record for any leg blocks that leg from proceeding to Phase C.",
+        "defect": "Implied a leg-by-leg Phase C admission path, already retracted by AC-R3-24 (§10.6), which mandates a whole-study block on any single leg's incomplete freeze record.",
+        "fix": "Reworded to state the incomplete-record block applies to Phase C for the entire study, not only the affected leg, citing AC-R3-24 directly."
+      },
+      {
+        "location": "§11, prior line 346",
+        "old_text": "This document does not authorize Phase B or Phase C.",
+        "defect": "Pre-approval boilerplate, contradicted by Status: APPROVED and §14's Phase B authorization recorded earlier in this same approval event.",
+        "fix": "Reworded to state Phase B is authorized (per §14) while Phase C remains separately gated by §7.0/§11's admission rule or a diagnostic-only-snapshot exception."
+      }
+    ],
+    "scope_note": "No gate, AC, FR/NFR, or approved-scope content changed. Both fixes remove self-contradiction with already-approved §14/AC-R3-24 content; no new phase, gate, or artifact authorized.",
+    "pre_correction_document": {
+      "sha256": "15e0e72fdb63be78e6e414b26326c3e5b790a82d573e9fc43629f33b74edbf32",
+      "byte_length": 93457,
+      "line_count": 574
+    },
+    "corrected_document": {
+      "note": "The document's on-disk identity after both fixes and this explanatory note were applied. This is the current 'final document identity' that the prereg's own §14 rule says MUST NOT be self-written into the document body.",
+      "sha256": "bfcac322368c3639253482cdecd0786a0ce98010796ed80e2f61da4eb6404dca",
+      "byte_length": 95030,
+      "line_count": 576
+    }
   },
 
   "approved_repository_baseline_commit": {

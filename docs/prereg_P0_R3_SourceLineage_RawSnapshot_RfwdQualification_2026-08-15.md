@@ -235,7 +235,7 @@ Unchanged in substance from round 1: `R3-B` — four B-leg raw-score parities, t
 8. NaN/tie/ranking semantics (how missing values, ties, and rank ordering are actually handled)
 9. the formula itself, written step-by-step from the actual source, not paraphrased into an equivalent-looking closed form
 
-**Only once this record is complete for all 5 legs does §3's provisional lineage description convert into a frozen specification this study may build a snapshot or adapter against. An incomplete record for any leg blocks that leg from proceeding to Phase C.**
+**Only once this record is complete for all 5 legs does §3's provisional lineage description convert into a frozen specification this study may build a snapshot or adapter against. An incomplete record for any one leg blocks Phase C for the entire study, not only for that leg — there is no partial-leg snapshot or partial-leg admission path (AC-R3-24, §10.6).**
 
 ---
 
@@ -343,7 +343,7 @@ Phase B may still design and freeze the *concrete* artifact schema (exact field 
 - **Phase E — Single-shot reveal of R3-U/R3-B/R3-Q/R3-I/R3-N, with re-disclosure of all earlier-resolved gates.** One real run scores Gates `R3-U`, `R3-B`, `R3-Q`, `R3-I`, `R3-N` together, single-shot, not iterated to seek a more favorable result (§7.6). The Phase E report then **re-discloses and re-verifies** (re-states the already-recorded status of, and re-confirms nothing has drifted since) Gates `R3-L`, `R3-S`, `R3-P` (resolved in Phase B) and `R3-F` (resolved in Phase C) alongside the 5 newly-scored gates, so the final report shows all 9 gates' status together. **This re-disclosure must not be described, or read by any later report, as those 4 gates having been "first scored" or "scored together" in Phase E — they were scored earlier, in the phases named above; Phase E only re-presents them.**
 - **Phase F — Report and archive.** No Stage-2-equivalent activation implied by completing this phase.
 
-**This document does not authorize Phase B or Phase C.** No lineage-tracing beyond what §3 already recorded this round, no data snapshot, no manifest, no test file, and no implementation code may be created until Status is `APPROVED`.
+**Post-approval correction (this document's Phase A approval, §14, dated 2026-08-15): Phase B is authorized, per the steps enumerated above — Status is `APPROVED` and this is no longer a pending/IN REVIEW condition.** Phase C, however, remains unauthorized by this document: it requires its own separate, explicit user approval per §7.0/§11's admission rule (Gate R3-L PASS + Gate R3-S PASS + Gate R3-P PASS, D\* disclosed in full, the design-freeze document written, and the §8 per-leg formula freeze from Phase B step 3 complete) — or, as the sole exception, a separately, explicitly approved diagnostic-only snapshot (§7.0). No data snapshot, no manifest, no test file, and no implementation code may be created until that separate Phase C approval is granted.
 
 ---
 
@@ -566,6 +566,8 @@ Approval receipt: recorded externally in `docs/prereg_P0_R3_approval_receipt_202
 ```
 
 An `approval_receipt.json` was created as part of this approval event (`docs/prereg_P0_R3_approval_receipt_2026-08-15.json`), recording this document's post-stamp SHA256 externally per the rule stated above. No research output directory, snapshot, manifest, test, adapter code, or any Phase B work product was created this round, in round 5, in round 4, in round 3, in round 2, or in round 1 — Phase B has not begun. This approval event consists of document-stamping plus one external receipt file, committed together with this document and nothing else.
+
+**Same-day consistency correction (post-commit `76aaf35120a36fda8940c70a644b731d065c4f43`):** two residual pre-approval-state sentences, left un-updated by the initial stamping pass, were found to contradict the just-recorded approval and are corrected here — no scope, gate, AC, or approved-content change: (a) §8's closing sentence ("An incomplete record for any leg blocks that leg from proceeding to Phase C") wrongly implied a leg-by-leg admission path already retracted by AC-R3-24 (§10.6); corrected to state the whole-study block. (b) §11's closing sentence ("This document does not authorize Phase B or Phase C") was pre-approval boilerplate now contradicted by Status: `APPROVED` and this section's own Phase B authorization; corrected to state Phase B is authorized while Phase C remains separately gated. The external receipt records both the pre-correction and post-correction document SHA256/byte/line counts.
 
 ---
 
