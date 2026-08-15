@@ -1,0 +1,4899 @@
+{
+  "scope": "A_LEG_ONLY",
+  "b_leg_status": "NOT_EVALUATED",
+  "b_leg_reason_code": "INSUFFICIENT_FROZEN_PIT_INPUTS",
+  "final_fusion_membership_status": "NOT_EVALUATED",
+  "final_fusion_reason_code": "INSUFFICIENT_FROZEN_PIT_INPUTS",
+  "full_fr24_fr28_audit_status": "NOT_EVALUATED",
+  "qualification_status": "NOT_QUALIFIED_A_LEG_ONLY_SCOPE",
+  "process_separation_check": {
+    "status": "LIMITED_A_LEG_PROCESS_SEPARATION_ONLY",
+    "oracle_role": "reference computation over the frozen research snapshot (Panel/REAL_COMP/tier_valid) -- NOT production capture",
+    "adapter_role": "R-FWD A-leg adapter (realbody parquet only)",
+    "oracle_pid": 17192,
+    "adapter_pid": 8400,
+    "pids_distinct": true,
+    "note": "Verifies only that the two subprocess.run() invocations ran as distinct OS processes. No PROCESS_IMPORT_MANIFEST artifact, no bt_bundle-absence evidence was captured or written. The full FR-24 process-isolation audit contract is NOT_EVALUATED this round."
+  },
+  "future_input_static_check": {
+    "status": "LIMITED_STATIC_CHECK_ONLY",
+    "method": "STATIC_IMPORT_GRAPH (ast.walk over a_leg_adapter.py's own source, in-process, not a written evidence artifact)",
+    "forbidden_targets_reached": [],
+    "only_file_opened": "research\\p0_r1_research_production_identity\\data_snapshot\\research_base\\realbody_scores_adv100w.parquet",
+    "note": "No FUTURE_INPUT_ACCESS_TRACE evidence artifact was written. The full FR-28 future-input-access audit contract is NOT_EVALUATED this round."
+  },
+  "oracle": {
+    "pid": 17192,
+    "panel_months": 255,
+    "panel_stocks": 2148,
+    "dates_found": 255
+  },
+  "adapter": {
+    "pid": 8400,
+    "dates_found": 255
+  },
+  "a_leg_parity_result": {
+    "scope": "A_LEG_ONLY",
+    "months_tested": 255,
+    "membership_status": "NOT_EVALUATED",
+    "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS",
+    "raw_score_max_abs_diff": 0.0,
+    "raw_score_tolerance": "1e-12",
+    "raw_score_within_tolerance_all_dates": true,
+    "raw_score_common_keys_dates_with_data": 255,
+    "population_diagnostics_summary": {
+      "note": "Informational only -- NOT a parity-gate result (see module docstring item 1).",
+      "same_population_set_months": 124,
+      "different_population_set_months": 131
+    },
+    "dates_missing_from_oracle_only": [],
+    "dates_missing_from_adapter_only": [],
+    "per_date": {
+      "2005-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 736,
+          "adapter_population": 737,
+          "common_population": 736,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 736,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-02-25": {
+        "population_diagnostics": {
+          "oracle_population": 796,
+          "adapter_population": 796,
+          "common_population": 796,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 796,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 827,
+          "adapter_population": 827,
+          "common_population": 827,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 827,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-04-29": {
+        "population_diagnostics": {
+          "oracle_population": 802,
+          "adapter_population": 802,
+          "common_population": 802,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 802,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 693,
+          "adapter_population": 772,
+          "common_population": 693,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 79
+        },
+        "raw_score_parity": {
+          "common_keys_count": 693,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 749,
+          "adapter_population": 749,
+          "common_population": 749,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 749,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-07-29": {
+        "population_diagnostics": {
+          "oracle_population": 753,
+          "adapter_population": 753,
+          "common_population": 753,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 753,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 743,
+          "adapter_population": 746,
+          "common_population": 743,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 3
+        },
+        "raw_score_parity": {
+          "common_keys_count": 743,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 674,
+          "adapter_population": 714,
+          "common_population": 674,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 40
+        },
+        "raw_score_parity": {
+          "common_keys_count": 674,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 708,
+          "adapter_population": 709,
+          "common_population": 708,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 708,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 662,
+          "adapter_population": 688,
+          "common_population": 662,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 26
+        },
+        "raw_score_parity": {
+          "common_keys_count": 662,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2005-12-30": {
+        "population_diagnostics": {
+          "oracle_population": 735,
+          "adapter_population": 737,
+          "common_population": 735,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 735,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-01-25": {
+        "population_diagnostics": {
+          "oracle_population": 751,
+          "adapter_population": 751,
+          "common_population": 751,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 751,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 722,
+          "adapter_population": 722,
+          "common_population": 722,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 722,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 720,
+          "adapter_population": 720,
+          "common_population": 720,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 720,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-04-28": {
+        "population_diagnostics": {
+          "oracle_population": 791,
+          "adapter_population": 792,
+          "common_population": 791,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 791,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-05-30": {
+        "population_diagnostics": {
+          "oracle_population": 751,
+          "adapter_population": 811,
+          "common_population": 751,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 60
+        },
+        "raw_score_parity": {
+          "common_keys_count": 751,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 778,
+          "adapter_population": 778,
+          "common_population": 778,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 778,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 752,
+          "adapter_population": 753,
+          "common_population": 752,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 752,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 774,
+          "adapter_population": 774,
+          "common_population": 774,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 774,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-09-29": {
+        "population_diagnostics": {
+          "oracle_population": 762,
+          "adapter_population": 775,
+          "common_population": 762,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 13
+        },
+        "raw_score_parity": {
+          "common_keys_count": 762,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 826,
+          "adapter_population": 827,
+          "common_population": 826,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 826,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 835,
+          "adapter_population": 859,
+          "common_population": 835,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 24
+        },
+        "raw_score_parity": {
+          "common_keys_count": 835,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2006-12-29": {
+        "population_diagnostics": {
+          "oracle_population": 877,
+          "adapter_population": 878,
+          "common_population": 877,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 877,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 874,
+          "adapter_population": 875,
+          "common_population": 874,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 874,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 862,
+          "adapter_population": 863,
+          "common_population": 862,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 862,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-03-30": {
+        "population_diagnostics": {
+          "oracle_population": 879,
+          "adapter_population": 880,
+          "common_population": 879,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 879,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 896,
+          "adapter_population": 897,
+          "common_population": 896,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 896,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 836,
+          "adapter_population": 891,
+          "common_population": 836,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 55
+        },
+        "raw_score_parity": {
+          "common_keys_count": 836,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-06-29": {
+        "population_diagnostics": {
+          "oracle_population": 890,
+          "adapter_population": 890,
+          "common_population": 890,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 890,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 906,
+          "adapter_population": 907,
+          "common_population": 906,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 906,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 902,
+          "adapter_population": 902,
+          "common_population": 902,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 902,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-09-29": {
+        "population_diagnostics": {
+          "oracle_population": 871,
+          "adapter_population": 893,
+          "common_population": 871,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 22
+        },
+        "raw_score_parity": {
+          "common_keys_count": 871,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 894,
+          "adapter_population": 897,
+          "common_population": 894,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 3
+        },
+        "raw_score_parity": {
+          "common_keys_count": 894,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 863,
+          "adapter_population": 882,
+          "common_population": 863,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 19
+        },
+        "raw_score_parity": {
+          "common_keys_count": 863,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2007-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 874,
+          "adapter_population": 875,
+          "common_population": 874,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 874,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 873,
+          "adapter_population": 873,
+          "common_population": 873,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 873,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-02-29": {
+        "population_diagnostics": {
+          "oracle_population": 874,
+          "adapter_population": 876,
+          "common_population": 874,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 874,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 905,
+          "adapter_population": 905,
+          "common_population": 905,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 905,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 930,
+          "adapter_population": 932,
+          "common_population": 930,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 930,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-05-30": {
+        "population_diagnostics": {
+          "oracle_population": 890,
+          "adapter_population": 942,
+          "common_population": 890,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 52
+        },
+        "raw_score_parity": {
+          "common_keys_count": 890,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 900,
+          "adapter_population": 900,
+          "common_population": 900,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 900,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 883,
+          "adapter_population": 885,
+          "common_population": 883,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 883,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-08-29": {
+        "population_diagnostics": {
+          "oracle_population": 844,
+          "adapter_population": 846,
+          "common_population": 844,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 844,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 814,
+          "adapter_population": 862,
+          "common_population": 814,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 48
+        },
+        "raw_score_parity": {
+          "common_keys_count": 814,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 776,
+          "adapter_population": 776,
+          "common_population": 776,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 776,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-11-28": {
+        "population_diagnostics": {
+          "oracle_population": 705,
+          "adapter_population": 737,
+          "common_population": 705,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 32
+        },
+        "raw_score_parity": {
+          "common_keys_count": 705,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2008-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 686,
+          "adapter_population": 686,
+          "common_population": 686,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 686,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-01-21": {
+        "population_diagnostics": {
+          "oracle_population": 668,
+          "adapter_population": 668,
+          "common_population": 668,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 668,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 681,
+          "adapter_population": 681,
+          "common_population": 681,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 681,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 831,
+          "adapter_population": 831,
+          "common_population": 831,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 831,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 877,
+          "adapter_population": 878,
+          "common_population": 877,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 877,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-05-27": {
+        "population_diagnostics": {
+          "oracle_population": 726,
+          "adapter_population": 882,
+          "common_population": 726,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 156
+        },
+        "raw_score_parity": {
+          "common_keys_count": 726,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 722,
+          "adapter_population": 722,
+          "common_population": 722,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 722,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 742,
+          "adapter_population": 742,
+          "common_population": 742,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 742,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 749,
+          "adapter_population": 750,
+          "common_population": 749,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 749,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 702,
+          "adapter_population": 768,
+          "common_population": 702,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 66
+        },
+        "raw_score_parity": {
+          "common_keys_count": 702,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-10-30": {
+        "population_diagnostics": {
+          "oracle_population": 747,
+          "adapter_population": 747,
+          "common_population": 747,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 747,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 712,
+          "adapter_population": 748,
+          "common_population": 712,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 36
+        },
+        "raw_score_parity": {
+          "common_keys_count": 712,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2009-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 753,
+          "adapter_population": 753,
+          "common_population": 753,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 753,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-01-29": {
+        "population_diagnostics": {
+          "oracle_population": 765,
+          "adapter_population": 767,
+          "common_population": 765,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 765,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-02-26": {
+        "population_diagnostics": {
+          "oracle_population": 750,
+          "adapter_population": 750,
+          "common_population": 750,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 750,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 764,
+          "adapter_population": 764,
+          "common_population": 764,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 764,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 778,
+          "adapter_population": 779,
+          "common_population": 778,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 778,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 739,
+          "adapter_population": 771,
+          "common_population": 739,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 32
+        },
+        "raw_score_parity": {
+          "common_keys_count": 739,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 918,
+          "adapter_population": 919,
+          "common_population": 918,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 918,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-07-30": {
+        "population_diagnostics": {
+          "oracle_population": 925,
+          "adapter_population": 927,
+          "common_population": 925,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 925,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 944,
+          "adapter_population": 944,
+          "common_population": 944,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 944,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 915,
+          "adapter_population": 930,
+          "common_population": 915,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 15
+        },
+        "raw_score_parity": {
+          "common_keys_count": 915,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-10-29": {
+        "population_diagnostics": {
+          "oracle_population": 987,
+          "adapter_population": 988,
+          "common_population": 987,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 987,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 942,
+          "adapter_population": 969,
+          "common_population": 942,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 27
+        },
+        "raw_score_parity": {
+          "common_keys_count": 942,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2010-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 995,
+          "adapter_population": 995,
+          "common_population": 995,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 995,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-01-28": {
+        "population_diagnostics": {
+          "oracle_population": 998,
+          "adapter_population": 998,
+          "common_population": 998,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 998,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-02-25": {
+        "population_diagnostics": {
+          "oracle_population": 994,
+          "adapter_population": 995,
+          "common_population": 994,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 994,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1003,
+          "adapter_population": 1004,
+          "common_population": 1003,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1003,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-04-29": {
+        "population_diagnostics": {
+          "oracle_population": 1002,
+          "adapter_population": 1002,
+          "common_population": 1002,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1002,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 943,
+          "adapter_population": 995,
+          "common_population": 943,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 52
+        },
+        "raw_score_parity": {
+          "common_keys_count": 943,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 985,
+          "adapter_population": 985,
+          "common_population": 985,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 985,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-07-29": {
+        "population_diagnostics": {
+          "oracle_population": 985,
+          "adapter_population": 988,
+          "common_population": 985,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 3
+        },
+        "raw_score_parity": {
+          "common_keys_count": 985,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 989,
+          "adapter_population": 989,
+          "common_population": 989,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 989,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 893,
+          "adapter_population": 945,
+          "common_population": 893,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 52
+        },
+        "raw_score_parity": {
+          "common_keys_count": 893,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 886,
+          "adapter_population": 886,
+          "common_population": 886,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 886,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 875,
+          "adapter_population": 907,
+          "common_population": 875,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 32
+        },
+        "raw_score_parity": {
+          "common_keys_count": 875,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2011-12-30": {
+        "population_diagnostics": {
+          "oracle_population": 838,
+          "adapter_population": 839,
+          "common_population": 838,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 838,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 878,
+          "adapter_population": 878,
+          "common_population": 878,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 878,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-02-29": {
+        "population_diagnostics": {
+          "oracle_population": 970,
+          "adapter_population": 971,
+          "common_population": 970,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 970,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-03-30": {
+        "population_diagnostics": {
+          "oracle_population": 962,
+          "adapter_population": 962,
+          "common_population": 962,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 962,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 917,
+          "adapter_population": 917,
+          "common_population": 917,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 917,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 774,
+          "adapter_population": 863,
+          "common_population": 774,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 89
+        },
+        "raw_score_parity": {
+          "common_keys_count": 774,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-06-29": {
+        "population_diagnostics": {
+          "oracle_population": 806,
+          "adapter_population": 806,
+          "common_population": 806,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 806,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 820,
+          "adapter_population": 820,
+          "common_population": 820,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 820,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 870,
+          "adapter_population": 870,
+          "common_population": 870,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 870,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-09-28": {
+        "population_diagnostics": {
+          "oracle_population": 857,
+          "adapter_population": 899,
+          "common_population": 857,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 42
+        },
+        "raw_score_parity": {
+          "common_keys_count": 857,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 838,
+          "adapter_population": 838,
+          "common_population": 838,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 838,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 776,
+          "adapter_population": 809,
+          "common_population": 776,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 33
+        },
+        "raw_score_parity": {
+          "common_keys_count": 776,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2012-12-28": {
+        "population_diagnostics": {
+          "oracle_population": 853,
+          "adapter_population": 853,
+          "common_population": 853,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 853,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 866,
+          "adapter_population": 866,
+          "common_population": 866,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 866,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 875,
+          "adapter_population": 876,
+          "common_population": 875,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 875,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-03-29": {
+        "population_diagnostics": {
+          "oracle_population": 892,
+          "adapter_population": 892,
+          "common_population": 892,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 892,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 910,
+          "adapter_population": 910,
+          "common_population": 910,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 910,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 863,
+          "adapter_population": 926,
+          "common_population": 863,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 63
+        },
+        "raw_score_parity": {
+          "common_keys_count": 863,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-06-28": {
+        "population_diagnostics": {
+          "oracle_population": 926,
+          "adapter_population": 926,
+          "common_population": 926,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 926,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 926,
+          "adapter_population": 927,
+          "common_population": 926,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 926,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-08-30": {
+        "population_diagnostics": {
+          "oracle_population": 943,
+          "adapter_population": 943,
+          "common_population": 943,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 943,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 911,
+          "adapter_population": 937,
+          "common_population": 911,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 26
+        },
+        "raw_score_parity": {
+          "common_keys_count": 911,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 948,
+          "adapter_population": 948,
+          "common_population": 948,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 948,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-11-29": {
+        "population_diagnostics": {
+          "oracle_population": 902,
+          "adapter_population": 936,
+          "common_population": 902,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 34
+        },
+        "raw_score_parity": {
+          "common_keys_count": 902,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2013-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 974,
+          "adapter_population": 975,
+          "common_population": 974,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 974,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-01-27": {
+        "population_diagnostics": {
+          "oracle_population": 998,
+          "adapter_population": 998,
+          "common_population": 998,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 998,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 1025,
+          "adapter_population": 1025,
+          "common_population": 1025,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1025,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1046,
+          "adapter_population": 1046,
+          "common_population": 1046,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1046,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 1042,
+          "adapter_population": 1042,
+          "common_population": 1042,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1042,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-05-30": {
+        "population_diagnostics": {
+          "oracle_population": 973,
+          "adapter_population": 1015,
+          "common_population": 973,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 42
+        },
+        "raw_score_parity": {
+          "common_keys_count": 973,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1083,
+          "adapter_population": 1083,
+          "common_population": 1083,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1083,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1083,
+          "adapter_population": 1086,
+          "common_population": 1083,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 3
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1083,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-08-29": {
+        "population_diagnostics": {
+          "oracle_population": 1069,
+          "adapter_population": 1069,
+          "common_population": 1069,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1069,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 1012,
+          "adapter_population": 1035,
+          "common_population": 1012,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 23
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1012,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1039,
+          "adapter_population": 1041,
+          "common_population": 1039,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1039,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-11-28": {
+        "population_diagnostics": {
+          "oracle_population": 1003,
+          "adapter_population": 1022,
+          "common_population": 1003,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 19
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1003,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2014-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 1094,
+          "adapter_population": 1095,
+          "common_population": 1094,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1094,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-01-30": {
+        "population_diagnostics": {
+          "oracle_population": 1099,
+          "adapter_population": 1099,
+          "common_population": 1099,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1099,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-02-26": {
+        "population_diagnostics": {
+          "oracle_population": 1077,
+          "adapter_population": 1077,
+          "common_population": 1077,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1077,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1113,
+          "adapter_population": 1117,
+          "common_population": 1113,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 4
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1113,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 1125,
+          "adapter_population": 1125,
+          "common_population": 1125,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1125,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-05-29": {
+        "population_diagnostics": {
+          "oracle_population": 1051,
+          "adapter_population": 1109,
+          "common_population": 1051,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 58
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1051,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1069,
+          "adapter_population": 1071,
+          "common_population": 1069,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1069,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1031,
+          "adapter_population": 1031,
+          "common_population": 1031,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1031,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1049,
+          "adapter_population": 1050,
+          "common_population": 1049,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1049,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 972,
+          "adapter_population": 1004,
+          "common_population": 972,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 32
+        },
+        "raw_score_parity": {
+          "common_keys_count": 972,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-10-30": {
+        "population_diagnostics": {
+          "oracle_population": 1028,
+          "adapter_population": 1028,
+          "common_population": 1028,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1028,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 972,
+          "adapter_population": 1009,
+          "common_population": 972,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 37
+        },
+        "raw_score_parity": {
+          "common_keys_count": 972,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2015-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 983,
+          "adapter_population": 984,
+          "common_population": 983,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 983,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-01-30": {
+        "population_diagnostics": {
+          "oracle_population": 959,
+          "adapter_population": 960,
+          "common_population": 959,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 959,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-02-26": {
+        "population_diagnostics": {
+          "oracle_population": 983,
+          "adapter_population": 984,
+          "common_population": 983,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 983,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1078,
+          "adapter_population": 1079,
+          "common_population": 1078,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1078,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-04-29": {
+        "population_diagnostics": {
+          "oracle_population": 1032,
+          "adapter_population": 1033,
+          "common_population": 1032,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1032,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 924,
+          "adapter_population": 975,
+          "common_population": 924,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 51
+        },
+        "raw_score_parity": {
+          "common_keys_count": 924,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 998,
+          "adapter_population": 1000,
+          "common_population": 998,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 998,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-07-29": {
+        "population_diagnostics": {
+          "oracle_population": 1057,
+          "adapter_population": 1058,
+          "common_population": 1057,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1057,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1057,
+          "adapter_population": 1057,
+          "common_population": 1057,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1057,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 998,
+          "adapter_population": 1027,
+          "common_population": 998,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 29
+        },
+        "raw_score_parity": {
+          "common_keys_count": 998,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1022,
+          "adapter_population": 1023,
+          "common_population": 1022,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1022,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 974,
+          "adapter_population": 1021,
+          "common_population": 974,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 47
+        },
+        "raw_score_parity": {
+          "common_keys_count": 974,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2016-12-30": {
+        "population_diagnostics": {
+          "oracle_population": 1018,
+          "adapter_population": 1018,
+          "common_population": 1018,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1018,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-01-24": {
+        "population_diagnostics": {
+          "oracle_population": 1036,
+          "adapter_population": 1036,
+          "common_population": 1036,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1036,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-02-24": {
+        "population_diagnostics": {
+          "oracle_population": 1107,
+          "adapter_population": 1107,
+          "common_population": 1107,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1107,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1112,
+          "adapter_population": 1114,
+          "common_population": 1112,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 2
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1112,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-04-28": {
+        "population_diagnostics": {
+          "oracle_population": 1096,
+          "adapter_population": 1097,
+          "common_population": 1096,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1096,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 1032,
+          "adapter_population": 1087,
+          "common_population": 1032,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 55
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1032,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1095,
+          "adapter_population": 1098,
+          "common_population": 1095,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 3
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1095,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1097,
+          "adapter_population": 1098,
+          "common_population": 1097,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1097,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1107,
+          "adapter_population": 1108,
+          "common_population": 1107,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1107,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 1075,
+          "adapter_population": 1105,
+          "common_population": 1075,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 30
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1075,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1099,
+          "adapter_population": 1099,
+          "common_population": 1099,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1099,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 1082,
+          "adapter_population": 1111,
+          "common_population": 1082,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 29
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1082,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2017-12-29": {
+        "population_diagnostics": {
+          "oracle_population": 1101,
+          "adapter_population": 1101,
+          "common_population": 1101,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1101,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 1154,
+          "adapter_population": 1154,
+          "common_population": 1154,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1154,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 1146,
+          "adapter_population": 1149,
+          "common_population": 1146,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 3
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1146,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1157,
+          "adapter_population": 1158,
+          "common_population": 1157,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1157,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 1151,
+          "adapter_population": 1152,
+          "common_population": 1151,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1151,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 1036,
+          "adapter_population": 1118,
+          "common_population": 1036,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 82
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1036,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-06-29": {
+        "population_diagnostics": {
+          "oracle_population": 1111,
+          "adapter_population": 1111,
+          "common_population": 1111,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1111,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1077,
+          "adapter_population": 1081,
+          "common_population": 1077,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 4
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1077,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1072,
+          "adapter_population": 1073,
+          "common_population": 1072,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1072,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-09-28": {
+        "population_diagnostics": {
+          "oracle_population": 1036,
+          "adapter_population": 1061,
+          "common_population": 1036,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 25
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1036,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1086,
+          "adapter_population": 1086,
+          "common_population": 1086,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1086,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 945,
+          "adapter_population": 994,
+          "common_population": 945,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 49
+        },
+        "raw_score_parity": {
+          "common_keys_count": 945,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2018-12-28": {
+        "population_diagnostics": {
+          "oracle_population": 991,
+          "adapter_population": 991,
+          "common_population": 991,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 991,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-01-30": {
+        "population_diagnostics": {
+          "oracle_population": 990,
+          "adapter_population": 990,
+          "common_population": 990,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 990,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 1055,
+          "adapter_population": 1055,
+          "common_population": 1055,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1055,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-03-29": {
+        "population_diagnostics": {
+          "oracle_population": 1111,
+          "adapter_population": 1112,
+          "common_population": 1111,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1111,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 1113,
+          "adapter_population": 1113,
+          "common_population": 1113,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1113,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 1032,
+          "adapter_population": 1071,
+          "common_population": 1032,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 39
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1032,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-06-28": {
+        "population_diagnostics": {
+          "oracle_population": 1041,
+          "adapter_population": 1041,
+          "common_population": 1041,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1041,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1093,
+          "adapter_population": 1094,
+          "common_population": 1093,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1093,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-08-30": {
+        "population_diagnostics": {
+          "oracle_population": 1079,
+          "adapter_population": 1079,
+          "common_population": 1079,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1079,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-09-27": {
+        "population_diagnostics": {
+          "oracle_population": 1035,
+          "adapter_population": 1084,
+          "common_population": 1035,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 49
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1035,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1054,
+          "adapter_population": 1054,
+          "common_population": 1054,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1054,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-11-29": {
+        "population_diagnostics": {
+          "oracle_population": 1057,
+          "adapter_population": 1082,
+          "common_population": 1057,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 25
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1057,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2019-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 1089,
+          "adapter_population": 1089,
+          "common_population": 1089,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1089,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 1109,
+          "adapter_population": 1109,
+          "common_population": 1109,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1109,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 1079,
+          "adapter_population": 1079,
+          "common_population": 1079,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1079,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1143,
+          "adapter_population": 1143,
+          "common_population": 1143,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1143,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 1111,
+          "adapter_population": 1112,
+          "common_population": 1111,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1111,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-05-29": {
+        "population_diagnostics": {
+          "oracle_population": 1036,
+          "adapter_population": 1114,
+          "common_population": 1036,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 78
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1036,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1101,
+          "adapter_population": 1101,
+          "common_population": 1101,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1101,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1130,
+          "adapter_population": 1130,
+          "common_population": 1130,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1130,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1114,
+          "adapter_population": 1114,
+          "common_population": 1114,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1114,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 1043,
+          "adapter_population": 1086,
+          "common_population": 1043,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 43
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1043,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-10-30": {
+        "population_diagnostics": {
+          "oracle_population": 1035,
+          "adapter_population": 1036,
+          "common_population": 1035,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1035,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 1064,
+          "adapter_population": 1098,
+          "common_population": 1064,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 34
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1064,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2020-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 1144,
+          "adapter_population": 1144,
+          "common_population": 1144,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1144,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-01-29": {
+        "population_diagnostics": {
+          "oracle_population": 1143,
+          "adapter_population": 1143,
+          "common_population": 1143,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1143,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-02-26": {
+        "population_diagnostics": {
+          "oracle_population": 1144,
+          "adapter_population": 1144,
+          "common_population": 1144,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1144,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1190,
+          "adapter_population": 1190,
+          "common_population": 1190,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1190,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-04-29": {
+        "population_diagnostics": {
+          "oracle_population": 1227,
+          "adapter_population": 1227,
+          "common_population": 1227,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1227,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 1151,
+          "adapter_population": 1187,
+          "common_population": 1151,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 36
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1151,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1218,
+          "adapter_population": 1218,
+          "common_population": 1218,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1218,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-07-30": {
+        "population_diagnostics": {
+          "oracle_population": 1236,
+          "adapter_population": 1236,
+          "common_population": 1236,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1236,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1201,
+          "adapter_population": 1201,
+          "common_population": 1201,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1201,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 1163,
+          "adapter_population": 1189,
+          "common_population": 1163,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 26
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1163,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-10-29": {
+        "population_diagnostics": {
+          "oracle_population": 1225,
+          "adapter_population": 1225,
+          "common_population": 1225,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1225,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 1218,
+          "adapter_population": 1250,
+          "common_population": 1218,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 32
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1218,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2021-12-30": {
+        "population_diagnostics": {
+          "oracle_population": 1271,
+          "adapter_population": 1271,
+          "common_population": 1271,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1271,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-01-26": {
+        "population_diagnostics": {
+          "oracle_population": 1269,
+          "adapter_population": 1269,
+          "common_population": 1269,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1269,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-02-25": {
+        "population_diagnostics": {
+          "oracle_population": 1261,
+          "adapter_population": 1261,
+          "common_population": 1261,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1261,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1274,
+          "adapter_population": 1274,
+          "common_population": 1274,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1274,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-04-29": {
+        "population_diagnostics": {
+          "oracle_population": 1284,
+          "adapter_population": 1284,
+          "common_population": 1284,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1284,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 1191,
+          "adapter_population": 1242,
+          "common_population": 1191,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 51
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1191,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1278,
+          "adapter_population": 1278,
+          "common_population": 1278,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1278,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-07-29": {
+        "population_diagnostics": {
+          "oracle_population": 1224,
+          "adapter_population": 1225,
+          "common_population": 1224,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1224,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1291,
+          "adapter_population": 1291,
+          "common_population": 1291,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1291,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 1243,
+          "adapter_population": 1267,
+          "common_population": 1243,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 24
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1243,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1200,
+          "adapter_population": 1200,
+          "common_population": 1200,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1200,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 1213,
+          "adapter_population": 1244,
+          "common_population": 1213,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 31
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1213,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2022-12-30": {
+        "population_diagnostics": {
+          "oracle_population": 1254,
+          "adapter_population": 1254,
+          "common_population": 1254,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1254,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 1227,
+          "adapter_population": 1227,
+          "common_population": 1227,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1227,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-02-24": {
+        "population_diagnostics": {
+          "oracle_population": 1324,
+          "adapter_population": 1324,
+          "common_population": 1324,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1324,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1363,
+          "adapter_population": 1364,
+          "common_population": 1363,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1363,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-04-28": {
+        "population_diagnostics": {
+          "oracle_population": 1363,
+          "adapter_population": 1363,
+          "common_population": 1363,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1363,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 1249,
+          "adapter_population": 1363,
+          "common_population": 1249,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 114
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1249,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1297,
+          "adapter_population": 1297,
+          "common_population": 1297,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1297,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1292,
+          "adapter_population": 1292,
+          "common_population": 1292,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1292,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-08-31": {
+        "population_diagnostics": {
+          "oracle_population": 1246,
+          "adapter_population": 1246,
+          "common_population": 1246,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1246,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-09-28": {
+        "population_diagnostics": {
+          "oracle_population": 1169,
+          "adapter_population": 1227,
+          "common_population": 1169,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 58
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1169,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1195,
+          "adapter_population": 1195,
+          "common_population": 1195,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1195,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-11-30": {
+        "population_diagnostics": {
+          "oracle_population": 1182,
+          "adapter_population": 1247,
+          "common_population": 1182,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 65
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1182,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2023-12-29": {
+        "population_diagnostics": {
+          "oracle_population": 1241,
+          "adapter_population": 1241,
+          "common_population": 1241,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1241,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-01-31": {
+        "population_diagnostics": {
+          "oracle_population": 1215,
+          "adapter_population": 1215,
+          "common_population": 1215,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1215,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-02-29": {
+        "population_diagnostics": {
+          "oracle_population": 1257,
+          "adapter_population": 1258,
+          "common_population": 1257,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1257,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-03-29": {
+        "population_diagnostics": {
+          "oracle_population": 1296,
+          "adapter_population": 1296,
+          "common_population": 1296,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1296,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 1277,
+          "adapter_population": 1277,
+          "common_population": 1277,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1277,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-05-31": {
+        "population_diagnostics": {
+          "oracle_population": 1225,
+          "adapter_population": 1280,
+          "common_population": 1225,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 55
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1225,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-06-28": {
+        "population_diagnostics": {
+          "oracle_population": 1325,
+          "adapter_population": 1325,
+          "common_population": 1325,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1325,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1332,
+          "adapter_population": 1332,
+          "common_population": 1332,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1332,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-08-30": {
+        "population_diagnostics": {
+          "oracle_population": 1330,
+          "adapter_population": 1330,
+          "common_population": 1330,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1330,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 1262,
+          "adapter_population": 1300,
+          "common_population": 1262,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 38
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1262,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-10-30": {
+        "population_diagnostics": {
+          "oracle_population": 1303,
+          "adapter_population": 1303,
+          "common_population": 1303,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1303,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-11-29": {
+        "population_diagnostics": {
+          "oracle_population": 1227,
+          "adapter_population": 1289,
+          "common_population": 1227,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 62
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1227,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2024-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 1251,
+          "adapter_population": 1252,
+          "common_population": 1251,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1251,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-01-22": {
+        "population_diagnostics": {
+          "oracle_population": 1242,
+          "adapter_population": 1242,
+          "common_population": 1242,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1242,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-02-27": {
+        "population_diagnostics": {
+          "oracle_population": 1256,
+          "adapter_population": 1256,
+          "common_population": 1256,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1256,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1280,
+          "adapter_population": 1281,
+          "common_population": 1280,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1280,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-04-30": {
+        "population_diagnostics": {
+          "oracle_population": 1293,
+          "adapter_population": 1294,
+          "common_population": 1293,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 1
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1293,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-05-29": {
+        "population_diagnostics": {
+          "oracle_population": 1218,
+          "adapter_population": 1251,
+          "common_population": 1218,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 33
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1218,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-06-30": {
+        "population_diagnostics": {
+          "oracle_population": 1268,
+          "adapter_population": 1268,
+          "common_population": 1268,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1268,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-07-31": {
+        "population_diagnostics": {
+          "oracle_population": 1249,
+          "adapter_population": 1249,
+          "common_population": 1249,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1249,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-08-29": {
+        "population_diagnostics": {
+          "oracle_population": 1305,
+          "adapter_population": 1305,
+          "common_population": 1305,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1305,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-09-30": {
+        "population_diagnostics": {
+          "oracle_population": 1193,
+          "adapter_population": 1301,
+          "common_population": 1193,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 108
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1193,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-10-31": {
+        "population_diagnostics": {
+          "oracle_population": 1204,
+          "adapter_population": 1204,
+          "common_population": 1204,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1204,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-11-28": {
+        "population_diagnostics": {
+          "oracle_population": 1170,
+          "adapter_population": 1199,
+          "common_population": 1170,
+          "same_population_count": false,
+          "same_population_set": false,
+          "oracle_only_count": 0,
+          "adapter_only_count": 29
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1170,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2025-12-31": {
+        "population_diagnostics": {
+          "oracle_population": 1207,
+          "adapter_population": 1207,
+          "common_population": 1207,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1207,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2026-01-30": {
+        "population_diagnostics": {
+          "oracle_population": 1280,
+          "adapter_population": 1280,
+          "common_population": 1280,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1280,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2026-02-26": {
+        "population_diagnostics": {
+          "oracle_population": 1274,
+          "adapter_population": 1274,
+          "common_population": 1274,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1274,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      },
+      "2026-03-31": {
+        "population_diagnostics": {
+          "oracle_population": 1277,
+          "adapter_population": 1277,
+          "common_population": 1277,
+          "same_population_count": true,
+          "same_population_set": true,
+          "oracle_only_count": 0,
+          "adapter_only_count": 0
+        },
+        "raw_score_parity": {
+          "common_keys_count": 1277,
+          "max_abs_diff": 0.0,
+          "tolerance": "1e-12",
+          "within_tolerance": true
+        },
+        "membership_status": "NOT_EVALUATED",
+        "membership_reason_code": "INSUFFICIENT_FROZEN_DECISION_TIME_UNIVERSE_INPUTS"
+      }
+    }
+  }
+}
