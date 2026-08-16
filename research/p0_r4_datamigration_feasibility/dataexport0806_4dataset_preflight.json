@@ -1,0 +1,187 @@
+{
+  "study": "P0-R4 DataExport0806 4-dataset feasibility preflight (R3-S/R3-P blocker resolution)",
+  "purpose": "Read-only, minimal-representative-file check of whether DataExport0806 is sufficient to resolve P0-R3's R3-S/R3-P core blockers for monthly_revenue, financial_statements, institutional_gross, tdcc_weekly -- BEFORE committing to a full 2.2GB candidate build.",
+  "executed_at_utc": "2026-08-16",
+  "repo_head_at_execution": "47d185231d49d87bfa7d37d9d3864a1d071513f0",
+  "method": "Read raw .xlsx files directly with openpyxl (read_only=True), reading only the columns needed to answer each question. No tej_importer/build_v2_candidate/verifier code invoked. No candidate cache, no lock, no parity/performance computation, no writes to any tracked or production path. Files chosen: single/near-minimal representative files per dataset (the sole file for monthly_revenue; the sole primary file for financial_statements; 4 of 16 institutional_flow/institutional_gross source files spanning the full date range; 1 of 9 tdcc_weekly files, cross-checked against directory listing only for the rest).",
+  "not_done_this_round": [
+    "No full-corpus scan (only representative files read, not all files/rows for every dataset)",
+    "No candidate parquet written, no cache/, no build_receipts/, no quality_sidecars/",
+    "No requirements-v2-data-build.lock or .in file created",
+    "No importer.py/build_v2_candidate.py/build_v2_candidate_verifier.py modified",
+    "No parity or performance computation",
+    "No staging or commit"
+  ],
+  "datasets": [
+    {
+      "dataset": "monthly_revenue",
+      "overall_status": "PARTIAL",
+      "checks": [
+        {
+          "check": "historical_coverage_2004_2026",
+          "status": "PASS",
+          "detail": "Single raw file spans 2004-01 through 2026-07 (478127 rows total, per-year row counts all >0, no gap years). Fully covers the 255-canonical-month target range (2005-01→2026-03) and beyond.",
+          "evidence_ref": "tej_exports/DataExport0806/月營收2004-202608/20260806091706.xlsx (sha256 237e13abae8dafbadd01881920427ef1c3f0f7da9b226f88495f770b1d0b0fab, manifest-confirmed)"
+        },
+        {
+          "check": "genuine_release_date_field_coverage_and_missingness",
+          "status": "PARTIAL",
+          "detail": "Column 營收發布日 (release_date) exists and is structurally present in every row (0% blank). However, a precise per-row classification (genuine parseable date vs the literal placeholder token '.') shows a hard transition: 2004-01 through 2012-12 (9 full years, 96 of the 255 canonical months) are 100% the placeholder token '.' -- NOT genuine dates -- for every single row in those years. 2013-01 onward is ~100% genuine parseable dates (a handful of stray '.' rows in 2022-2026, <0.1%). This is a real improvement over the previously-documented tej_cache snapshot (genuine release_date only from 2019+) -- DataExport0806 extends genuine per-row disclosure-date coverage back to 2013 -- but it is NOT full 255-month (2005-2026) genuine coverage. 2005-01 through 2012-12 remains without a genuine disclosure date in even this newest export.",
+          "year_by_year_dot_vs_genuine": {
+            "2004": "0% genuine (100% '.')", "2005": "0% genuine (100% '.')",
+            "2006": "0% genuine (100% '.')", "2007": "0% genuine (100% '.')",
+            "2008": "0% genuine (100% '.')", "2009": "0% genuine (100% '.')",
+            "2010": "0% genuine (100% '.')", "2011": "0% genuine (100% '.')",
+            "2012": "0% genuine (100% '.')", "2013": "100% genuine",
+            "2014_through_2021": "100% genuine",
+            "2022_through_2026": ">=99.9% genuine (1-12 stray '.' rows per year out of 12000-24000)"
+          },
+          "evidence_ref": "same file as above; read-only openpyxl scan of column 營收發布日, regex-classified genuine vs '.' vs blank, per-year tally over all 478127 rows"
+        },
+        {
+          "check": "revenue_yoy_reconstructable_via_existing_formula",
+          "status": "PASS",
+          "detail": "revenue_yoy is not something this study needs to derive/reconstruct from components -- the raw column 單月營收成長率％ (renamed revenue_yoy_pct by the existing DATASETS spec) IS the figure the actual B-leg screening code (scripts/tej_universe_screen_validation.py, which reads revenue_growth's revenue_yoy_pct directly with no recomputation) already consumes as-is. This raw column is 94.0-99.5% populated with genuine numeric values in every year 2004-2026 (remainder is the same '.' placeholder token, plausibly IPO-year/no-prior-year-comparator gaps, not a coverage collapse). No new formula is required; the existing formula is simply 'read revenue_yoy_pct directly'.",
+          "caveat": "This confirms the VALUE is present at high density throughout; it does not by itself confirm WHEN each value became genuinely knowable (see genuine_release_date_field_coverage_and_missingness above) -- value-presence and disclosure-date-presence are two independent claims per this study's own non-claim 3, not conflated here.",
+          "evidence_ref": "same file as above; column 單月營收成長率％"
+        }
+      ],
+      "next_step": "If P0-R4's Track B is separately authorized: build a per-dataset VintageAvailabilityRecord/PitEvidenceRecord splitting monthly_revenue into two sub-ranges -- 2013-01→2026-07 (genuine_evidence_fraction=1.0, eligible for Gate R4-P consideration) and 2005-01→2012-12 (genuine_evidence_fraction=0.0, must be declared NOT_RECONSTRUCTIBLE for that sub-range per Track A non-claim 1 -- current/'.'-substitution is explicitly prohibited). A 255-month EXACT identity for revenue_yoy PIT-availability is not achievable from this raw source alone; a reduced 168/255-month genuine window is."
+    },
+    {
+      "dataset": "financial_statements",
+      "overall_status": "DATA_AVAILABLE_IMPLEMENTATION_REQUIRED",
+      "overall_status_correction_note": "CORRECTED this round: previously recorded PASS. Downgraded because 'the raw data is 100% genuine' and 'R3-P is resolved' are two different claims that must not be conflated -- the producing chain (core.tej_bundle._to_long, per P0-R3's own already-archived finding) does NOT currently consume release_date; it still applies the uniform PUBLISH_LAG_DAYS=45 fixed-lag proxy. Per this study's own AC-R4-10 rule (field presence alone never satisfies Gate R4-P; actual code consumption is required), R3-P remains UNRESOLVED for financial_statements until that code is changed -- a future, separately-authorized implementation step, not something this data-only preflight can or does complete. DATA_AVAILABLE_IMPLEMENTATION_REQUIRED names both halves of this honestly: the data-sufficiency half is genuinely PASS (kept below, unchanged), the code-consumption half is not done.",
+      "checks": [
+        {
+          "check": "historical_coverage_2005_2026",
+          "status": "PASS",
+          "detail": "Primary file spans 2005-01 through 2026-06/Q2 (138731 rows, per-year counts all >0). A second, small supplementary file ('202606 財報583家 8-10.xlsx', 596 rows) appears to be a later Q2-2026-specific correction batch for 583 companies -- not examined in depth this round (not needed to answer the coverage question, main file already covers the same period).",
+          "evidence_ref": "tej_exports/DataExport0806/財報2004~202606/20260806090633.xlsx (sha256 97574a0892ed01292b0ea781c340ce711ae96bd7c17d3fd5aad79ead57016832, manifest-confirmed)"
+        },
+        {
+          "check": "genuine_release_date_field_and_missingness",
+          "status": "PASS",
+          "detail": "Column 財報發布日 (release_date) is 100% genuine parseable dates in EVERY year 2005-2026 (138731/138731 rows), verified with the same strict regex classification used for monthly_revenue (which caught the '.' placeholder issue there) -- zero '.' placeholders, zero blanks, zero other-format values found in financial_statements.",
+          "evidence_ref": "same file; column 財報發布日, full-file scan"
+        },
+        {
+          "check": "revision_vintage_expression",
+          "status": "UNRESOLVED_NOT_APPLICABLE_THIS_QUESTION",
+          "detail": "The 56-column schema contains no restatement/original-vs-restated flag or any second value per (stock, period) -- this is a single current-snapshot export, one row per (stock,quarter), consistent with the already-established V2_CANDIDATE_RESTATED_SNAPSHOT characterization. This means the export cannot support Track A first-vintage/historical-revision reconstruction (a separate, already out-of-scope-for-this-preflight question) -- but that is NOT what R3-P's 45-day-fixed-lag concern is about. R3-P concerns PIT-availability-of-consumption (does a genuine disclosure date exist and get used), which is fully answered PASS above."
+        },
+        {
+          "check": "can_replace_fixed_45_day_lag_without_modifying_production",
+          "status": "TECHNICALLY_FEASIBLE_NOT_IMPLEMENTED_R3_P_NOT_RESOLVED",
+          "detail": "Given 100% genuine release_date coverage across the full target range, replacing core.tej_bundle._to_long's uniform PUBLISH_LAG_DAYS=45 fixed-lag proxy with the genuine per-row release_date is technically feasible from a data-availability standpoint. No production code was read for modification and none was modified this round or the prior round (out of scope). CORRECTED framing: this is a data-sufficiency finding only -- it does NOT mean R3-P is resolved for financial_statements. consumed_by_producing_chain remains false; the fixed 45-day proxy is still what production actually uses today."
+        }
+      ],
+      "next_step": "If Track B is separately authorized: build PitEvidenceRecord for financial_statements with cutoff_semantics.kind='genuine_field', consumed_by_producing_chain=false (still using the 45-day proxy in production as of this preflight) -- Gate R4-P requires demonstrating actual code consumption, not just field presence, per this study's own AC-R4-10 rule. Until that separately-authorized implementation step happens, financial_statements' R3-P status is DATA_AVAILABLE_IMPLEMENTATION_REQUIRED, not resolved."
+    },
+    {
+      "dataset": "institutional_gross",
+      "overall_status": "PARTIAL_FEASIBLE",
+      "overall_status_correction_note": "CORRECTED this round: previously recorded PASS. Downgraded because the underlying evidence was 4 of 16 source files checked for header presence and only 1 of 16 files checked for genuine content (first 50000 rows of the 2004 file only) -- this is a real, positive, decisive-DIRECTION signal (no placeholder trap found where checked, unlike monthly_revenue's release_date), but it is a SAMPLE, not a full-corpus confirmation. Per this study's own AC-R4-14 rule (full-corpus, not sample -- a sampled result never yields SUFFICIENT, at most NOT_FULLY_EVALUATED), this preflight's finding must not be reported as a clean full-corpus PASS. PARTIAL_FEASIBLE names both halves honestly: feasible/promising on the evidence gathered, but not yet a full-corpus confirmation.",
+      "checks": [
+        {
+          "check": "required_columns_present_across_full_2004_2026_range",
+          "status": "PASS",
+          "detail": "All 6 required institutional_gross columns (外資買進張數/外資賣出張數/投信買進張數/投信賣出張數/外資總投資股率%/投信持股率%) are present in the header of all 4 representative files checked (2004, 2012, 2019-2020, 2025-20260806) out of 16 total institutional_flow/institutional_gross source files spanning 2004-2026 -- same source_dir/files P0-R3 already rated SUFFICIENT for institutional_flow.",
+          "evidence_ref": [
+            "tej_exports/DataExport0806/法人回測2004-20260806/2004 法人.xlsx (sha256 cbeda8b98c989f88de406dfb358f896d18c1f092b16e4c36fdaae7c67760f842)",
+            "tej_exports/DataExport0806/法人回測2004-20260806/2012 法人.xlsx (sha256 d040af265c0207119768b20df34ff22d3def17a1a805a0b4389ebdea6d132427)",
+            "tej_exports/DataExport0806/法人回測2004-20260806/2019-2020 法人.xlsx (sha256 223ad22c20306919b71134e3e5dffdf4386736e21cd5abb606159ad9863f5838)",
+            "tej_exports/DataExport0806/法人回測2004-20260806/2025-20260806 法人.xlsx (sha256 bd315c780dd0b3484aeb96c0d5835bf629104628d3e524d39e5e6e62ca35e735)"
+          ]
+        },
+        {
+          "check": "columns_are_genuinely_populated_not_placeholder_only",
+          "status": "PASS",
+          "detail": "Given monthly_revenue's release_date '.' placeholder discovery, header presence alone was treated as insufficient this round -- the 2004 file's first 50000 rows were scanned for all 6 required columns: 100.0% numeric (0 '.' placeholders, 0 blanks) for every column. Data is genuinely populated in the earliest available file, not merely structurally present.",
+          "evidence_ref": "tej_exports/DataExport0806/法人回測2004-20260806/2004 法人.xlsx, first 50000 rows of 6 required columns"
+        },
+        {
+          "check": "is_tej_cache_gap_an_importer_mapping_issue_or_a_genuine_export_gap",
+          "status": "LIKELY_IMPORTER_MAPPING_ISSUE_NOT_YET_FULL_CORPUS_CONFIRMED",
+          "detail": "P0-R3 previously found the on-disk tej_cache for institutional_gross covers only 2026-04-01→2026-07-16 (255/255 canonical months missing), apparently contradicting tej_importer.py's own docstring claim of 2004-01-02+ coverage. This preflight's SAMPLE (4/16 files by header, 1/16 by content) is consistent with the docstring's 2004+ claim being accurate relative to the raw DataExport0806 export, and consistent with the narrow tej_cache range being a defect/staleness in a prior build process rather than genuine data unavailability -- but a sample supporting a hypothesis is not the same as a full-corpus confirmation of it. CORRECTED framing: this is the LIKELY explanation on the evidence gathered, not a RESOLVED fact -- the 12 unexamined files could, in principle, contain a gap this sample missed."
+        }
+      ],
+      "next_step": "If Track B is separately authorized: a proper Phase B build (or, short of a full build, a full-corpus read-only scan of all 16 files) is required before institutional_gross can be reported SUFFICIENT/PASS per this study's own AC-R4-14 full-corpus rule. This preflight sampled 4/16 files by header + 1/16 by content; the intervening 12 files were not opened this round (per the minimal-representative-file efficiency rule) and remain unconfirmed. PARTIAL_FEASIBLE, not PASS, is the honest status until that full-corpus check happens."
+    },
+    {
+      "dataset": "tdcc_weekly",
+      "overall_status": "COVERAGE_FEASIBLE_R3_S__PIT_UNRESOLVED_R3_P__REQUIRED_BY_A_LEG_INDIRECTLY",
+      "correction_note": "CORRECTED TWICE this round. Correction 1 (coverage): after user-supplied evidence of a second, previously-unexamined source location, the original 'CONFIRMED_TRUE / 2019+' finding is now known to co-exist with a THIRD, different, previously-unknown location outside this repository -- C:\\TejPro\\TejPro\\DataExport\\集保大戶2005-20260806\\ (集保比率, 50 columns) -- that genuinely extends real coverage back to 2013-01-02 (2005-2012 independently confirmed still empty). The old in-repo finding (2019+ only) is RECONFIRMED unchanged below, not deleted. Correction 2 (dependency + PIT, this message): the prior 'NOT_REQUIRED_STRONG_EVIDENCE' A-leg dependency finding was WRONG -- it did not search beat_0050/realbody/. Independently re-verified (not taken on the user's assertion alone) a real, direct code chain making tdcc_weekly a genuine, if indirect, A-leg input. Separately, the 年月日 column this preflight validated is an AS-OF/observation date, not a proven public-availability date -- R3-S coverage feasibility and R3-P PIT-availability proof are two independent claims, and only the former is supported by this round's evidence.",
+      "checks": [
+        {
+          "check": "old_corpus_tej_exports_DataExport0806_and_inbox_tdcc",
+          "status": "CONFIRMED_TRUE_2019_PLUS_ONLY_UNCHANGED",
+          "detail": "RECONFIRMED (re-verified a second time this round, including an explicit rule-out of core/tdcc_provider.py [a live weekly-scrape module with no historical backfill capability] and data/tdcc/ [empty directory] as alternate historical sources). Both known in-repo locations (tej_exports/DataExport0806/集保大戶2019-20260806/, and tej_exports/inbox_tdcc/, a separate frozen/legacy inbox path per the prereg's own protected-path list, listing-only, not opened) contain exactly the same 8-9 filenames: TDCC2019.xlsx through TDCC2026-0709.xlsx -- no TDCC2004..TDCC2018 file exists in either. TDCC2019.xlsx's own content (not just filename) reads 2019/01/04 through 2019/12/27. This finding is NOT overwritten -- it remains true, it is simply not the ONLY relevant source anymore.",
+          "evidence_ref": [
+            "tej_exports/DataExport0806/集保大戶2019-20260806/TDCC2019.xlsx (sha256 fc24f02fed04b4042325691498364ba3218283315824082c790a96e534b5a834, manifest-confirmed; date range read directly: 2019/01/04→2019/12/27)",
+            "directory listing only (no file content read): tej_exports/inbox_tdcc/ contains the identical TDCC2019..TDCC2026-0709 filename set",
+            "core/tdcc_provider.py: read-only inspected, confirmed to be a live weekly TDCC-open-data scraper with no historical bulk-backfill mechanism (not a historical source)",
+            "data/tdcc/: directory listing confirmed empty"
+          ]
+        },
+        {
+          "check": "new_tej_pro_export_C_TejPro_DataExport_集保大戶2005-20260806",
+          "status": "CONFIRMED_2013_PLUS_2005_2012_GENUINELY_EMPTY",
+          "detail": "User-directed read-only inspection of a previously-unexamined location entirely outside this repository: C:\\TejPro\\TejPro\\DataExport\\集保大戶2005-20260806\\ (7 zip files, product name '集保比率' -- a different TEJ export than the in-repo '集保大戶' batch). Each zip contains one UTF-16, Tab-delimited .csv member, 50 columns, key 證券代碼+年月日. Independently re-computed row counts and date ranges (not taken on the user's word) -- results match the user-supplied figures exactly, digit for digit: 2005-2007集保比率.zip=0 data rows (header only); 2008~2010集保比率.zip=0 data rows (header only); 2011-2013集保比率.zip=19017 rows, 2013-01-02→2013-12-02 (i.e. even within this file, 2011 and 2012 are also empty -- only 2013 has any rows); 2014-2017集保比率.zip=262304 rows, 2014-01-02→2017-12-29; 2018-2021集保比率.zip=352545 rows, 2018-01-05→2021-12-30; 2022-2025集保比率.zip=369402 rows, 2022-01-07→2025-12-26; 20260814.zip=60362 rows, 2026-01-02→2026-08-14. 2005-2012 is therefore genuinely, independently confirmed empty -- not assumed, not silently declared present.",
+          "evidence_ref": [
+            "C:\\TejPro\\TejPro\\DataExport\\集保大戶2005-20260806\\2005-2007集保比率.zip (sha256 70f1be9f43fcc040948f2b449a53ba7e9317fe41ebad6935366f78d68fe3de9f, 520 bytes, self-computed -- NOT in the project's own DataExport0806_manifest.csv, this is an out-of-repo location)",
+            "...\\2008~2010集保比率.zip (sha256 c669508183e8704b0d43a628b7229603bf55ce53c3cd31b896c5be1459c45ca1, 520 bytes)",
+            "...\\2011-2013集保比率.zip (sha256 e109caa9367e0100f36f9d1bc2553593a84894ec61a9897a0dec07f9e5e7ea68, 2402392 bytes)",
+            "...\\2014-2017集保比率.zip (sha256 1e48e956ee063427e46619b876c3ec48981d1119a2bd4c7e0c10fe6213bc3b23, 33083067 bytes)",
+            "...\\2018-2021集保比率.zip (sha256 b5db93c835f8e98a50e71eeaae5b07875e2ae716686dcc4bc9888122ac2962bc, 44363285 bytes)",
+            "...\\2022-2025集保比率.zip (sha256 68f9298cb80db107cb1842e674a001a379f4da4e3888ddb492940220fe5e2ab9, 46626889 bytes)",
+            "...\\20260814.zip (sha256 8e3adf544801b6fdfcb1f19621b1c644dd8ea6d98e7629e51c464844a77e0e6a, 7679382 bytes)"
+          ]
+        },
+        {
+          "check": "pre_candidate_build_quality_gate_date_uniqueness_stock_code_tier_ratio_sum_total_lots_consistency",
+          "status": "PASS",
+          "detail": "Per explicit instruction, ran 4 quality checks on the new 集保比率 export before any candidate build is even considered (no build performed). Checked the full 2011-2013 file (19017 rows) and full 20260814 file (60362 rows), plus the first 40000 rows of each of 2014-2017/2018-2021/2022-2025 (159379 rows total examined): (1) date uniqueness -- 0 duplicate (證券代碼,年月日) key pairs in any file; (2) stock code format -- 0 malformed codes (all match a plain 4-6-digit[+letter] pattern after splitting the combined code+name field); (3) tier ratio sum -- the 15 percentage-bracket columns (1000張以上 down through 800-1000張) sum to ~100 per row; only 3 of 159379 rows deviate by more than 1.0 from 100 (max single-row deviation 4.17), consistent with ordinary 2-decimal rounding across 15 buckets, not a structural defect; (4) total-lots reconciliation -- 集保總張數(千股) vs the sum of all 15 bracket (千股) columns plus 股數調整項(千股): 0 rows exceed 1% relative deviation in any file; total-holders reconciliation (集保總人數 vs sum of bracket 人數) also 0 violations in any file.",
+          "evidence_ref": "same 5 files as above, read-only openpyxl/zipfile/csv scan, no output written anywhere"
+        },
+        {
+          "check": "is_tdcc_weekly_a_required_input_to_A_leg_B_leg_decision_time_universe_or_final_membership",
+          "status": "REQUIRED_BY_A_LEG_INDIRECTLY",
+          "detail": "CORRECTED this round -- the prior round's 'NOT_REQUIRED' finding is WRONG; it searched beat_0050/strategies/high52_lab.py, core/canonical_universe.py, and the B-leg screening script, but never searched beat_0050/realbody/, where a real, live dependency exists. Independently re-verified this round by reading the actual source (not taken on assertion): full call chain, each link confirmed by direct code read: (1) beat_0050/realbody/build_realbody_scores.py line 120 (inside its scoring worker): `from beat_0050.realbody.bt_bundle import bt_fetch_history`, called at line 124 as `bt_fetch_history(sid)`. (2) beat_0050/realbody/bt_bundle.py line 61-63: `def bt_fetch_history(symbol, name=None): ... b = _tb.tej_fetch_history(symbol, name)` where `_tb` (line 23) is `import core.tej_bundle as _tb` -- the module's own docstring states it only overrides two specific behaviors on top of tej_fetch_history and explicitly does not touch _tej_shareholding. (3) core/tej_bundle.py line 221-236, function tej_fetch_history(): constructs and returns `HistoryBundle(..., shareholding=_tej_shareholding(symbol))` unconditionally -- shareholding is not one of the two overridden behaviors, so this call is not bypassed by the bt_bundle wrapper. (4) core/tej_bundle.py's _tej_shareholding() (confirmed in the prior preflight round) reads tdcc_weekly.total_lots_thousand as its shares-outstanding proxy. This is therefore a real, verified, indirect A-leg dependency via the 'realbody' scoring pipeline (build_realbody_scores.py) -- separate from, and missed by, the direct-reference search of high52_lab.py/canonical_universe.py/tej_universe_screen_validation.py performed in the prior round.",
+          "chain": [
+            "beat_0050/realbody/build_realbody_scores.py:120,124 (worker calls bt_fetch_history(sid))",
+            "beat_0050/realbody/bt_bundle.py:61-63 (bt_fetch_history calls core.tej_bundle.tej_fetch_history, does not override shareholding)",
+            "core/tej_bundle.py:221-236 (tej_fetch_history unconditionally calls _tej_shareholding(symbol))",
+            "core/tej_bundle.py::_tej_shareholding (reads tdcc_weekly.total_lots_thousand, confirmed prior round)"
+          ],
+          "caveat": "This reverses the prior round's finding for the specific realbody/build_realbody_scores.py path; it does not by itself establish whether 'realbody' scoring is the same construct as the P0-R3-defined decision-time universe (Panel.tier_valid) or a separate/parallel pipeline -- that remains unconfirmed. What IS now confirmed is that a real production/backtest code path (not merely a research/diagnostic script) depends on tdcc_weekly indirectly."
+        },
+        {
+          "check": "does_年月日_represent_genuine_public_availability_or_only_an_as_of_observation_date",
+          "status": "UNRESOLVED_AVAILABILITY_NOT_PROVEN",
+          "detail": "The 4-part quality gate above (date uniqueness, stock code, tier-ratio-sum, total-lots reconciliation) validates that 年月日 is a well-formed, internally-consistent AS-OF/observation date for each weekly snapshot -- it does NOT establish WHEN that snapshot became genuinely publicly available/known (a separate claim, per this study's own non-claim 3). No evidence was gathered this round (or the prior round) of an actual publish-lag between 年月日 and real-world public release -- unlike financial_statements/monthly_revenue, tdcc_weekly's raw export carries no separate release_date-style field at all; 年月日 is the only date column. TDCC's own public open-data product (per core/tdcc_provider.py's docstring) is described as weekly, updated Friday evening, with 'up to about one week' of inherent lag -- but this is a docstring comment about a DIFFERENT ingestion mechanism (live weekly scrape), not verified evidence about this TEJ Pro export's own publish timing.",
+          "evidence_ref": "same 5 files checked for the quality gate above; core/tdcc_provider.py docstring (read-only, cited for context only, not treated as evidence about the TEJ Pro export's own timing)"
+        }
+      ],
+      "next_step": "If Track B is separately authorized: the candidate schema for tdcc_weekly should preserve all 50 raw columns from the new 集保比率 export (not just the 6 columns the existing DATASETS['tdcc_weekly'] rename mapping currently maps), but the identity adapter should for now only consume the existing 6 mapped columns (holders, total_lots_thousand, ratio_1000up, ratio_le1, ratio_1to5, ratio_5to10) -- mapping the other ~44 raw columns is a separate, not-yet-scoped decision. No code was changed this round to implement any of this. IMPORTANT PROVENANCE NOTE: this new export is a THIRD, distinct on-disk location (outside this repository, not covered by DataExport0806_manifest.csv) from the one this preflight's other 3 datasets were checked against (tej_exports/DataExport0806/, in-repo) -- those 3 datasets' findings were NOT re-verified against C:\\TejPro\\TejPro\\DataExport\\ this round. Separately, before R3-P can be considered for tdcc_weekly, a genuine publish-availability lag must be evidenced from a named, authoritative source (per the prereg's own §7.4 rule) -- not assumed, and not borrowed from core/tdcc_provider.py's unrelated live-scrape docstring."
+    }
+  ],
+  "decisive_blocker_found": false,
+  "formal_identity_window_decision": {
+    "status": "PROPOSED_CANDIDATE_WINDOW_2013_01_TO_2026_03",
+    "decided_by": "user instruction, this round",
+    "window": "2013-01 to 2026-03",
+    "approval_status": "NOT_YET_FORMALLY_APPROVED -- this is a PROPOSAL surfaced through this preflight's conversation, not a decision recorded in any prereg or prereg-erratum document. It has no standing as a binding scope change for P0-R4/R3-S/R3-P until it goes through this study's own documented approval mechanism (a new checkpoint/erratum on the governing prereg, reviewed and explicitly approved) -- the same discipline this study has applied to every other scope/window decision throughout. This preflight and its artifacts record the proposal and the evidence behind it; they do not themselves constitute that approval.",
+    "rationale": "monthly_revenue's genuine per-row release_date (2013+, established in the prior round of this preflight) and tdcc_weekly's genuine coverage from the new 集保比率 export (2013+, established this round) now share the same 2013 starting point. The proposal is to no longer pursue the original 255-month (2005-01 to 2026-03) exact identity window -- 2005-2012 would be out of scope for the identity window, not silently treated as covered.",
+    "not_yet_reconciled": "financial_statements (100% genuine 2005-2026, wider than 2013+) and institutional_gross (raw coverage per this preflight's PARTIAL_FEASIBLE sample, wider than 2013+) both individually support a WIDER window than 2013+ -- the 2013-01 to 2026-03 window is therefore the binding constraint from monthly_revenue/tdcc_weekly, not a limitation shared by all four datasets. This asymmetry is recorded, not resolved, this round."
+  },
+  "overall_verdict": {
+    "coverage": "COVERAGE_BUILD_FEASIBLE_FOR_PROPOSED_2013_PLUS_WINDOW",
+    "coverage_detail": "Within the PROPOSED (not yet approved) 2013-01 to 2026-03 window, all four datasets have read-only evidence supporting coverage feasibility: monthly_revenue (full), financial_statements (full, wider than needed), institutional_gross (PARTIAL_FEASIBLE -- sample-based, not full-corpus), tdcc_weekly (2013+ confirmed in the new out-of-repo TEJ Pro export, quality gate passed).",
+    "pit": "PIT_REMEDIATION_STILL_REQUIRED",
+    "pit_detail": "Coverage feasibility is NOT the same claim as PIT (R3-P) resolution, and none of the four datasets has R3-P actually resolved yet: financial_statements is DATA_AVAILABLE_IMPLEMENTATION_REQUIRED (genuine release_date exists but the producing chain does not consume it -- still the 45-day fixed-lag proxy in production); monthly_revenue's genuine release_date only covers 2013+ within the data itself, and no code change has been made to consume it either; institutional_gross's PIT semantics were not examined this round at all (out of this preflight's original 4-question scope); tdcc_weekly is UNRESOLVED_AVAILABILITY_NOT_PROVEN -- its 年月日 is confirmed to be a well-formed AS-OF/observation date, not a proven genuine public-availability date, and it is REQUIRED_BY_A_LEG_INDIRECTLY (via build_realbody_scores.py -> bt_bundle.bt_fetch_history -> core.tej_bundle.tej_fetch_history -> _tej_shareholding -> tdcc_weekly), so this gap is not academic -- it feeds a real scoring path.",
+    "window_approval": "FORMAL_WINDOW_CHANGE_NOT_YET_APPROVED",
+    "window_approval_detail": "The 2013-01 to 2026-03 identity window discussed in this round's conversation is a proposal under this preflight's own read-only, non-binding scope -- it has not been run through this study's documented approval mechanism (new prereg checkpoint/erratum) and must not be treated as an approved scope change by any future phase until it is."
+  },
+  "recommendation": "Do not proceed to any candidate build, code change, or scope commitment on the strength of this preflight alone. If the 2013-01 to 2026-03 proposed window is to become the study's actual target, that requires its own explicit approval via this study's documented prereg/erratum mechanism -- not implied by this conversation. Separately and regardless of the window question: financial_statements and monthly_revenue both need a future, separately-authorized implementation step (making the producing chain actually consume release_date) before R3-P can be scored resolved for either; institutional_gross needs a full-corpus (not sampled) check before R3-S can be scored SUFFICIENT; tdcc_weekly needs both a full-corpus check and a genuinely evidenced publish-availability lag (not just a validated as-of date) before either R3-S or R3-P can be scored resolved for it, and its newly-confirmed indirect A-leg dependency (via build_realbody_scores.py) means this is not a low-stakes gap. This preflight does not itself authorize any Track B/Phase B action, any file move, any importer change, or any candidate build -- read-only feasibility finding only, awaiting review."
+}
