@@ -1,0 +1,84 @@
+{
+  "study": "P0-R4",
+  "phase": "B",
+  "schema_reference": "docs/prereg_P0_R4_HistoricalRawSourceRemediation_PITIdentity_2026-08-16.md \u00a714.3 LiveIdentityRecord",
+  "scored_at_utc": "2026-08-16",
+  "phase_b_execution_compliance_cross_reference": "This file's own findings about core/data_provider.py and tej_importer.py (durable_identity_status NOT_ESTABLISHED for both, no byte copy of EITHER file existing or created) are unaffected by, and are a separate matter from, the overall Phase B execution-compliance finding recorded in gate_results.json: phase_b_execution_compliance = PROTOCOL_DEVIATION (reason_code UNAUTHORIZED_VENDOR_DOCUMENT_LOCAL_COPY_SIDE_EFFECT), arising from an unrelated file (a TEJ vendor documentation PDF fetched during R4-A web research, not core/data_provider.py or tej_importer.py). See gate_results.json#R4-A.compliance_flags for detail.",
+  "correction_note": "Corrected in place after initial issuance (same Phase B pass, no new investigation performed): the top-level 'production_instance_identified: true' blanket claim is removed and replaced with a scoped, per-file breakdown -- core/data_provider.py's live consumption path is directly confirmed, but tej_importer.py's live invocation context is explicitly unresolved (reason_code TEJ_IMPORTER_LIVE_INVOCATION_UNRESOLVED, cross-referenced in gate_results.json#R4-L). This file no longer asserts Track C's identification was 'complete/unambiguous' at the whole-mechanism level.",
+  "production_instance_identification_scope": {
+    "core/data_provider.py": {
+      "status": "CONFIRMED",
+      "evidence": "Windows Task Scheduler task '\\FinMind_DailyUpdate' (schtasks.exe /query /tn FinMind_DailyUpdate /v, 2026-08-16): status enabled/ready, last run result 0 (success), last run 2026-08-14 18:00, next run 2026-08-17 18:00, trigger Mon-Fri 18:00, action 'powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"C:\\dev\\Project 1\\scripts\\run_hidden.ps1\" \"C:\\dev\\Project 1\\scripts\\daily_auto_update.bat\"', runs as user jamie, login-required mode. daily_auto_update.bat step1 runs `python build_cache.py --build-scores --source tej ...`; build_cache.py line 38: `from core.data_provider import DataProvider`. This chain is directly, currently confirmed."
+    },
+    "tej_importer.py": {
+      "status": "UNRESOLVED",
+      "reason_code": "TEJ_IMPORTER_LIVE_INVOCATION_UNRESOLVED",
+      "evidence": "Neither of the two currently-registered scheduled tasks found this phase (FinMind_DailyUpdate, Market_SnapshotCollector -- confirmed via schtasks.exe /query for both) references tej_importer.py by name in its action string. No other scheduled task, service, or deployment manifest was found referencing it. Per \u00a711.1/AC-R4-30, Phase B did not invoke tej_importer.py itself to test whether it runs, and did not search beyond the two registered tasks already found for Track C's other purposes (no new investigation performed for this correction). This status is neither CONFIRMED nor CONFIRMED-DORMANT -- it is honestly recorded UNRESOLVED."
+    },
+    "tej_runtime_overlay_dir_mechanism": {
+      "status": "CONFIRMED (as a code mechanism inside core/data_provider.py; its own live content re-verified, see below)",
+      "evidence": "Resolves to a code default (no env override, confirmed via registry inspection); its on-disk contents were re-read and re-verified this phase against P0-R3's 2026-08-15 citation (AC-R4-20) -- see tej_runtime_overlay_mechanism block below."
+    }
+  },
+  "records": [
+    {
+      "target_path": "core/data_provider.py",
+      "target_repo_relative_path": "core/data_provider.py",
+      "sha256": "93f835b6155fcf30b825a1170e0153da5d58f5db683489d62dee14819dc88eef",
+      "bytes": 104858,
+      "git_state": "modified",
+      "git_state_method": "windows_git_scoped",
+      "git_state_detail": "`git.exe status --porcelain=v1 -- core/data_provider.py` = ' M core/data_provider.py'; `git.exe diff --stat` = 69 lines changed (matches P0-R3 \u00a72.2 exactly); committed blob at HEAD (12c521dc51f3520f9489f0b69ce9714d906837f4) = fd197dc4804b4284628892dab454b5ef63b8c269, which does NOT match the live sha256 above",
+      "runtime_config": [
+        {"env_var": "TEJ_CACHE", "resolved_value": "C:\\Users\\aaaai\\tej_cache", "source": "default"},
+        {"env_var": "TEJ_RUNTIME_OVERLAY", "resolved_value": "C:\\dev\\Project 1\\data\\runtime_cache\\dataexport0806", "source": "default"},
+        {"env_var": "MARKET_CACHE", "resolved_value": "C:\\Users\\aaaai\\market_cache", "source": "default"}
+      ],
+      "runtime_config_method": "Code defaults read from core/data_provider.py lines 16-25 (os.environ.get(\"TEJ_CACHE\", <default>), etc.), then checked against the actual production environment via reg.exe query of HKCU\\Environment and HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment (both queries succeeded, RC=0, neither hive contains TEJ_CACHE/TEJ_RUNTIME_OVERLAY/MARKET_CACHE) and via cmd.exe echo of the three variables in an interactive shell (all three returned unresolved literal %VAR%, i.e. unset) -- per AC-R4-18, this is a checked resolution, not an inference from source code alone. Absolute default paths' on-disk existence was independently confirmed (metadata only): C:\\Users\\aaaai\\tej_cache exists, C:\\Users\\aaaai\\market_cache exists, and data/runtime_cache/dataexport0806/ exists project-relative.",
+      "production_instance_identified": true,
+      "production_instance_evidence": "See production_instance_identification_scope.core/data_provider.py above. This file's live consumption path is directly confirmed via build_cache.py's import statement plus the registered, enabled, successfully-last-run FinMind_DailyUpdate scheduled task.",
+      "durable_identity_status": "NOT_ESTABLISHED",
+      "preexisting_copy_verification": null,
+      "downgrade_note": "Per \u00a75's binding PASS/FAIL asymmetry rule (restated AC-R4-23), this record's completeness does not entitle Gate R4-L to a PASS -- it supports a FAIL only. See gate_results.json#R4-L (reason_code includes LIVE_CONTENT_NONDURABLE_ASYMMETRY_DOWNGRADE)."
+    },
+    {
+      "target_path": "tej_importer.py",
+      "target_repo_relative_path": "tej_importer.py",
+      "sha256": "c237f6a98b2583a2a0168781e757a8467ae8b51a19ed35e63220b2f1662bae02",
+      "bytes": 121846,
+      "git_state": "modified",
+      "git_state_method": "windows_git_scoped",
+      "git_state_detail": "`git.exe status --porcelain=v1 -- tej_importer.py` = ' M tej_importer.py'; `git.exe diff --stat` = 2272 lines changed, 434\u21922156 (matches P0-R3 \u00a72.2 exactly); committed blob at HEAD = 77306c32b55783d2c65ccf6872d108165cd43b11, which does NOT match the live sha256 above",
+      "runtime_config": [
+        {"env_var": "TEJ_CACHE", "resolved_value": "C:\\Users\\aaaai\\tej_cache", "source": "default"}
+      ],
+      "runtime_config_method": "tej_importer.py line 124: TEJ_CACHE_DIR = Path(os.environ.get(\"TEJ_CACHE\", str(Path.home() / \"tej_cache\"))) -- same env var, same checked-not-assumed resolution as core/data_provider.py above. tej_importer.py does not itself reference TEJ_RUNTIME_OVERLAY or MARKET_CACHE (those are core/data_provider.py-only mechanisms per \u00a78).",
+      "production_instance_identified": false,
+      "production_instance_evidence": null,
+      "production_instance_evidence_note": "tej_importer.py is the collector/importer tool itself (writes into tej_cache), not something the daily scoring pipeline (build_cache.py, the one confirmed production consumer path) imports at runtime. No evidence was found this phase that tej_importer.py is invoked by any currently-registered scheduled task -- FinMind_DailyUpdate and Market_SnapshotCollector (the only two registered tasks found, schtasks.exe /query) both call daily_auto_update.bat / market_snapshot_collect.bat, neither of which references tej_importer.py by name. Per \u00a711.1/AC-R4-30, Phase B does not invoke tej_importer.py itself to test this. This is recorded as reason_code TEJ_IMPORTER_LIVE_INVOCATION_UNRESOLVED (see gate_results.json#R4-L) -- an honest, open gap, not glossed over and not resolved either way by inference.",
+      "durable_identity_status": "NOT_ESTABLISHED",
+      "preexisting_copy_verification": null,
+      "downgrade_note": "Per \u00a75's binding PASS/FAIL asymmetry rule (restated AC-R4-23), this record's completeness does not entitle Gate R4-L to a PASS -- it supports a FAIL only. See gate_results.json#R4-L (reason_code includes LIVE_CONTENT_NONDURABLE_ASYMMETRY_DOWNGRADE)."
+    }
+  ],
+  "tej_runtime_overlay_mechanism": {
+    "note": "TEJ_RUNTIME_OVERLAY_DIR is a directory mechanism inside core/data_provider.py's _read_tej(), not a standalone code file -- represented here as a supplementary record, outside the strict per-file LiveIdentityRecord schema.",
+    "resolved_path": "C:\\dev\\Project 1\\data\\runtime_cache\\dataexport0806 (= <project_root>/data/runtime_cache/dataexport0806, code default, no env override -- see runtime_config above)",
+    "on_disk_contents_observed_2026-08-16": {
+      "financial_statements.parquet": {"bytes": 75997},
+      "monthly_revenue.parquet": {"bytes": 53586373},
+      "receipt.json": {"sha256": "29453b6024bc2c776e22efacec699a99a6d32897b7f293e89ca644a5cc61c3a5", "bytes": 1138}
+    },
+    "receipt_content_re_verified_2026-08-16": {
+      "financial_statements": {"date_min": "2026-06-01", "date_max": "2026-06-01", "stocks": 596, "rows": 596},
+      "monthly_revenue": {"date_min": "2026-07-01", "date_max": "2026-07-01", "stocks": 406, "rows": 406}
+    },
+    "ac_r4_20_disposition": "Re-verified, not inherited. Both directory mtimes (2026-08-10) and receipt.json content are unchanged from P0-R3's 2026-08-15 citation. The overlay remains empirically inert for the 255-canonical-month target range (2005-01-31\u21922026-03-31) -- both datasets' date_min/date_max fall in mid-2026, entirely outside that range, confirmed current as of this phase's own inspection date, not merely assumed still true."
+  },
+  "durable_identity_summary": {
+    "core/data_provider.py": "NOT_ESTABLISHED (live/modified content); REACHABLE_COMMITTED_BLOB exists for the baseline content only (fd197dc4804b4284628892dab454b5ef63b8c269 at HEAD), which \u00a78 forbids using as a live-identity stand-in",
+    "tej_importer.py": "NOT_ESTABLISHED (live/modified content); REACHABLE_COMMITTED_BLOB exists for the baseline content only (77306c32b55783d2c65ccf6872d108165cd43b11 at HEAD), which \u00a78 forbids using as a live-identity stand-in",
+    "search_performed_for_preexisting_byte_copies": "`find . -iname 'data_provider*.py' -o -iname 'tej_importer*.py'` across the full repository (excluding .git internals) returned only the two live working-tree files themselves -- no copy exists anywhere else in the repository. No PREEXISTING_DOCUMENTED_BYTE_COPY was found; none was created (\u00a75, \u00a78, \u00a711, AC-R4-17/21/35)."
+  },
+  "r4_d_track_c_disposition": "NOT independently scored in this file or in gate_results.json -- per \u00a710.0, Gate R4-L's FAIL means Track C's R4-D evaluation is NOT_EVALUATED. The durable_identity_summary above is retained here as the evidentiary basis underlying R4-L's own FAIL reason (LIVE_CONTENT_NONDURABLE_ASYMMETRY_DOWNGRADE); it is not a separate R4-D(C) verdict."
+}

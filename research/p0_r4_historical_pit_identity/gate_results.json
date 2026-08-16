@@ -1,0 +1,199 @@
+{
+  "study": "P0-R4",
+  "phase": "B",
+  "phase_scope_reference": "docs/prereg_P0_R4_HistoricalRawSourceRemediation_PITIdentity_2026-08-16.md",
+  "approval_receipt_reference": "docs/prereg_P0_R4_approval_receipt_2026-08-16.json",
+  "correction_note": "This file was corrected in place after initial issuance (same 2026-08-16 Phase B pass, no new investigation performed). Corrections: (1) R4-A licensing-terms reason recharacterized from an unearned BLOCKED_LOGIN_REQUIRED claim to AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED, since Phase B never actually hit a login wall on any page it accessed -- it accessed the pages fine and found no published terms on them; (2) R4-L's note no longer claims production identity is 'complete/unambiguous' -- tej_importer.py's live invocation context is explicitly unresolved (TEJ_IMPORTER_LIVE_INVOCATION_UNRESOLVED), added as an independent reason alongside the pre-existing durable-identity asymmetry downgrade; (3) R4-D for Track C corrected from an independently-scored FAIL to NOT_EVALUATED, per SS10.0's explicit Track C blocking rule (Gate R4-L FAIL => Track C's R4-D evaluation is NOT_EVALUATED) -- the durable gap is preserved solely as part of R4-L's own finding, not re-scored ahead of it at R4-D; (4) R4-X's clean diagnostic result is retained as a diagnostic_observation field, but the gate's own status is corrected from PASS to FAIL, because SS5's binding PASS/FAIL asymmetry rule applies to 'any gate' and R4-X's own audit result rests on OBSERVED_CURRENT_CORPUS-basis evidence (a single, non-durable audit pass) with no durable copy of its own evidence trail. THIRD CORRECTION PASS (same day, still no new investigation): the prior pass's framing of the PDF-fetch side effect as consistent with 'no byte copies created this phase' is itself corrected -- no_byte_copies_created_this_phase is now FALSE, no_downloads_imports_or_importer_invocations_this_phase is split into no_dataset_downloads_or_imports/no_importer_invocations/vendor_document_download_side_effect_occurred, and a new phase_b_execution_compliance=PROTOCOL_DEVIATION field (reason_code UNAUTHORIZED_VENDOR_DOCUMENT_LOCAL_COPY_SIDE_EFFECT) is added, explicitly separate from and not curable by the gate diagnostic findings. Known/unknown facts about the saved PDF copy (scratch path and approximate size known from the original tool output; exact bytes, SHA256, and current on-disk existence UNKNOWN/NOT_INSPECTED -- this pass did not open, hash, or delete it) are now recorded in gate_results.json#R4-A.compliance_flags.",
+  "repository_baseline_at_phase_b_execution": {
+    "head_sha1": "12c521dc51f3520f9489f0b69ce9714d906837f4",
+    "note": "One commit ahead of the approved_repository_baseline_commit (f5dc275ef320c63e76b5cac49279f68cff286793) in the receipt -- the single intervening commit is 12c521dc \"docs(P0-R4): freeze Phase A approval\", verified via `git.exe log f5dc275e..HEAD` (evidence_refs below). This is a docs-only commit; it does not alter any file this study's gates depend on.",
+    "verified_by": "windows_git_scoped, git.exe version 2.54.0.windows.1"
+  },
+  "scored_at_utc": "2026-08-16",
+  "gates": [
+    {
+      "gate_id": "R4-A",
+      "track": "A/B (shared upstream)",
+      "status": "FAIL",
+      "depends_on": [],
+      "reason_code": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED",
+      "evidence_refs": [
+        "research/p0_r4_historical_pit_identity/provenance_citations.csv (rows 1-13)",
+        "https://www.tejwin.com/ (accessed 2026-08-16)",
+        "https://www.tejwin.com/databank-solution/taiwan/ (accessed 2026-08-16)",
+        "https://www.tdcc.com.tw/portal/zh/stats/openData (accessed 2026-08-16)",
+        "https://erm.lib.scu.edu.tw/scuerm/userdownload/TEJ+_S_TCHINESE.pdf (accessed 2026-08-16, reachable, content not extractable -- see compliance_flags below)",
+        "https://api.tej.com.tw/databases.html (accessed 2026-08-16, reachable, JS-rendered shell, no product rows resolved)"
+      ],
+      "durable_identity_basis": "N/A -- Gate R4-A evaluates web-sourced provenance citations (ProvenanceCitation records), not a code/data byte identity; no PASS/FAIL asymmetry rule of \u00a75 applies to this gate directly, though its own FAIL is itself durable per the citations recorded",
+      "non_claims": [
+        "non-claim 2 (\"exists now\" != \"was available then\") -- confirming today's TEJ product catalog says nothing about historical availability at any past as_of date",
+        "\u00a711.1 -- Phase B did not enter TEJ's login-gated customer portal to look for licensing terms; it recorded the absence of publicly-posted terms on the pages it did (legitimately) reach, and stopped there, per \u00a711.1 item 3's spirit even though no literal login wall was hit"
+      ],
+      "per_dataset": [
+        {"dataset": "price_valuation", "vendor_product_name_status": "ACCESSIBLE", "official_product_name_cited": "上市(櫃)調整股價(日)-均價 / 上市(櫃)未調整股價(日) / 上市(櫃)股價報酬(日)-報酬率 (TEJ Equity family)", "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"},
+        {"dataset": "institutional_flow", "vendor_product_name_status": "ACCESSIBLE", "official_product_name_cited": "三大法人買賣超", "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"},
+        {"dataset": "institutional_gross", "vendor_product_name_status": "ACCESSIBLE (weak -- same product family as institutional_flow; TEJ's public page does not distinguish a separate \"gross\" variant name)", "official_product_name_cited": "三大法人買賣超 (family-level match only)", "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"},
+        {"dataset": "tdcc_weekly", "vendor_product_name_status": "ACCESSIBLE", "official_product_name_cited": "集保股權分散 / 集保庫存分散", "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"},
+        {"dataset": "industry_map", "vendor_product_name_status": "ACCESSIBLE", "official_product_name_cited": "產業分類屬性", "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"},
+        {"dataset": "monthly_revenue", "vendor_product_name_status": "ACCESSIBLE", "official_product_name_cited": "上市(櫃)月營收盈餘", "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"},
+        {"dataset": "financial_statements", "vendor_product_name_status": "ACCESSIBLE", "official_product_name_cited": "IFRS以合併為主簡表(累計)-全產業", "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"},
+        {"dataset": "revenue_growth", "vendor_product_name_status": "NOT_FOUND_ON_ACCESSED_PAGES (page was reachable; no distinct official product name located on it -- see special_findings below)", "official_product_name_cited": null, "licensing_terms_status": "AUTHORITATIVE_LICENSING_TERMS_NOT_ESTABLISHED", "verdict": "FAIL"}
+      ],
+      "special_findings": [
+        {
+          "dataset": "revenue_growth",
+          "finding": "revenue_growth carries a SECOND, independent evidentiary gap beyond the licensing-terms gap shared by all 8 datasets: no distinct official TEJ product name for a per-row revenue-YoY-growth dataset was located on any page Phase B accessed this round (see provenance_citations.csv row 10). For the other 7 datasets, at least the official-product-name component was confirmed; for revenue_growth, neither component was confirmed."
+        }
+      ],
+      "compliance_flags": [
+        {
+          "flag": "UNAUTHORIZED_VENDOR_DOCUMENT_LOCAL_COPY_SIDE_EFFECT",
+          "detail": "The WebFetch call to https://erm.lib.scu.edu.tw/scuerm/userdownload/TEJ+_S_TCHINESE.pdf (row 12 of provenance_citations.csv) downloaded a TEJ-authored vendor document and the fetch tool auto-saved a local binary copy of it outside this repository. This IS a byte copy of downloaded vendor-authored material, created during Phase B, in a phase whose prereg-approved scope is unconditionally read-only with zero byte copies of any kind (\u00a75, \u00a78, \u00a711, \u00a711.1, AC-R4-17/21/22/35). That it was produced mechanically by a tool call rather than by a deliberate file-write action, and that no gate finding in this study reads or relies on its content, does not change that a byte copy exists on disk that did not exist before this Phase B pass -- those facts belong in the impact/non-claim record (below and in phase_b_report.md \u00a79), not as a basis for treating this as 'no byte copy occurred.'",
+          "known_facts": {
+            "url_fetched": "https://erm.lib.scu.edu.tw/scuerm/userdownload/TEJ+_S_TCHINESE.pdf",
+            "scratch_path_as_reported_by_tool": "/home/jamie/.claude/projects/-home-jamie/e3cb5994-9f0b-494f-8ecb-ecf3daa0feac/tool-results/webfetch-1786864423275-tnkz0u.pdf",
+            "content_type_as_reported_by_tool": "application/pdf",
+            "approx_size_as_reported_by_tool": "~3.1MB (the WebFetch tool's own reported figure at fetch time; not independently re-measured)"
+          },
+          "unknown_facts_not_inspected_this_pass": {
+            "exact_bytes": "UNKNOWN / NOT_INSPECTED",
+            "sha256": "UNKNOWN / NOT_INSPECTED",
+            "currently_exists_on_disk": "UNKNOWN / NOT_INSPECTED",
+            "note": "This pass did not open, hash, stat, or delete that path -- doing so would itself be new inspection/action on the PDF, which this correction's own instructions prohibit. These fields are left honestly UNKNOWN rather than backfilled by checking."
+          },
+          "impact_and_non_claims": "This side effect does not affect the content or basis of any Gate R4-A/R4-L/R4-X finding -- no finding cites or depends on the saved copy's bytes. It does NOT establish durable identity for anything (it is not a PREEXISTING_DOCUMENTED_BYTE_COPY under \u00a75 -- it postdates and was created BY this Phase B pass, which is exactly what \u00a75/\u00a711/AC-R4-35 prohibit). It is disclosed as a genuine compliance deviation, not minimized as inconsequential merely because it was unintentional or unused.",
+          "see_also": "research/p0_r4_historical_pit_identity/phase_b_report.md \u00a79; phase_b_execution_compliance field below"
+        }
+      ],
+      "note": "Vendor identity (Taiwan Economic Journal Co., Ltd. / \u53f0\u7063\u7d93\u6fdf\u65b0\u5831\u6587\u5316\u4e8b\u696d\u80a1\u4efd\u6709\u9650\u516c\u53f8, tejwin.com) is confirmed for all 8 datasets. Official product name was additionally confirmed via a citable, publicly-reachable TEJ page for 7/8 datasets (all but revenue_growth). Per \u00a710.2, Gate R4-A requires vendor identity AND official product name AND licensing/access terms, all documented from the provider's own materials. Every page Phase B attempted this round was, in fact, reachable (access_status ACCESSIBLE throughout, see provenance_citations.csv) -- no login/payment/download wall was ever actually encountered. The FAIL is not because access was blocked; it is because the licensing/access-terms content simply does not appear anywhere on the pages that were reached, and (for revenue_growth only) the official product name does not either. Gate R4-A therefore FAILs for every dataset -- a valid, complete, terminal finding (AC-R4-31), not a defect requiring further searching, and not overstated as a login-blocked result it was not."
+    },
+    {
+      "gate_id": "R4-V",
+      "track": "A",
+      "status": "NOT_EVALUATED",
+      "depends_on": ["R4-A"],
+      "reason_code": "UPSTREAM_R4A_FAIL_BLOCKS_TRACK_A_DOWNSTREAM",
+      "evidence_refs": ["research/p0_r4_historical_pit_identity/gate_results.json#R4-A"],
+      "durable_identity_basis": "N/A -- not evaluated",
+      "non_claims": ["non-claim 7 -- Track A terminating without proceeding to \u00a76 is itself a valid, complete result, not a defect"],
+      "not_evaluated_scope": "Per-dataset/per-range VintageAvailabilityRecord classification (RECONSTRUCTIBLE vs NOT_RECONSTRUCTIBLE) for all 8 datasets was NOT performed. No revision-history/point-in-time-archive search was conducted for any dataset. AC-R4-1 through AC-R4-4 are all NOT_EVALUATED as a consequence."
+    },
+    {
+      "gate_id": "R4-H",
+      "track": "B",
+      "status": "NOT_EVALUATED",
+      "depends_on": ["R4-A"],
+      "reason_code": "UPSTREAM_R4A_FAIL_BLOCKS_TRACK_B_DOWNSTREAM",
+      "evidence_refs": ["research/p0_r4_historical_pit_identity/gate_results.json#R4-A"],
+      "durable_identity_basis": "N/A -- not evaluated",
+      "non_claims": ["non-claim 7", "\u00a710.9 rule 2 -- Track B's downstream gates are NOT_EVALUATED, never scored ahead of R4-A"],
+      "not_evaluated_scope": "255-canonical-month coverage remediation-channel search for monthly_revenue, institutional_gross, tdcc_weekly was NOT performed (AC-R4-5, AC-R4-7 NOT_EVALUATED). The institutional_gross docstring-vs-on-disk contradiction (\u00a72.2, AC-R4-6) was NOT resolved as a scored finding this phase -- one incidental, unscored observation is noted in phase_b_report.md \u00a7Track B for transparency only, and must not be read as an R4-H finding.",
+      "incidental_unscored_observation": "tej_importer.py line 36 comment states institutional_gross reads from the same raw batch file as institutional_flow (\"\u6cd5\u4eba\u56de\u6e2c2004-20260806\"), nominally implying 2004+ source coverage, while the on-disk cache range P0-R3 already documented is 2026-04-01\u21922026-07-16 only. This was surfaced by a single targeted grep while establishing Track C evidence (not a corpus scan) and is recorded here only as a pointer for a future, separately-scoped Track B pass -- it is explicitly NOT an R4-H/AC-R4-6 finding."
+    },
+    {
+      "gate_id": "R4-P",
+      "track": "B",
+      "status": "NOT_EVALUATED",
+      "depends_on": ["R4-A"],
+      "reason_code": "UPSTREAM_R4A_FAIL_BLOCKS_TRACK_B_DOWNSTREAM",
+      "evidence_refs": ["research/p0_r4_historical_pit_identity/gate_results.json#R4-A"],
+      "durable_identity_basis": "N/A -- not evaluated",
+      "non_claims": ["non-claim 7", "\u00a710.9 rule 2"],
+      "not_evaluated_scope": "revenue_growth successor search (AC-R4-8/9), financial_statements release_date-consumption code check (AC-R4-10), and institutional_gross/tdcc_weekly evidenced-lag determination (AC-R4-11) were all NOT performed."
+    },
+    {
+      "gate_id": "R4-S",
+      "track": "B",
+      "status": "NOT_EVALUATED",
+      "depends_on": ["R4-A"],
+      "reason_code": "UPSTREAM_R4A_FAIL_BLOCKS_TRACK_B_DOWNSTREAM",
+      "evidence_refs": ["research/p0_r4_historical_pit_identity/gate_results.json#R4-A"],
+      "durable_identity_basis": "N/A -- not evaluated",
+      "non_claims": ["non-claim 7", "\u00a710.9 rule 2", "user instruction (this turn): \u82e5\u4e0a\u6e38 R4-A FAIL, \u4f9d\u4f9d\u8cf4\u898f\u5247\u505c\u6b62, \u4e0d\u63d0\u524d\u6383\u63cf"],
+      "not_evaluated_scope": "No full-corpus schema-fingerprint, duplicate-key, or missingness sweep was performed for any candidate dataset (AC-R4-14, AC-R4-15 NOT_EVALUATED). Beyond the top-level directory listing already captured for Track C (dataset folder names only, no file-content read, no per-file counts), zero per-file inspection of tej_cache/market_cache occurred this phase, by design, per the upstream-FAIL stop rule."
+    },
+    {
+      "gate_id": "R4-D",
+      "track": "A/B",
+      "status": "NOT_EVALUATED",
+      "depends_on": ["R4-V", "R4-H", "R4-P", "R4-S"],
+      "reason_code": "UPSTREAM_TRACK_AB_DOWNSTREAM_GATES_NOT_RESOLVED",
+      "evidence_refs": ["research/p0_r4_historical_pit_identity/gate_results.json#R4-V", "research/p0_r4_historical_pit_identity/gate_results.json#R4-H", "research/p0_r4_historical_pit_identity/gate_results.json#R4-P", "research/p0_r4_historical_pit_identity/gate_results.json#R4-S"],
+      "durable_identity_basis": "N/A -- not evaluated (AC-R4-28: R4-D is NOT_EVALUATED for a track's evidence until that track's own upstream gates resolve; NOT_EVALUATED is not a resolution)",
+      "non_claims": ["non-claim 7"]
+    },
+    {
+      "gate_id": "R4-L",
+      "track": "C",
+      "status": "FAIL",
+      "depends_on": [],
+      "reason_code": ["LIVE_CONTENT_NONDURABLE_ASYMMETRY_DOWNGRADE", "TEJ_IMPORTER_LIVE_INVOCATION_UNRESOLVED"],
+      "evidence_refs": [
+        "research/p0_r4_historical_pit_identity/live_identity_inventory.json",
+        "windows_git_scoped: `git.exe status --porcelain=v1 -- core/data_provider.py tej_importer.py` = ' M core/data_provider.py' / ' M tej_importer.py' (git.exe 2.54.0.windows.1)",
+        "windows_git_scoped: `git.exe diff --stat -- core/data_provider.py tej_importer.py` = 69 lines changed / 2272 lines changed, matching P0-R3 \u00a72.2 exactly",
+        "sha256(core/data_provider.py) = 93f835b6155fcf30b825a1170e0153da5d58f5db683489d62dee14819dc88eef (104858 bytes)",
+        "sha256(tej_importer.py) = c237f6a98b2583a2a0168781e757a8467ae8b51a19ed35e63220b2f1662bae02 (121846 bytes)",
+        "committed blob (HEAD, baseline only): git.exe rev-parse HEAD:core/data_provider.py = fd197dc4804b4284628892dab454b5ef63b8c269; HEAD:tej_importer.py = 77306c32b55783d2c65ccf6872d108165cd43b11 -- these do NOT match the live sha256 above, confirming the committed blob is not what production runs",
+        "schtasks.exe /query /tn \"FinMind_DailyUpdate\" /v /fo LIST -- registered, \u5df2\u555f\u7528/Ready, last run result 0, action = powershell.exe run_hidden.ps1 daily_auto_update.bat, runs as user jamie, login-required mode, weekdays 18:00",
+        "schtasks.exe /query /tn \"Market_SnapshotCollector\" /v /fo LIST -- registered, action = powershell.exe run_hidden.ps1 market_snapshot_collect.bat -- neither this nor FinMind_DailyUpdate's action string references tej_importer.py by name",
+        "scripts/register_daily_task.ps1 (sha256 d1858c0dd8d6533ebaf5bb9db375856eca4fb399067836292828638ec51f1bbc, 3466 bytes) / scripts/daily_auto_update.bat (sha256 4726ab40b16c570b52dcedeb0222221c3a9bc6c2f2621146f2d7e6db6969126d, 7459 bytes) / scripts/run_hidden.ps1 (sha256 054a55b606638ef35f91995b57e84b0655d1e6e3a6e6da12fe4bee2a3639a94f, 1710 bytes)",
+        "daily_auto_update.bat step1: `python build_cache.py --build-scores --source tej ...` -- build_cache.py line 38: `from core.data_provider import DataProvider` (sha256(build_cache.py)=31d4c328348436f746f7353a3dddac5a2575f6a2a64830d36f4cf1a47086d62b) -- this confirms core/data_provider.py's live consumption path only, not tej_importer.py's",
+        "reg.exe query \"HKCU\\Environment\" and \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" (both RC=0, both enumerated) -- neither TEJ_CACHE, TEJ_RUNTIME_OVERLAY, nor MARKET_CACHE present in either hive",
+        "cmd.exe /c echo %TEJ_CACHE% / %TEJ_RUNTIME_OVERLAY% / %MARKET_CACHE% -- all three returned unresolved (literal %VAR%), confirming no ambient override in the interactive shell environment either",
+        "cmd.exe /c echo %USERPROFILE% = C:\\Users\\aaaai ; %USERNAME% = jamie",
+        "on-disk existence (metadata only) confirmed: C:\\Users\\aaaai\\tej_cache (exists), C:\\Users\\aaaai\\market_cache (exists) -- the code-default resolved paths",
+        "data/runtime_cache/dataexport0806/ (project-relative default overlay path) exists on disk; receipt.json re-read this phase (sha256 29453b6024bc2c776e22efacec699a99a6d32897b7f293e89ca644a5cc61c3a5, 1138 bytes) -- content unchanged from P0-R3's 2026-08-15 citation: financial_statements date_min=date_max=2026-06-01 (596 stocks), monthly_revenue date_min=date_max=2026-07-01 (406 stocks); directory mtimes (Aug 10) confirm no rebuild since P0-R3's observation -- AC-R4-20 re-verification performed, inertness for the 255-month target range (2005-01-31\u21922026-03-31) reconfirmed, not merely inherited"
+      ],
+      "durable_identity_basis": "NOT_ESTABLISHED for the live (modified) content of both core/data_provider.py and tej_importer.py -- confirmed no independent pre-existing byte copy exists anywhere in the repository (`find . -iname data_provider*.py -o -iname tej_importer*.py` returns only the two live working-tree files themselves). The committed blob at HEAD (fd197dc.../77306c3...) IS a REACHABLE_COMMITTED_BLOB, but per \u00a78's binding rule it may never stand in for live identity, and it does not match the live content's hash.",
+      "non_claims": [
+        "\u00a78 binding rule -- the committed baseline is explicitly NOT used as a stand-in for this finding; every claim above is direct live-environment evidence",
+        "AC-R4-20 -- P0-R3's 2026-08-15 inertness observation was re-verified this phase against current on-disk state, not inherited by reference",
+        "This finding does NOT claim production's live identity is fully and unambiguously resolved -- it is only PARTIALLY resolved: core/data_provider.py's live consumption path (via build_cache.py) is directly confirmed; tej_importer.py's live invocation context is explicitly NOT resolved (see reason_code TEJ_IMPORTER_LIVE_INVOCATION_UNRESOLVED below) -- neither confirmed invoked nor confirmed dormant, simply unresolved from the two registered scheduled tasks found this phase"
+      ],
+      "note": "core/data_provider.py's live production consumption path is directly confirmed: the Windows Scheduled Task 'FinMind_DailyUpdate' is registered, enabled, and its last run succeeded; it executes build_cache.py, which imports core.data_provider.DataProvider. All three environment-variable-driven paths for this file resolve to their coded defaults (confirmed by registry inspection, not inferred from source alone, per AC-R4-18). tej_importer.py's live invocation context is a SEPARATE, UNRESOLVED question: neither of the two currently-registered scheduled tasks (FinMind_DailyUpdate, Market_SnapshotCollector) references tej_importer.py by name in its action string, and Phase B did not invoke it to test this (\u00a711.1/AC-R4-30 forbid that). This is recorded as reason_code TEJ_IMPORTER_LIVE_INVOCATION_UNRESOLVED -- an independent basis for Gate R4-L's FAIL, distinct from and additional to the durable-identity asymmetry downgrade (LIVE_CONTENT_NONDURABLE_ASYMMETRY_DOWNGRADE) that separately applies to both files' bytes/git-state evidence per \u00a75/AC-R4-23. Gate R4-L is recorded FAIL for BOTH reasons jointly -- this report does not claim production identity was fully and unambiguously established and then merely downgraded on a technicality; part of the identification itself (tej_importer.py's invocation) remains genuinely open."
+    },
+    {
+      "gate_id": "R4-D",
+      "track": "C",
+      "status": "NOT_EVALUATED",
+      "depends_on": ["R4-L"],
+      "reason_code": "UPSTREAM_R4L_FAIL_BLOCKS_TRACK_C_R4D_PER_SS10_0",
+      "evidence_refs": ["research/p0_r4_historical_pit_identity/gate_results.json#R4-L"],
+      "durable_identity_basis": "N/A -- not evaluated. Per \u00a710.0's explicit Track C rule (\"if Gate R4-L FAILs ..., Track C's R4-D evaluation for Track C's own evidence is NOT_EVALUATED\"), R4-D is not independently scored once R4-L has FAILed. The durable-identity gap for core/data_provider.py and tej_importer.py's live content (no reachable committed blob for the live content, no pre-existing byte copy found, none created) remains recorded solely as part of Gate R4-L's own finding (reason_code LIVE_CONTENT_NONDURABLE_ASYMMETRY_DOWNGRADE, see R4-L above) and MUST NOT be read as an independently-scored R4-D(C) PASS or FAIL result.",
+      "non_claims": ["AC-R4-28 -- R4-D is NOT_EVALUATED for a track's evidence until that track's own upstream gate resolves in a way \u00a710.0 treats as non-blocking; an upstream FAIL is explicitly named in \u00a710.0 as producing R4-D NOT_EVALUATED for Track C, not a separately-scored FAIL", "AC-R4-35 -- no byte copy was created, copied, or modified at any point, including in producing this NOT_EVALUATED record"]
+    },
+    {
+      "gate_id": "R4-X",
+      "track": "cross-cutting",
+      "status": "FAIL",
+      "depends_on": [],
+      "reason_code": "DURABLE_IDENTITY_NOT_ESTABLISHED",
+      "diagnostic_observation": "NO_DERIVED_OUTPUT_RELIANCE_OBSERVED",
+      "evidence_refs": [
+        "Full enumeration of every evidence source used in this Phase B pass (git.exe status/diff/rev-parse/log, sha256sum of code+config+manifest files, reg.exe query, schtasks.exe query, cmd.exe env echo, directory listings of tej_cache/market_cache (names only), data/runtime_cache/dataexport0806/receipt.json, web accesses to tejwin.com/tdcc.com.tw/api.tej.com.tw/scu.edu.tw) -- none references obs_alpha.parquet, exec_ret.parquet, realbody_scores*.parquet, or any beat_0050/scripts/*_lab.py output"
+      ],
+      "durable_identity_basis": "NOT_ESTABLISHED. Gate R4-X's own audit result is itself OBSERVED_CURRENT_CORPUS-basis evidence -- a single, one-time enumeration of this phase's evidence trail, re-derivable but not independently, durably archived anywhere (no committed blob, no pre-existing byte copy of the audit trail exists). Per \u00a75's binding PASS/FAIL asymmetry rule, stated to apply to \"any gate\": a gate result that would otherwise PASS on such non-durable evidence MUST be downgraded to FAIL. R4-X's clean diagnostic outcome (no forbidden-output reliance was actually found) is therefore retained as a separate diagnostic_observation field, but the gate's own scored status is FAIL, not PASS.",
+      "non_claims": [
+        "This FAIL does not assert that derived-output reliance WAS found -- the diagnostic_observation field records the opposite (none was found). The FAIL reflects only that a clean, non-durable, single-pass audit result cannot itself be scored PASS under \u00a75's asymmetry rule, mirroring how R4-L's identification-complete-for-one-file finding still cannot rescue that gate to PASS.",
+        "non-claim 4 / \u00a79 -- restated as diagnostically satisfied, not merely assumed, this phase; must be re-run (AC-R4-26) against any future phase's new findings, never treated as a one-time clearance"
+      ]
+    }
+  ],
+  "traceability_audit_reference": "See phase_b_report.md \u00a76 (Traceability audit) for the full 12 FR / 6 NFR / 36 AC mechanical enumeration -- result: 0 orphan FR, 0 orphan NFR, 0 orphan AC, 0 mapped-without-live. NOTE: the traceability audit's own 0/0/0/0 result is a statement about FR/NFR/AC coverage, not a statement of Phase B execution compliance -- see phase_b_execution_compliance below, which is a separate, non-clean finding.",
+  "no_byte_copies_created_this_phase": false,
+  "no_byte_copies_created_this_phase_note": "FALSE. A WebFetch call made during R4-A provenance research (see gate_results.json#R4-A.compliance_flags) downloaded a TEJ-authored vendor PDF and the fetch tool auto-saved a local binary copy of it outside this repository. This is a byte copy that was created during this Phase B pass and did not exist before it. That the tool executed this automatically rather than Phase B deliberately writing the file, and that no finding relies on its content, are recorded as impact/non-claim qualifications (see compliance_flags above and phase_b_report.md \u00a79) -- they do not change this field's value to true. Every OTHER Phase B action this round created zero byte copies; this is the sole, fully-disclosed exception.",
+  "no_dataset_downloads_or_imports": true,
+  "no_dataset_downloads_or_imports_note": "No TEJ/TDCC raw dataset, export, attachment, or bulk archive was downloaded. The one file downloaded (a vendor documentation PDF, not a dataset) is tracked separately under vendor_document_download_side_effect_occurred below.",
+  "no_importer_invocations": true,
+  "no_importer_invocations_note": "tej_importer.py, or any other importer/collector tool, was not invoked in any mode this phase.",
+  "vendor_document_download_side_effect_occurred": true,
+  "vendor_document_download_side_effect_occurred_note": "See gate_results.json#R4-A.compliance_flags and phase_b_report.md \u00a79 for full detail -- the TEJ+ operation-manual PDF fetch (provenance_citations.csv row 12) resulted in a local byte copy of downloaded vendor-authored material.",
+  "phase_b_execution_compliance": "PROTOCOL_DEVIATION",
+  "phase_b_execution_compliance_reason_code": "UNAUTHORIZED_VENDOR_DOCUMENT_LOCAL_COPY_SIDE_EFFECT",
+  "phase_b_execution_compliance_statement": "This Phase B pass is NOT reported as a fully compliant Phase B completion. Gate R4-A/R4-L/R4-X's diagnostic findings (FAIL/FAIL/FAIL, per gate_results.json above) may still be read on their own evidentiary merits -- they are independent of, and are not invalidated by, this execution-compliance finding. But the two are separate questions: gate findings answer 'what does the evidence show about the datasets/live identity/derived-output reliance'; phase_b_execution_compliance answers 'did this Phase B pass itself stay within the read-only, zero-byte-copy boundary the approved prereg requires (\u00a75/\u00a78/\u00a711/\u00a711.1/AC-R4-35)' -- and the answer to the second question is no, because of the disclosed PDF-fetch side effect. Whether to accept this deviation, archive it as-is, require remediation, or take any other action is a decision reserved to the human reviewer -- this report does not decide it, recommend a specific resolution, or presume the deviation is acceptable merely because it was unintentional and unused.",
+  "no_production_cache_scheduler_code_modified_this_phase": true,
+  "no_tests_or_adapter_code_written_this_phase": true,
+  "no_staging_or_commit_this_phase": true
+}
