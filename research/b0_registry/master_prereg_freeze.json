@@ -96,6 +96,10 @@
   "data/b0/bonus_share_panel.parquet": {
    "sha256": "3b311238f121247572d84e5d1eb915d5b3538972509581fcedaffdfaa17155bb",
    "bytes": 160903
+  },
+  "data/b0/market_state_manifest.json": {
+   "sha256": "542da1fc038c183e31dcfcf9dcee20aef37e32e341e2879bf954a65d6202d709",
+   "bytes": 56261
   }
  },
  "upstream_corporate_action_zips": {

@@ -1,0 +1,26 @@
+{
+ "artefact": "data/b0/market_state/<decision_month>.parquet",
+ "builder": "research/b0_materializer/build_market_side_state.py",
+ "clause": "definition A · 141 market-side canonical states, pre-L2",
+ "composed_market_state_sha256": "bbe3d06d4ee865bc2f057936821323eab6e93f3725d587e87bfd105739017c99",
+ "decision_layer_invoked": false,
+ "manifest": "data/b0/market_state_manifest.json",
+ "performance_computed": false,
+ "periods_built": 141,
+ "periods_required": 141,
+ "portfolio_side_materialized": false,
+ "securities_max": 1961,
+ "securities_min": 1650,
+ "securities_with_unresolved_boundary": 1515,
+ "share_unit_adjustment": {
+  "not_applicable": 784,
+  "resolved_capital_reduction": 1293,
+  "resolved_par_value_change": 25,
+  "resolved_stock_dividend": 2398,
+  "unresolved": 6011
+ },
+ "window": [
+  "2014-07-31",
+  "2026-03-31"
+ ]
+}

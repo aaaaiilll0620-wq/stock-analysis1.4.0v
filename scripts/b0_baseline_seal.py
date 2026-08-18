@@ -114,6 +114,41 @@ def build_data() -> tuple[DatasetProvenance, ...]:
     return tuple(datasets)
 
 
+def _receipt(name: str) -> dict:
+    return _load(os.path.join(REPO, "research", "b0_materializer",
+                              "%s_receipt.json" % name),
+                 "%s receipt" % name)
+
+
+def _receipt_upstream(name: str, key: str) -> tuple[str, ...]:
+    return tuple(sorted(s["sha256"] for s in _receipt(name)[key]))
+
+
+def _valuation_upstream() -> tuple[str, ...]:
+    out = set()
+    for c in _receipt("valuation_panel")["contracts"]:
+        out.update(c["upstream_sha256"].values())
+    return tuple(sorted(out))
+
+
+def _bonus_upstream() -> tuple[str, ...]:
+    """C-51/R5: the upstream MANIFEST hash, not 1,383 individual payload hashes.
+
+    The manifest is itself a hash over every payload identity, so binding it
+    binds them; listing 1,383 hashes in a seal would make the seal unreadable
+    without making it stronger.
+    """
+    r = _receipt("bonus_share_panel")
+    return (r["upstream_manifest_sha256"],)
+
+
+def _market_state_upstream() -> tuple[str, ...]:
+    return tuple(sorted({
+        _receipt(n)["content_sha256"] for n in
+        ("financials_pit", "monthly_revenue_pit", "valuation_panel",
+         "industry_pit", "price_panel", "bonus_share_panel")}))
+
+
 def build_derived(freeze: dict) -> tuple[DerivedArtifactProvenance, ...]:
     """Each derived artefact with the upstream hashes it was built from."""
     ca = _load(CA_PROVENANCE, "corporate-action provenance")
@@ -136,6 +171,22 @@ def build_derived(freeze: dict) -> tuple[DerivedArtifactProvenance, ...]:
         "data/b0/price_2019plus_new.parquet": price_upstream,
         "data/b0/price_presence.parquet": price_upstream,
         "data/b0/s3b_guard_fixture.csv": status_upstream,
+        # The L2 sealed inputs. Each lineage is READ from that artefact's own
+        # receipt rather than restated here: a hash typed twice is a hash that
+        # can disagree with itself, and the receipt is what the builder actually
+        # wrote.
+        "data/b0/financials_pit.parquet": _receipt_upstream(
+            "financials_pit", "sources"),
+        "data/b0/monthly_revenue_pit.parquet": _receipt_upstream(
+            "monthly_revenue_pit", "upstream_sources"),
+        "data/b0/industry_pit.parquet": _receipt_upstream(
+            "industry_pit", "upstream_sources"),
+        "data/b0/valuation_panel.parquet": _valuation_upstream(),
+        "data/b0/price_panel.parquet": price_upstream,
+        "data/b0/bonus_share_panel.parquet": _bonus_upstream(),
+        # Definition A. The manifest is the artefact that says all 141 exist;
+        # its upstream is exactly the six sealed panels it was assembled from.
+        "data/b0/market_state_manifest.json": _market_state_upstream(),
     }
     out = []
     for path, meta in freeze["derived_artefacts"].items():

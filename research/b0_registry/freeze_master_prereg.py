@@ -47,6 +47,9 @@ DERIVED_ARTEFACTS = (
     "data/b0/industry_pit.parquet",
     "data/b0/price_panel.parquet",
     "data/b0/bonus_share_panel.parquet",
+    # Definition A: the artefact that states all 141 market-side states
+    # exist, and carries each one's hash.
+    "data/b0/market_state_manifest.json",
 )
 
 CA_EXPORT_DIR = os.path.join(
