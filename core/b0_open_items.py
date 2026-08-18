@@ -31,7 +31,7 @@ both have to be ruled on, but they do not have to be ruled on with the same
 urgency, and pretending otherwise makes the list easier to ignore.
 
 The register is currently EMPTY: every behaviour the canonical core reaches is
-now specified (C-16 ~ C-36, plus C-48 and C-49 — the two items that needed a
+now specified (C-16 ~ C-36, plus C-48, C-49 and C-50 — the items that needed a
 ruling rather than a recovered omission). That is the goal state, not the end of the
 mechanism — the module stays because the next undetermined behaviour anybody
 finds has to land here rather than in a default, and `raise_unspecified` on an
@@ -83,54 +83,55 @@ class OpenItem:
 OPEN_ITEMS: tuple[OpenItem, ...] = (
 
     OpenItem(
-        key="momentum_price_adjustment",
+        key="stock_dividend_holder_multiplier_source",
         layer="features",
         materiality="structural",
         question=(
-            "By what rule is the month-end price series adjusted for §2.4 "
-            "share-count events before `compute_momentum_12_1` consumes it? "
-            "Three sub-questions, none of them answered anywhere: (a) WHICH of "
-            "the 11 ledger event kinds adjust a price series — `share_multiplier` "
-            "is populated for capital_reduction / stock_dividend / "
-            "par_value_change / share_conversion, but also for "
-            "convertible_bond_conversion (12,766 events), employee_bonus (3,570), "
-            "cash_capital_increase (7,349), treasury_cancellation (3,034) and "
-            "other_share_change (8,646), and a dilution is not a split; (b) which "
-            "date anchors the adjustment, `ex_or_effective_date` or "
-            "`credit_tradable_date`, which W-2 already distinguishes for the "
-            "ledger; (c) whether the adjusted series is used ONLY by momentum, or "
-            "also anywhere else. Cash dividends are the one part already settled: "
-            "§3.1 names the member a PRICE relative, so they are not adjusted."
+            "From which ADMISSIBLE source does the HOLDER multiplier of a stock "
+            "dividend come? C-50/R2 makes stock dividends eligible for share-unit "
+            "adjustment and R3 needs `m` such that old_holder_shares x m = "
+            "new_holder_shares. Measured: NONE of the 9,120 stock-dividend rows "
+            "carries `share_multiplier` — only capital_reduction (1,293) and "
+            "par_value_change (25) do. What the registered artefacts carry instead "
+            "is `distribution_ratio_or_new_shares`, and its own name says it is "
+            "either a ratio or a share count. It is a COUNT: across the 8,109 "
+            "RECONSTRUCTIBLE rows the values run p50 = 6,692, p95 = 203,088, "
+            "max = 2,837,327, and only 4.6% are <= 1,000, so a per-1,000-shares "
+            "reading would make the median stock dividend 669%. So m needs shares "
+            "outstanding at the boundary, which no registered PIT-safe artefact "
+            "carries for <= 2018: the pre-2019 price leg has no share-count column "
+            "at all, and the 2019+ zips' 流通在外股數(千股) would itself need a "
+            "lineage ruling of the C-48/C-49 shape."
         ),
         why_it_matters=(
-            "`compute_momentum_12_1` states that its input 'must already be "
-            "adjusted for the share-count events of §2.4' and that adjustment is "
-            "'not a choice this function makes; it is a property of the input the "
-            "corporate-action stage has already produced'. The materializer is "
-            "that producer, and the canonical price panel carries RAW closes — "
-            "the source columns are 開盤價/收盤價 with no adjusted variant. So the "
-            "series cannot be built without the rule, and momentum_12_1 is the "
-            "whole of the Momentum concept, one of four equally weighted "
-            "Selection concepts (§3.2). An unadjusted series reports a split as a "
-            "-50% momentum reading; a series adjusted for the wrong subset of "
-            "46,275 share-change events reports a number that looks entirely "
-            "ordinary and is wrong for every security that had one. Choosing the "
-            "subset, the anchor and the scope at implementation time is exactly "
-            "the unregistered free parameter M-3 forbids — and unlike C-48/C-49 "
-            "this is a TRANSFORMATION rule, not a source choice, so no overlap "
-            "reconciliation can settle it."
+            "C-50/R8 says an eligible event with an absent multiplier returns NA "
+            "under the frozen complete-case semantics OR gets a new M-3 item where "
+            "existing rules do not uniquely determine the disposition. They do "
+            "not, because the two branches are far apart and the cost of the NA "
+            "branch is measured, not hypothetical: a stock-dividend ex-date falls "
+            "inside the 13-month momentum window of 8.1% to 20.9% of the priced "
+            "universe per period (median 10.6%; 2014-2015 run 19-21%, decaying to "
+            "8.8% by 2026). For comparison, §2.3's accepted industry-UNRESOLVED "
+            "exclusion is a median of 2.303%. This is 4-9x larger AND it is not "
+            "random: stock dividends are paid by profitable companies capitalising "
+            "earnings, so dropping them tilts the universe systematically in every "
+            "period, in the direction of the selection signal. Choosing the branch "
+            "at implementation time would put a systematic universe filter into B0 "
+            "without a ruling."
         ),
         demoted_evidence=(
-            "`data/b0/corporate_actions_ledger.csv` supplies the raw material: "
-            "46,275 events with `kind`, `ex_or_effective_date`, "
-            "`credit_tradable_date`, `share_multiplier` and `reconstructibility`, "
-            "and W-1/W-3 give every kind a registered handler. That is the "
-            "material for an adjustment, not the rule for one. The master "
-            "preregistration contains no clause on price adjustment at all — a "
-            "search for 還原 / 調整後 / adjusted returns nothing — and "
-            "`core/b0_corporate_actions.py` implements no adjustment function. "
-            "None of this is a ruling: the specification does not say which "
-            "events adjust a price, from which date, or for whose consumption."
+            "C-50/R2 already settles that a stock dividend IS a holder-level "
+            "transformation and R4 already settles that its boundary is the "
+            "ex-right session, so nothing about the RULE is open — only the "
+            "multiplier's source. `data/b0/stock_dividend_pit.csv` carries "
+            "ex_right_date, distribution_ratio_or_new_shares, "
+            "actual_credit_tradable_date and reconstructibility for all 9,120 "
+            "events; the corporate-action ledger carries the same count as "
+            "new_shares_thousands. Both are counts. The implementation is already "
+            "correct for whichever branch is chosen: "
+            "core.b0_share_unit_adjustment.holder_multiplier raises "
+            "UnreconstructibleAdjustment rather than inferring a factor, and its "
+            "test pins that behaviour."
         ),
     ),
 
@@ -186,6 +187,18 @@ OPEN_ITEMS: tuple[OpenItem, ...] = (
     # single-tick difference, TPEx 18,815 with none, and after the yearly
     # export's 0.0 sentinel is read as the absence it is, the two sources agree
     # about EVERY missing value on both boards.
+    #
+    #   momentum_price_adjustment       -> C-50  RULED AND CLOSED (2026-08-19)
+    #
+    # The adjustment is a SHARE-UNIT one, not a total-return one: adjust for a
+    # deterministic transformation of an existing holder's shares, never for a
+    # change in shares outstanding — so `share_multiplier != 1` is not
+    # sufficient and dilution never touches a price series. Cash dividends stay
+    # visible because §3.1 froze a PRICE relative. Only momentum_12_1 and
+    # sigma20d read the adjusted series; marks, execution, NAV, notional, fees
+    # and ADV20 stay on observed prices. core/b0_share_unit_adjustment.py is the
+    # single producer, and R8's fail-loud paths are what exposed the one
+    # remaining input question above.
 
 )
 

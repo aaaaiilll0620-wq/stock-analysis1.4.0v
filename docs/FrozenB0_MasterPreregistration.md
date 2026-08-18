@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.16（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49**）
+**版本:** 1.17（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -1728,12 +1728,13 @@ canonical valuation panel        pbr_tse + per_tse 同一份，四份 contract�
 
 | ~~**`value_per_lineage_2019plus`**~~ | ~~2019+ 的 `per_tse` 無 admissible 來源~~ —— **v1.15 之後登記、v1.16 由 C-49 關閉**。官方本益比為 admissible continuation，先做 PE-specific reconciliation 才裁，未以「同理可推」擴張 C-48 | ~~SPEC / BLOCKING~~ | ✅ **已關閉** |
 
-| **`momentum_price_adjustment`** | **momentum 的月底價序列如何依 §2.4 股數事件調整** —— `compute_momentum_12_1` 明文要求輸入「已調整」，且說調整不是它的選擇而是 corporate-action stage 產出的性質；但 **Master 全文沒有任何價格調整條文**（搜尋 還原／調整後／adjusted 為零命中），`core/b0_corporate_actions.py` 也沒有調整函式，canonical price panel 帶的是**原始**收盤價。三個子問題：(a) 11 種 ledger event 哪些調整價格（`share_multiplier` 連 CB 轉換 12,766 筆／員工酬勞 3,570 筆／現金增資 7,349 筆都有，但稀釋不是分割）；(b) 以 `ex_or_effective_date` 還是 `credit_tradable_date` 為錨（W-2 已區分兩者）；(c) 調整後序列是否只給 momentum 用。**現金股利已由 §3.1「price momentum」定案為不調整。** 依 M-3 登記，**不得自行選一種慣例** | **SPEC / BLOCKING** | ⛔ 141 期 market-side materialization 的 `SecurityPitInputs.month_end_prices`；momentum 是 Momentum 概念的全部（§3.2 四概念等權之一） |
+| ~~**`momentum_price_adjustment`**~~ | ~~momentum 月底價序列的調整規則~~ —— **v1.17 由 C-50 (R1~R8) 關閉**。定為 share-unit adjustment：只調整「既有持有人股數的確定性轉換」，**不以流通在外股數為準**，`share_multiplier != 1` 不構成資格；現金股利不調整；只有 momentum_12_1 與 sigma20d 讀調整後序列 | ~~SPEC / BLOCKING~~ | ✅ **已關閉** |
+| **`stock_dividend_holder_multiplier_source`** | **配股的 holder multiplier 取自哪個 admissible 來源** —— C-50/R2 已定配股屬合格事件、R4 已定以除權日為界，**規則沒有問題，缺的是 m 的來源**：9,120 筆配股**全部沒有** `share_multiplier`，登記語料帶的是**新股股數**（8,109 筆 RECONSTRUCTIBLE 的 p50=6,692 / p95=203,088 / max=2,837,327，僅 4.6% ≤1,000 → 不可能是每千股比率），而 `m = 1 + 新股/流通在外股數` 的分母在 ≤2018 沒有任何已註冊 PIT-safe 來源。依 C-50/R8 登記：NA 分支的代價**已實測** —— 每期 8.1%~20.9% 的計價母體（中位 10.6%；2014-2015 為 19~21%）的 13 個月動能窗會落入配股除權日，對照 §2.3 已接受的產業 UNRESOLVED 排除中位僅 2.303%，且配股公司非隨機分布 | **SPEC / BLOCKING** | ⛔ 141 期 market-side materialization 的 `month_end_prices` / `sigma20d` |
 
 **✅ P-1b-U 已於 v1.6 關閉：canonical core 的 UNSPECIFIED 項目為 0。**
 **該計數在 v1.14 之後曾短暫回到 1**（`value_pbr_lineage_2019plus`，materializer 施工時撞到），
 **於 v1.15 由 C-48 裁決關回 0**；**隨即因 `value_per_lineage_2019plus` 再回到 1**，**再於 v1.16 由 C-49 關回 0**。
-**其後 materializer 施工又撞到 `momentum_price_adjustment`，計數再回到 1（未裁決）。**
+**其後 materializer 施工又撞到 `momentum_price_adjustment`，計數再回到 1，並於 v1.17 由 C-50 關閉；同一裁決的 R8 fail-loud 路徑暴露出 `stock_dividend_holder_multiplier_source`，計數仍為 1。**
 登記簿兩次承接了施工時新發現的未定行為，這正是它存在的理由 —— 期間 S-1 為紅是機制正常運作，不是回歸缺陷。
 
 ```python
@@ -1826,7 +1827,8 @@ B-20 real-data parity                              BLOCKED by D-1
 S-3b route enforcement                             ✅ SATISFIED (C-44)
 value_pbr 2019+ lineage                            ✅ CLOSED（v1.15,C-48）
 value_per 2019+ lineage                            ✅ CLOSED（v1.16,C-49）
-L2 sealed-input materializer (141 期)              BLOCKED — momentum_price_adjustment (M-3)
+L2 sealed-input materializer (141 期)              BLOCKED — stock_dividend_holder_multiplier_source (M-3)
+momentum 價格調整規則 (C-50)                        ✅ CLOSED（v1.17,R1~R8 + 12 條測試）
   industry PIT / price panel / valuation panel      ✅ SEALED（三份 receipt 皆已綁 hash）
 B0 Baseline Seal (pre-L2)                          FINALIZATION — v1.14 起可達(C-47)
 L2 Run Provenance                                  待使用者明示開封 L2 後才存在

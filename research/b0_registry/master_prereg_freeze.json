@@ -1,11 +1,11 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.16",
+ "version": "1.17",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "c92aa301d4e11506fef9674eb02d15f81ebd4a8d2413c7abd913b0269fb9f0a5",
- "spec_bytes": 139568,
+ "spec_sha256": "79024ab8f68fed86fc9533de6ed118c882230b9f31b6c093fd0c84d783e36d44",
+ "spec_bytes": 140299,
  "normative_modules": {
-  "core/b0_master_prereg.py": "7fe0e2aa338c32f2eb7dfe84891b33c1b27977944f8e28a5ce05f91512644b86",
+  "core/b0_master_prereg.py": "9147656a05ef2aa56af56cb7235cdc263d3c4a944706262a23b3e3ca39eafe86",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
   "core/b0_corporate_actions.py": "ef6e392abaf1af94f7dcbc5c1dab9cd5f7673472c052629754fb7e5e335b18cc",
   "core/b0_pit_observability.py": "c060e8135a8c7a386b74113097cfecdfd6ffbf74b406e77e5c1f6eefc899ef1e",
@@ -16,7 +16,7 @@
   "core/b0_invariants.py": "34566e8254fdd5407adddc3e1acccea98affbc37be9a5455c60712f54c7204af",
   "core/b0_parity.py": "debaa9b09f5d00208e19a5aa31debf5a237e861af0c10ed163cd78c377733eba",
   "core/b0_provenance.py": "65299580e322696107f38fd2583a91cd177887f772e1240cf42577ff7b7fe224",
-  "core/b0_open_items.py": "3de1f894565780c011fe76114b9eab37fa21d9567041c1e401dc9fe1ac8e3ca9",
+  "core/b0_open_items.py": "c96e5bc304354714e2f71e3bdb86a2d7d2b83c008568980dab7dd24d7f9ec4a7",
   "core/b0_finalization_items.py": "ff13a01e64dbac6b6f33a73cb293eccdcb2151dddaa2f3fff32bba7358f105b0",
   "core/b0_declaration_conformance.py": "b8dea19303579064ee0c281755166f20c997a80292e98ff9e10337307e131552",
   "core/b0_state.py": "9bbeda9aa706767ba5a93b15c59919190328e440ba37c0a8e39fb1e7c2d95eff",
@@ -28,7 +28,8 @@
   "core/b0_adapter_retrospective.py": "a3a2565f8fe3550b61998aa0367df7e0033d18c72cee9efb2a31b38de109c0ad",
   "core/b0_adapter_production.py": "40189b10b5164ecd1e65a0af334cfa9e8fbaa69ef14874d452393fd1f5b51231",
   "core/b0_price_universe.py": "21c65b530f63fab21787237e6dfad6b0cc3f2830a6b8b06495d4076dbfa08ac8",
-  "core/b0_valuation_source.py": "4d3ca3da3a5d7c5edad041e66783309453858591ed498158817dfc75a1026367"
+  "core/b0_valuation_source.py": "4d3ca3da3a5d7c5edad041e66783309453858591ed498158817dfc75a1026367",
+  "core/b0_share_unit_adjustment.py": "2bd2808e768a00c47a8cc09b186d767bb8ad97f62279fb022cbb0dbb0a757584"
  },
  "derived_artefacts": {
   "data/b0/corporate_actions_ledger.csv": {
@@ -82,6 +83,14 @@
   "data/b0/valuation_panel.parquet": {
    "sha256": "80f033c609738f3c8a2402af183b8e343a6632e3e67e56bdc731d3538a12bf52",
    "bytes": 1129424
+  },
+  "data/b0/industry_pit.parquet": {
+   "sha256": "a4718ae226aac7700d946ed1d410d0fbf33726aa8154661237e1ad7317980550",
+   "bytes": 47073
+  },
+  "data/b0/price_panel.parquet": {
+   "sha256": "a0681dd7e50f5c5450c5f82fab0b1f007d84df4e8e7af822116103c94e2a3b77",
+   "bytes": 66954211
   }
  },
  "upstream_corporate_action_zips": {
@@ -202,6 +211,15 @@
   "selection_tie_breaks_available",
   "sell_shortfall_policy",
   "share_rounding",
+  "share_unit_adjusted_consumers",
+  "share_unit_adjustment_basis",
+  "share_unit_boundary_field",
+  "share_unit_eligible_kinds",
+  "share_unit_excluded_from_factor",
+  "share_unit_identity_change_kinds",
+  "share_unit_ineligible_kinds",
+  "share_unit_not_boundary_field",
+  "share_unit_raw_consumers",
   "sharpe_metric_name",
   "sigma20d_annualised",
   "sigma20d_ddof",
@@ -268,7 +286,7 @@
    "low": 0
   },
   "keys": [
-   "momentum_price_adjustment"
+   "stock_dividend_holder_multiplier_source"
   ]
  },
  "open_finalization_items": {

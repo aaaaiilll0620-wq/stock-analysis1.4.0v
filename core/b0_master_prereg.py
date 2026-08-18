@@ -69,6 +69,7 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     "core/b0_adapter_production.py",
     "core/b0_price_universe.py",
     "core/b0_valuation_source.py",
+    "core/b0_share_unit_adjustment.py",
 )
 
 
@@ -436,6 +437,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_listing_spell as spell
     from core import b0_market_state as ms
     from core import b0_provenance as prov
+    from core import b0_share_unit_adjustment as sua
     from core import b0_valuation_source as vsrc
     prereg_modules = NORMATIVE_MODULES
     from core import b0_pit_observability as pit
@@ -499,6 +501,19 @@ def _spec_registry() -> dict[str, Any]:
         "value_per_tej_substitution_allowed": vsrc.TEJ_SUBSTITUTION_ALLOWED,
         "valuation_sentinel_zero_is_undefined": vsrc.SENTINEL_ZERO_IS_UNDEFINED,
         "valuation_sentinel_zero_eras": vsrc.SENTINEL_ZERO_ERAS,
+        # v1.17 · C-50 · share-unit price adjustment (R1-R8). The criterion is a
+        # deterministic transformation of an EXISTING HOLDER's shares, never a
+        # change in shares outstanding — so `share_multiplier != 1` is not
+        # sufficient, and dilution never adjusts a price series.
+        "share_unit_adjustment_basis": sua.ADJUSTMENT_BASIS,
+        "share_unit_eligible_kinds": sua.ELIGIBLE_KINDS,
+        "share_unit_ineligible_kinds": sua.INELIGIBLE_KINDS,
+        "share_unit_identity_change_kinds": sua.IDENTITY_CHANGE_KINDS,
+        "share_unit_adjusted_consumers": sua.ADJUSTED_CONSUMERS,
+        "share_unit_raw_consumers": sua.RAW_CONSUMERS,
+        "share_unit_excluded_from_factor": sua.EXCLUDED_FROM_FACTOR,
+        "share_unit_boundary_field": sua.BOUNDARY_FIELD,
+        "share_unit_not_boundary_field": sua.NOT_BOUNDARY_FIELD,
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,
