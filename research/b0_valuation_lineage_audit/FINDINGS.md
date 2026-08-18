@@ -1,7 +1,7 @@
 # Official Exchange Valuation Lineage Audit — findings
 
-**Date:** 2026-08-18 · **Status:** 84 of 87 months enumerated end-to-end;
-3 awaiting a TWSE re-fetch (rate limit, harvest is idempotent and resuming).
+**Date:** 2026-08-18 · **Status:** COMPLETE — all 87 decision months enumerated
+end-to-end from both exchanges.
 **Nothing was ruled on.** `value_pbr_lineage_2019plus` remains OPEN.
 
 Not used: PBR_TEJ, the quarantined corpus (`aeda65b9…ea49c1`). Not done: any B0
@@ -40,14 +40,14 @@ NEEDED = securities with an observed price on the as-of session in the
 | 2019-03-29 | 1795 | 930 | 768 | 1698 | 97 | 94.60% |
 | 2019-04-30 | 1793 | 931 | 768 | 1699 | 94 | 94.76% |
 
-**All 84 fully-harvested months** (2019-01 … 2026-03):
+**All 87 months** (2019-01 … 2026-03):
 
 | | value |
 |---|---|
-| coverage min / median / max | **93.85% / 94.59% / 98.42%** |
+| coverage min / median / max | **93.85% / 94.60% / 98.42%** |
 | gap min / median / max | 31 / 100 / 114 |
-| months at or above the pre-2019 lineage FLOOR (93.04%) | **84 / 84** |
-| months at or above its CEILING (94.21%) | 79 / 84 |
+| months at or above the pre-2019 lineage FLOOR (93.04%) | **87 / 87** |
+| months at or above its CEILING (94.21%) | 81 / 87 |
 
 Yearly medians are flat, then improve — there is no decay and no era where the
 official series thins out:
@@ -55,8 +55,8 @@ official series thins out:
 | year | months | median | min |
 |---|---|---|---|
 | 2019 | 12 | 94.67% | 94.28% |
-| 2020 | 11 | 94.55% | 94.38% |
-| 2021 | 10 | 94.44% | 93.85% |
+| 2020 | 12 | 94.55% | 94.38% |
+| 2021 | 12 | 94.44% | 93.85% |
 | 2022 | 12 | 94.55% | 94.05% |
 | 2023 | 12 | 94.54% | 94.25% |
 | 2024 | 12 | 94.67% | 94.26% |
@@ -107,11 +107,10 @@ already available point-in-time from the exchange files themselves.
 
 ## 5. What is NOT yet established
 
-- Three months (2020-06-30, 2021-02-26, 2021-12-30) still lack the TWSE side.
-  TPEx succeeded for all three; only TWSE refused, and it refused with a
-  TCP-level rate limit, not an empty result. They are not evidence of a gap —
-  the same endpoint served the months either side of each. `fetch_official_pbr.py`
-  is idempotent and is re-fetching them.
+- (Resolved.) Three months initially lacked the TWSE side purely because of a
+  TCP-level rate limit; a later idempotent pass filled all three, and each landed
+  in the same 94% band as its neighbours. No month is missing from either
+  exchange.
 - Value-level agreement between official PBR and the pre-2019 PBR_TSE lineage on
   overlapping dates. Coverage was audited; per-security value reconciliation was
   not, and it should be done on pre-2019 sessions where BOTH the admissible
