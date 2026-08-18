@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.14（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47**）
+**版本:** 1.15（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -1540,6 +1540,69 @@ OPEN FINALIZATION ITEMS     0
 
 ---
 
+### C-48 · M-3 `value_pbr_lineage_2019plus` —— 官方交易所 PBR 為 2019+ admissible continuation（v1.15）
+
+#### 問題
+
+B-09 把 Value 凍在 **TSE 交易所 PBR series**，但**沒有定義 2019+ 的 admissible 來源**。
+實測發現：帶 `股價淨值比-TSE` 的只有逐年 xlsx vintage，而 2019+ 那一段正是 D-1 quarantine
+的 corpus（`aeda65b9…ea49c1`）；取代它的兩個 zip 只帶 `股價淨值比-TEJ`。
+⇒ 每一條可達路徑都撞到某條已凍結的規則，**141 個窗口月中的 87 個（62%）無來源**。
+依 M-3 登記為 UNSPECIFIED，施工方不得自選預設。
+
+#### 裁決（2026-08-18）：R1 ~ R7
+
+| # | 裁決 | 落地位置 |
+|---|---|---|
+| **R1** | 官方歷史交易所 PBR 為 B-09 lineage 的 **2019+ admissible continuation**：TWSE→上市、TPEx→上櫃。**Value 語義不變**，仍是 `B/M = 1 / PBR` 的產業相對百分位。**不得**代以 `PBR_TEJ` | `core/b0_valuation_source.py`：`VALUATION_LINEAGE`、`TEJ_SUBSTITUTION_ALLOWED = False`；`spec("value_pbr_lineage")` |
+| **R2** | TPEx 於來源開始揭露 statement vintage 之前的觀測：**「官方當期每日 PBR 可採」可主張，「該筆分母用的是哪一期財報」不可主張**。屬 disclosed source-lineage limitation，**不是 M-3 blocker**；且**不得**推導或合成缺失的 vintage 欄位 | `TPEX_PRE_VINTAGE_ADMISSIBLE_CLAIM` / `…_INADMISSIBLE_CLAIM`（逐字）、`TPEX_VINTAGE_MAY_BE_INFERRED = False` |
+| **R3** | 無官方 PBR 者（興櫃／從未在任一板／交易所印 `-`／無有意義比值）一律 `pbr_tse = NA` → §4.1 complete-case。**禁止** TEJ fallback、imputation、跨板回填、以帳面淨值÷股數另造 B/M | `MISSING_VALUE_POLICY`、`FORBIDDEN_GAP_REPAIRS`（四項具名） |
+| **R4** | 板別歸屬只能取自**當時**的 TWSE/TPEx 來源或其他已核准的 PIT board source；**當期 `上市別` 永不得用於歷史分類** | `BOARD_ATTRIBUTION_SOURCE`、`CURRENT_LISTING_LABEL_ALLOWED = False` |
+| **R5** | **L2 不得即時打 TWSE/TPEx**。須先物化為 canonical derived valuation source，並帶 raw payload sha256／來源識別／trading session／importer version／parser version／schema hash／content hash／coverage／NA 處理／upstream lineage | `ValuationSourceContract` + `assert_valuation_source_admissible`；`RUNTIME_FETCH_ALLOWED = False` |
+| **R6** | 2025 後 coverage 由 ~94–95% 升至最高 98.42%，**具名記為 coverage-regime observation**。不得據以更動 B0 語義、eligibility 或缺值政策；單靠無法解釋的 coverage 位移**不重開 B-09**，除非出現 valuation-semantic break 的證據 | `limitation_record()["coverage_regime_2025"]` |
+| **R7** | `value_pbr_lineage_2019plus = CLOSED`，並依既有治理機制重新凍結 Master／machine declaration。**這是 source-lineage closure，不是策略因子變更** | 本條 + `core/b0_open_items.py` 移除該項 → `OPEN SPEC ITEMS = 0` |
+
+#### 裁決所依據的機械證據（不是「官方比較可信」）
+
+同證券、同 trading session，對 2016-2018 全部 36 個月底逐筆比對：
+
+```
+TWSE 上市   32,284 筆   100.00% 完全相同   max |Δ| = 0.00
+TPEx 上櫃   26,419 筆    99.96% 完全相同   max |Δ| = 0.09
+            11 筆差異全部落在 2016-01 / 2016-02，兩板 signed median 皆 0.00
+official_only = 0        官方序列從不比 frozen lineage 多出一檔 → 採用不會擴大母體
+同 session 對齊          收盤價交叉驗證 18,963 / 18,963 完全相同
+87/87 affected months    兩家交易所皆實際取得，unresolved transport failure = 0
+```
+
+**這是 lineage continuity（同股同日同值），不是欄位同名的推測。**
+完整證據見 `research/b0_valuation_lineage_audit/FINDINGS_full_harvest.md`。
+
+#### 兩項必須隨此序列一起流通的揭露
+
+- **TPEx vintage：** 實測 2024-12-31 無 `財報年/季` 欄、2025-01-02 起有 → **87 個決策月中有 72 個月沒有上櫃 vintage 揭露**。行為證據（`BVPS = 收盤價 / 官方 PBR` 的區間步進掃描，四組共 3,684 檔**無一檔**呈單一固定淨值）強烈否定「今天重算後回填」，但**不能**證明個別分母的財報期別。
+- **TWSE 對照：** 官網明文 `為計算當時公開資訊觀測站已公告申報格式化之資料，而非同期即時資訊，且不作回溯計算`，且 `股利年度及財報年/季資訊自民國106年4月12日起提供`。
+
+#### 與 §2.8.3 的關係
+
+era 邊界**沿用 §2.8.3 已為價格凍結的同一條**（`<= 2018` 逐年匯出 / `>= 2019` 取代 vintage），
+不另立第二條時間軸。差別只在 2019+ 那一側：價格取兩個 zip，估值取官方交易所。
+**逐年可選的來源會是自由參數；單一邊界不是。**
+
+#### 狀態
+
+```
+M-3 value_pbr_lineage_2019plus   CLOSED（本裁決）
+OPEN SPEC ITEMS                  0
+OPEN FINALIZATION ITEMS          0
+NORMATIVE_MODULES                23 → 24（新增 core/b0_valuation_source.py）
+```
+
+- **未變更：** B-09 Value 定義、§4.1 complete-case、§2.3 產業 PIT、D-1 判準與 quarantine、任何 Selection / Eligibility / Portfolio / Execution / Cost 策略語義
+- **仍待：** L2 sealed-input materializer（141 期）、新的 B0 Baseline Seal。**本裁決不開 L2**
+
+---
+
 ### C-13 · O-C 由 open item 轉為凍結政策
 - **來源：** 本文件 v1.0 §12 O-C，列為待決（是否另尋來源）
 - **變更：** §2.4 凍結為「不建推導模型、不猜除權日、維持 `NOT_RECONSTRUCTIBLE`」
@@ -1569,8 +1632,11 @@ OPEN FINALIZATION ITEMS     0
 | ~~**O-G**~~ | ~~listing spell 不變式~~ —— **v1.11 開立並同版關閉**（C-43）。無法解釋的缺價後又重新出現 → 於**首個重新觀測到的 session** 開始新的 canonical listing spell；價格回看視窗於新 spell 重置，長度不足即 NA | ~~SPEC~~ | ✅ **已關閉** |
 | ~~D-1~~ | ~~價格母體存活者偏誤~~ —— **已於 v1.9 關閉**（§2.8.3） | ~~DATA / BLOCKING~~ | ~~S-3a、`final_provenance_seal`、`L2_opening`** |
 | ~~**P-2**~~ | ~~兩個 adapter 向同一 core 供料~~ | ✅ **DONE（v1.7）** | —— |
+| ~~**`value_pbr_lineage_2019plus`**~~ | ~~2019+ 的 `pbr_tse` 無 admissible 來源~~ —— **v1.14 之後登記、v1.15 由 R1~R7 關閉**（C-48）。官方 TWSE/TPEx 歷史 PBR 為 admissible continuation，證據為 overlap 期逐筆同值 | ~~SPEC / BLOCKING~~ | ✅ **已關閉**（曾擋住 L2 sealed-input materializer） |
 
 **✅ P-1b-U 已於 v1.6 關閉：canonical core 的 UNSPECIFIED 項目為 0。**
+**該計數在 v1.14 之後曾短暫回到 1**（`value_pbr_lineage_2019plus`，materializer 施工時撞到），
+**於 v1.15 由 C-48 裁決關回 0** —— 登記簿確實承接了新發現的未定行為，這正是它存在的理由。
 
 ```python
 >>> from core.b0_open_items import summary
@@ -1660,6 +1726,8 @@ P-2 shared engine                                  ✅ BUILT（v1.7）
 B-20 fixture parity                                ✅ PASS（bit-exact,float_tol=0）
 B-20 real-data parity                              BLOCKED by D-1
 S-3b route enforcement                             ✅ SATISFIED (C-44)
+value_pbr 2019+ lineage                            ✅ CLOSED（v1.15,C-48）
+L2 sealed-input materializer (141 期)              IN PROGRESS — C-48 解除阻擋後才可續
 B0 Baseline Seal (pre-L2)                          FINALIZATION — v1.14 起可達(C-47)
 L2 Run Provenance                                  待使用者明示開封 L2 後才存在
 

@@ -68,6 +68,7 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     "core/b0_adapter_retrospective.py",
     "core/b0_adapter_production.py",
     "core/b0_price_universe.py",
+    "core/b0_valuation_source.py",
 )
 
 
@@ -435,6 +436,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_listing_spell as spell
     from core import b0_market_state as ms
     from core import b0_provenance as prov
+    from core import b0_valuation_source as vsrc
     prereg_modules = NORMATIVE_MODULES
     from core import b0_pit_observability as pit
     from core import b0_state as st
@@ -465,6 +467,28 @@ def _spec_registry() -> dict[str, Any]:
         "window_months": 141,
         "window_start": "2014-07-31",
         "window_end": "2026-03-31",
+        # v1.15 · C-48 · the `pbr_tse` lineage ruling (R1-R7). Unlike C-16..C-36
+        # this one is a DECISION, not a recovered omission: the master was silent
+        # on what an admissible 2019+ source is, and silence had to be replaced by
+        # a sentence. It adds no free parameter — the era boundary is the one
+        # §2.8.3 already fixed for prices, and every alternative it names is
+        # forbidden rather than selectable.
+        "value_definition": vsrc.VALUE_DEFINITION,
+        "value_pbr_lineage": vsrc.VALUATION_LINEAGE,
+        "value_pbr_lineage_boundary": vsrc.LINEAGE_BOUNDARY,
+        "value_pbr_official_boards": vsrc.OFFICIAL_BOARDS,
+        "value_pbr_tej_substitution_allowed": vsrc.TEJ_SUBSTITUTION_ALLOWED,
+        "value_pbr_runtime_fetch_allowed": vsrc.RUNTIME_FETCH_ALLOWED,
+        "value_pbr_parser_version": vsrc.VALUATION_PARSER_VERSION,
+        "value_pbr_missing_value_policy": vsrc.MISSING_VALUE_POLICY,
+        "value_pbr_forbidden_gap_repairs": vsrc.FORBIDDEN_GAP_REPAIRS,
+        "value_pbr_board_attribution_source": vsrc.BOARD_ATTRIBUTION_SOURCE,
+        "value_pbr_current_listing_label_allowed":
+            vsrc.CURRENT_LISTING_LABEL_ALLOWED,
+        "value_pbr_tpex_vintage_first_session":
+            vsrc.TPEX_VINTAGE_DISCLOSURE_FIRST_SESSION,
+        "value_pbr_tpex_vintage_may_be_inferred":
+            vsrc.TPEX_VINTAGE_MAY_BE_INFERRED,
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,
