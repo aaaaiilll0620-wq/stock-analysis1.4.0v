@@ -1,9 +1,9 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.13",
+ "version": "1.14",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "932a8c8189b23904c8817584837d9d175b64e58665c6d69360fc808f04ab692c",
- "spec_bytes": 121334,
+ "spec_sha256": "9d4fde9f8576f9f6cc0f3b6e0e37355a2584cb44e995069f819d40b05424f98a",
+ "spec_bytes": 125740,
  "normative_modules": {
   "core/b0_master_prereg.py": "ce5f3766f8aed04e8434d90c4535aedbaca29c1a3b27a1ac13fa26a0a38b1407",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
@@ -15,9 +15,9 @@
   "core/b0_cost_model.py": "80eb441c613b7aa87091b91e0d03bff8defedffa83d52e6ad3a064343d38a7ca",
   "core/b0_invariants.py": "34566e8254fdd5407adddc3e1acccea98affbc37be9a5455c60712f54c7204af",
   "core/b0_parity.py": "debaa9b09f5d00208e19a5aa31debf5a237e861af0c10ed163cd78c377733eba",
-  "core/b0_provenance.py": "9c621c6e59bb2d6fa4bc5df57bcc3c630a1844ec7ff4da7414afaceb8b25975f",
+  "core/b0_provenance.py": "65299580e322696107f38fd2583a91cd177887f772e1240cf42577ff7b7fe224",
   "core/b0_open_items.py": "5265df4cb09a78b0428e753e2ebabe0c2d2068d132430d30f1ffb3ac0d8347a1",
-  "core/b0_finalization_items.py": "632d457bd3e1a78c3f1080b86258f79f856b66d6e2862951ab68552891f1bad4",
+  "core/b0_finalization_items.py": "ff13a01e64dbac6b6f33a73cb293eccdcb2151dddaa2f3fff32bba7358f105b0",
   "core/b0_declaration_conformance.py": "b8dea19303579064ee0c281755166f20c997a80292e98ff9e10337307e131552",
   "core/b0_state.py": "9bbeda9aa706767ba5a93b15c59919190328e440ba37c0a8e39fb1e7c2d95eff",
   "core/b0_features.py": "0dc1c3d46b7ffb2891db530377874b71306aeeb8ff8876a527fb41b7c13b16a0",
@@ -93,6 +93,10 @@
   "folder": "tej_exports/DataExport0806/暫停交易2004-20260806",
   "state": "DELETED_BY_USER_2026-08-18",
   "raw_sha256": null
+ },
+ "lf_migration_ledger": {
+  "path": "research/b0_registry/lf_migration_ledger.json",
+  "sha256": "7bd3c93c452aec124bca61d2d3335c68068bded54e759cc49e56760dfe89e72c"
  },
  "specified_keys": [
   "C_ref",

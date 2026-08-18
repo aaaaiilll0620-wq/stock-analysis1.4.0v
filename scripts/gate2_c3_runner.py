@@ -54,7 +54,18 @@ from lab_paths import (REAL_COMP_COL, RET_COL, load_real_panel,      # noqa: E40
 ARM = "C3"
 ARM_DIR = _ROOT / "data" / "research_base" / "arms"
 GATE1_DIR = _ROOT / "beat_0050" / "results" / "gate1"
-OUT_DIR = _ROOT / "beat_0050" / "results" / "gate2"
+
+# M-3 ruling of 2026-08-18. This runner's report is a GENERATED artefact, and a
+# generated artefact must never land in the tracked tree: writing it under
+# `beat_0050/results/gate2/` meant every pytest run rewrote a tracked file with a
+# fresh `generated_at`, so "the suite passed" and "the tree is clean" could never
+# both be true — and `seal(final_seal=True)` forbids a dirty tree.
+#
+# The output now goes to a gitignored artefact root, overridable so tests can
+# point it at an isolated temp path. Its actual sha256 is bound by the B0
+# Baseline Seal, which is what makes it auditable — not its presence in git.
+ARTIFACT_ROOT = Path(os.environ.get("B0_ARTIFACT_DIR") or (_ROOT / "artifacts"))
+OUT_DIR = ARTIFACT_ROOT / "gate2"
 
 CLOCK_LO, CLOCK_HI = "2019-08-01", "2026-03-31"
 N_MONTHS_EXPECTED = 80

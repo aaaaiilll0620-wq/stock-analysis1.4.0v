@@ -247,6 +247,7 @@ def _clean_manifest():
                                       {"price_valuation": "2026-03-30"},
                                       "core.b0_route", "1.0.0"),
         output=OutputProvenance({"nav": "o1"}),
+        baseline_seal_sha256="b" * 64,
     )
 
 

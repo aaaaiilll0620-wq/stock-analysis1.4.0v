@@ -65,9 +65,37 @@ class FinalizationItem:
 #       the B-21 manifest binds all of them DIRECTLY;
 #       one shared serialization/hash primitive (core/b0_canonical_hash.py).
 #
-# The register stays. It is empty because the item was ruled on, not because
+#   pre_l2_seal_semantics -> M-3 ruling of 2026-08-18 (master prereg v1.14, C-47).
+#       OPENED because the seal Master §13.3 requires BEFORE L2 may open could
+#       not be taken at all: `seal()` rejects an empty section, and `execution`
+#       (decision_date) plus `output` (target/intent/receipt/NAV hashes) can only
+#       be populated by running the B0 route -- the very step the seal exists to
+#       authorise. The four candidate readings were: (a) bind a production-adapter
+#       decision, (b) seal atomically with the L2 run, (c) define a separate
+#       repo-only seal, (d) relax PROVENANCE_SECTIONS.
+#
+#       RULED: two-stage provenance, neither of the four verbatim.
+#         B0 BASELINE SEAL (pre-L2) binds spec_sha256, the complete registry
+#           config_hash, canonical hash schema/version, commit SHA, clean-tree
+#           identity, all normative-module hashes, dataset hashes/schema/coverage/
+#           importer lineage, derived inputs + upstream lineage, the opening state
+#           hash, route identity, and the L2 opening protocol; and records
+#           execution.status = NOT_EXECUTED_PRE_L2, output.status =
+#           NOT_PRODUCED_PRE_L2 as EXPLICIT states rather than blanks.
+#         L2 RUN PROVENANCE (post-execution) references baseline_seal_sha256 and
+#           adds the concrete execution/output hashes. It may not mutate or
+#           replace the baseline (`assert_baseline_not_mutated`).
+#       No B0 decision route may be run merely to satisfy the baseline seal, and
+#       a baseline carrying fabricated outputs is rejected, not tolerated.
+#
+# The register stays. It is empty because the items were ruled on, not because
 # the mechanism was retired -- the next finalization-blocking gap lands here
 # rather than in somebody's judgement about whether a seal is safe.
+#
+# Registering an item here changes this module's hash, and this module is a
+# NORMATIVE_MODULE. That is the intended cost: the ruling of 2026-08-18 states
+# explicitly that v1.13 hashes must NOT be preserved by routing around the
+# registration mechanism. v1.13 is kept as historical lineage instead.
 FINALIZATION_ITEMS: tuple[FinalizationItem, ...] = ()
 
 

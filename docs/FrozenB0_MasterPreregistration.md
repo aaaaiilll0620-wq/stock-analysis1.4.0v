@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.13（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；**v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46**）
+**版本:** 1.14（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -1469,6 +1469,77 @@ declaration conformance  17 declarations, 0 failures
 
 ---
 
+### C-47 · M-3 `pre_l2_seal_semantics` —— provenance 分兩階段（v1.14）
+
+#### 問題
+
+§13.3 要求 **FINAL PROVENANCE SEAL → 才有資格開 L2 一次**，但 `seal()` 拒絕任何空 section，
+而 `execution.decision_date` 與 `output.artifacts`（target / intent / receipt / NAV）
+**只能由跑 B0 route 產生** —— 那正是這道 seal 存在的目的所在的下一步。
+
+⇒ **seal 在規格上不可達。** 唯一的出路都是不可接受的：跑 route（等於提前開 L2）、
+或填入捏造值（等於 specification-by-code）。B-21 closure 文件早已自陳
+「本輪建立的是機制，不是一份已完成的 provenance」。
+
+依 M-3 登記為 UNSPECIFIED，**施工方不得自選預設**。四個候選讀法：
+(a) 綁一次 production adapter decision、(b) 與 L2 run 同時封存、
+(c) 另立 repo-only seal、(d) 放寬 `PROVENANCE_SECTIONS`。
+
+#### 裁決（2026-08-18）：兩階段 provenance，不採上述任一字面
+
+| 階段 | 綁什麼 | 狀態欄位 |
+|---|---|---|
+| **B0 Baseline Seal（pre-L2）** | `spec_sha256`、完整 registry `config_hash`、canonical hash schema/version、commit SHA、clean-tree identity、全部 normative-module hashes、dataset hashes/schema/coverage/importer lineage、derived 輸入與 upstream lineage、**期初 state hash**、route identity、**L2 opening protocol** | `execution.status = NOT_EXECUTED_PRE_L2`<br>`output.status = NOT_PRODUCED_PRE_L2` |
+| **L2 Run Provenance（post-execution）** | 引用 `baseline_seal_sha256`，再綁具體 execution / output hashes | `EXECUTED` / `PRODUCED` |
+
+**關鍵語義：`NOT_EXECUTED_PRE_L2` 是 provenance，不是缺 provenance。**
+它斷言「封存當下不存在任何 decision」；空白欄位則什麼都沒說 —— 那正是本項要消除的歧義。
+
+#### 硬性禁止（皆有測試釘死）
+
+- Baseline Seal **不得**要求或捏造 selection output / target hashes / intent / receipt / NAV / 績效
+- **不得**為了滿足 Baseline Seal 而跑任何 B0 decision route
+- 帶著 output hashes 的 baseline → **abort**（`did not happen`）
+- 帶著 `decision_date` 的 baseline → **abort**（`fabricates a run`）
+- L2 run 未指名 `baseline_seal_sha256` → **abort**
+- L2 run **不得** mutate 或取代 Baseline Seal（`assert_baseline_not_mutated`）
+
+#### seal critical section 綁 repo identity
+
+本倉庫存在**自動排程 commit 機制**（`FinMind_DailyUpdate` / `Market_SnapshotCollector`），
+故「檢查時乾淨」不等於「封存時乾淨」。`RepoIdentityGuard` 於 preflight 快照、
+於**回傳 seal hash 之前的最後一步**重驗：HEAD、工作區乾淨度、normative hashes、
+declaration conformance。任一改變 → `SealRaceError` abort。
+
+#### 測試不得弄髒受版控的工作區
+
+`gate2_c3_runner` 原本每次都改寫受版控的 `gate2_preflight.json`，使
+「套件通過」與「工作區乾淨」無法同時成立。產物改寫入 gitignore 的 `artifacts/`，
+其 sha256 由 Baseline Seal 綁定；並新增
+`clean tree → canonical suite → clean tree` 的端到端回歸。
+
+#### CRLF → LF 遷移帳本
+
+`.gitattributes` 將 LF 定為正規表示法後，3 份 Frozen A 時期紀錄的 9 個 hash 欄位
+成為歷史 CRLF 指紋。**不得靜默覆寫**：並列保存於
+`research/b0_registry/lf_migration_ledger.json`（`transformation = CRLF_TO_LF_ONLY`、
+`substantive_change = false`，且每筆皆經機械驗證），
+明示修訂見 `docs/AuditAmendment_LF_Migration_2026-08-18.md`。
+9 個路徑皆非 B0 消耗性輸入或 normative 模組，**不阻擋 Baseline Seal**。
+
+#### 狀態
+
+```
+M-3 pre_l2_seal_semantics   CLOSED（本裁決）
+OPEN SPEC ITEMS             0
+OPEN FINALIZATION ITEMS     0
+```
+
+- **未變更：** 任何 Selection / Eligibility / Portfolio / Execution / Cost 策略語義
+- **v1.13 保留為歷史 lineage**；本裁決明文要求**不得**為了保住 v1.13 雜湊而繞開登記機制
+
+---
+
 ### C-13 · O-C 由 open item 轉為凍結政策
 - **來源：** 本文件 v1.0 §12 O-C，列為待決（是否另尋來源）
 - **變更：** §2.4 凍結為「不建推導模型、不猜除權日、維持 `NOT_RECONSTRUCTIBLE`」
@@ -1589,7 +1660,8 @@ P-2 shared engine                                  ✅ BUILT（v1.7）
 B-20 fixture parity                                ✅ PASS（bit-exact,float_tol=0）
 B-20 real-data parity                              BLOCKED by D-1
 S-3b route enforcement                             ✅ SATISFIED (C-44)
-B-21 final provenance seal                         FINALIZATION — 未進行(F-0 已關閉,無 blocker)
+B0 Baseline Seal (pre-L2)                          FINALIZATION — v1.14 起可達(C-47)
+L2 Run Provenance                                  待使用者明示開封 L2 後才存在
 
 L2                                                 STILL SEALED
 ```
@@ -1617,8 +1689,9 @@ Master prereg FROZEN v1.2（本文件）
   → P-2：retrospective / production 兩個 adapter 供料同一 core
   → B-20 真實 fixture parity（比對 adapter 邊界，非兩套演算法）
   → L1 全綠（S-1..S-8）
-  → FINAL PROVENANCE SEAL（含 route、clean tree）
+  → B0 BASELINE SEAL（含 route、clean tree、L2 opening protocol；execution/output 明記 NOT_*_PRE_L2）
   → 才有資格開 L2 一次
+  → L2 RUN PROVENANCE（引用 baseline_seal_sha256，補上 execution/output）
 ```
 
 **此後階段由「研究規格設計」切換為「照規格施工 B0 canonical engine」。§1.5 自此生效：施工階段不得創造規格。**

@@ -44,6 +44,8 @@ def _manifest(**over):
                                       {"price_valuation": "2026-03-30"},
                                       "core.b0_route", "1.0.0"),
         output=OutputProvenance({"target_list": "o1", "nav": "o2"}),
+        # An L2 RUN record names the baseline seal it descends from (M-3, v1.14).
+        baseline_seal_sha256="b" * 64,
     )
     return dataclasses.replace(m, **over) if over else m
 

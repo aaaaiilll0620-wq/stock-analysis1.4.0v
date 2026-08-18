@@ -36,7 +36,7 @@ import os
 from dataclasses import dataclass, field, asdict
 from typing import Any, Mapping, Sequence
 
-from core.b0_canonical_hash import canonical_sha256
+from core.b0_canonical_hash import CANONICAL_HASH_VERSION, canonical_sha256
 from core.b0_canonical_hash import file_sha256 as _file_sha256
 
 # Environment variables that may legitimately differ between machines because
@@ -54,9 +54,46 @@ PROVENANCE_SECTIONS: tuple[str, ...] = (
     "specification", "code", "config", "data", "derived", "execution", "output",
 )
 
+# --- M-3 ruling (Master v1.14): two-stage provenance --------------------------
+#
+# The seal Master §13.3 requires BEFORE L2 may open cannot describe a run: the
+# only way to populate `execution.decision_date` and `output.artifacts` is to
+# run the B0 route, which is the step the seal exists to authorise. Sealing was
+# therefore unreachable, and the gap was ruled on rather than papered over.
+#
+# The roles are split. A BASELINE seal binds everything that is knowable before
+# any decision exists — specification, code, config, data, derived inputs, the
+# opening state, route identity and the L2 opening protocol — and records the
+# absence of a run as an EXPLICIT state. A RUN record is taken after the user
+# opens L2 and references the baseline by hash.
+#
+# `NOT_EXECUTED_PRE_L2` is provenance, not missing provenance: it asserts "no
+# decision had been made when this was sealed". A blank field would merely fail
+# to say anything, which is the ambiguity this ruling removes.
+EXECUTED: str = "EXECUTED"
+NOT_EXECUTED_PRE_L2: str = "NOT_EXECUTED_PRE_L2"
+PRODUCED: str = "PRODUCED"
+NOT_PRODUCED_PRE_L2: str = "NOT_PRODUCED_PRE_L2"
+
+EXECUTION_STATUSES: tuple[str, ...] = (EXECUTED, NOT_EXECUTED_PRE_L2)
+OUTPUT_STATUSES: tuple[str, ...] = (PRODUCED, NOT_PRODUCED_PRE_L2)
+
+SEAL_STAGE_BASELINE: str = "B0_BASELINE_SEAL"
+SEAL_STAGE_L2_RUN: str = "L2_RUN_PROVENANCE"
+
 
 class ProvenanceError(RuntimeError):
     """Fail-loud: a sealed run cannot be bound to its inputs."""
+
+
+class SealRaceError(ProvenanceError):
+    """Repository identity moved between preflight and the seal being written.
+
+    This repository has an autonomous scheduled commit mechanism, so "the tree
+    was clean when I checked" is not the same claim as "the tree was clean when
+    the seal was taken". A seal that binds a commit the tree no longer matches
+    binds nothing.
+    """
 
 
 def _h(payload: Any) -> str:
@@ -208,20 +245,67 @@ class ExecutionProvenance:
     market_data_as_of: Mapping[str, str]     # dataset -> as-of timestamp
     route_module: str
     route_version: str
+    status: str = EXECUTED
+
+    @classmethod
+    def pre_l2_baseline(cls, *, initial_state_sha256: str,
+                        market_data_as_of: Mapping[str, str],
+                        route_module: str, route_version: str
+                        ) -> "ExecutionProvenance":
+        """The opening state and route identity, with no decision taken.
+
+        The baseline still binds WHICH engine would run and WHAT state it would
+        start from — those are knowable without running anything, and leaving
+        them out would let the route change between the seal and L2.
+        """
+        return cls(decision_date="", initial_state_sha256=initial_state_sha256,
+                   market_data_as_of=market_data_as_of, route_module=route_module,
+                   route_version=route_version, status=NOT_EXECUTED_PRE_L2)
 
     def validate(self) -> None:
-        for f in ("decision_date", "initial_state_sha256", "route_module", "route_version"):
+        if self.status not in EXECUTION_STATUSES:
+            raise ProvenanceError(
+                f"execution: status must be one of {EXECUTION_STATUSES}, got "
+                f"{self.status!r}")
+        # Bound at BOTH stages: the opening state and the engine identity are
+        # knowable before any decision, so a baseline that omitted them would
+        # let either change silently before L2 opened.
+        for f in ("initial_state_sha256", "route_module", "route_version"):
             if not getattr(self, f):
                 raise ProvenanceError(f"execution: {f} is required")
         if not self.market_data_as_of:
             raise ProvenanceError("execution: market_data_as_of is required")
+        if self.status == NOT_EXECUTED_PRE_L2:
+            if self.decision_date:
+                raise ProvenanceError(
+                    f"execution: status is {NOT_EXECUTED_PRE_L2} but decision_date "
+                    f"is set to {self.decision_date!r}. A baseline seal records "
+                    f"that no decision existed; naming one fabricates a run.")
+        elif not self.decision_date:
+            raise ProvenanceError("execution: decision_date is required")
 
 
 @dataclass(frozen=True)
 class OutputProvenance:
     artifacts: Mapping[str, str]             # artifact name -> sha256
+    status: str = PRODUCED
+
+    @classmethod
+    def pre_l2_baseline(cls) -> "OutputProvenance":
+        """No target list, intent, receipt or NAV exists yet — stated, not blank."""
+        return cls(artifacts={}, status=NOT_PRODUCED_PRE_L2)
 
     def validate(self) -> None:
+        if self.status not in OUTPUT_STATUSES:
+            raise ProvenanceError(
+                f"output: status must be one of {OUTPUT_STATUSES}, got {self.status!r}")
+        if self.status == NOT_PRODUCED_PRE_L2:
+            if self.artifacts:
+                raise ProvenanceError(
+                    f"output: status is {NOT_PRODUCED_PRE_L2} but "
+                    f"{sorted(self.artifacts)} were supplied. A baseline seal that "
+                    f"carries output hashes is claiming a run that did not happen.")
+            return
         if not self.artifacts:
             raise ProvenanceError("output: at least one artifact hash is required")
         for k, v in self.artifacts.items():
@@ -265,6 +349,20 @@ class ProvenanceManifest:
     execution: ExecutionProvenance
     output: OutputProvenance
     declared_nondeterminism: tuple[str, ...] = field(default=())
+    # Bound by the BASELINE seal: the gate L2 will be judged against has to be
+    # fixed before the run, or "did it pass" becomes a question answered after
+    # seeing the numbers.
+    l2_opening_protocol: Mapping[str, Any] = field(default_factory=dict)
+    # Set only on an L2 RUN record, naming the baseline it descends from.
+    baseline_seal_sha256: str | None = None
+    # F0-R7: which serialisation produced every hash in this manifest.
+    canonical_hash_version: str = CANONICAL_HASH_VERSION
+
+    @property
+    def stage(self) -> str:
+        return (SEAL_STAGE_BASELINE
+                if self.execution.status == NOT_EXECUTED_PRE_L2
+                else SEAL_STAGE_L2_RUN)
 
     @property
     def sealed_input_sha256(self) -> str:
@@ -282,6 +380,14 @@ class ProvenanceManifest:
             "decision_date": self.execution.decision_date,
             "market_data_as_of": dict(self.execution.market_data_as_of),
             "route": [self.execution.route_module, self.execution.route_version],
+            # M-3 (v1.14): the lifecycle state is part of the sealed identity.
+            # A baseline and a run over identical inputs are different records,
+            # and must not collapse to the same hash.
+            "execution_status": self.execution.status,
+            "output_status": self.output.status,
+            "l2_opening_protocol": dict(self.l2_opening_protocol),
+            "baseline_seal_sha256": self.baseline_seal_sha256,
+            "canonical_hash_version": self.canonical_hash_version,
         })
 
     def sealed_input_sha256_payload_sections(self) -> tuple:
@@ -291,7 +397,9 @@ class ProvenanceManifest:
         reader has to re-derive from the hash function."""
         return ("specification", "code", "normative_modules", "config",
                 "data", "derived", "initial_state", "decision_date",
-                "market_data_as_of", "route")
+                "market_data_as_of", "route", "execution_status",
+                "output_status", "l2_opening_protocol", "baseline_seal_sha256",
+                "canonical_hash_version")
 
     @property
     def output_sha256(self) -> str:
@@ -302,16 +410,89 @@ class ProvenanceManifest:
         return _h({"inputs": self.sealed_input_sha256, "outputs": self.output_sha256})
 
 
+@dataclass(frozen=True)
+class RepoIdentityGuard:
+    """Binds an expected repository identity across the seal critical section.
+
+    This repository carries scheduled tasks that commit to it without human
+    action, so preflight and seal are not the same instant. The guard is
+    snapshotted before the checks run and re-checked immediately before the
+    seal hash is returned; anything that moved in between aborts.
+    """
+    expected_head: str
+    expected_clean: bool
+    expected_normative_module_sha256: Mapping[str, str]
+
+    @staticmethod
+    def _git(*args: str, repo_root: str | None = None) -> str:
+        import subprocess
+
+        proc = subprocess.run(("git",) + args, capture_output=True, text=True,
+                              cwd=repo_root)
+        if proc.returncode != 0:
+            raise ProvenanceError(
+                f"provenance: `git {' '.join(args)}` failed — repository identity "
+                f"cannot be established: {proc.stderr.strip()}")
+        return proc.stdout
+
+    @classmethod
+    def snapshot(cls, *, repo_root: str | None = None) -> "RepoIdentityGuard":
+        from core.b0_master_prereg import normative_module_hashes
+
+        head = cls._git("rev-parse", "HEAD", repo_root=repo_root).strip()
+        porcelain = cls._git("status", "--porcelain", repo_root=repo_root).strip()
+        return cls(expected_head=head, expected_clean=not porcelain,
+                   expected_normative_module_sha256=dict(normative_module_hashes()))
+
+    def recheck(self, *, repo_root: str | None = None) -> None:
+        from core.b0_declaration_conformance import assert_declarations_conform
+        from core.b0_master_prereg import normative_module_hashes
+
+        head = self._git("rev-parse", "HEAD", repo_root=repo_root).strip()
+        if head != self.expected_head:
+            raise SealRaceError(
+                f"seal: HEAD moved during the critical section — expected "
+                f"{self.expected_head}, found {head}. Something committed to this "
+                f"repository while the seal was being taken.")
+        porcelain = self._git("status", "--porcelain", repo_root=repo_root).strip()
+        is_clean = not porcelain
+        if is_clean != self.expected_clean:
+            raise SealRaceError(
+                f"seal: working tree cleanliness changed during the critical "
+                f"section — expected {'clean' if self.expected_clean else 'dirty'}, "
+                f"found {'clean' if is_clean else porcelain.splitlines()[:5]}")
+        current = dict(normative_module_hashes())
+        moved = sorted(k for k in set(current) | set(self.expected_normative_module_sha256)
+                       if current.get(k) != self.expected_normative_module_sha256.get(k))
+        if moved:
+            raise SealRaceError(
+                f"seal: normative module hashes changed during the critical "
+                f"section: {moved[:5]}")
+        assert_declarations_conform()
+
+
 def seal(manifest: ProvenanceManifest, *, final_seal: bool = True,
-         env: Mapping[str, str] | None = None) -> str:
+         env: Mapping[str, str] | None = None,
+         guard: "RepoIdentityGuard | None" = None) -> str:
     """Validate every section and return the manifest hash, or abort.
 
     `final_seal=True` is the L2-eligible seal: it additionally forbids a dirty
     working tree, because a dirty tree cannot be recovered from a commit alone.
+
+    Two stages exist (M-3 ruling, Master v1.14). A BASELINE manifest declares
+    `NOT_EXECUTED_PRE_L2` / `NOT_PRODUCED_PRE_L2` and is the seal that must be
+    taken before L2 may open; an L2 RUN manifest carries real outputs and must
+    name the baseline it descends from. `guard`, when supplied, is re-checked
+    immediately before the hash is returned.
     """
-    missing = [s for s in PROVENANCE_SECTIONS if getattr(manifest, s, None) in (None, (), {})]
+    # An empty `output.artifacts` is a legal BASELINE state, so emptiness alone
+    # can no longer stand in for absence: the section object must still exist.
+    missing = [s for s in PROVENANCE_SECTIONS if getattr(manifest, s, None) is None]
+    if not missing:
+        # `data` and `derived` are collections: empty means nothing was declared.
+        missing += [s for s in ("data", "derived") if not getattr(manifest, s)]
     if missing:
-        raise ProvenanceError(f"provenance: missing sections {missing}")
+        raise ProvenanceError(f"provenance: missing sections {sorted(set(missing))}")
     assert_no_unregistered_sources(
         env, registered_overrides=manifest.config.registered_overrides)
     manifest.specification.validate()
@@ -323,6 +504,36 @@ def seal(manifest: ProvenanceManifest, *, final_seal: bool = True,
         d.validate()
     manifest.execution.validate()
     manifest.output.validate()
+
+    # --- stage gates (M-3 ruling, Master v1.14) ------------------------------
+    if manifest.stage == SEAL_STAGE_BASELINE:
+        if manifest.output.status != NOT_PRODUCED_PRE_L2:
+            raise ProvenanceError(
+                f"provenance: execution is {NOT_EXECUTED_PRE_L2} but output is "
+                f"{manifest.output.status}. A baseline cannot carry outputs of a "
+                f"run that has not happened.")
+        if not manifest.l2_opening_protocol:
+            raise ProvenanceError(
+                "provenance: a baseline seal must bind l2_opening_protocol — the "
+                "gate L2 will be judged against has to be fixed before the run, "
+                "or 'did it pass' becomes a question answered after seeing the "
+                "numbers.")
+        if manifest.baseline_seal_sha256:
+            raise ProvenanceError(
+                "provenance: a baseline seal must not reference another baseline; "
+                "baseline_seal_sha256 belongs on an L2 run record.")
+    else:
+        if manifest.output.status != PRODUCED:
+            raise ProvenanceError(
+                f"provenance: execution is {EXECUTED} but output is "
+                f"{manifest.output.status}; a completed run produces artifacts.")
+        ref = str(manifest.baseline_seal_sha256 or "")
+        if len(ref) != 64:
+            raise ProvenanceError(
+                "provenance: an L2 run record must name the baseline seal it "
+                "descends from via baseline_seal_sha256 (64-hex). A run that "
+                "cannot point at the baseline authorising it is unbound.")
+
     if final_seal:
         # Checked LAST, and only for a final seal. Structural faults surface
         # first because they are actionable here; a blocking data requirement
@@ -347,7 +558,60 @@ def seal(manifest: ProvenanceManifest, *, final_seal: bool = True,
             assert_no_blocking_requirements("final_provenance_seal")
         except Exception as exc:
             raise ProvenanceError(str(exc)) from exc
+
+    # LAST statement before the hash exists. Everything above read the
+    # repository; this asserts the repository did not move while it was read.
+    if guard is not None:
+        guard.recheck()
     return manifest.manifest_sha256
+
+
+# --- baseline immutability ----------------------------------------------------
+
+# Which sealed-input bindings a later L2 run inherits and must not restate
+# differently. A run that quietly changed its config or its dataset hashes while
+# still pointing at the old baseline would present the baseline's authority over
+# inputs the baseline never saw.
+BASELINE_BOUND_FIELDS: tuple[str, ...] = (
+    "specification", "code", "config", "data", "derived",
+    "l2_opening_protocol", "canonical_hash_version",
+)
+
+
+def baseline_binding_sha256(manifest: ProvenanceManifest) -> str:
+    """Identity of only the bindings a baseline fixes for every later run."""
+    return _h({
+        "specification": asdict(manifest.specification),
+        "code": asdict(manifest.code),
+        "normative_modules": dict(manifest.code.normative_module_sha256),
+        "config": {"hash": manifest.config.config_sha256,
+                   "overrides": dict(manifest.config.registered_overrides)},
+        "data": [asdict(d) for d in manifest.data],
+        "derived": [asdict(d) for d in manifest.derived],
+        "initial_state": manifest.execution.initial_state_sha256,
+        "route": [manifest.execution.route_module, manifest.execution.route_version],
+        "l2_opening_protocol": dict(manifest.l2_opening_protocol),
+        "canonical_hash_version": manifest.canonical_hash_version,
+    })
+
+
+def assert_baseline_not_mutated(baseline: ProvenanceManifest,
+                                run: ProvenanceManifest) -> None:
+    """An L2 run record may add outputs; it may not restate the baseline."""
+    if baseline.stage != SEAL_STAGE_BASELINE:
+        raise ProvenanceError("assert_baseline_not_mutated: first argument is not a baseline")
+    if run.stage != SEAL_STAGE_L2_RUN:
+        raise ProvenanceError("assert_baseline_not_mutated: second argument is not a run record")
+    expected = baseline.manifest_sha256
+    if run.baseline_seal_sha256 != expected:
+        raise ProvenanceError(
+            f"provenance: run names baseline {run.baseline_seal_sha256} but the "
+            f"baseline supplied hashes to {expected}")
+    if baseline_binding_sha256(run) != baseline_binding_sha256(baseline):
+        raise ProvenanceError(
+            "provenance: the L2 run restates bindings the baseline already fixed "
+            f"({', '.join(BASELINE_BOUND_FIELDS)}). A run may add outputs; it may "
+            "not replace the baseline it claims to descend from.")
 
 
 # --- deterministic replay invariant ------------------------------------------

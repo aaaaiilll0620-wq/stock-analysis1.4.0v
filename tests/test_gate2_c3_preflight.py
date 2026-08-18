@@ -184,12 +184,15 @@ def test_no_violation_would_allow_pass(monkeypatch):
     assert rep["preflight_passed"] is True, rep["failures"]
 
 
-def test_cli_exits_nonzero_when_preflight_fails(monkeypatch):
+def test_cli_exits_nonzero_when_preflight_fails(monkeypatch, tmp_path):
     """fail-closed 必須反映在退出碼,否則自動化流程會當成通過。"""
+    # 產物只寫進隔離的 tmp 路徑:測試不得弄髒受版控的工作區(2026-08-18 裁決)。
+    monkeypatch.setattr(R, "OUT_DIR", tmp_path / "gate2")
     monkeypatch.setattr(sys, "argv", ["gate2_c3_runner.py", "--preflight-only"])
     with pytest.raises(SystemExit) as e:
         R.main()
     assert e.value.code == 3
+    assert (tmp_path / "gate2" / "gate2_preflight.json").exists()
 
 
 def test_protocol_deviation_record_exists_and_states_irreversibility():

@@ -1,0 +1,96 @@
+{
+  "blocks_b0_baseline_seal": false,
+  "blocks_rationale": "None of these paths is a consumed B0 input or a normative implementation module. B0 identity was re-verified after normalization: spec document, all 23 normative modules, all 10 derived artefacts and all 14 upstream zips still match the freeze registry.",
+  "entries": [
+    {
+      "current_canonical_lf_sha256": "5b34912711e32d584294cf0312b5af6f5f706ecdbd4e9798f22305c35bcb2d6a",
+      "historical_crlf_sha256": "58de00f76481ea1ce13fd6fa2f946ac0b2f3dae641e1d80f9b56319345bc7874",
+      "path": "core/score_store.py",
+      "record": "research/p0_r1_research_production_identity/preflight.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "5e1bb1822c9028bc529ce1489c530e029c34e0c93fccaa2beb8e54385ba61513",
+      "historical_crlf_sha256": "2eb834c3f92c2bf951835aeadc86b985db76a6072216f09636d9e499874a2f6b",
+      "path": "app.py",
+      "record": "research/p0_r1_research_production_identity/preflight.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "03fdf3778341663ae820f9c53864e5f168c4f93a55312b5d6e98f32d657e632f",
+      "historical_crlf_sha256": "09fbe6efa34e5c6e8481adafddad58d073970227c7804c8a269e6ed29b0f72f8",
+      "path": "beat_0050/strategies/high52_lab.py",
+      "record": "research/p0_r1_research_production_identity/preflight.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "e06b823ce0b47500b56266c2b888d2bb94c20c6cb3abfbec225c45a45beb96fd",
+      "historical_crlf_sha256": "8cb132fc436d26f41c579932f636ecfa947a27f964a728f01a8d5e453528d0b0",
+      "path": "scripts/lab_paths.py",
+      "record": "research/p0_r1_research_production_identity/preflight.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "8477089a8a2212b5ee01bee9ae5b89a20b7631cd52139dca31db09e21e52c19c",
+      "historical_crlf_sha256": "9bcb71ff18ac09f49029023195d4e3ae53cfcd9c061b7c51a7273fce05791930",
+      "path": "scripts/gate1_delta_ic_maxt.py",
+      "record": "beat_0050/results/gate1/GATE1_PROVENANCE_OVERLAY.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "78c08cd540d302877d16ebb09b58ad214796c75a73f72fb976da0bcd86fcdf1b",
+      "historical_crlf_sha256": "49dd87117270cc97b283b26eab17a947fe03adb370e5a38563e4f624fd1aabd9",
+      "path": "scripts/build_gate1_provenance_overlay.py",
+      "record": "beat_0050/results/gate1/GATE1_PROVENANCE_OVERLAY.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "cf08ac82b1969d4337227a6313014f5fd9e00322c8a0050f86a730c923446662",
+      "historical_crlf_sha256": "8429aeb673254b7fda64bb088b5aac5e10feaf4d21c8d70c6cb55dc79320c4af",
+      "path": "beat_0050/results/gate1/gate1_preflight.json",
+      "record": "beat_0050/results/gate1/GATE1_PROVENANCE_OVERLAY.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "c2e995538e3a2155069bb88f756bd6867d83a54547248bb419786343dc52b9b3",
+      "historical_crlf_sha256": "4ed3b2c95e5856bf3c0a86bc7445570f439f3f5c8a1d7a94953ed71e61ef32be",
+      "path": "beat_0050/results/gate1/GATE1_EXECUTION_MANIFEST.json",
+      "record": "beat_0050/results/gate2/gate2_preflight.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    },
+    {
+      "current_canonical_lf_sha256": "5ed30f2844029841f9b981791c515916c24491b22038bdd67e380f808891f23a",
+      "historical_crlf_sha256": "7344424dd8b5f034d1cde1f236840c2c824aaadfed6944c42eb2e617b98d09bb",
+      "path": "beat_0050/results/gate1/GATE1_PROVENANCE_OVERLAY.json",
+      "record": "beat_0050/results/gate2/gate2_preflight.json",
+      "substantive_change": false,
+      "transformation": "CRLF_TO_LF_ONLY",
+      "verified": "sha256(current bytes with LF->CRLF) == historical_crlf_sha256"
+    }
+  ],
+  "entry_count": 9,
+  "ledger": "crlf_to_lf_provenance_migration",
+  "records_requiring_audit_amendment": [
+    "beat_0050/results/gate1/GATE1_PROVENANCE_OVERLAY.json",
+    "beat_0050/results/gate2/gate2_preflight.json",
+    "research/p0_r1_research_production_identity/preflight.json"
+  ],
+  "ruling": "M-3 ruling 2026-08-18; master preregistration v1.14",
+  "why": "`.gitattributes` fixed LF as the canonical repository byte representation. These records hash files by raw bytes and were written against the CRLF form. Historical values are preserved as historical CRLF-byte fingerprints, not overwritten."
+}

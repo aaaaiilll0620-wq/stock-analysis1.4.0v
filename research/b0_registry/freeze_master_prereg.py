@@ -50,7 +50,7 @@ def main():
     doc = os.path.join(REPO, MASTER_PREREG_DOC)
     record = {
         "document": MASTER_PREREG_DOC,
-        "version": "1.13",
+        "version": "1.14",
         "status": "NORMATIVE_FROZEN",
         "spec_sha256": spec_document_sha256(),
         "spec_bytes": os.path.getsize(doc),
@@ -70,6 +70,13 @@ def main():
         "superseded_status_vintage": {
             "folder": "tej_exports/DataExport0806/暫停交易2004-20260806",
             "state": "DELETED_BY_USER_2026-08-18", "raw_sha256": None},
+        # C-47: the CRLF->LF migration ledger is part of the frozen record, so
+        # "which historical hashes were superseded, and why that was only line
+        # endings" is bound rather than remembered.
+        "lf_migration_ledger": (
+            {"path": "research/b0_registry/lf_migration_ledger.json",
+             "sha256": file_sha256(os.path.join(HERE, "lf_migration_ledger.json"))}
+            if os.path.exists(os.path.join(HERE, "lf_migration_ledger.json")) else None),
         "specified_keys": list(specified_keys()),
         "open_specification_items": _open_items(),
         "open_finalization_items": _finalization_items(),
@@ -77,7 +84,10 @@ def main():
         "unmet_blocking_requirements": _unmet(),
         "performance_computed": False,
     }
-    with open(OUT, "w", encoding="utf-8") as fh:
+    # newline="\n" is a provenance control, not a style choice: this record is
+    # hashed by raw bytes elsewhere, and letting the platform choose the line
+    # ending is exactly how the CRLF drift of 2026-08-18 happened.
+    with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(record, fh, ensure_ascii=False, indent=1)
     print("spec_sha256 :", record["spec_sha256"])
     print("spec_bytes  :", record["spec_bytes"])

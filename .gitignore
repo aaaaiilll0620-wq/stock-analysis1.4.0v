@@ -89,3 +89,10 @@ beat_0050/results/dual100_h3.npz
 #    research/p0_u1_canonical_universe/canonical_universe_by_date/ 的既有裁決:
 #    彙總產物進版控,逐項明細留在本機。
 beat_0050/results/portfolio_v2/phase1/full_universe_audit_*.json
+
+# ---- 產物根目錄(2026-08-18 M-3 裁決)------------------------------------
+# 測試與 runner 產生的衍生產物一律寫在這裡,永不進版控。
+# 理由:generated_at 之類的欄位會讓每次 pytest 都改動受版控檔案,
+# 「測試通過」與「工作區乾淨」因此無法同時成立,而 final seal 禁止 dirty tree。
+# 這些產物的 sha256 由 B0 Baseline Seal 綁定 —— 可稽核性來自封存,不是來自版控。
+artifacts/
