@@ -82,6 +82,58 @@ class OpenItem:
 
 OPEN_ITEMS: tuple[OpenItem, ...] = (
 
+    OpenItem(
+        key="momentum_price_adjustment",
+        layer="features",
+        materiality="structural",
+        question=(
+            "By what rule is the month-end price series adjusted for §2.4 "
+            "share-count events before `compute_momentum_12_1` consumes it? "
+            "Three sub-questions, none of them answered anywhere: (a) WHICH of "
+            "the 11 ledger event kinds adjust a price series — `share_multiplier` "
+            "is populated for capital_reduction / stock_dividend / "
+            "par_value_change / share_conversion, but also for "
+            "convertible_bond_conversion (12,766 events), employee_bonus (3,570), "
+            "cash_capital_increase (7,349), treasury_cancellation (3,034) and "
+            "other_share_change (8,646), and a dilution is not a split; (b) which "
+            "date anchors the adjustment, `ex_or_effective_date` or "
+            "`credit_tradable_date`, which W-2 already distinguishes for the "
+            "ledger; (c) whether the adjusted series is used ONLY by momentum, or "
+            "also anywhere else. Cash dividends are the one part already settled: "
+            "§3.1 names the member a PRICE relative, so they are not adjusted."
+        ),
+        why_it_matters=(
+            "`compute_momentum_12_1` states that its input 'must already be "
+            "adjusted for the share-count events of §2.4' and that adjustment is "
+            "'not a choice this function makes; it is a property of the input the "
+            "corporate-action stage has already produced'. The materializer is "
+            "that producer, and the canonical price panel carries RAW closes — "
+            "the source columns are 開盤價/收盤價 with no adjusted variant. So the "
+            "series cannot be built without the rule, and momentum_12_1 is the "
+            "whole of the Momentum concept, one of four equally weighted "
+            "Selection concepts (§3.2). An unadjusted series reports a split as a "
+            "-50% momentum reading; a series adjusted for the wrong subset of "
+            "46,275 share-change events reports a number that looks entirely "
+            "ordinary and is wrong for every security that had one. Choosing the "
+            "subset, the anchor and the scope at implementation time is exactly "
+            "the unregistered free parameter M-3 forbids — and unlike C-48/C-49 "
+            "this is a TRANSFORMATION rule, not a source choice, so no overlap "
+            "reconciliation can settle it."
+        ),
+        demoted_evidence=(
+            "`data/b0/corporate_actions_ledger.csv` supplies the raw material: "
+            "46,275 events with `kind`, `ex_or_effective_date`, "
+            "`credit_tradable_date`, `share_multiplier` and `reconstructibility`, "
+            "and W-1/W-3 give every kind a registered handler. That is the "
+            "material for an adjustment, not the rule for one. The master "
+            "preregistration contains no clause on price adjustment at all — a "
+            "search for 還原 / 調整後 / adjusted returns nothing — and "
+            "`core/b0_corporate_actions.py` implements no adjustment function. "
+            "None of this is a ruling: the specification does not say which "
+            "events adjust a price, from which date, or for whose consumption."
+        ),
+    ),
+
     # --- features -------------------------------------------------------------
     # RESOLVED and removed from this register. Every one was a master OMISSION,
     # not a decision anybody still had to make — which is why closing thirteen of

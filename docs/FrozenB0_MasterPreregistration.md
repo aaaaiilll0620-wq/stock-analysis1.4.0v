@@ -1728,9 +1728,12 @@ canonical valuation panel        pbr_tse + per_tse 同一份，四份 contract�
 
 | ~~**`value_per_lineage_2019plus`**~~ | ~~2019+ 的 `per_tse` 無 admissible 來源~~ —— **v1.15 之後登記、v1.16 由 C-49 關閉**。官方本益比為 admissible continuation，先做 PE-specific reconciliation 才裁，未以「同理可推」擴張 C-48 | ~~SPEC / BLOCKING~~ | ✅ **已關閉** |
 
+| **`momentum_price_adjustment`** | **momentum 的月底價序列如何依 §2.4 股數事件調整** —— `compute_momentum_12_1` 明文要求輸入「已調整」，且說調整不是它的選擇而是 corporate-action stage 產出的性質；但 **Master 全文沒有任何價格調整條文**（搜尋 還原／調整後／adjusted 為零命中），`core/b0_corporate_actions.py` 也沒有調整函式，canonical price panel 帶的是**原始**收盤價。三個子問題：(a) 11 種 ledger event 哪些調整價格（`share_multiplier` 連 CB 轉換 12,766 筆／員工酬勞 3,570 筆／現金增資 7,349 筆都有，但稀釋不是分割）；(b) 以 `ex_or_effective_date` 還是 `credit_tradable_date` 為錨（W-2 已區分兩者）；(c) 調整後序列是否只給 momentum 用。**現金股利已由 §3.1「price momentum」定案為不調整。** 依 M-3 登記，**不得自行選一種慣例** | **SPEC / BLOCKING** | ⛔ 141 期 market-side materialization 的 `SecurityPitInputs.month_end_prices`；momentum 是 Momentum 概念的全部（§3.2 四概念等權之一） |
+
 **✅ P-1b-U 已於 v1.6 關閉：canonical core 的 UNSPECIFIED 項目為 0。**
 **該計數在 v1.14 之後曾短暫回到 1**（`value_pbr_lineage_2019plus`，materializer 施工時撞到），
 **於 v1.15 由 C-48 裁決關回 0**；**隨即因 `value_per_lineage_2019plus` 再回到 1**，**再於 v1.16 由 C-49 關回 0**。
+**其後 materializer 施工又撞到 `momentum_price_adjustment`，計數再回到 1（未裁決）。**
 登記簿兩次承接了施工時新發現的未定行為，這正是它存在的理由 —— 期間 S-1 為紅是機制正常運作，不是回歸缺陷。
 
 ```python
@@ -1823,7 +1826,8 @@ B-20 real-data parity                              BLOCKED by D-1
 S-3b route enforcement                             ✅ SATISFIED (C-44)
 value_pbr 2019+ lineage                            ✅ CLOSED（v1.15,C-48）
 value_per 2019+ lineage                            ✅ CLOSED（v1.16,C-49）
-L2 sealed-input materializer (141 期)              IN PROGRESS — C-48 解除阻擋後才可續
+L2 sealed-input materializer (141 期)              BLOCKED — momentum_price_adjustment (M-3)
+  industry PIT / price panel / valuation panel      ✅ SEALED（三份 receipt 皆已綁 hash）
 B0 Baseline Seal (pre-L2)                          FINALIZATION — v1.14 起可達(C-47)
 L2 Run Provenance                                  待使用者明示開封 L2 後才存在
 
