@@ -1,7 +1,7 @@
 # Official Exchange Valuation Lineage Audit — findings
 
-**Date:** 2026-08-18 · **Status:** substantive questions answered; full 87-month
-enumeration still harvesting (rate-limited).
+**Date:** 2026-08-18 · **Status:** 84 of 87 months enumerated end-to-end;
+3 awaiting a TWSE re-fetch (rate limit, harvest is idempotent and resuming).
 **Nothing was ruled on.** `value_pbr_lineage_2019plus` remains OPEN.
 
 Not used: PBR_TEJ, the quarantined corpus (`aeda65b9…ea49c1`). Not done: any B0
@@ -40,13 +40,37 @@ NEEDED = securities with an observed price on the as-of session in the
 | 2019-03-29 | 1795 | 930 | 768 | 1698 | 97 | 94.60% |
 | 2019-04-30 | 1793 | 931 | 768 | 1699 | 94 | 94.76% |
 
+**All 84 fully-harvested months** (2019-01 … 2026-03):
+
+| | value |
+|---|---|
+| coverage min / median / max | **93.85% / 94.59% / 98.42%** |
+| gap min / median / max | 31 / 100 / 114 |
+| months at or above the pre-2019 lineage FLOOR (93.04%) | **84 / 84** |
+| months at or above its CEILING (94.21%) | 79 / 84 |
+
+Yearly medians are flat, then improve — there is no decay and no era where the
+official series thins out:
+
+| year | months | median | min |
+|---|---|---|---|
+| 2019 | 12 | 94.67% | 94.28% |
+| 2020 | 11 | 94.55% | 94.38% |
+| 2021 | 10 | 94.44% | 93.85% |
+| 2022 | 12 | 94.55% | 94.05% |
+| 2023 | 12 | 94.54% | 94.25% |
+| 2024 | 12 | 94.67% | 94.26% |
+| 2025 | 12 | 95.85% | 95.28% |
+| 2026 | 3 | 98.16% | 98.01% |
+
 **The bar is not 100%.** The existing admissible pre-2019 PBR_TSE lineage carries
 its own NA rate — measured across the twelve 2018 month-ends, 1,657–1,692 of
 1,781–1,796 priced securities, i.e. **93.03%–94.21%**.
 
-⇒ Official coverage (94.37%–94.76%) is **at or slightly above** what the frozen
-lineage already delivers. §4.1 complete-case already absorbs an NA rate of this
-size.
+⇒ **Every one of the 84 enumerated months clears the frozen lineage's own floor**,
+and 79 of 84 clear its ceiling. §4.1 complete-case already absorbs an NA rate of
+this size, so official coverage is not merely adequate — it is at least as
+complete as what B0 reads today for the pre-2019 era.
 
 ## 3. PIT / availability semantics
 
@@ -83,10 +107,11 @@ already available point-in-time from the exchange files themselves.
 
 ## 5. What is NOT yet established
 
-- The full 87-month enumeration. Both hosts throttle aggressively (TWSE refuses
-  TCP after a few requests), so the harvest is slow. 4 of 87 months are complete
-  end-to-end; the rest are cached progressively by
-  `fetch_official_pbr.py` (idempotent — it skips months already on disk).
+- Three months (2020-06-30, 2021-02-26, 2021-12-30) still lack the TWSE side.
+  TPEx succeeded for all three; only TWSE refused, and it refused with a
+  TCP-level rate limit, not an empty result. They are not evidence of a gap —
+  the same endpoint served the months either side of each. `fetch_official_pbr.py`
+  is idempotent and is re-fetching them.
 - Value-level agreement between official PBR and the pre-2019 PBR_TSE lineage on
   overlapping dates. Coverage was audited; per-security value reconciliation was
   not, and it should be done on pre-2019 sessions where BOTH the admissible

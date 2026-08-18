@@ -1,0 +1,253 @@
+{
+  "audit": "pre2019_overlap_value_reconciliation",
+  "b0_modified": false,
+  "close_price_cross_check": {
+    "compared": 6235,
+    "equal": 6235,
+    "max_abs_diff": 0.0,
+    "note": "same-session alignment evidence: where both sources print a close, they should agree; a systematic mismatch would mean the two series are not keyed to the same session. A published close of 0.00 means the security did not trade that session — the exchange still publishes the ratio — so those rows are excluded from this check rather than counted as disagreement"
+  },
+  "decision_or_performance_computed": false,
+  "lineage_source": "yearly export 2016-2018, column 股價淨值比-TSE (<= 2018 side of the §2.8.3 vintage boundary)",
+  "missingness_mismatch": {
+    "lineage_only_on_neither_board": 130,
+    "tpex": {
+      "both_missing": 1,
+      "lineage_explicit_na_on_board": 0,
+      "official_only": 0
+    },
+    "twse": {
+      "both_missing": 2,
+      "lineage_explicit_na_on_board": 0,
+      "official_only": 0
+    }
+  },
+  "overlap_window": {
+    "from": "2016-01",
+    "sessions_requested": 36,
+    "sessions_usable": 22,
+    "to": "2018-12"
+  },
+  "per_session_compared": [
+    {
+      "lineage_only_on_neither_board": 1,
+      "priced": 1727,
+      "priced_on_no_board": 139,
+      "session": "2016-01-30",
+      "tpex_compared": 713,
+      "twse_compared": 875
+    },
+    {
+      "lineage_only_on_neither_board": 1,
+      "priced": 1729,
+      "priced_on_no_board": 142,
+      "session": "2016-02-26",
+      "tpex_compared": 712,
+      "twse_compared": 875
+    },
+    {
+      "lineage_only_on_neither_board": 0,
+      "priced": 1734,
+      "priced_on_no_board": 138,
+      "session": "2016-03-31",
+      "tpex_compared": 719,
+      "twse_compared": 877
+    },
+    {
+      "lineage_only_on_neither_board": 0,
+      "priced": 1733,
+      "priced_on_no_board": 140,
+      "session": "2016-04-29",
+      "tpex_compared": 717,
+      "twse_compared": 875
+    },
+    {
+      "lineage_only_on_neither_board": 0,
+      "priced": 1731,
+      "priced_on_no_board": 136,
+      "session": "2016-05-31",
+      "tpex_compared": 718,
+      "twse_compared": 877
+    },
+    {
+      "lineage_only_on_neither_board": 2,
+      "priced": 1731,
+      "priced_on_no_board": 137,
+      "session": "2016-06-30",
+      "tpex_compared": 718,
+      "twse_compared": 876
+    },
+    {
+      "lineage_only_on_neither_board": 3,
+      "priced": 1734,
+      "priced_on_no_board": 141,
+      "session": "2016-07-29",
+      "tpex_compared": 716,
+      "twse_compared": 877
+    },
+    {
+      "lineage_only_on_neither_board": 7,
+      "priced": 1737,
+      "priced_on_no_board": 146,
+      "session": "2016-08-31",
+      "tpex_compared": 714,
+      "twse_compared": 876
+    },
+    {
+      "lineage_only_on_neither_board": 22,
+      "priced": 1740,
+      "priced_on_no_board": 155,
+      "session": "2016-09-30",
+      "tpex_compared": 710,
+      "twse_compared": 874
+    },
+    {
+      "lineage_only_on_neither_board": 19,
+      "priced": 1742,
+      "priced_on_no_board": 150,
+      "session": "2016-10-31",
+      "tpex_compared": 710,
+      "twse_compared": 882
+    },
+    {
+      "lineage_only_on_neither_board": 16,
+      "priced": 1745,
+      "priced_on_no_board": 149,
+      "session": "2016-11-30",
+      "tpex_compared": 712,
+      "twse_compared": 884
+    },
+    {
+      "lineage_only_on_neither_board": 17,
+      "priced": 1751,
+      "priced_on_no_board": 148,
+      "session": "2016-12-30",
+      "tpex_compared": 711,
+      "twse_compared": 892
+    },
+    {
+      "lineage_only_on_neither_board": 0,
+      "priced": 1755,
+      "priced_on_no_board": 130,
+      "session": "2017-01-24",
+      "tpex_compared": 731,
+      "twse_compared": 894
+    },
+    {
+      "lineage_only_on_neither_board": 0,
+      "priced": 1758,
+      "priced_on_no_board": 133,
+      "session": "2017-02-24",
+      "tpex_compared": 731,
+      "twse_compared": 894
+    },
+    {
+      "lineage_only_on_neither_board": 0,
+      "priced": 1760,
+      "priced_on_no_board": 131,
+      "session": "2017-03-31",
+      "tpex_compared": 733,
+      "twse_compared": 896
+    },
+    {
+      "lineage_only_on_neither_board": 2,
+      "priced": 1759,
+      "priced_on_no_board": 128,
+      "session": "2017-04-28",
+      "tpex_compared": 737,
+      "twse_compared": 894
+    },
+    {
+      "lineage_only_on_neither_board": 1,
+      "priced": 1758,
+      "priced_on_no_board": 126,
+      "session": "2017-05-31",
+      "tpex_compared": 736,
+      "twse_compared": 896
+    },
+    {
+      "lineage_only_on_neither_board": 2,
+      "priced": 1761,
+      "priced_on_no_board": 126,
+      "session": "2017-06-30",
+      "tpex_compared": 737,
+      "twse_compared": 898
+    },
+    {
+      "lineage_only_on_neither_board": 2,
+      "priced": 1762,
+      "priced_on_no_board": 128,
+      "session": "2017-07-31",
+      "tpex_compared": 736,
+      "twse_compared": 898
+    },
+    {
+      "lineage_only_on_neither_board": 9,
+      "priced": 1761,
+      "priced_on_no_board": 136,
+      "session": "2017-08-31",
+      "tpex_compared": 731,
+      "twse_compared": 894
+    },
+    {
+      "lineage_only_on_neither_board": 16,
+      "priced": 1765,
+      "priced_on_no_board": 143,
+      "session": "2017-09-30",
+      "tpex_compared": 727,
+      "twse_compared": 895
+    },
+    {
+      "lineage_only_on_neither_board": 10,
+      "priced": 1769,
+      "priced_on_no_board": 141,
+      "session": "2017-10-31",
+      "tpex_compared": 727,
+      "twse_compared": 901
+    }
+  ],
+  "tpex": {
+    "abs_diff_gt_0_02": 7,
+    "abs_diff_max": 0.09,
+    "abs_diff_p50": 0.0,
+    "abs_diff_p90": 0.0,
+    "abs_diff_p99": 0.0,
+    "board": "TPEx 上櫃",
+    "compared": 15896,
+    "exact_equal": 15885,
+    "exact_equal_rate": 0.9993,
+    "published_decimals_official_max": 2,
+    "published_decimals_official_min": 2,
+    "rel_diff_gt_1pct": 8,
+    "rel_diff_gt_5pct": 2,
+    "rel_diff_p50": 0.0,
+    "signed_diff_mean": -9e-06,
+    "signed_diff_median": 0.0,
+    "tick": 0.01,
+    "within_half_tick": 15885,
+    "within_half_tick_rate": 0.9993
+  },
+  "twse": {
+    "abs_diff_gt_0_02": 0,
+    "abs_diff_max": 0.0,
+    "abs_diff_p50": 0.0,
+    "abs_diff_p90": 0.0,
+    "abs_diff_p99": 0.0,
+    "board": "TWSE 上市",
+    "compared": 19500,
+    "exact_equal": 19500,
+    "exact_equal_rate": 1.0,
+    "published_decimals_official_max": 2,
+    "published_decimals_official_min": 2,
+    "rel_diff_gt_1pct": 0,
+    "rel_diff_gt_5pct": 0,
+    "rel_diff_p50": 0.0,
+    "signed_diff_mean": 0.0,
+    "signed_diff_median": 0.0,
+    "tick": 0.01,
+    "within_half_tick": 19500,
+    "within_half_tick_rate": 1.0
+  },
+  "used_pbr_tej": false,
+  "used_quarantined_corpus": false
+}
