@@ -1,0 +1,50 @@
+{
+  "_what": "Gate 1 執行嘗試的封存紀錄。檔案是**移動**不是刪除。",
+  "attempt_id": "attempt1_preflight_keyerror",
+  "archived_at": "2026-08-02T18:08:18.802611+08:00",
+  "reason": "attempt 1:main() 在 preflight_passed 尚未被設定前讀取它,KeyError 中止於步驟 5。統計未擊發(run_gate1 未被呼叫),無 EXECUTION_MANIFEST。Codex 2026-08-02 核可封存。",
+  "files": [
+    {
+      "file": "GATE1_EXECUTION_STARTED.json",
+      "existed": true,
+      "original_path": "beat_0050/results/gate1/GATE1_EXECUTION_STARTED.json",
+      "archived_path": "beat_0050/results/gate1/archive/attempt1_preflight_keyerror/GATE1_EXECUTION_STARTED.json",
+      "sha256": "e3b6258de85e6d7c9f18f9f30d72b9eae997ec623d447960c53240fce727fef1",
+      "sha256_after_move": "e3b6258de85e6d7c9f18f9f30d72b9eae997ec623d447960c53240fce727fef1"
+    },
+    {
+      "file": "GATE1_EXECUTION_FAILURE.json",
+      "existed": true,
+      "original_path": "beat_0050/results/gate1/GATE1_EXECUTION_FAILURE.json",
+      "archived_path": "beat_0050/results/gate1/archive/attempt1_preflight_keyerror/GATE1_EXECUTION_FAILURE.json",
+      "sha256": "5b24eb81dd78585c207ebebade59dc038e73b6a46ae54d22784682893584a163",
+      "sha256_after_move": "5b24eb81dd78585c207ebebade59dc038e73b6a46ae54d22784682893584a163"
+    },
+    {
+      "file": "GATE1_EXECUTION_MANIFEST.json",
+      "existed": false
+    },
+    {
+      "file": "gate1_authorization.json",
+      "existed": true,
+      "original_path": "beat_0050/results/gate1/gate1_authorization.json",
+      "archived_path": "beat_0050/results/gate1/archive/attempt1_preflight_keyerror/gate1_authorization.json",
+      "sha256": "df7eeff6fc3d4dc6fab13970f557c2b5210355707148ca5693982c04a16aa145",
+      "sha256_after_move": "df7eeff6fc3d4dc6fab13970f557c2b5210355707148ca5693982c04a16aa145"
+    }
+  ],
+  "files_present_at_archive": [
+    "GATE1_EXECUTION_STARTED.json",
+    "GATE1_EXECUTION_FAILURE.json",
+    "gate1_authorization.json"
+  ],
+  "candidate_statistics_computed": false,
+  "run_gate1_not_called": true,
+  "no_execution_manifest": true,
+  "original_paths_cleared": [
+    "GATE1_EXECUTION_STARTED.json",
+    "GATE1_EXECUTION_FAILURE.json",
+    "gate1_authorization.json"
+  ],
+  "note": "原路徑已清空,下一次 claim_execution() 才不會按設計拒絕。封存內容不得刪除 —— 它是「這一次嘗試存在過」的唯一證據。"
+}

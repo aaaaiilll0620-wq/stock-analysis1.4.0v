@@ -1,0 +1,89 @@
+{
+  "inputs": {
+    "C3": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_C3_scores_adv100w_arm.parquet",
+      "sha256": "db90bbeef05caa4b6e0d59158eecaff035d9493540e635f1c8daaa3ac8e2bba5",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    }
+  },
+  "checks": [],
+  "v0_panel_path": "C:\\dev\\Project 1\\data\\research_base\\realbody_scores_adv100w.parquet",
+  "v0_panel_sha256": "a8a8bc4286d77023e36985238ba9d50a5a5ead5349e2b04c03c388bd8b4f21ab",
+  "rows_before_clock": 259652,
+  "rows_after_clock": 161396,
+  "clock": [
+    "2005-01-31",
+    "2019-07-31"
+  ],
+  "as_of_in_clock": 175,
+  "n_industries": 94,
+  "frozen": {
+    "HIST_LO": "2005-01-31",
+    "HIST_HI": "2019-07-31",
+    "N_PERM": 2000,
+    "SEED": 20260809,
+    "ALPHA": 0.05,
+    "MIN_N": 30,
+    "EPS_SD": 1e-12,
+    "N_ARMS": 1,
+    "RET_COL": "fwd_x",
+    "REAL_COMP_COL": "real_composite"
+  },
+  "frozen_matches_prereg": true,
+  "panel_sha256_matches_prereg": {
+    "v0": true,
+    "c3": true
+  },
+  "arm_coverage_in_clock": {
+    "missing_in_clock": 0,
+    "coverage": 1.0
+  },
+  "all_arms_full_coverage": true,
+  "return_line": {
+    "column": "fwd_x",
+    "source": "exec_ret(經 lab_paths.load_real_panel)",
+    "notna_rows": 161396
+  },
+  "candidate_score": {
+    "column": "real_composite",
+    "note": "C3 面板的真身分數"
+  },
+  "common_sample": {
+    "n_months_M_star": 175,
+    "months_first": [
+      "2005-01-31",
+      "2005-02-25",
+      "2005-03-31"
+    ],
+    "months_last": [
+      "2019-05-31",
+      "2019-06-28",
+      "2019-07-31"
+    ],
+    "dropped_months": [],
+    "n_stocks_per_month_min": 662,
+    "n_stocks_per_month_max": 1157,
+    "n_stocks_per_month_median": 924.0,
+    "G1a_G1c_same_months": true
+  },
+  "rows_excluded_by_arm": 0,
+  "face_coverage_in_window": {
+    "f_val": 1.0,
+    "f_mom": 1.0
+  },
+  "preflight_checks": {
+    "C3 面板存在且無 dup/score_error": true,
+    "面板 sha256 與預註冊 §1 一致": true,
+    "窗內 C3 coverage = 1.0": true,
+    "報酬線 = exec_ret.fwd_x": true,
+    "候選分數 = real_composite": true,
+    "凍結參數符合預註冊": true,
+    "G1-a / G1-c 的 M* 一致": true,
+    "窗與原案 OOS 窗無重疊(2005-01~2019-07 早於 2019-08-01)": true
+  },
+  "preflight_passed": true
+}

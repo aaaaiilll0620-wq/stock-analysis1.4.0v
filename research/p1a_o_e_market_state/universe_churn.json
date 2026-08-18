@@ -1,0 +1,146 @@
+{
+ "study": "O-E per-year export universe churn",
+ "read_only": true,
+ "performance_computed": false,
+ "source": "tej_exports/DataExport0806/個股股價、本益比2004-20260806",
+ "securities_per_year": {
+  "2012": 1621,
+  "2013": 1650,
+  "2014": 1700,
+  "2015": 1735,
+  "2016": 1773,
+  "2017": 1795,
+  "2018": 1817,
+  "2019": 1734,
+  "2020": 1764,
+  "2021": 1808,
+  "2022": 1843,
+  "2023": 1886,
+  "2024": 1934,
+  "2025": 1951
+ },
+ "churn": {
+  "2012->2013": {
+   "present": 1621,
+   "dropped": 14,
+   "added": 43,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2012/12/28",
+   "examples": []
+  },
+  "2013->2014": {
+   "present": 1650,
+   "dropped": 11,
+   "added": 61,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2013/12/31",
+   "examples": []
+  },
+  "2014->2015": {
+   "present": 1700,
+   "dropped": 16,
+   "added": 51,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2014/12/31",
+   "examples": []
+  },
+  "2015->2016": {
+   "present": 1735,
+   "dropped": 14,
+   "added": 52,
+   "dropped_but_traded_to_year_end": 1,
+   "year_end_session": "2015/12/31",
+   "examples": [
+    "6211"
+   ]
+  },
+  "2016->2017": {
+   "present": 1773,
+   "dropped": 20,
+   "added": 42,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2016/12/30",
+   "examples": []
+  },
+  "2017->2018": {
+   "present": 1795,
+   "dropped": 18,
+   "added": 40,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2017/12/29",
+   "examples": []
+  },
+  "2018->2019": {
+   "present": 1817,
+   "dropped": 110,
+   "added": 27,
+   "dropped_but_traded_to_year_end": 90,
+   "year_end_session": "2018/12/28",
+   "examples": [
+    "1258",
+    "1262",
+    "1333",
+    "1507",
+    "1566",
+    "1592",
+    "1701",
+    "1704",
+    "1724",
+    "1787",
+    "1902",
+    "2358",
+    "2443",
+    "2448",
+    "2456"
+   ]
+  },
+  "2019->2020": {
+   "present": 1734,
+   "dropped": 0,
+   "added": 30,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2019/12/31",
+   "examples": []
+  },
+  "2020->2021": {
+   "present": 1764,
+   "dropped": 0,
+   "added": 44,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2020/12/31",
+   "examples": []
+  },
+  "2021->2022": {
+   "present": 1808,
+   "dropped": 0,
+   "added": 35,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2021/12/30",
+   "examples": []
+  },
+  "2022->2023": {
+   "present": 1843,
+   "dropped": 0,
+   "added": 43,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2022/12/30",
+   "examples": []
+  },
+  "2023->2024": {
+   "present": 1886,
+   "dropped": 0,
+   "added": 48,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2023/12/29",
+   "examples": []
+  },
+  "2024->2025": {
+   "present": 1934,
+   "dropped": 0,
+   "added": 17,
+   "dropped_but_traded_to_year_end": 0,
+   "year_end_session": "2024/12/31",
+   "examples": []
+  }
+ }
+}

@@ -1,0 +1,422 @@
+{
+  "_what": "Gate 1 首次正式執行的 execution manifest(單發射擊,不得重跑覆寫)。",
+  "_prereg": [
+    "docs/預註冊_FaceRedesignV2_草案.md §5-2",
+    "docs/預註冊_FaceRedesignV2_第二批_B層草案.md §0-1 / §7",
+    "docs/勘誤_Gate1_PerArmBaseline.md"
+  ],
+  "executed_at_start": "2026-08-02T18:24:10.796140+08:00",
+  "executed_at_end": "2026-08-02T18:24:26.025000+08:00",
+  "command": "gate1_assemble_12arm.py --part gate --i-am-executing-the-frozen-gate --authorization beat_0050/results/gate1/gate1_authorization.json",
+  "authorization_mechanism": "外部授權 JSON 綁定 overlay sha256 + 命令列旗標;不使用原始碼常數(改碼會變更 runner hash 並使 overlay 失效)",
+  "provenance_overlay": {
+    "overlay_path": "C:\\dev\\Project 1\\beat_0050\\results\\gate1\\GATE1_PROVENANCE_OVERLAY.json",
+    "overlay_sha256": "7344424dd8b5f034d1cde1f236840c2c824aaadfed6944c42eb2e617b98d09bb",
+    "items_verified": 53,
+    "passed": true
+  },
+  "inputs": {
+    "A1": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A1_scores_adv100w_arm.parquet",
+      "sha256": "9f406129e64b855b72feed379c465eea06ca45d98b813d211794a182ca540fea",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "A2": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A2_scores_adv100w_arm.parquet",
+      "sha256": "1efe577b1865a9006945ea1c61e4276d776ef52b567611b82a2b1f8a98802dd7",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "A3": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A3_scores_adv100w_arm.parquet",
+      "sha256": "fa1edde7dcb6d5a8a2846eac1671488fe92def627c85fd928d637f0b401215f1",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "A4": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A4_scores_adv100w_arm.parquet",
+      "sha256": "f3f6a99078c0cf9c20c383a9c05e0da77aded0c10fba6422e04ae9600aa8e762",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "C1": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_C1_scores_adv100w_arm.parquet",
+      "sha256": "6b2fa3cff3202a3bf1183b885206982da08c5b71b550f43fd3e2cf2e5d322d81",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "C3": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_C3_scores_adv100w_arm.parquet",
+      "sha256": "db90bbeef05caa4b6e0d59158eecaff035d9493540e635f1c8daaa3ac8e2bba5",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "B1": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B1_scores_adv100w_arm.parquet",
+      "sha256": "0ae2abf709c0b1e9a84f078008bf38c241a56147b621a8f6a5123eeb2620ddce",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B2": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B2_scores_adv100w_arm.parquet",
+      "sha256": "94216481c52294e324f7ded613e42f2541faac24bcbc15e4638e3fbf3ec0e12a",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B3": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B3_scores_adv100w_arm.parquet",
+      "sha256": "7322fc944f90df923b056cb654e4bd336874645242f943d7704adde53ec145c0",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B4": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B4_scores_adv100w_arm.parquet",
+      "sha256": "1a0f06749af7f1aaa37b0037531b5108c1eb40825f1ed00362cc5c13956964bc",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B5": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B5_scores_adv100w_arm.parquet",
+      "sha256": "c981ae268424bd6af783e991207a265ac4918b5d48960217c82f1f2d14c5d6ed",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "C2": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_C2_scores_adv100w_arm.parquet",
+      "sha256": "e55f303dbc6dd2f4efb6a30e88363aeb7b33de9db0e4cfc6f5abbf52966a2810",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    }
+  },
+  "v0_panel": {
+    "path": "C:\\dev\\Project 1\\data\\research_base\\realbody_scores_adv100w.parquet",
+    "sha256": "a8a8bc4286d77023e36985238ba9d50a5a5ead5349e2b04c03c388bd8b4f21ab"
+  },
+  "return_line": {
+    "column": "fwd_x",
+    "source": "exec_ret(經 lab_paths.load_real_panel)",
+    "notna_rows": 96956
+  },
+  "candidate_score": {
+    "column": "real_composite",
+    "note": "各 arm 面板的真身分數;未使用 composite_indep 或任何衍生欄"
+  },
+  "clock": [
+    "2019-08-01",
+    "2026-03-31"
+  ],
+  "frozen": {
+    "OOS_LO": "2019-08-01",
+    "OOS_HI": "2026-03-31",
+    "N_PERM": 2000,
+    "SEED": 20260731,
+    "ALPHA": 0.05,
+    "MIN_N": 30,
+    "EPS_SD": 1e-12,
+    "N_ARMS": 12,
+    "RET_COL": "fwd_x",
+    "REAL_COMP_COL": "real_composite"
+  },
+  "baseline_idx": [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+  ],
+  "baseline_idx_map": {
+    "A1": "V0",
+    "A2": "V0",
+    "A3": "V0",
+    "A4": "V0",
+    "C1": "V0",
+    "C3": "V0",
+    "B1": "arm_C3",
+    "B2": "arm_C3",
+    "B3": "arm_C3",
+    "B4": "arm_C3",
+    "B5": "arm_C3",
+    "C2": "arm_C3"
+  },
+  "common_sample": {
+    "n_months_M_star": 80,
+    "months_first": [
+      "2019-08-30",
+      "2019-09-27",
+      "2019-10-31"
+    ],
+    "months_last": [
+      "2026-01-30",
+      "2026-02-26",
+      "2026-03-31"
+    ],
+    "dropped_months": [],
+    "n_stocks_per_month_min": 1035,
+    "n_stocks_per_month_max": 1363,
+    "n_stocks_per_month_median": 1226.0,
+    "G1a_G1c_same_months": true
+  },
+  "preflight_checks": {
+    "12 個 arm 都有資料": true,
+    "無 duplicate keys": true,
+    "score_error 全為 0": true,
+    "主時鐘內各 arm coverage = 1.0": true,
+    "報酬線 = exec_ret.fwd_x": true,
+    "候選分數 = real_composite": true,
+    "凍結參數符合指示": true,
+    "G1-a / G1-c 的 M* 一致": true
+  },
+  "arms": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "C1",
+    "C3",
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5",
+    "C2"
+  ],
+  "results": {
+    "decision_rule": "G1-a AND G1-c(單尾 α=0.05,各自對自己的 T*)",
+    "n_months_M_star": 80,
+    "settings": {
+      "n_perm": 2000,
+      "seed": 20260731,
+      "alpha": 0.05,
+      "baseline_idx": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    "G1a": {
+      "T_star": 2.4550438117785434,
+      "t": [
+        0.0,
+        0.0,
+        1.5780603615622077,
+        1.5789483849070465,
+        -1.6131003890732292,
+        3.7375089813816924,
+        -3.4937456839221577,
+        -4.248840570320404,
+        -5.0105439045231694,
+        -4.778204749997994,
+        -3.62125916424033,
+        -3.595289276854704
+      ],
+      "p_adj": [
+        1.0,
+        1.0,
+        0.32533733133433285,
+        0.3238380809595202,
+        1.0,
+        0.0014992503748125937,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rho_hat": 0.1358585307662487,
+      "rho_status": "partial:2 個 arm 的 t 恆定,已排除後估計",
+      "degenerate": false
+    },
+    "G1c": {
+      "T_star": 2.419922393237806,
+      "t": [
+        0.0,
+        0.0,
+        1.2529765229162748,
+        1.7792782998272696,
+        -2.1131638857990755,
+        5.650045914793845,
+        -5.295052771607592,
+        -6.129632371892852,
+        -7.238988705187603,
+        -6.277497316006181,
+        -5.375482378945129,
+        -5.520432993369769
+      ],
+      "p_adj": [
+        1.0,
+        1.0,
+        0.5302348825587206,
+        0.2283858070964518,
+        1.0,
+        0.0004997501249375312,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rho_hat": 0.13725116837730422,
+      "rho_status": "partial:2 個 arm 的 t 恆定,已排除後估計",
+      "degenerate": false
+    },
+    "pass_G1a": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "pass_G1c": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "passed": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "note_rho": "rho_hat 是族內 t 的平均兩兩相關(**混合基準**:V0 腿與 C3 腿),不再等同單一來源造成的相關(勘誤 §4-2)。",
+    "note_p_adj": "p_adj 為報告用衍生量,凍結的判定門檻是 t > T*。"
+  },
+  "runner_sha256": "0db095edd037d40a04dafc3ded1a4b057ce6a8dcb9f126923b7ad3997a5760d4",
+  "frozen_impl_sha256": "9bcb71ff18ac09f49029023195d4e3ae53cfcd9c061b7c51a7273fce05791930",
+  "performance_analysis_executed": false,
+  "note_no_performance": "本次只執行 Gate 1。未執行 CAGR / Sharpe / MDD / 累積報酬 / 策略績效排名,亦未計算 V0-C3 的績效(第二批 R1 時序限制)。",
+  "authorization": {
+    "path": "beat_0050\\results\\gate1\\gate1_authorization.json",
+    "sha256": "848306bae4602381a140027bc32686fd1679f280f018422752663cc831c8720a",
+    "overlay_sha256": "7344424dd8b5f034d1cde1f236840c2c824aaadfed6944c42eb2e617b98d09bb",
+    "content": {
+      "authorizes": "gate1-first-official-permutation",
+      "overlay_sha256": "7344424dd8b5f034d1cde1f236840c2c824aaadfed6944c42eb2e617b98d09bb",
+      "authorized_by": "專案使用者(依 Codex 2026-08-02 核准 attempt 2 前置控制後指示執行)",
+      "authorized_at": "2026-08-02T18:23:59.141178+08:00",
+      "attempt": 2,
+      "note": "attempt 1 因 main() 在 preflight_passed 設定前讀取而 KeyError 中止,統計未擊發、無 EXECUTION_MANIFEST,已封存於 archive/attempt1_preflight_keyerror。根因已修(判定改由 preflight() 產出),並補上『合成 rep 不得比真實回傳更完整』的契約測試。Codex 核准後執行 attempt 2。"
+    }
+  },
+  "execution_started_record": {
+    "_what": "Gate 1 正式執行的認領紀錄。在讀取任何 candidate 面板之前落地。",
+    "started_at": "2026-08-02T18:24:10.796140+08:00",
+    "command": "gate1_assemble_12arm.py --part gate --i-am-executing-the-frozen-gate --authorization beat_0050/results/gate1/gate1_authorization.json",
+    "overlay_sha256": "7344424dd8b5f034d1cde1f236840c2c824aaadfed6944c42eb2e617b98d09bb",
+    "runner_sha256": "0db095edd037d40a04dafc3ded1a4b057ce6a8dcb9f126923b7ad3997a5760d4",
+    "frozen_impl_sha256": "9bcb71ff18ac09f49029023195d4e3ae53cfcd9c061b7c51a7273fce05791930",
+    "authorization_path": "beat_0050\\results\\gate1\\gate1_authorization.json",
+    "authorization_sha256": "848306bae4602381a140027bc32686fd1679f280f018422752663cc831c8720a",
+    "baseline_idx": [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "baseline_map": {
+      "A1": "V0",
+      "A2": "V0",
+      "A3": "V0",
+      "A4": "V0",
+      "C1": "V0",
+      "C3": "V0",
+      "B1": "arm_C3",
+      "B2": "arm_C3",
+      "B3": "arm_C3",
+      "B4": "arm_C3",
+      "B5": "arm_C3",
+      "C2": "arm_C3"
+    },
+    "n_perm": 2000,
+    "seed": 20260731,
+    "alpha": 0.05,
+    "note": "本檔失敗時亦不得刪除;重跑須人工封存 + 新授權。"
+  },
+  "execution_started_file": "C:\\dev\\Project 1\\beat_0050\\results\\gate1\\GATE1_EXECUTION_STARTED.json"
+}

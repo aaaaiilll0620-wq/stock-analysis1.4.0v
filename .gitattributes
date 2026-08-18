@@ -1,0 +1,44 @@
+# ============================================================================
+# Deterministic byte representation — this file is a PROVENANCE control, not a
+# style preference.
+#
+# spec_sha256 (docs/FrozenB0_MasterPreregistration.md) and every entry in
+# NORMATIVE_MODULES are RAW-BYTE identities. A checkout whose line endings
+# depend on the platform, on core.autocrlf, or on whoever cloned the repo would
+# produce a different hash for identical content, and the seal would bind
+# nothing. LF is the canonical repository representation: HEAD has stored these
+# paths as LF throughout, so this file records the existing convention rather
+# than migrating it.
+#
+# Established 2026-08-18 during Repo & Provenance Finalization Closure.
+# Before this file existed, .gitattributes was ABSENT and 150 tracked files had
+# drifted to CRLF in the working tree (content-identical). They were restored to
+# their HEAD bytes rather than committed, because 3 of them are Frozen A
+# protected files, which must not be modified.
+# ============================================================================
+
+# Default: normalize to LF in the repository AND in the working tree.
+* text=auto eol=lf
+
+# --- Binary: never line-ending converted, never diffed as text ---------------
+# These carry incidental \r\n byte pairs that are DATA, not line terminators.
+# 122 tracked .parquet, 1 .npz and 1 .docx were verified to contain such pairs;
+# relying on the text=auto heuristic alone would risk corrupting them.
+*.parquet  -text
+*.npz      -text
+*.xlsx     -text
+*.xls      -text
+*.docx     -text
+*.zip      -text
+*.png      -text
+*.jpg      -text
+*.pdf      -text
+*.pyc      -text
+
+# --- Windows script hosts require CRLF at execution time ---------------------
+# Still deterministic: the repository stores LF, and the working-tree ending is
+# fixed by this file rather than by platform configuration.
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+*.vbs  text eol=crlf

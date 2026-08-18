@@ -1,0 +1,30 @@
+{
+ "study": "superseded O-F diagnostic, recorded for regression",
+ "source": "research/d1_price_universe/realdata_adapter_validation.json before the v1.10 rerun",
+ "as_of": "2020-06-29",
+ "measurement_defect": "price_observed_through was approximated by min(series_last, as_of); see prereg C-40",
+ "by_cause": {
+  "ok": 1819,
+  "o_e_1_same_day": 7,
+  "no_status_record": 12,
+  "other": 0
+ },
+ "example_names_recorded": [
+  "1333",
+  "1902",
+  "2475",
+  "2499",
+  "3431",
+  "3452",
+  "3519",
+  "3562",
+  "3579",
+  "4415",
+  "4947",
+  "5259",
+  "6238",
+  "8287",
+  "8913"
+ ],
+ "note": "REPORTED against, never a pass list."
+}

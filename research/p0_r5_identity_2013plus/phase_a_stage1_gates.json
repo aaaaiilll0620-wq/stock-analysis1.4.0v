@@ -1,0 +1,408 @@
+{
+ "study": "P0-R5 Phase A — Stage 1 gates",
+ "read_only": true,
+ "tdcc_weekly": "NOT_JUDGED — blocked by §3a-2 pending user ruling (option 2 vs option 3)",
+ "gate_1_month_window": {
+  "source": "research/p0_r2_identity_collector/a_leg_parity_result.json",
+  "derivation": "sorted(per_date.keys()) filtered >= 2013-01-01",
+  "frozen_month_count": 255,
+  "frozen_month_range": [
+   "2005-01-31",
+   "2026-03-31"
+  ],
+  "derived_month_count": 159,
+  "derived_month_range": [
+   "2013-01-31",
+   "2026-03-31"
+  ],
+  "expected": 159,
+  "status": "PASS"
+ },
+ "gate_2_frozen_population": {
+  "artifact": "research/p0_u1_canonical_universe/canonical_universe_by_date/canonical_universe_{month}.csv",
+  "cross_check": "csv data-row count == a_leg_parity_result.per_date[month].population_diagnostics.oracle_population",
+  "months_checked": 159,
+  "months_missing_file": [],
+  "mismatch_count": 0,
+  "mismatches": [],
+  "total_stock_months": 178464,
+  "status": "PASS",
+  "note": "Full-corpus over all 159 window months, not sampled. A FAIL here means the frozen decision-time population is UNRESOLVED and Phase A stops rather than substituting a different population."
+ },
+ "gate_3_source_hashes": [
+  {
+   "dataset": "monthly_revenue",
+   "file": "20260806091706.xlsx",
+   "path": "tej_exports/DataExport0806/月營收2004-202608/20260806091706.xlsx",
+   "size_bytes": 33589792,
+   "source_pre_sha256": "237e13abae8dafbadd01881920427ef1c3f0f7da9b226f88495f770b1d0b0fab",
+   "recorded_by_p0_r4": true,
+   "match_vs_p0_r4": "MATCH"
+  },
+  {
+   "dataset": "financial_statements",
+   "file": "20260806090633.xlsx",
+   "path": "tej_exports/DataExport0806/財報2004~202606/20260806090633.xlsx",
+   "size_bytes": 55352771,
+   "source_pre_sha256": "97574a0892ed01292b0ea781c340ce711ae96bd7c17d3fd5aad79ead57016832",
+   "recorded_by_p0_r4": true,
+   "match_vs_p0_r4": "MATCH"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2004 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2004 法人.xlsx",
+   "size_bytes": 26275280,
+   "source_pre_sha256": "cbeda8b98c989f88de406dfb358f896d18c1f092b16e4c36fdaae7c67760f842",
+   "recorded_by_p0_r4": true,
+   "match_vs_p0_r4": "MATCH"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2005 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2005 法人.xlsx",
+   "size_bytes": 27378678,
+   "source_pre_sha256": "676637b9457e89f589b3ed020e343549dd902a53fe39051cca75f2856ba8a033",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2006 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2006 法人.xlsx",
+   "size_bytes": 28523540,
+   "source_pre_sha256": "41b85ceb3ead054ddac611dc476f17326fc39ee3d30825a348e574f35f8af5fc",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2007 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2007 法人.xlsx",
+   "size_bytes": 30002038,
+   "source_pre_sha256": "eff7dd552e0ca3676ffe98b4adb2d7bc603d0ebb1d3e5ad1ab271b7571e46353",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2008 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2008 法人.xlsx",
+   "size_bytes": 30628775,
+   "source_pre_sha256": "89dcebe8352d01b9f0c4bd17f116aafa54c4375b88fdd16c4567b5511359ae64",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2009 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2009 法人.xlsx",
+   "size_bytes": 31700224,
+   "source_pre_sha256": "06a9d9ede587b0a413ef0abaa559f53f2da55b21861a24a35ebbc3728aaa3680",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2010 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2010 法人.xlsx",
+   "size_bytes": 33373717,
+   "source_pre_sha256": "e4e19c54d289f73c911848e203b6a67b90d5504edcc9dcac9eaaec5891811875",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2011 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2011 法人.xlsx",
+   "size_bytes": 33781535,
+   "source_pre_sha256": "0880848f4f0e3c960c3a7401034d4b322a239b740f6f33f6cf72579615ff2db0",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2012 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2012 法人.xlsx",
+   "size_bytes": 35484917,
+   "source_pre_sha256": "d040af265c0207119768b20df34ff22d3def17a1a805a0b4389ebdea6d132427",
+   "recorded_by_p0_r4": true,
+   "match_vs_p0_r4": "MATCH"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2013-14法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2013-14法人.xlsx",
+   "size_bytes": 97732127,
+   "source_pre_sha256": "7e6ae8c483499805e87169c830ed547c75c2e5726141ac8ade29f5619292010a",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2015-2016法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2015-2016法人.xlsx",
+   "size_bytes": 103403030,
+   "source_pre_sha256": "e2dc35e61bd8f738db79e221625eaf99076020d5fbd3b1dab5c71b8f14185280",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2017-2018 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2017-2018 法人.xlsx",
+   "size_bytes": 107480118,
+   "source_pre_sha256": "0d9e64517c9735acf2deeae60cea6da9c53f8ecd65868d757e1c8750e1ed2eeb",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2019-2020 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2019-2020 法人.xlsx",
+   "size_bytes": 107591415,
+   "source_pre_sha256": "223ad22c20306919b71134e3e5dffdf4386736e21cd5abb606159ad9863f5838",
+   "recorded_by_p0_r4": true,
+   "match_vs_p0_r4": "MATCH"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2021-2022法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2021-2022法人.xlsx",
+   "size_bytes": 113653770,
+   "source_pre_sha256": "246134a34a21d7e3dc47798e03ae06a9e92904caa974e1da055ce890127093e5",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2023-2024法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2023-2024法人.xlsx",
+   "size_bytes": 118365732,
+   "source_pre_sha256": "361be7f52fda1311911742b06a4e25736695d6cb71f5ee896188665c84ae0c68",
+   "recorded_by_p0_r4": false,
+   "match_vs_p0_r4": "NOT_PREVIOUSLY_RECORDED"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2025-20260806 法人.xlsx",
+   "path": "tej_exports/DataExport0806/法人回測2004-20260806/2025-20260806 法人.xlsx",
+   "size_bytes": 97905540,
+   "source_pre_sha256": "bd315c780dd0b3484aeb96c0d5835bf629104628d3e524d39e5e6e62ca35e735",
+   "recorded_by_p0_r4": true,
+   "match_vs_p0_r4": "MATCH"
+  }
+ ],
+ "gate_4_headers": [
+  {
+   "dataset": "monthly_revenue",
+   "file": "20260806091706.xlsx",
+   "column_count": 10,
+   "header": [
+    "證券代碼",
+    "年月",
+    "營收發布日",
+    "單月營收(千元)",
+    "單月營收成長率％",
+    "單月營收與上月比％",
+    "累計營收(千元)",
+    "近12月累計營收(千元)",
+    "流通在外股數(千股)",
+    "合併營收(Y/N)"
+   ],
+   "status": "PASS"
+  },
+  {
+   "dataset": "financial_statements",
+   "file": "20260806090633.xlsx",
+   "column_count": 56,
+   "header": [
+    "證券代碼",
+    "年月",
+    "季別",
+    "合併(Y/N)",
+    "單季(Q)/單半年(H)",
+    "月份",
+    "現金及約當現金",
+    "應收帳款及票據",
+    "存貨",
+    "流動資產",
+    "不動產廠房及設備",
+    "資產總額",
+    "短期借款",
+    "非流動資產",
+    "合約負債－流動",
+    "一年內到期長期負債",
+    "流動負債",
+    "應付帳款及票據",
+    "應付公司債－非流動",
+    "非流動負債",
+    "負債總額",
+    "普通股股本",
+    "母公司股東權益合計",
+    "股本",
+    "保留盈餘",
+    "股東權益總額",
+    "營業收入淨額",
+    "營業毛利",
+    "營業費用",
+    "研究發展費",
+    "營業利益",
+    "營業外收入及支出",
+    "稅前淨利",
+    "財務成本",
+    "歸屬母公司淨利（損）",
+    "本期綜合損益總額",
+    "所得稅費用",
+    "每股盈餘",
+    "加權平均股數",
+    "每股盈餘－完全稀釋",
+    "稅前息前折舊前淨利",
+    "來自營運之現金流量",
+    "購置不動產廠房設備（含預付）－CFI",
+    "投資活動之現金流量",
+    "籌資活動之現金流量",
+    "期末現金及約當現金",
+    "每股淨值(F)－TSE公告數",
+    "利息保障倍數",
+    "季底售貨天數",
+    "自由現金流量(D)",
+    "季底普通股市值",
+    "財報發布日",
+    "財報類別（1個別2個體3合併）",
+    "財報年月迄日",
+    "交易所主產業代碼",
+    "市場別"
+   ],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2004 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2005 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2006 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2007 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2008 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2009 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2010 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2011 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2012 法人.xlsx",
+   "column_count": 26,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2013-14法人.xlsx",
+   "column_count": 25,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2015-2016法人.xlsx",
+   "column_count": 25,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2017-2018 法人.xlsx",
+   "column_count": 25,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2019-2020 法人.xlsx",
+   "column_count": 25,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2021-2022法人.xlsx",
+   "column_count": 25,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2023-2024法人.xlsx",
+   "column_count": 25,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  },
+  {
+   "dataset": "institutional_gross",
+   "file": "2025-20260806 法人.xlsx",
+   "column_count": 25,
+   "required_cols_present": true,
+   "missing_required_cols": [],
+   "status": "PASS"
+  }
+ ]
+}

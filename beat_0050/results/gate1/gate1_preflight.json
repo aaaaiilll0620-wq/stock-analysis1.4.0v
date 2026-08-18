@@ -1,0 +1,309 @@
+{
+  "inputs": {
+    "A1": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A1_scores_adv100w_arm.parquet",
+      "sha256": "9f406129e64b855b72feed379c465eea06ca45d98b813d211794a182ca540fea",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "A2": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A2_scores_adv100w_arm.parquet",
+      "sha256": "1efe577b1865a9006945ea1c61e4276d776ef52b567611b82a2b1f8a98802dd7",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "A3": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A3_scores_adv100w_arm.parquet",
+      "sha256": "fa1edde7dcb6d5a8a2846eac1671488fe92def627c85fd928d637f0b401215f1",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "A4": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_A4_scores_adv100w_arm.parquet",
+      "sha256": "f3f6a99078c0cf9c20c383a9c05e0da77aded0c10fba6422e04ae9600aa8e762",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "C1": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_C1_scores_adv100w_arm.parquet",
+      "sha256": "6b2fa3cff3202a3bf1183b885206982da08c5b71b550f43fd3e2cf2e5d322d81",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "C3": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_C3_scores_adv100w_arm.parquet",
+      "sha256": "db90bbeef05caa4b6e0d59158eecaff035d9493540e635f1c8daaa3ac8e2bba5",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0",
+      "score_column": "real_composite"
+    },
+    "B1": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B1_scores_adv100w_arm.parquet",
+      "sha256": "0ae2abf709c0b1e9a84f078008bf38c241a56147b621a8f6a5123eeb2620ddce",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B2": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B2_scores_adv100w_arm.parquet",
+      "sha256": "94216481c52294e324f7ded613e42f2541faac24bcbc15e4638e3fbf3ec0e12a",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B3": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B3_scores_adv100w_arm.parquet",
+      "sha256": "7322fc944f90df923b056cb654e4bd336874645242f943d7704adde53ec145c0",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B4": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B4_scores_adv100w_arm.parquet",
+      "sha256": "1a0f06749af7f1aaa37b0037531b5108c1eb40825f1ed00362cc5c13956964bc",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "B5": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_B5_scores_adv100w_arm.parquet",
+      "sha256": "c981ae268424bd6af783e991207a265ac4918b5d48960217c82f1f2d14c5d6ed",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    },
+    "C2": {
+      "path": "C:\\dev\\Project 1\\data\\research_base\\arms\\arm_C2_scores_adv100w_arm.parquet",
+      "sha256": "e55f303dbc6dd2f4efb6a30e88363aeb7b33de9db0e4cfc6f5abbf52966a2810",
+      "rows_full_panel": 263928,
+      "duplicate_keys": 0,
+      "score_error": 0,
+      "baseline": "V0-C3",
+      "score_column": "real_composite"
+    }
+  },
+  "checks": [],
+  "v0_panel_path": "C:\\dev\\Project 1\\data\\research_base\\realbody_scores_adv100w.parquet",
+  "v0_panel_sha256": "a8a8bc4286d77023e36985238ba9d50a5a5ead5349e2b04c03c388bd8b4f21ab",
+  "rows_before_clock": 259652,
+  "rows_after_clock": 96956,
+  "clock": [
+    "2019-08-01",
+    "2026-03-31"
+  ],
+  "as_of_in_clock": 80,
+  "n_industries": 97,
+  "frozen": {
+    "OOS_LO": "2019-08-01",
+    "OOS_HI": "2026-03-31",
+    "N_PERM": 2000,
+    "SEED": 20260731,
+    "ALPHA": 0.05,
+    "MIN_N": 30,
+    "EPS_SD": 1e-12,
+    "N_ARMS": 12,
+    "RET_COL": "fwd_x",
+    "REAL_COMP_COL": "real_composite"
+  },
+  "frozen_matches_instruction": true,
+  "arm_coverage_in_clock": {
+    "A1": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "A2": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "A3": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "A4": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "C1": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "C3": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "B1": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "B2": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "B3": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "B4": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "B5": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    },
+    "C2": {
+      "missing_in_clock": 0,
+      "coverage": 1.0
+    }
+  },
+  "all_arms_full_coverage": true,
+  "return_line": {
+    "column": "fwd_x",
+    "source": "exec_ret(經 lab_paths.load_real_panel)",
+    "notna_rows": 96956
+  },
+  "candidate_score": {
+    "column": "real_composite",
+    "note": "各 arm 面板的真身分數;未使用 composite_indep 或任何衍生欄"
+  },
+  "common_sample": {
+    "n_months_M_star": 80,
+    "months_first": [
+      "2019-08-30",
+      "2019-09-27",
+      "2019-10-31"
+    ],
+    "months_last": [
+      "2026-01-30",
+      "2026-02-26",
+      "2026-03-31"
+    ],
+    "dropped_months": [],
+    "n_stocks_per_month_min": 1035,
+    "n_stocks_per_month_max": 1363,
+    "n_stocks_per_month_median": 1226.0,
+    "G1a_G1c_same_months": true
+  },
+  "rows_excluded_by_each_arm": {
+    "A1": 0,
+    "A2": 0,
+    "A3": 0,
+    "A4": 0,
+    "C1": 0,
+    "C3": 0,
+    "B1": 0,
+    "B2": 0,
+    "B3": 0,
+    "B4": 0,
+    "B5": 0,
+    "C2": 0
+  },
+  "baseline_idx": [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+  ],
+  "baseline_idx_verified": true,
+  "baseline_idx_map": {
+    "A1": "V0",
+    "A2": "V0",
+    "A3": "V0",
+    "A4": "V0",
+    "C1": "V0",
+    "C3": "V0",
+    "B1": "arm_C3",
+    "B2": "arm_C3",
+    "B3": "arm_C3",
+    "B4": "arm_C3",
+    "B5": "arm_C3",
+    "C2": "arm_C3"
+  },
+  "baseline_shared_by_g1a_and_g1c": true,
+  "baseline_declaration": {
+    "first_batch": {
+      "arms": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "C1",
+        "C3"
+      ],
+      "baseline": "V0",
+      "source": "第一批預註冊 §5-2:ΔIC(t) = IC_arm(t) − IC_V0(t)",
+      "column": "real_composite"
+    },
+    "second_batch": {
+      "arms": [
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "C2"
+      ],
+      "baseline": "V0-C3",
+      "source": "第二批預註冊 §0-1:第二批所有 arm 的對照組是 V0-C3",
+      "column": "arm_C3(= 第一批 C3 面板的 real_composite)"
+    },
+    "note_g1c": "G1-c 時 V0 與 C3 兩條 baseline 腿都取產業內中性化後的 rank score,與各 arm 同一前處理(勘誤 E2)。mapping 與 G1-a 完全相同。"
+  },
+  "run_started_at": "2026-08-02T17:10:13.094510+08:00",
+  "runner_path": "C:\\dev\\Project 1\\scripts\\gate1_assemble_12arm.py",
+  "runner_sha256": "bca27711884f97c86a403082a8733146f66bd383576bc9623d17e9c6defb4fc5",
+  "frozen_impl_path": "C:\\dev\\Project 1\\scripts\\gate1_delta_ic_maxt.py",
+  "frozen_impl_sha256": "9bcb71ff18ac09f49029023195d4e3ae53cfcd9c061b7c51a7273fce05791930",
+  "manifest_sha256": "4677560acf3a0e53bf9a97c71707696a9c218ee2a600cee72240aa8b15591f9f",
+  "performance_analysis_executed": false,
+  "note_no_performance": "本次未執行 CAGR / Sharpe / MDD / 累積報酬 / 任何策略績效或 Gate 1 以外的 candidate OOS 分析。",
+  "preflight_checks": {
+    "12 個 arm 都有資料": true,
+    "無 duplicate keys": true,
+    "score_error 全為 0": true,
+    "主時鐘內各 arm coverage = 1.0": true,
+    "報酬線 = exec_ret.fwd_x": true,
+    "候選分數 = real_composite": true,
+    "凍結參數符合指示": true,
+    "G1-a / G1-c 的 M* 一致": true
+  },
+  "preflight_passed": true,
+  "run_finished_at": "2026-08-02T17:10:17.167312+08:00",
+  "gate_executed": false,
+  "gate_blocker": "⏸ 正式 Gate 1 **暫緩執行** —— 統計阻斷點已解除,但本輪仍 fail-closed。\n\n原阻斷點(凍結函式只支援單一 baseline,與第二批 §0-1 的 V0-C3 條款衝突)\n已由 Codex 2026-08-02 裁決採 per-arm baseline 解決,勘誤見\n`docs/勘誤_Gate1_PerArmBaseline.md`,實作見 `gate1_delta_ic_maxt._delta_ic_matrix()`。\n\n正式執行分支(`run_gate1()` + `build_execution_manifest()`)**已實作並通過合成測試**,\noverlay 驗證與 preflight 也都已跑過。擋住的是最後的**武裝閘門**:\n\n  Codex 2026-08-02:「先只完成正式執行分支的程式與合成測試,不執行 candidate Gate 1……\n  完成後再交我審查一次,才執行首次正式 permutation。」\n\nGate 1 是**單發射擊** —— 跑完 T* 就定了。開火需要**兩把鑰匙**同時到位:\n\n  1. 命令列旗標 `--i-am-executing-the-frozen-gate`\n  2. `--authorization <file.json>`,內容須綁定當前 overlay 的 sha256\n\n授權是**外部檔案**而非原始碼常數:改原始碼會變更 runner 的 sha256,\n而 runner hash 記在已驗過的 overlay 裡 —— 那會讓「授權」本身破壞 provenance。\n樣板:`--print-authorization-template`(印樣板不構成授權,建立檔案才是)。\n\n授權與認領全部在**讀取任何 candidate 面板之前**完成;\n`GATE1_EXECUTION_STARTED.json` 以 exclusive create 落地作為單發射擊的認領。\nSTARTED / MANIFEST / FAILURE 任一存在即拒絕執行,失敗時 STARTED **不刪除**,\n另寫 FAILURE 紀錄;重跑須人工封存 + 新授權。\n\n開火時以下列宣告呼叫凍結函式(已驗證,見 preflight 的 baseline_idx 區塊),\nG1-a 與 G1-c **共用同一份** mapping:\n\n       baseline_idx = [-1, -1, -1, -1, -1, -1, 5, 5, 5, 5, 5, 5]\n\n本輪未執行任何 permutation、未產生任何 T* / ΔIC / t / p-value。\n"
+}

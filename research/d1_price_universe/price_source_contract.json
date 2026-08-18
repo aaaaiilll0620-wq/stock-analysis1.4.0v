@@ -1,0 +1,42 @@
+{
+ "study": "D1-7 price source contract",
+ "read_only": true,
+ "performance_computed": false,
+ "contract": {
+  "name": "b0_price_universe_20260817",
+  "importer_version": "b0_price_importer@2",
+  "content_sha256": "2646356f406a585c53954430eb5ad2967ddebc5c20ef12ea51f4333009d63549",
+  "schema_sha256": "e6c55c6e89486cbbca2452b1b979c2ab25a8e793cf40ab83e911cfe61b1bf062",
+  "date_min": "2004-01-02",
+  "date_max": "2026-08-17",
+  "securities": 2306,
+  "includes_delisted": true,
+  "audit_sha256": "29b818f28dec3ebbe6a45747e7670a12bc9ec08e4b5d8289c652ac04adac9c81",
+  "lineage": "<=2018 existing yearly export; >=2019 tej_exports/DataExport0806/個股股價、本益比2004-20260817 (股價 2019-2022.zip, 股價2023-20260817.zip)"
+ },
+ "b21_dataset_provenance": {
+  "name": "b0_price_universe_20260817",
+  "content_sha256": "2646356f406a585c53954430eb5ad2967ddebc5c20ef12ea51f4333009d63549",
+  "schema_sha256": "e6c55c6e89486cbbca2452b1b979c2ab25a8e793cf40ab83e911cfe61b1bf062",
+  "date_min": "2004-01-02",
+  "date_max": "2026-08-17",
+  "importer_version": "b0_price_importer@2"
+ },
+ "upstream_zips": {
+  "股價 2019-2022.zip": "41ef1cce47ffb8dc9f58fb9c47cfd579b00fbeab61b61cb3a4fc5df0e0823413",
+  "股價2023-20260817.zip": "049881046ef564e856c3564244337b00bc284707744d0595d8ced0842e19e409"
+ },
+ "upstream_zip_bytes": {
+  "股價 2019-2022.zip": 70810249,
+  "股價2023-20260817.zip": 67936256
+ },
+ "derived_artifacts": {
+  "price_universe_audit.csv": "29b818f28dec3ebbe6a45747e7670a12bc9ec08e4b5d8289c652ac04adac9c81",
+  "price_universe_clusters.csv": "27c3ec0851b9b90a5e2729e2b2d3eedba4143eb9ff72c0476fdbc2f2ce682fca",
+  "price_2019plus_new.parquet": "a722df5ff4a23ae889df148a180c55e681bd5d7f9309f50a4ce6bf2278824486"
+ },
+ "differs_from_quarantined_corpus": true,
+ "quarantined": [
+  "aeda65b99ec9d4b4e02f96e20e3d915c5519329d010415f2be3e4cb667ea49c1"
+ ]
+}

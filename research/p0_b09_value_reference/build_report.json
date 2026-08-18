@@ -1,0 +1,2084 @@
+{
+ "study": "B-09 Phase 3 — isolated candidate B value reference",
+ "read_only_inputs": true,
+ "writes": [
+  "research/p0_b09_value_reference/b_value_reference_candidate.parquet",
+  "research/p0_b09_value_reference/pit_industry_timeline.parquet",
+  "research/p0_b09_value_reference/build_report.json"
+ ],
+ "touched_production_paths": "NONE — no write to ~/tej_cache, ~/market_cache, cloud_cache, data/runtime_cache",
+ "definition": {
+  "value_ind_pct_b": "(1 - within-TSE-industry percentile rank of PER_TSE) * 100; higher = cheaper",
+  "expanding_window": "NONE (removes V3-style path dependence)",
+  "min_pct_samples_gate": "NONE (60-sample gate removed)",
+  "history_anchor": "NONE (2019 compatibility anchor removed per F-D)",
+  "industry_level": "TSE 產業 (D1: only level with reconstructible PIT change history)",
+  "industry_assignment": "POINT-IN-TIME step function (D2)",
+  "min_group_size": 2,
+  "free_parameters": 0
+ },
+ "industry_timeline": {
+  "stocks": 2436,
+  "with_changes": 1203,
+  "records": 4782,
+  "listing_only": 0,
+  "current_agrees_with_latest": 2157,
+  "current_disagrees": 92
+ },
+ "coverage": {
+  "decision_dates": 255,
+  "date_range": [
+   "2005-01-31",
+   "2026-03-31"
+  ],
+  "rows_written": 295001,
+  "scored_per_date_min": 766,
+  "scored_per_date_median": 1198.0,
+  "scored_per_date_max": 1474,
+  "coverage_vs_quoted_min": 0.5454545454545454,
+  "coverage_vs_quoted_median": 0.704135737009544,
+  "groups_per_date_median": 33.0
+ },
+ "per_date_diagnostics": [
+  {
+   "date": "2005-01-31",
+   "quoted": 1332,
+   "pe_positive": 926,
+   "with_industry": 1318,
+   "scored": 925,
+   "groups": 27
+  },
+  {
+   "date": "2005-02-25",
+   "quoted": 1333,
+   "pe_positive": 929,
+   "with_industry": 1319,
+   "scored": 928,
+   "groups": 27
+  },
+  {
+   "date": "2005-03-31",
+   "quoted": 1334,
+   "pe_positive": 936,
+   "with_industry": 1321,
+   "scored": 935,
+   "groups": 27
+  },
+  {
+   "date": "2005-04-29",
+   "quoted": 1336,
+   "pe_positive": 943,
+   "with_industry": 1323,
+   "scored": 942,
+   "groups": 27
+  },
+  {
+   "date": "2005-05-31",
+   "quoted": 1329,
+   "pe_positive": 843,
+   "with_industry": 1317,
+   "scored": 842,
+   "groups": 26
+  },
+  {
+   "date": "2005-06-30",
+   "quoted": 1331,
+   "pe_positive": 849,
+   "with_industry": 1319,
+   "scored": 848,
+   "groups": 26
+  },
+  {
+   "date": "2005-07-29",
+   "quoted": 1329,
+   "pe_positive": 856,
+   "with_industry": 1317,
+   "scored": 855,
+   "groups": 26
+  },
+  {
+   "date": "2005-08-31",
+   "quoted": 1329,
+   "pe_positive": 853,
+   "with_industry": 1318,
+   "scored": 852,
+   "groups": 26
+  },
+  {
+   "date": "2005-09-30",
+   "quoted": 1326,
+   "pe_positive": 833,
+   "with_industry": 1315,
+   "scored": 832,
+   "groups": 26
+  },
+  {
+   "date": "2005-10-31",
+   "quoted": 1326,
+   "pe_positive": 838,
+   "with_industry": 1315,
+   "scored": 837,
+   "groups": 26
+  },
+  {
+   "date": "2005-11-30",
+   "quoted": 1327,
+   "pe_positive": 832,
+   "with_industry": 1317,
+   "scored": 830,
+   "groups": 26
+  },
+  {
+   "date": "2005-12-30",
+   "quoted": 1328,
+   "pe_positive": 837,
+   "with_industry": 1319,
+   "scored": 835,
+   "groups": 26
+  },
+  {
+   "date": "2006-01-25",
+   "quoted": 1329,
+   "pe_positive": 839,
+   "with_industry": 1320,
+   "scored": 837,
+   "groups": 26
+  },
+  {
+   "date": "2006-02-27",
+   "quoted": 1327,
+   "pe_positive": 841,
+   "with_industry": 1318,
+   "scored": 839,
+   "groups": 26
+  },
+  {
+   "date": "2006-03-31",
+   "quoted": 1329,
+   "pe_positive": 848,
+   "with_industry": 1320,
+   "scored": 847,
+   "groups": 26
+  },
+  {
+   "date": "2006-04-28",
+   "quoted": 1329,
+   "pe_positive": 862,
+   "with_industry": 1320,
+   "scored": 861,
+   "groups": 26
+  },
+  {
+   "date": "2006-05-30",
+   "quoted": 1327,
+   "pe_positive": 898,
+   "with_industry": 1318,
+   "scored": 898,
+   "groups": 27
+  },
+  {
+   "date": "2006-06-30",
+   "quoted": 1328,
+   "pe_positive": 902,
+   "with_industry": 1319,
+   "scored": 902,
+   "groups": 27
+  },
+  {
+   "date": "2006-07-31",
+   "quoted": 1327,
+   "pe_positive": 907,
+   "with_industry": 1318,
+   "scored": 907,
+   "groups": 27
+  },
+  {
+   "date": "2006-08-31",
+   "quoted": 1328,
+   "pe_positive": 913,
+   "with_industry": 1319,
+   "scored": 913,
+   "groups": 27
+  },
+  {
+   "date": "2006-09-29",
+   "quoted": 1326,
+   "pe_positive": 928,
+   "with_industry": 1318,
+   "scored": 928,
+   "groups": 27
+  },
+  {
+   "date": "2006-10-31",
+   "quoted": 1329,
+   "pe_positive": 935,
+   "with_industry": 1321,
+   "scored": 935,
+   "groups": 27
+  },
+  {
+   "date": "2006-11-30",
+   "quoted": 1334,
+   "pe_positive": 933,
+   "with_industry": 1326,
+   "scored": 933,
+   "groups": 27
+  },
+  {
+   "date": "2006-12-29",
+   "quoted": 1338,
+   "pe_positive": 932,
+   "with_industry": 1331,
+   "scored": 932,
+   "groups": 27
+  },
+  {
+   "date": "2007-01-31",
+   "quoted": 1339,
+   "pe_positive": 935,
+   "with_industry": 1332,
+   "scored": 935,
+   "groups": 27
+  },
+  {
+   "date": "2007-02-27",
+   "quoted": 1341,
+   "pe_positive": 936,
+   "with_industry": 1334,
+   "scored": 936,
+   "groups": 27
+  },
+  {
+   "date": "2007-03-30",
+   "quoted": 1345,
+   "pe_positive": 939,
+   "with_industry": 1338,
+   "scored": 939,
+   "groups": 27
+  },
+  {
+   "date": "2007-04-30",
+   "quoted": 1347,
+   "pe_positive": 947,
+   "with_industry": 1340,
+   "scored": 947,
+   "groups": 27
+  },
+  {
+   "date": "2007-05-31",
+   "quoted": 1346,
+   "pe_positive": 943,
+   "with_industry": 1339,
+   "scored": 943,
+   "groups": 27
+  },
+  {
+   "date": "2007-06-29",
+   "quoted": 1350,
+   "pe_positive": 944,
+   "with_industry": 1343,
+   "scored": 944,
+   "groups": 27
+  },
+  {
+   "date": "2007-07-31",
+   "quoted": 1349,
+   "pe_positive": 946,
+   "with_industry": 1342,
+   "scored": 946,
+   "groups": 32
+  },
+  {
+   "date": "2007-08-31",
+   "quoted": 1348,
+   "pe_positive": 959,
+   "with_industry": 1341,
+   "scored": 959,
+   "groups": 32
+  },
+  {
+   "date": "2007-09-29",
+   "quoted": 1351,
+   "pe_positive": 953,
+   "with_industry": 1344,
+   "scored": 953,
+   "groups": 32
+  },
+  {
+   "date": "2007-10-31",
+   "quoted": 1366,
+   "pe_positive": 963,
+   "with_industry": 1359,
+   "scored": 963,
+   "groups": 32
+  },
+  {
+   "date": "2007-11-30",
+   "quoted": 1370,
+   "pe_positive": 986,
+   "with_industry": 1363,
+   "scored": 986,
+   "groups": 32
+  },
+  {
+   "date": "2007-12-31",
+   "quoted": 1373,
+   "pe_positive": 986,
+   "with_industry": 1366,
+   "scored": 986,
+   "groups": 32
+  },
+  {
+   "date": "2008-01-31",
+   "quoted": 1376,
+   "pe_positive": 998,
+   "with_industry": 1369,
+   "scored": 998,
+   "groups": 32
+  },
+  {
+   "date": "2008-02-29",
+   "quoted": 1376,
+   "pe_positive": 997,
+   "with_industry": 1369,
+   "scored": 997,
+   "groups": 32
+  },
+  {
+   "date": "2008-03-31",
+   "quoted": 1377,
+   "pe_positive": 1007,
+   "with_industry": 1370,
+   "scored": 1007,
+   "groups": 32
+  },
+  {
+   "date": "2008-04-30",
+   "quoted": 1379,
+   "pe_positive": 1019,
+   "with_industry": 1373,
+   "scored": 1019,
+   "groups": 32
+  },
+  {
+   "date": "2008-05-30",
+   "quoted": 1380,
+   "pe_positive": 994,
+   "with_industry": 1374,
+   "scored": 994,
+   "groups": 32
+  },
+  {
+   "date": "2008-06-30",
+   "quoted": 1379,
+   "pe_positive": 996,
+   "with_industry": 1373,
+   "scored": 996,
+   "groups": 32
+  },
+  {
+   "date": "2008-07-31",
+   "quoted": 1379,
+   "pe_positive": 994,
+   "with_industry": 1373,
+   "scored": 994,
+   "groups": 32
+  },
+  {
+   "date": "2008-08-29",
+   "quoted": 1377,
+   "pe_positive": 984,
+   "with_industry": 1371,
+   "scored": 984,
+   "groups": 32
+  },
+  {
+   "date": "2008-09-30",
+   "quoted": 1374,
+   "pe_positive": 954,
+   "with_industry": 1368,
+   "scored": 953,
+   "groups": 31
+  },
+  {
+   "date": "2008-10-31",
+   "quoted": 1375,
+   "pe_positive": 952,
+   "with_industry": 1369,
+   "scored": 951,
+   "groups": 31
+  },
+  {
+   "date": "2008-11-28",
+   "quoted": 1375,
+   "pe_positive": 934,
+   "with_industry": 1369,
+   "scored": 933,
+   "groups": 31
+  },
+  {
+   "date": "2008-12-31",
+   "quoted": 1375,
+   "pe_positive": 937,
+   "with_industry": 1370,
+   "scored": 936,
+   "groups": 31
+  },
+  {
+   "date": "2009-01-21",
+   "quoted": 1374,
+   "pe_positive": 940,
+   "with_industry": 1369,
+   "scored": 939,
+   "groups": 31
+  },
+  {
+   "date": "2009-02-27",
+   "quoted": 1372,
+   "pe_positive": 943,
+   "with_industry": 1367,
+   "scored": 942,
+   "groups": 31
+  },
+  {
+   "date": "2009-03-31",
+   "quoted": 1373,
+   "pe_positive": 948,
+   "with_industry": 1369,
+   "scored": 947,
+   "groups": 31
+  },
+  {
+   "date": "2009-04-30",
+   "quoted": 1377,
+   "pe_positive": 901,
+   "with_industry": 1374,
+   "scored": 900,
+   "groups": 31
+  },
+  {
+   "date": "2009-05-27",
+   "quoted": 1383,
+   "pe_positive": 795,
+   "with_industry": 1380,
+   "scored": 794,
+   "groups": 31
+  },
+  {
+   "date": "2009-06-30",
+   "quoted": 1384,
+   "pe_positive": 799,
+   "with_industry": 1382,
+   "scored": 798,
+   "groups": 31
+  },
+  {
+   "date": "2009-07-31",
+   "quoted": 1385,
+   "pe_positive": 800,
+   "with_industry": 1383,
+   "scored": 799,
+   "groups": 31
+  },
+  {
+   "date": "2009-08-31",
+   "quoted": 1388,
+   "pe_positive": 801,
+   "with_industry": 1386,
+   "scored": 800,
+   "groups": 31
+  },
+  {
+   "date": "2009-09-30",
+   "quoted": 1392,
+   "pe_positive": 767,
+   "with_industry": 1391,
+   "scored": 766,
+   "groups": 31
+  },
+  {
+   "date": "2009-10-30",
+   "quoted": 1400,
+   "pe_positive": 773,
+   "with_industry": 1399,
+   "scored": 772,
+   "groups": 31
+  },
+  {
+   "date": "2009-11-30",
+   "quoted": 1405,
+   "pe_positive": 775,
+   "with_industry": 1404,
+   "scored": 773,
+   "groups": 30
+  },
+  {
+   "date": "2009-12-31",
+   "quoted": 1418,
+   "pe_positive": 779,
+   "with_industry": 1417,
+   "scored": 777,
+   "groups": 30
+  },
+  {
+   "date": "2010-01-29",
+   "quoted": 1427,
+   "pe_positive": 782,
+   "with_industry": 1426,
+   "scored": 780,
+   "groups": 30
+  },
+  {
+   "date": "2010-02-26",
+   "quoted": 1430,
+   "pe_positive": 782,
+   "with_industry": 1429,
+   "scored": 780,
+   "groups": 30
+  },
+  {
+   "date": "2010-03-31",
+   "quoted": 1431,
+   "pe_positive": 809,
+   "with_industry": 1429,
+   "scored": 807,
+   "groups": 30
+  },
+  {
+   "date": "2010-04-30",
+   "quoted": 1438,
+   "pe_positive": 896,
+   "with_industry": 1436,
+   "scored": 896,
+   "groups": 32
+  },
+  {
+   "date": "2010-05-31",
+   "quoted": 1444,
+   "pe_positive": 987,
+   "with_industry": 1442,
+   "scored": 987,
+   "groups": 32
+  },
+  {
+   "date": "2010-06-30",
+   "quoted": 1451,
+   "pe_positive": 991,
+   "with_industry": 1448,
+   "scored": 991,
+   "groups": 32
+  },
+  {
+   "date": "2010-07-30",
+   "quoted": 1451,
+   "pe_positive": 993,
+   "with_industry": 1448,
+   "scored": 993,
+   "groups": 32
+  },
+  {
+   "date": "2010-08-31",
+   "quoted": 1452,
+   "pe_positive": 1017,
+   "with_industry": 1448,
+   "scored": 1017,
+   "groups": 32
+  },
+  {
+   "date": "2010-09-30",
+   "quoted": 1456,
+   "pe_positive": 1054,
+   "with_industry": 1452,
+   "scored": 1054,
+   "groups": 32
+  },
+  {
+   "date": "2010-10-29",
+   "quoted": 1474,
+   "pe_positive": 1060,
+   "with_industry": 1470,
+   "scored": 1060,
+   "groups": 32
+  },
+  {
+   "date": "2010-11-30",
+   "quoted": 1481,
+   "pe_positive": 1065,
+   "with_industry": 1477,
+   "scored": 1065,
+   "groups": 32
+  },
+  {
+   "date": "2010-12-31",
+   "quoted": 1490,
+   "pe_positive": 1077,
+   "with_industry": 1486,
+   "scored": 1077,
+   "groups": 32
+  },
+  {
+   "date": "2011-01-28",
+   "quoted": 1498,
+   "pe_positive": 1086,
+   "with_industry": 1493,
+   "scored": 1086,
+   "groups": 32
+  },
+  {
+   "date": "2011-02-25",
+   "quoted": 1502,
+   "pe_positive": 1088,
+   "with_industry": 1497,
+   "scored": 1088,
+   "groups": 32
+  },
+  {
+   "date": "2011-03-31",
+   "quoted": 1507,
+   "pe_positive": 1098,
+   "with_industry": 1502,
+   "scored": 1098,
+   "groups": 32
+  },
+  {
+   "date": "2011-04-29",
+   "quoted": 1513,
+   "pe_positive": 1103,
+   "with_industry": 1508,
+   "scored": 1103,
+   "groups": 32
+  },
+  {
+   "date": "2011-05-31",
+   "quoted": 1520,
+   "pe_positive": 1100,
+   "with_industry": 1515,
+   "scored": 1100,
+   "groups": 32
+  },
+  {
+   "date": "2011-06-30",
+   "quoted": 1522,
+   "pe_positive": 1103,
+   "with_industry": 1517,
+   "scored": 1103,
+   "groups": 32
+  },
+  {
+   "date": "2011-07-29",
+   "quoted": 1532,
+   "pe_positive": 1105,
+   "with_industry": 1527,
+   "scored": 1105,
+   "groups": 32
+  },
+  {
+   "date": "2011-08-31",
+   "quoted": 1534,
+   "pe_positive": 1097,
+   "with_industry": 1529,
+   "scored": 1097,
+   "groups": 32
+  },
+  {
+   "date": "2011-09-30",
+   "quoted": 1537,
+   "pe_positive": 1067,
+   "with_industry": 1532,
+   "scored": 1067,
+   "groups": 32
+  },
+  {
+   "date": "2011-10-31",
+   "quoted": 1549,
+   "pe_positive": 1065,
+   "with_industry": 1544,
+   "scored": 1065,
+   "groups": 32
+  },
+  {
+   "date": "2011-11-30",
+   "quoted": 1550,
+   "pe_positive": 1067,
+   "with_industry": 1545,
+   "scored": 1067,
+   "groups": 32
+  },
+  {
+   "date": "2011-12-30",
+   "quoted": 1560,
+   "pe_positive": 1084,
+   "with_industry": 1556,
+   "scored": 1084,
+   "groups": 32
+  },
+  {
+   "date": "2012-01-31",
+   "quoted": 1563,
+   "pe_positive": 1086,
+   "with_industry": 1558,
+   "scored": 1086,
+   "groups": 32
+  },
+  {
+   "date": "2012-02-29",
+   "quoted": 1565,
+   "pe_positive": 1086,
+   "with_industry": 1560,
+   "scored": 1086,
+   "groups": 32
+  },
+  {
+   "date": "2012-03-30",
+   "quoted": 1567,
+   "pe_positive": 1084,
+   "with_industry": 1562,
+   "scored": 1084,
+   "groups": 32
+  },
+  {
+   "date": "2012-04-30",
+   "quoted": 1572,
+   "pe_positive": 1086,
+   "with_industry": 1567,
+   "scored": 1086,
+   "groups": 32
+  },
+  {
+   "date": "2012-05-31",
+   "quoted": 1576,
+   "pe_positive": 1018,
+   "with_industry": 1571,
+   "scored": 1018,
+   "groups": 32
+  },
+  {
+   "date": "2012-06-29",
+   "quoted": 1578,
+   "pe_positive": 1023,
+   "with_industry": 1574,
+   "scored": 1023,
+   "groups": 32
+  },
+  {
+   "date": "2012-07-31",
+   "quoted": 1579,
+   "pe_positive": 1024,
+   "with_industry": 1575,
+   "scored": 1024,
+   "groups": 32
+  },
+  {
+   "date": "2012-08-31",
+   "quoted": 1578,
+   "pe_positive": 1019,
+   "with_industry": 1574,
+   "scored": 1019,
+   "groups": 32
+  },
+  {
+   "date": "2012-09-28",
+   "quoted": 1583,
+   "pe_positive": 1012,
+   "with_industry": 1579,
+   "scored": 1012,
+   "groups": 32
+  },
+  {
+   "date": "2012-10-31",
+   "quoted": 1588,
+   "pe_positive": 1016,
+   "with_industry": 1584,
+   "scored": 1016,
+   "groups": 32
+  },
+  {
+   "date": "2012-11-30",
+   "quoted": 1592,
+   "pe_positive": 1005,
+   "with_industry": 1588,
+   "scored": 1005,
+   "groups": 32
+  },
+  {
+   "date": "2012-12-28",
+   "quoted": 1606,
+   "pe_positive": 1018,
+   "with_industry": 1602,
+   "scored": 1018,
+   "groups": 32
+  },
+  {
+   "date": "2013-01-31",
+   "quoted": 1607,
+   "pe_positive": 1020,
+   "with_industry": 1603,
+   "scored": 1020,
+   "groups": 32
+  },
+  {
+   "date": "2013-02-27",
+   "quoted": 1609,
+   "pe_positive": 1020,
+   "with_industry": 1605,
+   "scored": 1020,
+   "groups": 32
+  },
+  {
+   "date": "2013-03-29",
+   "quoted": 1610,
+   "pe_positive": 1040,
+   "with_industry": 1606,
+   "scored": 1040,
+   "groups": 32
+  },
+  {
+   "date": "2013-04-30",
+   "quoted": 1612,
+   "pe_positive": 1084,
+   "with_industry": 1608,
+   "scored": 1084,
+   "groups": 32
+  },
+  {
+   "date": "2013-05-31",
+   "quoted": 1612,
+   "pe_positive": 1075,
+   "with_industry": 1608,
+   "scored": 1075,
+   "groups": 32
+  },
+  {
+   "date": "2013-06-28",
+   "quoted": 1613,
+   "pe_positive": 1067,
+   "with_industry": 1609,
+   "scored": 1067,
+   "groups": 32
+  },
+  {
+   "date": "2013-07-31",
+   "quoted": 1612,
+   "pe_positive": 1067,
+   "with_industry": 1608,
+   "scored": 1067,
+   "groups": 32
+  },
+  {
+   "date": "2013-08-30",
+   "quoted": 1616,
+   "pe_positive": 1064,
+   "with_industry": 1612,
+   "scored": 1064,
+   "groups": 32
+  },
+  {
+   "date": "2013-09-30",
+   "quoted": 1619,
+   "pe_positive": 1067,
+   "with_industry": 1615,
+   "scored": 1067,
+   "groups": 32
+  },
+  {
+   "date": "2013-10-31",
+   "quoted": 1620,
+   "pe_positive": 1072,
+   "with_industry": 1616,
+   "scored": 1072,
+   "groups": 32
+  },
+  {
+   "date": "2013-11-29",
+   "quoted": 1629,
+   "pe_positive": 1075,
+   "with_industry": 1625,
+   "scored": 1075,
+   "groups": 32
+  },
+  {
+   "date": "2013-12-31",
+   "quoted": 1639,
+   "pe_positive": 1088,
+   "with_industry": 1635,
+   "scored": 1088,
+   "groups": 32
+  },
+  {
+   "date": "2014-01-27",
+   "quoted": 1642,
+   "pe_positive": 1093,
+   "with_industry": 1638,
+   "scored": 1093,
+   "groups": 33
+  },
+  {
+   "date": "2014-02-27",
+   "quoted": 1643,
+   "pe_positive": 1093,
+   "with_industry": 1639,
+   "scored": 1093,
+   "groups": 33
+  },
+  {
+   "date": "2014-03-31",
+   "quoted": 1645,
+   "pe_positive": 1109,
+   "with_industry": 1642,
+   "scored": 1109,
+   "groups": 33
+  },
+  {
+   "date": "2014-04-30",
+   "quoted": 1644,
+   "pe_positive": 1162,
+   "with_industry": 1641,
+   "scored": 1162,
+   "groups": 33
+  },
+  {
+   "date": "2014-05-30",
+   "quoted": 1643,
+   "pe_positive": 1148,
+   "with_industry": 1640,
+   "scored": 1148,
+   "groups": 33
+  },
+  {
+   "date": "2014-06-30",
+   "quoted": 1647,
+   "pe_positive": 1149,
+   "with_industry": 1644,
+   "scored": 1149,
+   "groups": 33
+  },
+  {
+   "date": "2014-07-31",
+   "quoted": 1650,
+   "pe_positive": 1153,
+   "with_industry": 1647,
+   "scored": 1153,
+   "groups": 33
+  },
+  {
+   "date": "2014-08-29",
+   "quoted": 1652,
+   "pe_positive": 1160,
+   "with_industry": 1649,
+   "scored": 1160,
+   "groups": 33
+  },
+  {
+   "date": "2014-09-30",
+   "quoted": 1655,
+   "pe_positive": 1161,
+   "with_industry": 1654,
+   "scored": 1161,
+   "groups": 33
+  },
+  {
+   "date": "2014-10-31",
+   "quoted": 1668,
+   "pe_positive": 1167,
+   "with_industry": 1667,
+   "scored": 1166,
+   "groups": 33
+  },
+  {
+   "date": "2014-11-28",
+   "quoted": 1672,
+   "pe_positive": 1198,
+   "with_industry": 1671,
+   "scored": 1197,
+   "groups": 33
+  },
+  {
+   "date": "2014-12-31",
+   "quoted": 1682,
+   "pe_positive": 1206,
+   "with_industry": 1681,
+   "scored": 1205,
+   "groups": 33
+  },
+  {
+   "date": "2015-01-30",
+   "quoted": 1689,
+   "pe_positive": 1211,
+   "with_industry": 1688,
+   "scored": 1210,
+   "groups": 33
+  },
+  {
+   "date": "2015-02-26",
+   "quoted": 1691,
+   "pe_positive": 1212,
+   "with_industry": 1689,
+   "scored": 1211,
+   "groups": 33
+  },
+  {
+   "date": "2015-03-31",
+   "quoted": 1695,
+   "pe_positive": 1224,
+   "with_industry": 1693,
+   "scored": 1223,
+   "groups": 33
+  },
+  {
+   "date": "2015-04-30",
+   "quoted": 1697,
+   "pe_positive": 1252,
+   "with_industry": 1695,
+   "scored": 1251,
+   "groups": 33
+  },
+  {
+   "date": "2015-05-29",
+   "quoted": 1698,
+   "pe_positive": 1189,
+   "with_industry": 1696,
+   "scored": 1188,
+   "groups": 33
+  },
+  {
+   "date": "2015-06-30",
+   "quoted": 1701,
+   "pe_positive": 1192,
+   "with_industry": 1699,
+   "scored": 1191,
+   "groups": 33
+  },
+  {
+   "date": "2015-07-31",
+   "quoted": 1707,
+   "pe_positive": 1196,
+   "with_industry": 1703,
+   "scored": 1195,
+   "groups": 33
+  },
+  {
+   "date": "2015-08-31",
+   "quoted": 1709,
+   "pe_positive": 1185,
+   "with_industry": 1705,
+   "scored": 1184,
+   "groups": 33
+  },
+  {
+   "date": "2015-09-30",
+   "quoted": 1714,
+   "pe_positive": 1185,
+   "with_industry": 1710,
+   "scored": 1184,
+   "groups": 33
+  },
+  {
+   "date": "2015-10-30",
+   "quoted": 1716,
+   "pe_positive": 1189,
+   "with_industry": 1712,
+   "scored": 1188,
+   "groups": 33
+  },
+  {
+   "date": "2015-11-30",
+   "quoted": 1719,
+   "pe_positive": 1180,
+   "with_industry": 1715,
+   "scored": 1179,
+   "groups": 33
+  },
+  {
+   "date": "2015-12-31",
+   "quoted": 1722,
+   "pe_positive": 1192,
+   "with_industry": 1718,
+   "scored": 1191,
+   "groups": 33
+  },
+  {
+   "date": "2016-01-30",
+   "quoted": 1727,
+   "pe_positive": 1199,
+   "with_industry": 1723,
+   "scored": 1198,
+   "groups": 33
+  },
+  {
+   "date": "2016-02-26",
+   "quoted": 1729,
+   "pe_positive": 1199,
+   "with_industry": 1725,
+   "scored": 1198,
+   "groups": 33
+  },
+  {
+   "date": "2016-03-31",
+   "quoted": 1734,
+   "pe_positive": 1221,
+   "with_industry": 1730,
+   "scored": 1220,
+   "groups": 33
+  },
+  {
+   "date": "2016-04-29",
+   "quoted": 1733,
+   "pe_positive": 1228,
+   "with_industry": 1729,
+   "scored": 1227,
+   "groups": 33
+  },
+  {
+   "date": "2016-05-31",
+   "quoted": 1731,
+   "pe_positive": 1210,
+   "with_industry": 1727,
+   "scored": 1209,
+   "groups": 33
+  },
+  {
+   "date": "2016-06-30",
+   "quoted": 1731,
+   "pe_positive": 1213,
+   "with_industry": 1727,
+   "scored": 1212,
+   "groups": 33
+  },
+  {
+   "date": "2016-07-29",
+   "quoted": 1734,
+   "pe_positive": 1211,
+   "with_industry": 1730,
+   "scored": 1210,
+   "groups": 33
+  },
+  {
+   "date": "2016-08-31",
+   "quoted": 1737,
+   "pe_positive": 1202,
+   "with_industry": 1733,
+   "scored": 1201,
+   "groups": 33
+  },
+  {
+   "date": "2016-09-30",
+   "quoted": 1740,
+   "pe_positive": 1210,
+   "with_industry": 1736,
+   "scored": 1208,
+   "groups": 33
+  },
+  {
+   "date": "2016-10-31",
+   "quoted": 1742,
+   "pe_positive": 1213,
+   "with_industry": 1738,
+   "scored": 1211,
+   "groups": 33
+  },
+  {
+   "date": "2016-11-30",
+   "quoted": 1745,
+   "pe_positive": 1212,
+   "with_industry": 1741,
+   "scored": 1210,
+   "groups": 33
+  },
+  {
+   "date": "2016-12-30",
+   "quoted": 1751,
+   "pe_positive": 1219,
+   "with_industry": 1747,
+   "scored": 1217,
+   "groups": 33
+  },
+  {
+   "date": "2017-01-24",
+   "quoted": 1755,
+   "pe_positive": 1222,
+   "with_industry": 1751,
+   "scored": 1220,
+   "groups": 33
+  },
+  {
+   "date": "2017-02-24",
+   "quoted": 1758,
+   "pe_positive": 1227,
+   "with_industry": 1754,
+   "scored": 1225,
+   "groups": 33
+  },
+  {
+   "date": "2017-03-31",
+   "quoted": 1760,
+   "pe_positive": 1264,
+   "with_industry": 1757,
+   "scored": 1262,
+   "groups": 33
+  },
+  {
+   "date": "2017-04-28",
+   "quoted": 1759,
+   "pe_positive": 1282,
+   "with_industry": 1757,
+   "scored": 1280,
+   "groups": 33
+  },
+  {
+   "date": "2017-05-31",
+   "quoted": 1758,
+   "pe_positive": 1235,
+   "with_industry": 1756,
+   "scored": 1233,
+   "groups": 33
+  },
+  {
+   "date": "2017-06-30",
+   "quoted": 1761,
+   "pe_positive": 1238,
+   "with_industry": 1759,
+   "scored": 1236,
+   "groups": 33
+  },
+  {
+   "date": "2017-07-31",
+   "quoted": 1762,
+   "pe_positive": 1232,
+   "with_industry": 1760,
+   "scored": 1230,
+   "groups": 33
+  },
+  {
+   "date": "2017-08-31",
+   "quoted": 1761,
+   "pe_positive": 1240,
+   "with_industry": 1759,
+   "scored": 1238,
+   "groups": 33
+  },
+  {
+   "date": "2017-09-30",
+   "quoted": 1765,
+   "pe_positive": 1245,
+   "with_industry": 1763,
+   "scored": 1243,
+   "groups": 33
+  },
+  {
+   "date": "2017-10-31",
+   "quoted": 1769,
+   "pe_positive": 1245,
+   "with_industry": 1767,
+   "scored": 1243,
+   "groups": 33
+  },
+  {
+   "date": "2017-11-30",
+   "quoted": 1776,
+   "pe_positive": 1262,
+   "with_industry": 1774,
+   "scored": 1260,
+   "groups": 33
+  },
+  {
+   "date": "2017-12-29",
+   "quoted": 1776,
+   "pe_positive": 1266,
+   "with_industry": 1774,
+   "scored": 1264,
+   "groups": 33
+  },
+  {
+   "date": "2018-01-31",
+   "quoted": 1781,
+   "pe_positive": 1276,
+   "with_industry": 1779,
+   "scored": 1274,
+   "groups": 33
+  },
+  {
+   "date": "2018-02-27",
+   "quoted": 1782,
+   "pe_positive": 1281,
+   "with_industry": 1780,
+   "scored": 1279,
+   "groups": 33
+  },
+  {
+   "date": "2018-03-31",
+   "quoted": 1782,
+   "pe_positive": 1298,
+   "with_industry": 1781,
+   "scored": 1296,
+   "groups": 34
+  },
+  {
+   "date": "2018-04-30",
+   "quoted": 1781,
+   "pe_positive": 1306,
+   "with_industry": 1780,
+   "scored": 1304,
+   "groups": 34
+  },
+  {
+   "date": "2018-05-31",
+   "quoted": 1782,
+   "pe_positive": 1267,
+   "with_industry": 1781,
+   "scored": 1265,
+   "groups": 34
+  },
+  {
+   "date": "2018-06-29",
+   "quoted": 1781,
+   "pe_positive": 1269,
+   "with_industry": 1780,
+   "scored": 1267,
+   "groups": 34
+  },
+  {
+   "date": "2018-07-31",
+   "quoted": 1783,
+   "pe_positive": 1277,
+   "with_industry": 1782,
+   "scored": 1275,
+   "groups": 34
+  },
+  {
+   "date": "2018-08-31",
+   "quoted": 1786,
+   "pe_positive": 1305,
+   "with_industry": 1785,
+   "scored": 1304,
+   "groups": 35
+  },
+  {
+   "date": "2018-09-28",
+   "quoted": 1781,
+   "pe_positive": 1305,
+   "with_industry": 1781,
+   "scored": 1304,
+   "groups": 35
+  },
+  {
+   "date": "2018-10-31",
+   "quoted": 1787,
+   "pe_positive": 1311,
+   "with_industry": 1787,
+   "scored": 1310,
+   "groups": 35
+  },
+  {
+   "date": "2018-11-30",
+   "quoted": 1789,
+   "pe_positive": 1299,
+   "with_industry": 1789,
+   "scored": 1297,
+   "groups": 34
+  },
+  {
+   "date": "2018-12-28",
+   "quoted": 1796,
+   "pe_positive": 1305,
+   "with_industry": 1796,
+   "scored": 1303,
+   "groups": 34
+  },
+  {
+   "date": "2019-01-30",
+   "quoted": 1705,
+   "pe_positive": 1264,
+   "with_industry": 1705,
+   "scored": 1263,
+   "groups": 34
+  },
+  {
+   "date": "2019-02-27",
+   "quoted": 1705,
+   "pe_positive": 1266,
+   "with_industry": 1705,
+   "scored": 1265,
+   "groups": 34
+  },
+  {
+   "date": "2019-03-29",
+   "quoted": 1707,
+   "pe_positive": 1294,
+   "with_industry": 1707,
+   "scored": 1293,
+   "groups": 34
+  },
+  {
+   "date": "2019-04-30",
+   "quoted": 1706,
+   "pe_positive": 1297,
+   "with_industry": 1706,
+   "scored": 1296,
+   "groups": 34
+  },
+  {
+   "date": "2019-05-31",
+   "quoted": 1709,
+   "pe_positive": 1283,
+   "with_industry": 1709,
+   "scored": 1281,
+   "groups": 34
+  },
+  {
+   "date": "2019-06-28",
+   "quoted": 1714,
+   "pe_positive": 1285,
+   "with_industry": 1714,
+   "scored": 1283,
+   "groups": 34
+  },
+  {
+   "date": "2019-07-31",
+   "quoted": 1715,
+   "pe_positive": 1285,
+   "with_industry": 1715,
+   "scored": 1283,
+   "groups": 34
+  },
+  {
+   "date": "2019-08-30",
+   "quoted": 1715,
+   "pe_positive": 1253,
+   "with_industry": 1715,
+   "scored": 1251,
+   "groups": 33
+  },
+  {
+   "date": "2019-09-27",
+   "quoted": 1719,
+   "pe_positive": 1261,
+   "with_industry": 1719,
+   "scored": 1259,
+   "groups": 33
+  },
+  {
+   "date": "2019-10-31",
+   "quoted": 1722,
+   "pe_positive": 1264,
+   "with_industry": 1722,
+   "scored": 1262,
+   "groups": 33
+  },
+  {
+   "date": "2019-11-29",
+   "quoted": 1726,
+   "pe_positive": 1257,
+   "with_industry": 1726,
+   "scored": 1254,
+   "groups": 33
+  },
+  {
+   "date": "2019-12-31",
+   "quoted": 1733,
+   "pe_positive": 1263,
+   "with_industry": 1733,
+   "scored": 1260,
+   "groups": 33
+  },
+  {
+   "date": "2020-01-31",
+   "quoted": 1740,
+   "pe_positive": 1264,
+   "with_industry": 1740,
+   "scored": 1261,
+   "groups": 33
+  },
+  {
+   "date": "2020-02-27",
+   "quoted": 1740,
+   "pe_positive": 1266,
+   "with_industry": 1740,
+   "scored": 1263,
+   "groups": 33
+  },
+  {
+   "date": "2020-03-31",
+   "quoted": 1742,
+   "pe_positive": 1292,
+   "with_industry": 1742,
+   "scored": 1290,
+   "groups": 34
+  },
+  {
+   "date": "2020-04-30",
+   "quoted": 1743,
+   "pe_positive": 1289,
+   "with_industry": 1743,
+   "scored": 1287,
+   "groups": 34
+  },
+  {
+   "date": "2020-05-29",
+   "quoted": 1743,
+   "pe_positive": 1210,
+   "with_industry": 1743,
+   "scored": 1208,
+   "groups": 34
+  },
+  {
+   "date": "2020-06-30",
+   "quoted": 1744,
+   "pe_positive": 1212,
+   "with_industry": 1744,
+   "scored": 1210,
+   "groups": 34
+  },
+  {
+   "date": "2020-07-31",
+   "quoted": 1744,
+   "pe_positive": 1214,
+   "with_industry": 1744,
+   "scored": 1212,
+   "groups": 34
+  },
+  {
+   "date": "2020-08-31",
+   "quoted": 1745,
+   "pe_positive": 1218,
+   "with_industry": 1745,
+   "scored": 1216,
+   "groups": 34
+  },
+  {
+   "date": "2020-09-30",
+   "quoted": 1749,
+   "pe_positive": 1220,
+   "with_industry": 1749,
+   "scored": 1218,
+   "groups": 34
+  },
+  {
+   "date": "2020-10-30",
+   "quoted": 1753,
+   "pe_positive": 1223,
+   "with_industry": 1753,
+   "scored": 1221,
+   "groups": 34
+  },
+  {
+   "date": "2020-11-30",
+   "quoted": 1758,
+   "pe_positive": 1248,
+   "with_industry": 1758,
+   "scored": 1246,
+   "groups": 34
+  },
+  {
+   "date": "2020-12-31",
+   "quoted": 1763,
+   "pe_positive": 1255,
+   "with_industry": 1763,
+   "scored": 1253,
+   "groups": 34
+  },
+  {
+   "date": "2021-01-29",
+   "quoted": 1768,
+   "pe_positive": 1260,
+   "with_industry": 1768,
+   "scored": 1258,
+   "groups": 34
+  },
+  {
+   "date": "2021-02-26",
+   "quoted": 1769,
+   "pe_positive": 1267,
+   "with_industry": 1769,
+   "scored": 1265,
+   "groups": 34
+  },
+  {
+   "date": "2021-03-31",
+   "quoted": 1771,
+   "pe_positive": 1315,
+   "with_industry": 1771,
+   "scored": 1313,
+   "groups": 34
+  },
+  {
+   "date": "2021-04-29",
+   "quoted": 1775,
+   "pe_positive": 1322,
+   "with_industry": 1775,
+   "scored": 1320,
+   "groups": 34
+  },
+  {
+   "date": "2021-05-31",
+   "quoted": 1780,
+   "pe_positive": 1356,
+   "with_industry": 1780,
+   "scored": 1354,
+   "groups": 34
+  },
+  {
+   "date": "2021-06-30",
+   "quoted": 1781,
+   "pe_positive": 1356,
+   "with_industry": 1781,
+   "scored": 1354,
+   "groups": 34
+  },
+  {
+   "date": "2021-07-30",
+   "quoted": 1784,
+   "pe_positive": 1358,
+   "with_industry": 1784,
+   "scored": 1356,
+   "groups": 34
+  },
+  {
+   "date": "2021-08-31",
+   "quoted": 1787,
+   "pe_positive": 1374,
+   "with_industry": 1787,
+   "scored": 1372,
+   "groups": 34
+  },
+  {
+   "date": "2021-09-30",
+   "quoted": 1791,
+   "pe_positive": 1377,
+   "with_industry": 1791,
+   "scored": 1375,
+   "groups": 34
+  },
+  {
+   "date": "2021-10-29",
+   "quoted": 1796,
+   "pe_positive": 1380,
+   "with_industry": 1796,
+   "scored": 1378,
+   "groups": 34
+  },
+  {
+   "date": "2021-11-30",
+   "quoted": 1804,
+   "pe_positive": 1404,
+   "with_industry": 1804,
+   "scored": 1402,
+   "groups": 34
+  },
+  {
+   "date": "2021-12-30",
+   "quoted": 1808,
+   "pe_positive": 1407,
+   "with_industry": 1808,
+   "scored": 1405,
+   "groups": 34
+  },
+  {
+   "date": "2022-01-26",
+   "quoted": 1811,
+   "pe_positive": 1412,
+   "with_industry": 1811,
+   "scored": 1410,
+   "groups": 34
+  },
+  {
+   "date": "2022-02-25",
+   "quoted": 1814,
+   "pe_positive": 1418,
+   "with_industry": 1814,
+   "scored": 1416,
+   "groups": 34
+  },
+  {
+   "date": "2022-03-31",
+   "quoted": 1815,
+   "pe_positive": 1445,
+   "with_industry": 1815,
+   "scored": 1443,
+   "groups": 34
+  },
+  {
+   "date": "2022-04-29",
+   "quoted": 1817,
+   "pe_positive": 1449,
+   "with_industry": 1817,
+   "scored": 1447,
+   "groups": 34
+  },
+  {
+   "date": "2022-05-31",
+   "quoted": 1817,
+   "pe_positive": 1422,
+   "with_industry": 1817,
+   "scored": 1421,
+   "groups": 34
+  },
+  {
+   "date": "2022-06-30",
+   "quoted": 1822,
+   "pe_positive": 1426,
+   "with_industry": 1822,
+   "scored": 1425,
+   "groups": 34
+  },
+  {
+   "date": "2022-07-29",
+   "quoted": 1826,
+   "pe_positive": 1425,
+   "with_industry": 1826,
+   "scored": 1424,
+   "groups": 34
+  },
+  {
+   "date": "2022-08-31",
+   "quoted": 1828,
+   "pe_positive": 1424,
+   "with_industry": 1828,
+   "scored": 1423,
+   "groups": 34
+  },
+  {
+   "date": "2022-09-30",
+   "quoted": 1832,
+   "pe_positive": 1426,
+   "with_industry": 1832,
+   "scored": 1425,
+   "groups": 34
+  },
+  {
+   "date": "2022-10-31",
+   "quoted": 1836,
+   "pe_positive": 1430,
+   "with_industry": 1836,
+   "scored": 1429,
+   "groups": 34
+  },
+  {
+   "date": "2022-11-30",
+   "quoted": 1838,
+   "pe_positive": 1447,
+   "with_industry": 1838,
+   "scored": 1446,
+   "groups": 34
+  },
+  {
+   "date": "2022-12-30",
+   "quoted": 1843,
+   "pe_positive": 1452,
+   "with_industry": 1843,
+   "scored": 1451,
+   "groups": 34
+  },
+  {
+   "date": "2023-01-31",
+   "quoted": 1848,
+   "pe_positive": 1453,
+   "with_industry": 1848,
+   "scored": 1452,
+   "groups": 34
+  },
+  {
+   "date": "2023-02-24",
+   "quoted": 1848,
+   "pe_positive": 1449,
+   "with_industry": 1848,
+   "scored": 1448,
+   "groups": 34
+  },
+  {
+   "date": "2023-03-31",
+   "quoted": 1852,
+   "pe_positive": 1444,
+   "with_industry": 1852,
+   "scored": 1443,
+   "groups": 34
+  },
+  {
+   "date": "2023-04-28",
+   "quoted": 1853,
+   "pe_positive": 1443,
+   "with_industry": 1853,
+   "scored": 1442,
+   "groups": 34
+  },
+  {
+   "date": "2023-05-31",
+   "quoted": 1856,
+   "pe_positive": 1374,
+   "with_industry": 1856,
+   "scored": 1373,
+   "groups": 34
+  },
+  {
+   "date": "2023-06-30",
+   "quoted": 1860,
+   "pe_positive": 1375,
+   "with_industry": 1860,
+   "scored": 1374,
+   "groups": 34
+  },
+  {
+   "date": "2023-07-31",
+   "quoted": 1865,
+   "pe_positive": 1376,
+   "with_industry": 1865,
+   "scored": 1375,
+   "groups": 37
+  },
+  {
+   "date": "2023-08-31",
+   "quoted": 1866,
+   "pe_positive": 1350,
+   "with_industry": 1866,
+   "scored": 1349,
+   "groups": 37
+  },
+  {
+   "date": "2023-09-28",
+   "quoted": 1869,
+   "pe_positive": 1349,
+   "with_industry": 1869,
+   "scored": 1348,
+   "groups": 37
+  },
+  {
+   "date": "2023-10-31",
+   "quoted": 1871,
+   "pe_positive": 1348,
+   "with_industry": 1871,
+   "scored": 1347,
+   "groups": 37
+  },
+  {
+   "date": "2023-11-30",
+   "quoted": 1875,
+   "pe_positive": 1324,
+   "with_industry": 1875,
+   "scored": 1322,
+   "groups": 36
+  },
+  {
+   "date": "2023-12-29",
+   "quoted": 1886,
+   "pe_positive": 1330,
+   "with_industry": 1886,
+   "scored": 1328,
+   "groups": 36
+  },
+  {
+   "date": "2024-01-31",
+   "quoted": 1893,
+   "pe_positive": 1333,
+   "with_industry": 1893,
+   "scored": 1331,
+   "groups": 36
+  },
+  {
+   "date": "2024-02-29",
+   "quoted": 1894,
+   "pe_positive": 1336,
+   "with_industry": 1894,
+   "scored": 1334,
+   "groups": 36
+  },
+  {
+   "date": "2024-03-29",
+   "quoted": 1899,
+   "pe_positive": 1371,
+   "with_industry": 1899,
+   "scored": 1370,
+   "groups": 37
+  },
+  {
+   "date": "2024-04-30",
+   "quoted": 1900,
+   "pe_positive": 1371,
+   "with_industry": 1900,
+   "scored": 1370,
+   "groups": 37
+  },
+  {
+   "date": "2024-05-31",
+   "quoted": 1902,
+   "pe_positive": 1394,
+   "with_industry": 1902,
+   "scored": 1393,
+   "groups": 37
+  },
+  {
+   "date": "2024-06-28",
+   "quoted": 1909,
+   "pe_positive": 1399,
+   "with_industry": 1909,
+   "scored": 1398,
+   "groups": 37
+  },
+  {
+   "date": "2024-07-31",
+   "quoted": 1909,
+   "pe_positive": 1401,
+   "with_industry": 1909,
+   "scored": 1400,
+   "groups": 37
+  },
+  {
+   "date": "2024-08-30",
+   "quoted": 1911,
+   "pe_positive": 1410,
+   "with_industry": 1911,
+   "scored": 1408,
+   "groups": 37
+  },
+  {
+   "date": "2024-09-30",
+   "quoted": 1916,
+   "pe_positive": 1416,
+   "with_industry": 1916,
+   "scored": 1414,
+   "groups": 37
+  },
+  {
+   "date": "2024-10-30",
+   "quoted": 1923,
+   "pe_positive": 1420,
+   "with_industry": 1923,
+   "scored": 1418,
+   "groups": 37
+  },
+  {
+   "date": "2024-11-29",
+   "quoted": 1931,
+   "pe_positive": 1387,
+   "with_industry": 1931,
+   "scored": 1386,
+   "groups": 37
+  },
+  {
+   "date": "2024-12-31",
+   "quoted": 1934,
+   "pe_positive": 1395,
+   "with_industry": 1934,
+   "scored": 1394,
+   "groups": 37
+  },
+  {
+   "date": "2025-01-22",
+   "quoted": 1936,
+   "pe_positive": 1401,
+   "with_industry": 1936,
+   "scored": 1400,
+   "groups": 37
+  },
+  {
+   "date": "2025-02-27",
+   "quoted": 1938,
+   "pe_positive": 1406,
+   "with_industry": 1938,
+   "scored": 1405,
+   "groups": 37
+  },
+  {
+   "date": "2025-03-31",
+   "quoted": 1943,
+   "pe_positive": 1470,
+   "with_industry": 1943,
+   "scored": 1468,
+   "groups": 37
+  },
+  {
+   "date": "2025-04-30",
+   "quoted": 1944,
+   "pe_positive": 1476,
+   "with_industry": 1944,
+   "scored": 1474,
+   "groups": 37
+  },
+  {
+   "date": "2025-05-29",
+   "quoted": 1946,
+   "pe_positive": 1430,
+   "with_industry": 1946,
+   "scored": 1429,
+   "groups": 37
+  },
+  {
+   "date": "2025-06-30",
+   "quoted": 1949,
+   "pe_positive": 1432,
+   "with_industry": 1949,
+   "scored": 1431,
+   "groups": 37
+  },
+  {
+   "date": "2025-07-31",
+   "quoted": 1949,
+   "pe_positive": 1436,
+   "with_industry": 1949,
+   "scored": 1435,
+   "groups": 37
+  },
+  {
+   "date": "2025-08-29",
+   "quoted": 1950,
+   "pe_positive": 1318,
+   "with_industry": 1950,
+   "scored": 1317,
+   "groups": 37
+  },
+  {
+   "date": "2025-09-30",
+   "quoted": 1950,
+   "pe_positive": 1324,
+   "with_industry": 1950,
+   "scored": 1323,
+   "groups": 37
+  },
+  {
+   "date": "2025-10-31",
+   "quoted": 1950,
+   "pe_positive": 1332,
+   "with_industry": 1950,
+   "scored": 1331,
+   "groups": 37
+  },
+  {
+   "date": "2025-11-28",
+   "quoted": 1951,
+   "pe_positive": 1386,
+   "with_industry": 1951,
+   "scored": 1384,
+   "groups": 37
+  },
+  {
+   "date": "2025-12-31",
+   "quoted": 1951,
+   "pe_positive": 1398,
+   "with_industry": 1951,
+   "scored": 1396,
+   "groups": 37
+  },
+  {
+   "date": "2026-01-30",
+   "quoted": 1952,
+   "pe_positive": 1404,
+   "with_industry": 1952,
+   "scored": 1402,
+   "groups": 37
+  },
+  {
+   "date": "2026-02-26",
+   "quoted": 1952,
+   "pe_positive": 1405,
+   "with_industry": 1952,
+   "scored": 1403,
+   "groups": 37
+  },
+  {
+   "date": "2026-03-31",
+   "quoted": 1952,
+   "pe_positive": 1431,
+   "with_industry": 1952,
+   "scored": 1430,
+   "groups": 38
+  }
+ ]
+}

@@ -64,3 +64,28 @@ research/p0_u1_canonical_universe/canonical_universe_by_date/
 # 不能當長期保存手段;改用獨立複本(非 hard-link)常駐,約 90MB,不進版控。
 # 只有彙總 manifest(data_snapshot_manifest.json)與逐檔 hash 進版控。
 research/p0_r1_research_production_identity/data_snapshot/
+
+# ============================================================================
+# Repo & Provenance Finalization Closure (2026-08-18)
+#
+# 原則:原始輸入語料與大型二進位衍生物不進版控,改由 provenance hash 綁定;
+# 來源程式、規格/裁決文件、證據 receipt 一律進版控 —— 證據不因大小被切開。
+# ============================================================================
+
+# E. 原始 TEJ 匯出語料(100 檔 / 2.3 GB)—— 這是 importer 的**輸入**,不是產物。
+#    比照上面 tej_exports/inbox*/ 的既有先例。身分不靠檔案本身,靠下面這兩份
+#    **已進版控**的 manifest 綁定:
+#        tej_exports/DataExport0806_manifest.csv
+#        tej_exports/DataExport0806_manifest.sha256
+tej_exports/DataExport0806/
+
+# F. 大型二進位衍生資料(parquet / npz)—— 可由已凍結的輸入完全重生,
+#    逐檔 sha256 記在 provenance manifest。
+research/p0_b09_value_reference/*.parquet
+tej_exports/legacy_supplement/*.parquet
+beat_0050/results/dual100_h3.npz
+
+# F. 逐檔明細型稽核產物(12 MB)—— 比照 P0-U1
+#    research/p0_u1_canonical_universe/canonical_universe_by_date/ 的既有裁決:
+#    彙總產物進版控,逐項明細留在本機。
+beat_0050/results/portfolio_v2/phase1/full_universe_audit_*.json

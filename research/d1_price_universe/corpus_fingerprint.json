@@ -1,0 +1,9 @@
+{
+ "corpus_dir": "C:\\Users\\aaaai\\tej_cache\\price_valuation",
+ "content_sha256": "aeda65b99ec9d4b4e02f96e20e3d915c5519329d010415f2be3e4cb667ea49c1",
+ "schema_sha256": "b30061de4e52ea491235b0c8fffc7ee2f7dedaa393170e1f44886a3c4a783ef6",
+ "securities": 2300,
+ "rows": 9009907,
+ "date_min": "2004-01-02",
+ "date_max": "2026-07-14"
+}

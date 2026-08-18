@@ -1,0 +1,195 @@
+{
+ "study": "V-1b stock-dividend source verification",
+ "read_only": true,
+ "performance_computed": false,
+ "source": "tej_exports/DataExport0806/配股相關2004-20260817",
+ "files": [
+  [
+   "配股相關2004-2007.zip",
+   13598
+  ],
+  [
+   "配股相關2008-2011.zip",
+   27015
+  ],
+  [
+   "配股相關2012-2013.zip",
+   32673
+  ],
+  [
+   "配股相關2014-2017.zip",
+   43675
+  ],
+  [
+   "配股相關2018-2021.zip",
+   52564
+  ],
+  [
+   "配股相關2022-2025.zip",
+   62954
+  ],
+  [
+   "配股相關20260817.zip",
+   64420
+  ]
+ ],
+ "columns": [
+  "證券代碼",
+  "年月日",
+  "盈餘增資(仟股)",
+  "公積增資(仟股)",
+  "股票股利發放日",
+  "股票股利上市日",
+  "配股(Y/N)",
+  "總股數(仟股)",
+  "盈餘配股率 %",
+  "公積配股率 %",
+  "面額",
+  "除權參考價（元）",
+  "前日收盤價（元）",
+  "股票股利公告日",
+  "減資(仟股)",
+  "減資率 %",
+  "減資每股退還現金",
+  "除權減資基準日",
+  "減資現金退款日",
+  "現金增資(仟股)",
+  "現金認購率 %",
+  "現金認購價（元）",
+  "現增股票上市日",
+  "現增股票發放日",
+  "原股東繳款-迄",
+  "員工分紅(仟股)",
+  "合併(仟股)",
+  "受讓(仟股)",
+  "庫藏股註銷(仟股)",
+  "証券轉換_可轉債(仟股)",
+  "股份轉換(仟股",
+  "變更股票面額股數(仟股)",
+  "其它(仟股)"
+ ],
+ "rows_total": 64420,
+ "event_definition": {
+  "flag_Y": 8269,
+  "new_shares_gt_0": 9120,
+  "both": 8269,
+  "used": 8269
+ },
+ "securities_with_events": 1684,
+ "events_by_year": {
+  "2004": 750,
+  "2005": 752,
+  "2006": 675,
+  "2007": 678,
+  "2008": 722,
+  "2009": 464,
+  "2010": 420,
+  "2011": 490,
+  "2012": 359,
+  "2013": 309,
+  "2014": 309,
+  "2015": 287,
+  "2016": 237,
+  "2017": 212,
+  "2018": 203,
+  "2019": 185,
+  "2020": 167,
+  "2021": 184,
+  "2022": 194,
+  "2023": 203,
+  "2024": 199,
+  "2025": 189,
+  "2026": 81
+ },
+ "tradable_date_presence": {
+  "listed_only": 0,
+  "paid_only": 293,
+  "both": 7816,
+  "neither": 160
+ },
+ "listed_vs_paid": {
+  "listed_later": 6,
+  "paid_later": 2,
+  "same_day": 7808
+ },
+ "window": {
+  "start": "2014-07-31",
+  "end": "2026-03-31",
+  "events_in_window": 2488,
+  "missing_tradable_date": 65,
+  "tradable_not_after_ex": 1
+ },
+ "ex_to_tradable_days_approx": {
+  "n": 8107,
+  "median": 43,
+  "min": 15,
+  "max": 2890
+ },
+ "rate_unit_resolution": {
+  "method": "reconcile (盈餘增資+公積增資) / pre-event shares against (盈餘+公積)配股率 %",
+  "if_rate_is_percent_of_shares": {
+   "n": 8269,
+   "p10": 0.9661508117664135,
+   "median": 0.9992146798930783,
+   "p90": 1.000043291917399
+  },
+  "if_rate_is_NTD_per_share_at_par_10": {
+   "n": 8269,
+   "p10": 0.09661508117664135,
+   "median": 0.09992146798930783,
+   "p90": 0.10000432919173989
+  }
+ },
+ "other_share_count_events": {
+  "減資(仟股)": {
+   "events_all": 1365,
+   "events_in_window": 682,
+   "securities_in_window": 487
+  },
+  "現金增資(仟股)": {
+   "events_all": 7349,
+   "events_in_window": 3295,
+   "securities_in_window": 1202
+  },
+  "員工分紅(仟股)": {
+   "events_all": 3570,
+   "events_in_window": 296,
+   "securities_in_window": 97
+  },
+  "合併(仟股)": {
+   "events_all": 220,
+   "events_in_window": 53,
+   "securities_in_window": 49
+  },
+  "受讓(仟股)": {
+   "events_all": 146,
+   "events_in_window": 72,
+   "securities_in_window": 65
+  },
+  "庫藏股註銷(仟股)": {
+   "events_all": 3034,
+   "events_in_window": 1374,
+   "securities_in_window": 664
+  },
+  "証券轉換_可轉債(仟股)": {
+   "events_all": 12766,
+   "events_in_window": 8049,
+   "securities_in_window": 578
+  },
+  "股份轉換(仟股": {
+   "events_all": 33,
+   "events_in_window": 31,
+   "securities_in_window": 29
+  },
+  "變更股票面額股數(仟股)": {
+   "events_all": 26,
+   "events_in_window": 23,
+   "securities_in_window": 19
+  },
+  "其它(仟股)": {
+   "events_all": 8646,
+   "events_in_window": 84,
+   "securities_in_window": 79
+  }
+ }
+}

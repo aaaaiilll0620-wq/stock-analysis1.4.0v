@@ -1,0 +1,42 @@
+{
+  "_what": "Gate 1 正式執行的認領紀錄。在讀取任何 candidate 面板之前落地。",
+  "started_at": "2026-08-02T18:24:10.796140+08:00",
+  "command": "gate1_assemble_12arm.py --part gate --i-am-executing-the-frozen-gate --authorization beat_0050/results/gate1/gate1_authorization.json",
+  "overlay_sha256": "7344424dd8b5f034d1cde1f236840c2c824aaadfed6944c42eb2e617b98d09bb",
+  "runner_sha256": "0db095edd037d40a04dafc3ded1a4b057ce6a8dcb9f126923b7ad3997a5760d4",
+  "frozen_impl_sha256": "9bcb71ff18ac09f49029023195d4e3ae53cfcd9c061b7c51a7273fce05791930",
+  "authorization_path": "beat_0050\\results\\gate1\\gate1_authorization.json",
+  "authorization_sha256": "848306bae4602381a140027bc32686fd1679f280f018422752663cc831c8720a",
+  "baseline_idx": [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+  ],
+  "baseline_map": {
+    "A1": "V0",
+    "A2": "V0",
+    "A3": "V0",
+    "A4": "V0",
+    "C1": "V0",
+    "C3": "V0",
+    "B1": "arm_C3",
+    "B2": "arm_C3",
+    "B3": "arm_C3",
+    "B4": "arm_C3",
+    "B5": "arm_C3",
+    "C2": "arm_C3"
+  },
+  "n_perm": 2000,
+  "seed": 20260731,
+  "alpha": 0.05,
+  "note": "本檔失敗時亦不得刪除;重跑須人工封存 + 新授權。"
+}

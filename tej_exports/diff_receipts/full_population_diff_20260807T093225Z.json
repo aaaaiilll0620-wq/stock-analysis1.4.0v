@@ -1,0 +1,614 @@
+{
+  "generated_at_utc": "2026-08-07T09:32:25.440518+00:00",
+  "script_relpath": "scripts/_full_population_diff.py",
+  "script_sha256": "e510b8f24f86d7d07550540772ccd3d80a80048003e4a654ef01af50a5b21d0d",
+  "old_root": "C:\\Users\\aaaai\\tej_cache",
+  "new_root": "C:\\Users\\aaaai\\AppData\\Local\\Temp\\claude\\C--dev\\b2a9ba0e-e9a0-4c69-9808-b8aaa37c08de\\scratchpad\\tej_cache_round3",
+  "overall_status": "PASS",
+  "note": "value_diff_status=MEASURED_NOT_JUDGED on every column: no per-column tolerance has been frozen with unit+rationale, so nonzero value diffs are reported as facts only, not auto-classified PASS/FAIL. Any narrative about *why* values differ (e.g. 'TEJ revision') is INFERENCE_UNCONFIRMED unless backed by independent raw-to-raw evidence from TEJ.",
+  "datasets": {
+    "price_valuation": {
+      "dataset": "price_valuation",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 2300,
+      "new_stock_count": 2303,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 9009907,
+      "new_key_count": 9043134,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 33227,
+      "overlap_key_count": 9009907,
+      "status": "PASS",
+      "columns": {
+        "open": {
+          "n_compared": 9009907,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 9009004,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "max": {
+          "n_compared": 9009907,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 9009907,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "min": {
+          "n_compared": 9009907,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 9009907,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "close": {
+          "n_compared": 9009907,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 9009907,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "Trading_Volume": {
+          "n_compared": 9009907,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 9009907,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "institutional_flow": {
+      "dataset": "institutional_flow",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 2300,
+      "new_stock_count": 2306,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 8674640,
+      "new_key_count": 8781249,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 106609,
+      "overlap_key_count": 8674640,
+      "status": "PASS",
+      "columns": {
+        "foreign_net": {
+          "n_compared": 8674640,
+          "n_null_mismatch": 2,
+          "n_exact_equal": 8674638,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "trust_net": {
+          "n_compared": 8674640,
+          "n_null_mismatch": 2,
+          "n_exact_equal": 8669277,
+          "n_value_mismatch": 45,
+          "max_abs_diff": 6576000.0,
+          "median_abs_diff": 13000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "dealer_net": {
+          "n_compared": 8674640,
+          "n_null_mismatch": 2,
+          "n_exact_equal": 8669707,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "institutional_gross": {
+      "dataset": "institutional_gross",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 1952,
+      "new_stock_count": 2306,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 140544,
+      "new_key_count": 8781249,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 8640705,
+      "overlap_key_count": 140544,
+      "status": "PASS",
+      "columns": {
+        "foreign_buy": {
+          "n_compared": 140544,
+          "n_null_mismatch": 2,
+          "n_exact_equal": 140052,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "foreign_sell": {
+          "n_compared": 140544,
+          "n_null_mismatch": 2,
+          "n_exact_equal": 140052,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "trust_buy": {
+          "n_compared": 140544,
+          "n_null_mismatch": 2,
+          "n_exact_equal": 140049,
+          "n_value_mismatch": 3,
+          "max_abs_diff": 99000.0,
+          "median_abs_diff": 33000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "trust_sell": {
+          "n_compared": 140544,
+          "n_null_mismatch": 2,
+          "n_exact_equal": 140046,
+          "n_value_mismatch": 6,
+          "max_abs_diff": 431000.0,
+          "median_abs_diff": 35000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "foreign_holding_pct": {
+          "n_compared": 140544,
+          "n_null_mismatch": 26,
+          "n_exact_equal": 140464,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "trust_holding_pct": {
+          "n_compared": 140544,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135439,
+          "n_value_mismatch": 4615,
+          "max_abs_diff": 6.33,
+          "median_abs_diff": 0.1,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "fundamentals_quarterly": {
+      "dataset": "fundamentals_quarterly",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 1952,
+      "new_stock_count": 2315,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 53812,
+      "new_key_count": 138731,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 84919,
+      "overlap_key_count": 53812,
+      "status": "PASS",
+      "columns": {
+        "net_income": {
+          "n_compared": 53812,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 53807,
+          "n_value_mismatch": 5,
+          "max_abs_diff": 100217000.0,
+          "median_abs_diff": 41625000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "eps": {
+          "n_compared": 53812,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 53806,
+          "n_value_mismatch": 6,
+          "max_abs_diff": 1.0999999999999999,
+          "median_abs_diff": 0.16999999999999998,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "operating_income": {
+          "n_compared": 53812,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 53140,
+          "n_value_mismatch": 5,
+          "max_abs_diff": 98327000.0,
+          "median_abs_diff": 41625000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "roe_after_tax": {
+          "n_compared": 53812,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 53677,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "financial_statements": {
+      "dataset": "financial_statements",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 2287,
+      "new_stock_count": 2315,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 135511,
+      "new_key_count": 138731,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 3220,
+      "overlap_key_count": 135511,
+      "status": "PASS",
+      "columns": {
+        "revenue": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135504,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "gross_profit": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 132675,
+          "n_value_mismatch": 4,
+          "max_abs_diff": 17964000.0,
+          "median_abs_diff": 7380000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "operating_income": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 132680,
+          "n_value_mismatch": 5,
+          "max_abs_diff": 98327000.0,
+          "median_abs_diff": 41625000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "net_income": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135505,
+          "n_value_mismatch": 5,
+          "max_abs_diff": 100217000.0,
+          "median_abs_diff": 41625000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "eps": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135433,
+          "n_value_mismatch": 6,
+          "max_abs_diff": 1.0999999999999999,
+          "median_abs_diff": 0.16999999999999998,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "total_assets": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135502,
+          "n_value_mismatch": 4,
+          "max_abs_diff": 210151000.0,
+          "median_abs_diff": 77152500.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "total_liabilities": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135504,
+          "n_value_mismatch": 2,
+          "max_abs_diff": 146886000.0,
+          "median_abs_diff": 129505000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "current_assets": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 132118,
+          "n_value_mismatch": 3,
+          "max_abs_diff": 112124000.0,
+          "median_abs_diff": 44625000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "current_liabilities": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 132118,
+          "n_value_mismatch": 3,
+          "max_abs_diff": 746890000.0,
+          "median_abs_diff": 112124000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "equity": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135503,
+          "n_value_mismatch": 3,
+          "max_abs_diff": 63265000.0,
+          "median_abs_diff": 42181000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "operating_cash_flow": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135332,
+          "n_value_mismatch": 3,
+          "max_abs_diff": 8873000.0,
+          "median_abs_diff": 806000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "capex": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135326,
+          "n_value_mismatch": 6,
+          "max_abs_diff": 330634000.0,
+          "median_abs_diff": 4257000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "recurring_net_income": {
+          "n_compared": 135511,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 135509,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "revenue_growth": {
+      "dataset": "revenue_growth",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 2339,
+      "new_stock_count": 2343,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 477570,
+      "new_key_count": 478127,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 557,
+      "overlap_key_count": 477570,
+      "status": "PASS",
+      "columns": {
+        "revenue_yoy_pct": {
+          "n_compared": 477570,
+          "n_null_mismatch": 3,
+          "n_exact_equal": 462599,
+          "n_value_mismatch": 8,
+          "max_abs_diff": 14.71,
+          "median_abs_diff": 2.4849999999999985,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "monthly_revenue": {
+      "dataset": "monthly_revenue",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 1952,
+      "new_stock_count": 2343,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 168885,
+      "new_key_count": 478127,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 309242,
+      "overlap_key_count": 168885,
+      "status": "PASS",
+      "columns": {
+        "revenue_yoy_pct": {
+          "n_compared": 168885,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 165543,
+          "n_value_mismatch": 8,
+          "max_abs_diff": 14.71,
+          "median_abs_diff": 2.4849999999999985,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "revenue": {
+          "n_compared": 168885,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 168793,
+          "n_value_mismatch": 8,
+          "max_abs_diff": 132594000.0,
+          "median_abs_diff": 4908000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "cum_revenue": {
+          "n_compared": 168885,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 168841,
+          "n_value_mismatch": 9,
+          "max_abs_diff": 132594000.0,
+          "median_abs_diff": 5635000.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "revenue_last_year": {
+          "n_compared": 168885,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 166444,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "cum_revenue_last_year": {
+          "n_compared": 168885,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 166478,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "margin_balance": {
+      "dataset": "margin_balance",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 1859,
+      "new_stock_count": 2188,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 132625,
+      "new_key_count": 7745316,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 7612691,
+      "overlap_key_count": 132625,
+      "status": "PASS",
+      "columns": {
+        "margin_balance": {
+          "n_compared": 132625,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 131267,
+          "n_value_mismatch": 3,
+          "max_abs_diff": 2.0,
+          "median_abs_diff": 1.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "short_balance": {
+          "n_compared": 132625,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 131270,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "tdcc_weekly": {
+      "dataset": "tdcc_weekly",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 1942,
+      "new_stock_count": 1945,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 664226,
+      "new_key_count": 670059,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 5833,
+      "overlap_key_count": 664226,
+      "status": "PASS",
+      "columns": {
+        "ratio_1000up": {
+          "n_compared": 664226,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 664226,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "ratio_le1": {
+          "n_compared": 664226,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 664226,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "ratio_1to5": {
+          "n_compared": 664226,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 664226,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "ratio_5to10": {
+          "n_compared": 664226,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 664226,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "holders": {
+          "n_compared": 664226,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 664226,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "total_lots_thousand": {
+          "n_compared": 664226,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 664226,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    },
+    "director_pledge": {
+      "dataset": "director_pledge",
+      "missing_columns_old": [],
+      "missing_columns_new": [],
+      "old_stock_count": 1942,
+      "new_stock_count": 1942,
+      "missing_stock_ids_count": 0,
+      "missing_stock_ids_sample": [],
+      "old_key_count": 165876,
+      "new_key_count": 165876,
+      "missing_keys_count": 0,
+      "missing_keys_sample": [],
+      "extra_keys_count": 0,
+      "overlap_key_count": 165876,
+      "status": "PASS",
+      "columns": {
+        "pledge_pct": {
+          "n_compared": 165876,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 165876,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        },
+        "director_holding_pct": {
+          "n_compared": 165876,
+          "n_null_mismatch": 0,
+          "n_exact_equal": 165876,
+          "n_value_mismatch": 0,
+          "max_abs_diff": 0.0,
+          "median_abs_diff": 0.0,
+          "value_diff_status": "MEASURED_NOT_JUDGED"
+        }
+      }
+    }
+  }
+}

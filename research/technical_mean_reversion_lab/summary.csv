@@ -1,0 +1,9 @@
+hypothesis,status,verdict,key_number,note
+H1_horizon_curve,executed,mixed,"BB IC T+1→T+60: -0.0257(t-3.51)→-0.0059(t-0.89); MA IC T+1→T+60: -0.0340(t-3.73)→+0.0037(t+0.43)","BB/MA IC 衰減趨近0(支持短期均值回歸);法人賣轉買 rev_score IC 在T+60仍顯著負(-0.0113,t-2.63,不支持純短期解釋);RSI14 IC 衰減到0但LS10在T+60轉顯著正(+1.654,t+3.51)"
+H2_event_study,not_executed,n/a,n/a,"預註冊§5第3項凍結:本輪不執行,需日頻資料管線"
+H3_flow_lifecycle,not_executed,n/a,n/a,"預註冊§5第4項凍結:本輪不新定義7態分箱;沿用既有4態結論(inst_reversal_lab,六時代全負t約-4.67)"
+H4_wide_vs_dual100,executed,not_supported,"T+20 dual100 IC: RSI14 -0.0035(t-0.26) / BB +0.0093(t+0.65) / MA -0.0071(t-0.47) / 賣轉買rev +0.0241(t+1.88)","四訊號在dual100(primary,~48檔)於T+20的IC均未達|t|≥2顯著轉正門檻,不支持universe conditioning假說,依預註冊出口2結案;法人賣轉買rev_score在T+1/T+20轉正且t=1.88~1.92(僅次於門檻,值得後續獨立驗證);MA偏離在dual100的LS10三視野皆顯著正(t+2.41~+3.52)但IC不顯著,列post-hoc"
+H5_trend_vs_reversion,executed,reversion_side_stable,"T+20 wide IC 六時代同號(全負)比例: RSI14 6/6、BB 6/6、MA 6/6、賣轉買rev 6/6;full-period|t|≥2: RSI14✓ BB✓ MA✓ 賣轉買rev✗(t-1.81,T+60轉✓ t-2.63)","反向(mean-reversion)方向的IC符號在六時代全部一致,RSI14/BB/MA的full-period t均達標;僅為統計關聯,不等於扣成本後可交易的alpha"
+H6_interaction,executed,inconclusive_method_gap,"T+20 各bucket raw mean_fwd 介於0.89~1.11之間,差距遠小於單因子IC隱含的效果量","方法論缺口:bucket用raw平均報酬未去市場beta,無法從中分離出交互作用的邊際訊息(所有桶都被市場平均報酬淹沒);此結論本身即為誠實產出(方法不足以回答,非否定共振效果)"
+H7_era_stability,executed,see_H5_H8,n/a,"併入H5/H8判讀;era_results.csv 為底層資料"
+H8_regime_exploratory,executed,exploratory_same_sign_amplified_in_bear,"T+20 bull→bear IC: RSI14 -0.0138(t-1.69)→-0.0572(t-3.65);BB -0.0158(t-2.05)→-0.0536(t-3.35);MA -0.0153(t-1.66)→-0.0981(t-4.34);賣轉買rev -0.0060(t-1.19)→-0.0155(t-1.65)","四訊號符號在bull/bear不翻轉,但空頭段效果量放大2~6倍;exploratory,不進confirmatory判定,不搜尋ADX或新regime定義"

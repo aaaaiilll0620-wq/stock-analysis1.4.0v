@@ -1,0 +1,174 @@
+{
+ "study": "O-E market-state source probe",
+ "read_only": true,
+ "performance_computed": false,
+ "window": {
+  "start": "2014-07-31",
+  "end": "2026-03-31"
+ },
+ "calendar": {
+  "source": "market_cache/taiex_daily.parquet",
+  "sessions_total": 5565,
+  "first": "2004-01-02",
+  "last": "2026-08-17",
+  "sessions_in_window": 2846,
+  "duplicate_dates": 0
+ },
+ "suspensions": {
+  "rows": 1946,
+  "securities": 1043,
+  "reasons_top": {
+   "減資": 758,
+   "現金減資": 359,
+   "違規財報": 98,
+   "併入控股公司下市": 85,
+   "自行申請": 77,
+   "合併下市": 73,
+   "違規退票": 21,
+   "面額變更": 8,
+   "面額變更，10元=>1元": 7,
+   "分割減資": 4,
+   "重大訊息之查證": 3,
+   "重大訊息之查證: 以股份轉換方式": 3
+  }
+ },
+ "q1_start_date_priced": {
+  "start_has_price": 1529,
+  "start_has_no_price": 411,
+  "stock_not_in_price_data": 6
+ },
+ "q1_by_reason": {
+  "減資": {
+   "priced": 740,
+   "unpriced": 18
+  },
+  "現金減資": {
+   "priced": 355,
+   "unpriced": 4
+  },
+  "違規財報": {
+   "unpriced": 83,
+   "priced": 15
+  },
+  "併入控股公司下市": {
+   "unpriced": 85
+  },
+  "自行申請": {
+   "unpriced": 34,
+   "priced": 43
+  },
+  "合併下市": {
+   "unpriced": 71
+  },
+  "違規退票": {
+   "unpriced": 21
+  },
+  "面額變更": {
+   "unpriced": 2,
+   "priced": 6
+  },
+  "面額變更，10元=>1元": {
+   "unpriced": 1,
+   "priced": 6
+  },
+  "重大訊息之查證: 子公司": {
+   "unpriced": 1,
+   "priced": 4
+  },
+  "重大訊息之查證: 通過與": {
+   "unpriced": 2,
+   "priced": 3
+  },
+  "分割減資": {
+   "priced": 4
+  }
+ },
+ "q2_resume": {
+  "resumes_within_10_sessions": 1605,
+  "no_resume_observed": 333,
+  "resume_beyond_price_data": 7
+ },
+ "q3_gap_coverage": {
+  "terminal_gaps_in_window": 166,
+  "unexplained_by_this_source": 103,
+  "explained_by_suspension_row": 63
+ },
+ "q3_unexplained_examples": [
+  {
+   "stock_id": "1258",
+   "last_price": "2018-12-28",
+   "suspension_rows": 2
+  },
+  {
+   "stock_id": "1262",
+   "last_price": "2018-12-28",
+   "suspension_rows": 2
+  },
+  {
+   "stock_id": "1333",
+   "last_price": "2018-12-28",
+   "suspension_rows": 2
+  },
+  {
+   "stock_id": "1469",
+   "last_price": "2018-07-10",
+   "suspension_rows": 0
+  },
+  {
+   "stock_id": "1507",
+   "last_price": "2018-12-28",
+   "suspension_rows": 1
+  },
+  {
+   "stock_id": "1592",
+   "last_price": "2018-12-28",
+   "suspension_rows": 1
+  },
+  {
+   "stock_id": "1701",
+   "last_price": "2018-12-28",
+   "suspension_rows": 1
+  },
+  {
+   "stock_id": "1724",
+   "last_price": "2018-12-28",
+   "suspension_rows": 3
+  },
+  {
+   "stock_id": "1787",
+   "last_price": "2018-12-28",
+   "suspension_rows": 2
+  },
+  {
+   "stock_id": "1902",
+   "last_price": "2018-12-28",
+   "suspension_rows": 1
+  },
+  {
+   "stock_id": "2358",
+   "last_price": "2018-12-28",
+   "suspension_rows": 2
+  },
+  {
+   "stock_id": "2361",
+   "last_price": "2015-12-25",
+   "suspension_rows": 3
+  },
+  {
+   "stock_id": "2443",
+   "last_price": "2018-12-28",
+   "suspension_rows": 4
+  },
+  {
+   "stock_id": "2448",
+   "last_price": "2018-12-28",
+   "suspension_rows": 2
+  },
+  {
+   "stock_id": "2456",
+   "last_price": "2018-12-28",
+   "suspension_rows": 8
+  }
+ ],
+ "price_data_max": "2026-07-14"
+}

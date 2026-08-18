@@ -1,0 +1,8 @@
+{
+  "authorizes": "gate1-first-official-permutation",
+  "overlay_sha256": "7344424dd8b5f034d1cde1f236840c2c824aaadfed6944c42eb2e617b98d09bb",
+  "authorized_by": "專案使用者(依 Codex 2026-08-02 核准 attempt 2 前置控制後指示執行)",
+  "authorized_at": "2026-08-02T18:23:59.141178+08:00",
+  "attempt": 2,
+  "note": "attempt 1 因 main() 在 preflight_passed 設定前讀取而 KeyError 中止,統計未擊發、無 EXECUTION_MANIFEST,已封存於 archive/attempt1_preflight_keyerror。根因已修(判定改由 preflight() 產出),並補上『合成 rep 不得比真實回傳更完整』的契約測試。Codex 核准後執行 attempt 2。"
+}

@@ -1,0 +1,5998 @@
+{
+ "study": "O-F status coverage audit",
+ "read_only": true,
+ "performance_computed": false,
+ "status_source": {
+  "records": 1375,
+  "securities": 566,
+  "by_status": {
+   "suspended": 605,
+   "listed": 603,
+   "delisted": 167
+  }
+ },
+ "universe": {
+  "securities": 2306,
+  "corpus_max": "2026-08-17"
+ },
+ "audit_A_as_of_snapshot": {
+  "as_of": "2020-06-29",
+  "securities_scanned": 2103,
+  "by_classification": {
+   "CURRENT": 1811,
+   "UNEXPLAINED_GAP": 289,
+   "EXPLAINED_SUSPENSION": 3
+  },
+  "unexplained_total": 289,
+  "unexplained_by_cause": {
+   "no_status_record": 67,
+   "o_e_1_same_day": 122,
+   "other": 100
+  },
+  "unexplained_detail": {
+   "no_status_record": [
+    {
+     "stock_id": "1107",
+     "first_missing": "2012-06-07",
+     "sessions_stale": 1978
+    },
+    {
+     "stock_id": "1224",
+     "first_missing": "2006-09-04",
+     "sessions_stale": 3410
+    },
+    {
+     "stock_id": "1228",
+     "first_missing": "2004-03-15",
+     "sessions_stale": 4027
+    },
+    {
+     "stock_id": "1450",
+     "first_missing": "2005-07-05",
+     "sessions_stale": 3700
+    },
+    {
+     "stock_id": "1458",
+     "first_missing": "2006-06-21",
+     "sessions_stale": 3463
+    },
+    {
+     "stock_id": "1462",
+     "first_missing": "2007-08-02",
+     "sessions_stale": 3185
+    },
+    {
+     "stock_id": "1469",
+     "first_missing": "2018-07-11",
+     "sessions_stale": 479
+    },
+    {
+     "stock_id": "1807",
+     "first_missing": "2008-09-16",
+     "sessions_stale": 2906
+    },
+    {
+     "stock_id": "2318",
+     "first_missing": "2005-07-05",
+     "sessions_stale": 3700
+    },
+    {
+     "stock_id": "2326",
+     "first_missing": "2008-07-31",
+     "sessions_stale": 2939
+    },
+    {
+     "stock_id": "2350",
+     "first_missing": "2010-06-17",
+     "sessions_stale": 2470
+    },
+    {
+     "stock_id": "2381",
+     "first_missing": "2012-10-15",
+     "sessions_stale": 1888
+    },
+    {
+     "stock_id": "2487",
+     "first_missing": "2006-10-24",
+     "sessions_stale": 3376
+    },
+    {
+     "stock_id": "2494",
+     "first_missing": "2008-10-27",
+     "sessions_stale": 2879
+    },
+    {
+     "stock_id": "2525",
+     "first_missing": "2005-01-05",
+     "sessions_stale": 3820
+    },
+    {
+     "stock_id": "2533",
+     "first_missing": "2006-02-07",
+     "sessions_stale": 3555
+    },
+    {
+     "stock_id": "2628",
+     "first_missing": "2007-08-30",
+     "sessions_stale": 3165
+    },
+    {
+     "stock_id": "2807",
+     "first_missing": "2007-01-18",
+     "sessions_stale": 3315
+    },
+    {
+     "stock_id": "2827",
+     "first_missing": "2007-04-30",
+     "sessions_stale": 3251
+    },
+    {
+     "stock_id": "2902",
+     "first_missing": "2005-06-13",
+     "sessions_stale": 3716
+    },
+    {
+     "stock_id": "3007",
+     "first_missing": "2007-04-13",
+     "sessions_stale": 3263
+    },
+    {
+     "stock_id": "3087",
+     "first_missing": "2013-04-30",
+     "sessions_stale": 1757
+    },
+    {
+     "stock_id": "3126",
+     "first_missing": "2015-02-25",
+     "sessions_stale": 1307
+    },
+    {
+     "stock_id": "3135",
+     "first_missing": "2005-11-04",
+     "sessions_stale": 3616
+    },
+    {
+     "stock_id": "3291",
+     "first_missing": "2016-09-29",
+     "sessions_stale": 916
+    },
+    {
+     "stock_id": "3638",
+     "first_missing": "2014-09-10",
+     "sessions_stale": 1419
+    },
+    {
+     "stock_id": "4522",
+     "first_missing": "2004-05-31",
+     "sessions_stale": 3972
+    },
+    {
+     "stock_id": "4801",
+     "first_missing": "2013-04-30",
+     "sessions_stale": 1757
+    },
+    {
+     "stock_id": "4910",
+     "first_missing": "2005-12-01",
+     "sessions_stale": 3597
+    },
+    {
+     "stock_id": "4949",
+     "first_missing": "2018-09-03",
+     "sessions_stale": 441
+    },
+    {
+     "stock_id": "5261",
+     "first_missing": "2014-12-25",
+     "sessions_stale": 1344
+    },
+    {
+     "stock_id": "5266",
+     "first_missing": "2016-03-24",
+     "sessions_stale": 1043
+    },
+    {
+     "stock_id": "5307",
+     "first_missing": "2006-09-11",
+     "sessions_stale": 3405
+    },
+    {
+     "stock_id": "5336",
+     "first_missing": "2005-11-17",
+     "sessions_stale": 3607
+    },
+    {
+     "stock_id": "5346",
+     "first_missing": "2012-12-11",
+     "sessions_stale": 1847
+    },
+    {
+     "stock_id": "5385",
+     "first_missing": "2004-12-29",
+     "sessions_stale": 3825
+    },
+    {
+     "stock_id": "5467",
+     "first_missing": "2013-12-25",
+     "sessions_stale": 1591
+    },
+    {
+     "stock_id": "5473",
+     "first_missing": "2005-11-11",
+     "sessions_stale": 3611
+    },
+    {
+     "stock_id": "5492",
+     "first_missing": "2009-10-30",
+     "sessions_stale": 2625
+    },
+    {
+     "stock_id": "5532",
+     "first_missing": "2007-02-26",
+     "sessions_stale": 3295
+    },
+    {
+     "stock_id": "5810",
+     "first_missing": "2007-09-10",
+     "sessions_stale": 3158
+    },
+    {
+     "stock_id": "5901",
+     "first_missing": "2006-12-26",
+     "sessions_stale": 3331
+    },
+    {
+     "stock_id": "6137",
+     "first_missing": "2006-12-25",
+     "sessions_stale": 3332
+    },
+    {
+     "stock_id": "6159",
+     "first_missing": "2009-02-02",
+     "sessions_stale": 2816
+    },
+    {
+     "stock_id": "6211",
+     "first_missing": "2016-01-04",
+     "sessions_stale": 1094
+    },
+    {
+     "stock_id": "6402",
+     "first_missing": "2009-05-11",
+     "sessions_stale": 2747
+    },
+    {
+     "stock_id": "6517",
+     "first_missing": "2017-03-17",
+     "sessions_stale": 804
+    },
+    {
+     "stock_id": "6526",
+     "first_missing": "2017-04-25",
+     "sessions_stale": 779
+    },
+    {
+     "stock_id": "6546",
+     "first_missing": "2018-03-31",
+     "sessions_stale": 547
+    },
+    {
+     "stock_id": "8008",
+     "first_missing": "2013-07-12",
+     "sessions_stale": 1706
+    },
+    {
+     "stock_id": "8012",
+     "first_missing": "2004-08-03",
+     "sessions_stale": 3927
+    },
+    {
+     "stock_id": "8053",
+     "first_missing": "2016-05-11",
+     "sessions_stale": 1012
+    },
+    {
+     "stock_id": "8082",
+     "first_missing": "2016-09-26",
+     "sessions_stale": 917
+    },
+    {
+     "stock_id": "8102",
+     "first_missing": "2005-08-31",
+     "sessions_stale": 3661
+    },
+    {
+     "stock_id": "8708",
+     "first_missing": "2004-03-15",
+     "sessions_stale": 4027
+    },
+    {
+     "stock_id": "8721",
+     "first_missing": "2004-02-09",
+     "sessions_stale": 4052
+    },
+    {
+     "stock_id": "8722",
+     "first_missing": "2004-11-01",
+     "sessions_stale": 3867
+    },
+    {
+     "stock_id": "8723",
+     "first_missing": "2004-01-27",
+     "sessions_stale": 4061
+    },
+    {
+     "stock_id": "8724",
+     "first_missing": "2004-11-16",
+     "sessions_stale": 3856
+    },
+    {
+     "stock_id": "8725",
+     "first_missing": "2005-01-03",
+     "sessions_stale": 3822
+    },
+    {
+     "stock_id": "9104",
+     "first_missing": "2012-08-28",
+     "sessions_stale": 1921
+    },
+    {
+     "stock_id": "911602",
+     "first_missing": "2013-12-03",
+     "sessions_stale": 1607
+    },
+    {
+     "stock_id": "911609",
+     "first_missing": "2015-06-17",
+     "sessions_stale": 1231
+    },
+    {
+     "stock_id": "911611",
+     "first_missing": "2016-11-29",
+     "sessions_stale": 874
+    },
+    {
+     "stock_id": "9151",
+     "first_missing": "2013-10-15",
+     "sessions_stale": 1642
+    },
+    {
+     "stock_id": "916665",
+     "first_missing": "2012-03-28",
+     "sessions_stale": 2027
+    },
+    {
+     "stock_id": "9922",
+     "first_missing": "2010-06-21",
+     "sessions_stale": 2468
+    }
+   ],
+   "o_e_1_same_day": [
+    {
+     "stock_id": "1262",
+     "first_missing": "2019-10-08",
+     "blocked": [
+      "delisted",
+      "2019-10-08",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "1311",
+     "first_missing": "2008-04-11",
+     "blocked": [
+      "delisted",
+      "2008-04-11",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "1333",
+     "first_missing": "2020-04-07",
+     "blocked": [
+      "suspended",
+      "2020-04-07",
+      "違規財報"
+     ]
+    },
+    {
+     "stock_id": "1520",
+     "first_missing": "2007-12-26",
+     "blocked": [
+      "delisted",
+      "2007-12-26",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "1523",
+     "first_missing": "2010-08-20",
+     "blocked": [
+      "delisted",
+      "2010-08-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "1566",
+     "first_missing": "2019-07-25",
+     "blocked": [
+      "delisted",
+      "2019-07-25",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "1704",
+     "first_missing": "2019-01-24",
+     "blocked": [
+      "delisted",
+      "2019-01-24",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "1715",
+     "first_missing": "2017-10-19",
+     "blocked": [
+      "delisted",
+      "2017-10-19",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "1716",
+     "first_missing": "2010-12-22",
+     "blocked": [
+      "delisted",
+      "2010-12-22",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "1787",
+     "first_missing": "2019-11-21",
+     "blocked": [
+      "delisted",
+      "2019-11-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "1902",
+     "first_missing": "2020-05-26",
+     "blocked": [
+      "delisted",
+      "2020-05-26",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2311",
+     "first_missing": "2018-04-18",
+     "blocked": [
+      "delisted",
+      "2018-04-18",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2315",
+     "first_missing": "2013-09-02",
+     "blocked": [
+      "delisted",
+      "2013-09-02",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2319",
+     "first_missing": "2004-08-18",
+     "blocked": [
+      "delisted",
+      "2004-08-18",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2325",
+     "first_missing": "2018-04-18",
+     "blocked": [
+      "delisted",
+      "2018-04-18",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2336",
+     "first_missing": "2007-12-20",
+     "blocked": [
+      "delisted",
+      "2007-12-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2343",
+     "first_missing": "2006-12-20",
+     "blocked": [
+      "delisted",
+      "2006-12-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2366",
+     "first_missing": "2006-02-24",
+     "blocked": [
+      "delisted",
+      "2006-02-24",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2370",
+     "first_missing": "2005-08-22",
+     "blocked": [
+      "delisted",
+      "2005-08-22",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2386",
+     "first_missing": "2004-03-22",
+     "blocked": [
+      "delisted",
+      "2004-03-22",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2389",
+     "first_missing": "2005-10-19",
+     "blocked": [
+      "delisted",
+      "2005-10-19",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2391",
+     "first_missing": "2010-08-04",
+     "blocked": [
+      "delisted",
+      "2010-08-04",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2394",
+     "first_missing": "2006-11-21",
+     "blocked": [
+      "delisted",
+      "2006-11-21",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2403",
+     "first_missing": "2010-11-09",
+     "blocked": [
+      "delisted",
+      "2010-11-09",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2411",
+     "first_missing": "2008-10-23",
+     "blocked": [
+      "delisted",
+      "2008-10-23",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2416",
+     "first_missing": "2005-10-28",
+     "blocked": [
+      "delisted",
+      "2005-10-28",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2422",
+     "first_missing": "2005-12-20",
+     "blocked": [
+      "delisted",
+      "2005-12-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2437",
+     "first_missing": "2017-06-20",
+     "blocked": [
+      "delisted",
+      "2017-06-20",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2446",
+     "first_missing": "2009-11-19",
+     "blocked": [
+      "delisted",
+      "2009-11-19",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2447",
+     "first_missing": "2008-01-24",
+     "blocked": [
+      "delisted",
+      "2008-01-24",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2452",
+     "first_missing": "2010-03-25",
+     "blocked": [
+      "delisted",
+      "2010-03-25",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2463",
+     "first_missing": "2011-05-26",
+     "blocked": [
+      "delisted",
+      "2011-05-26",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2469",
+     "first_missing": "2007-07-26",
+     "blocked": [
+      "delisted",
+      "2007-07-26",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2470",
+     "first_missing": "2005-10-28",
+     "blocked": [
+      "delisted",
+      "2005-10-28",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2473",
+     "first_missing": "2012-11-22",
+     "blocked": [
+      "delisted",
+      "2012-11-22",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2499",
+     "first_missing": "2020-04-07",
+     "blocked": [
+      "suspended",
+      "2020-04-07",
+      "違規財報"
+     ]
+    },
+    {
+     "stock_id": "2526",
+     "first_missing": "2010-03-26",
+     "blocked": [
+      "delisted",
+      "2010-03-26",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2544",
+     "first_missing": "2005-03-09",
+     "blocked": [
+      "delisted",
+      "2005-03-09",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2808",
+     "first_missing": "2005-12-14",
+     "blocked": [
+      "delisted",
+      "2005-12-14",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2822",
+     "first_missing": "2006-04-19",
+     "blocked": [
+      "delisted",
+      "2006-04-19",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "2833",
+     "first_missing": "2015-10-02",
+     "blocked": [
+      "delisted",
+      "2015-10-02",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2837",
+     "first_missing": "2014-09-02",
+     "blocked": [
+      "delisted",
+      "2014-09-02",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2847",
+     "first_missing": "2016-03-10",
+     "blocked": [
+      "delisted",
+      "2016-03-10",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2854",
+     "first_missing": "2011-09-21",
+     "blocked": [
+      "delisted",
+      "2011-09-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2856",
+     "first_missing": "2018-09-18",
+     "blocked": [
+      "delisted",
+      "2018-09-18",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "2921",
+     "first_missing": "2009-12-24",
+     "blocked": [
+      "delisted",
+      "2009-12-24",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3009",
+     "first_missing": "2010-03-08",
+     "blocked": [
+      "delisted",
+      "2010-03-08",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3012",
+     "first_missing": "2006-09-20",
+     "blocked": [
+      "delisted",
+      "2006-09-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3020",
+     "first_missing": "2008-01-03",
+     "blocked": [
+      "delisted",
+      "2008-01-03",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3061",
+     "first_missing": "2014-12-24",
+     "blocked": [
+      "delisted",
+      "2014-12-24",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3063",
+     "first_missing": "2010-03-22",
+     "blocked": [
+      "delisted",
+      "2010-03-22",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3068",
+     "first_missing": "2018-06-07",
+     "blocked": [
+      "delisted",
+      "2018-06-07",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3080",
+     "first_missing": "2013-01-22",
+     "blocked": [
+      "delisted",
+      "2013-01-22",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3214",
+     "first_missing": "2007-02-09",
+     "blocked": [
+      "delisted",
+      "2007-02-09",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3219",
+     "first_missing": "2020-02-20",
+     "blocked": [
+      "suspended",
+      "2020-02-20",
+      "自行申請"
+     ]
+    },
+    {
+     "stock_id": "3271",
+     "first_missing": "2008-06-18",
+     "blocked": [
+      "delisted",
+      "2008-06-18",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3298",
+     "first_missing": "2008-09-19",
+     "blocked": [
+      "delisted",
+      "2008-09-19",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3299",
+     "first_missing": "2018-11-22",
+     "blocked": [
+      "delisted",
+      "2018-11-22",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3315",
+     "first_missing": "2017-09-25",
+     "blocked": [
+      "delisted",
+      "2017-09-25",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3367",
+     "first_missing": "2011-09-29",
+     "blocked": [
+      "delisted",
+      "2011-09-29",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3389",
+     "first_missing": "2012-01-17",
+     "blocked": [
+      "delisted",
+      "2012-01-17",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3428",
+     "first_missing": "2018-09-18",
+     "blocked": [
+      "delisted",
+      "2018-09-18",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3474",
+     "first_missing": "2016-11-30",
+     "blocked": [
+      "delisted",
+      "2016-11-30",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3514",
+     "first_missing": "2018-09-18",
+     "blocked": [
+      "delisted",
+      "2018-09-18",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3534",
+     "first_missing": "2011-09-23",
+     "blocked": [
+      "delisted",
+      "2011-09-23",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3553",
+     "first_missing": "2017-09-25",
+     "blocked": [
+      "delisted",
+      "2017-09-25",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3559",
+     "first_missing": "2017-08-24",
+     "blocked": [
+      "delisted",
+      "2017-08-24",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3561",
+     "first_missing": "2018-09-18",
+     "blocked": [
+      "delisted",
+      "2018-09-18",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3562",
+     "first_missing": "2020-02-17",
+     "blocked": [
+      "delisted",
+      "2020-02-17",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3573",
+     "first_missing": "2016-06-23",
+     "blocked": [
+      "delisted",
+      "2016-06-23",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3582",
+     "first_missing": "2014-12-25",
+     "blocked": [
+      "delisted",
+      "2014-12-25",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3598",
+     "first_missing": "2016-05-26",
+     "blocked": [
+      "delisted",
+      "2016-05-26",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3599",
+     "first_missing": "2013-05-21",
+     "blocked": [
+      "delisted",
+      "2013-05-21",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3614",
+     "first_missing": "2010-09-20",
+     "blocked": [
+      "delisted",
+      "2010-09-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "3658",
+     "first_missing": "2016-11-16",
+     "blocked": [
+      "delisted",
+      "2016-11-16",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "3697",
+     "first_missing": "2014-01-16",
+     "blocked": [
+      "delisted",
+      "2014-01-16",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "4103",
+     "first_missing": "2018-11-07",
+     "blocked": [
+      "delisted",
+      "2018-11-07",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "4110",
+     "first_missing": "2004-09-14",
+     "blocked": [
+      "delisted",
+      "2004-09-14",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "4180",
+     "first_missing": "2019-07-30",
+     "blocked": [
+      "delisted",
+      "2019-07-30",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "4733",
+     "first_missing": "2016-08-19",
+     "blocked": [
+      "delisted",
+      "2016-08-19",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "4947",
+     "first_missing": "2020-05-21",
+     "blocked": [
+      "delisted",
+      "2020-05-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "4984",
+     "first_missing": "2018-08-24",
+     "blocked": [
+      "delisted",
+      "2018-08-24",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "5207",
+     "first_missing": "2009-02-03",
+     "blocked": [
+      "delisted",
+      "2009-02-03",
+      "茲因原股務代理機構終止代理"
+     ]
+    },
+    {
+     "stock_id": "5255",
+     "first_missing": "2018-11-22",
+     "blocked": [
+      "delisted",
+      "2018-11-22",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "5280",
+     "first_missing": "2014-12-22",
+     "blocked": [
+      "delisted",
+      "2014-12-22",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "5317",
+     "first_missing": "2019-09-18",
+     "blocked": [
+      "delisted",
+      "2019-09-18",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "5326",
+     "first_missing": "2014-09-19",
+     "blocked": [
+      "delisted",
+      "2014-09-19",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "5384",
+     "first_missing": "2017-08-22",
+     "blocked": [
+      "delisted",
+      "2017-08-22",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "5436",
+     "first_missing": "2005-05-20",
+     "blocked": [
+      "delisted",
+      "2005-05-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "5466",
+     "first_missing": "2015-06-05",
+     "blocked": [
+      "delisted",
+      "2015-06-05",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "5480",
+     "first_missing": "2019-03-21",
+     "blocked": [
+      "delisted",
+      "2019-03-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "5491",
+     "first_missing": "2017-12-19",
+     "blocked": [
+      "delisted",
+      "2017-12-19",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "5494",
+     "first_missing": "2006-06-07",
+     "blocked": [
+      "delisted",
+      "2006-06-07",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "5528",
+     "first_missing": "2005-03-09",
+     "blocked": [
+      "delisted",
+      "2005-03-09",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "5818",
+     "first_missing": "2007-11-23",
+     "blocked": [
+      "delisted",
+      "2007-11-23",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "5854",
+     "first_missing": "2011-11-21",
+     "blocked": [
+      "delisted",
+      "2011-11-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6004",
+     "first_missing": "2007-03-21",
+     "blocked": [
+      "delisted",
+      "2007-03-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6008",
+     "first_missing": "2013-01-08",
+     "blocked": [
+      "delisted",
+      "2013-01-08",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6012",
+     "first_missing": "2011-04-20",
+     "blocked": [
+      "delisted",
+      "2011-04-20",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "6017",
+     "first_missing": "2004-10-13",
+     "blocked": [
+      "delisted",
+      "2004-10-13",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "6022",
+     "first_missing": "2017-08-22",
+     "blocked": [
+      "delisted",
+      "2017-08-22",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "6105",
+     "first_missing": "2017-10-11",
+     "blocked": [
+      "delisted",
+      "2017-10-11",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6119",
+     "first_missing": "2012-02-23",
+     "blocked": [
+      "delisted",
+      "2012-02-23",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6145",
+     "first_missing": "2018-09-18",
+     "blocked": [
+      "delisted",
+      "2018-09-18",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6157",
+     "first_missing": "2004-07-21",
+     "blocked": [
+      "delisted",
+      "2004-07-21",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "6178",
+     "first_missing": "2006-09-28",
+     "blocked": [
+      "delisted",
+      "2006-09-28",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "6238",
+     "first_missing": "2020-06-11",
+     "blocked": [
+      "delisted",
+      "2020-06-11",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6255",
+     "first_missing": "2010-09-03",
+     "blocked": [
+      "delisted",
+      "2010-09-03",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "6280",
+     "first_missing": "2007-06-21",
+     "blocked": [
+      "delisted",
+      "2007-06-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6286",
+     "first_missing": "2016-04-21",
+     "blocked": [
+      "delisted",
+      "2016-04-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6298",
+     "first_missing": "2018-09-18",
+     "blocked": [
+      "delisted",
+      "2018-09-18",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6422",
+     "first_missing": "2018-09-20",
+     "blocked": [
+      "delisted",
+      "2018-09-20",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "6554",
+     "first_missing": "2018-05-24",
+     "blocked": [
+      "delisted",
+      "2018-05-24",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "6960",
+     "first_missing": "2006-07-28",
+     "blocked": [
+      "delisted",
+      "2006-07-28",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "8078",
+     "first_missing": "2014-02-17",
+     "blocked": [
+      "delisted",
+      "2014-02-17",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "8079",
+     "first_missing": "2016-08-25",
+     "blocked": [
+      "delisted",
+      "2016-08-25",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "8199",
+     "first_missing": "2012-12-21",
+     "blocked": [
+      "delisted",
+      "2012-12-21",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "8266",
+     "first_missing": "2016-11-09",
+     "blocked": [
+      "delisted",
+      "2016-11-09",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "8705",
+     "first_missing": "2012-12-26",
+     "blocked": [
+      "delisted",
+      "2012-12-26",
+      "合併下市"
+     ]
+    },
+    {
+     "stock_id": "8913",
+     "first_missing": "2020-01-14",
+     "blocked": [
+      "delisted",
+      "2020-01-14",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "9101",
+     "first_missing": "2008-05-29",
+     "blocked": [
+      "delisted",
+      "2008-05-29",
+      "併入控股公司下市"
+     ]
+    },
+    {
+     "stock_id": "9915",
+     "first_missing": "2008-02-22",
+     "blocked": [
+      "delisted",
+      "2008-02-22",
+      "合併下市"
+     ]
+    }
+   ],
+   "other": [
+    {
+     "stock_id": "1204",
+     "first_missing": "2005-09-12",
+     "reason": "3654 expected session(s) since 2005-09-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1207",
+     "first_missing": "2007-01-05",
+     "reason": "3324 expected session(s) since 2007-01-04 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1212",
+     "first_missing": "2005-06-06",
+     "reason": "3721 expected session(s) since 2005-06-03 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1306",
+     "first_missing": "2005-09-12",
+     "reason": "3654 expected session(s) since 2005-09-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1407",
+     "first_missing": "2004-04-29",
+     "reason": "3994 expected session(s) since 2004-04-28 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1408",
+     "first_missing": "2007-05-15",
+     "reason": "3241 expected session(s) since 2007-05-14 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1534",
+     "first_missing": "2004-11-10",
+     "reason": "3860 expected session(s) since 2004-11-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1601",
+     "first_missing": "2007-07-10",
+     "reason": "3202 expected session(s) since 2007-07-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1606",
+     "first_missing": "2008-09-11",
+     "reason": "2909 expected session(s) since 2008-09-10 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1613",
+     "first_missing": "2017-04-07",
+     "reason": "791 expected session(s) since 2017-04-06 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "1729",
+     "first_missing": "2017-05-18",
+     "reason": "763 expected session(s) since 2017-05-17 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2333",
+     "first_missing": "2006-12-13",
+     "reason": "3340 expected session(s) since 2006-12-12 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2335",
+     "first_missing": "2006-02-24",
+     "reason": "3542 expected session(s) since 2006-02-23 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2341",
+     "first_missing": "2012-11-13",
+     "reason": "1867 expected session(s) since 2012-11-12 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2361",
+     "first_missing": "2015-12-28",
+     "reason": "1098 expected session(s) since 2015-12-25 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2378",
+     "first_missing": "2006-05-12",
+     "reason": "3490 expected session(s) since 2006-05-11 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2384",
+     "first_missing": "2014-11-19",
+     "reason": "1370 expected session(s) since 2014-11-18 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2396",
+     "first_missing": "2011-05-16",
+     "reason": "2244 expected session(s) since 2011-05-13 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2398",
+     "first_missing": "2004-06-24",
+     "reason": "3955 expected session(s) since 2004-06-23 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2407",
+     "first_missing": "2006-07-14",
+     "reason": "3446 expected session(s) since 2006-07-13 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2410",
+     "first_missing": "2009-04-20",
+     "reason": "2761 expected session(s) since 2009-04-17 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2418",
+     "first_missing": "2007-05-07",
+     "reason": "3247 expected session(s) since 2007-05-04 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2435",
+     "first_missing": "2005-01-06",
+     "reason": "3819 expected session(s) since 2005-01-05 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2475",
+     "first_missing": "2019-05-13",
+     "reason": "276 expected session(s) since 2019-05-10 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2479",
+     "first_missing": "2008-08-11",
+     "reason": "2932 expected session(s) since 2008-08-08 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2490",
+     "first_missing": "2004-10-14",
+     "reason": "3878 expected session(s) since 2004-10-13 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2523",
+     "first_missing": "2006-07-06",
+     "reason": "3452 expected session(s) since 2006-07-05 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2811",
+     "first_missing": "2007-03-08",
+     "reason": "3287 expected session(s) since 2007-03-07 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "2831",
+     "first_missing": "2007-01-22",
+     "reason": "3313 expected session(s) since 2007-01-19 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3001",
+     "first_missing": "2004-03-18",
+     "reason": "4024 expected session(s) since 2004-03-17 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3039",
+     "first_missing": "2005-02-23",
+     "reason": "3791 expected session(s) since 2005-02-22 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3053",
+     "first_missing": "2008-05-12",
+     "reason": "2996 expected session(s) since 2008-05-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3069",
+     "first_missing": "2011-11-17",
+     "reason": "2114 expected session(s) since 2011-11-16 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3079",
+     "first_missing": "2008-04-18",
+     "reason": "3011 expected session(s) since 2008-04-17 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3099",
+     "first_missing": "2009-08-20",
+     "reason": "2676 expected session(s) since 2009-08-19 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3142",
+     "first_missing": "2008-02-19",
+     "reason": "3052 expected session(s) since 2008-02-18 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3369",
+     "first_missing": "2008-11-07",
+     "reason": "2870 expected session(s) since 2008-11-06 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3431",
+     "first_missing": "2019-01-21",
+     "reason": "344 expected session(s) since 2019-01-18 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3452",
+     "first_missing": "2020-01-13",
+     "reason": "108 expected session(s) since 2020-01-10 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3519",
+     "first_missing": "2019-05-02",
+     "reason": "283 expected session(s) since 2019-04-30 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3579",
+     "first_missing": "2019-06-26",
+     "reason": "245 expected session(s) since 2019-06-25 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3584",
+     "first_missing": "2016-04-07",
+     "reason": "1035 expected session(s) since 2016-04-06 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "3662",
+     "first_missing": "2016-11-17",
+     "reason": "882 expected session(s) since 2016-11-16 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "4404",
+     "first_missing": "2006-08-15",
+     "reason": "3424 expected session(s) since 2006-08-14 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "4408",
+     "first_missing": "2011-08-09",
+     "reason": "2184 expected session(s) since 2011-08-08 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "4415",
+     "first_missing": "2019-12-16",
+     "reason": "127 expected session(s) since 2019-12-13 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "4703",
+     "first_missing": "2015-08-19",
+     "reason": "1188 expected session(s) since 2015-08-18 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "4749",
+     "first_missing": "2011-12-23",
+     "reason": "2088 expected session(s) since 2011-12-22 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5006",
+     "first_missing": "2005-01-17",
+     "reason": "3812 expected session(s) since 2005-01-14 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5017",
+     "first_missing": "2007-08-06",
+     "reason": "3183 expected session(s) since 2007-08-03 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5204",
+     "first_missing": "2011-08-05",
+     "reason": "2186 expected session(s) since 2011-08-04 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5259",
+     "first_missing": "2019-11-19",
+     "reason": "146 expected session(s) since 2019-11-18 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5318",
+     "first_missing": "2012-11-06",
+     "reason": "1872 expected session(s) since 2012-11-05 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5325",
+     "first_missing": "2005-01-13",
+     "reason": "3814 expected session(s) since 2005-01-12 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5372",
+     "first_missing": "2004-02-18",
+     "reason": "4045 expected session(s) since 2004-02-17 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5376",
+     "first_missing": "2007-05-10",
+     "reason": "3244 expected session(s) since 2007-05-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5387",
+     "first_missing": "2011-09-06",
+     "reason": "2164 expected session(s) since 2011-09-05 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5395",
+     "first_missing": "2016-07-07",
+     "reason": "972 expected session(s) since 2016-07-06 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5414",
+     "first_missing": "2008-04-28",
+     "reason": "3005 expected session(s) since 2008-04-25 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5442",
+     "first_missing": "2005-05-13",
+     "reason": "3737 expected session(s) since 2005-05-12 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5497",
+     "first_missing": "2005-05-04",
+     "reason": "3744 expected session(s) since 2005-05-03 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5501",
+     "first_missing": "2008-08-28",
+     "reason": "2919 expected session(s) since 2008-08-27 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5505",
+     "first_missing": "2015-05-14",
+     "reason": "1255 expected session(s) since 2015-05-13 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5506",
+     "first_missing": "2015-11-26",
+     "reason": "1120 expected session(s) since 2015-11-25 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5524",
+     "first_missing": "2005-03-31",
+     "reason": "3766 expected session(s) since 2005-03-30 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "5605",
+     "first_missing": "2008-02-25",
+     "reason": "3048 expected session(s) since 2008-02-22 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6107",
+     "first_missing": "2017-11-17",
+     "reason": "635 expected session(s) since 2017-11-16 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6110",
+     "first_missing": "2008-05-28",
+     "reason": "2984 expected session(s) since 2008-05-27 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6132",
+     "first_missing": "2005-09-12",
+     "reason": "3654 expected session(s) since 2005-09-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6135",
+     "first_missing": "2015-08-19",
+     "reason": "1188 expected session(s) since 2015-08-18 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6149",
+     "first_missing": "2008-09-11",
+     "reason": "2909 expected session(s) since 2008-09-10 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6162",
+     "first_missing": "2005-07-05",
+     "reason": "3700 expected session(s) since 2005-07-04 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6181",
+     "first_missing": "2005-03-21",
+     "reason": "3774 expected session(s) since 2005-03-18 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6193",
+     "first_missing": "2004-12-03",
+     "reason": "3843 expected session(s) since 2004-12-02 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6232",
+     "first_missing": "2008-07-15",
+     "reason": "2950 expected session(s) since 2008-07-14 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6250",
+     "first_missing": "2015-10-14",
+     "reason": "1151 expected session(s) since 2015-10-13 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6262",
+     "first_missing": "2006-05-16",
+     "reason": "3488 expected session(s) since 2006-05-15 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "6702",
+     "first_missing": "2017-02-02",
+     "reason": "834 expected session(s) since 2017-01-24 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "8017",
+     "first_missing": "2007-04-09",
+     "reason": "3267 expected session(s) since 2007-04-04 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "8227",
+     "first_missing": "2012-06-04",
+     "reason": "1981 expected session(s) since 2012-06-01 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "8287",
+     "first_missing": "2020-05-04",
+     "reason": "39 expected session(s) since 2020-04-30 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "8925",
+     "first_missing": "2015-10-28",
+     "reason": "1141 expected session(s) since 2015-10-27 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "910069",
+     "first_missing": "2015-05-13",
+     "reason": "1256 expected session(s) since 2015-05-12 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "9102",
+     "first_missing": "2010-12-08",
+     "reason": "2347 expected session(s) since 2010-12-07 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "910482",
+     "first_missing": "2020-06-15",
+     "reason": "9 expected session(s) since 2020-06-12 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "910579",
+     "first_missing": "2013-07-30",
+     "reason": "1694 expected session(s) since 2013-07-29 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "9106",
+     "first_missing": "2017-06-27",
+     "reason": "736 expected session(s) since 2017-06-26 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "910708",
+     "first_missing": "2019-06-10",
+     "reason": "257 expected session(s) since 2019-06-06 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "910801",
+     "first_missing": "2017-12-13",
+     "reason": "617 expected session(s) since 2017-12-12 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "910948",
+     "first_missing": "2014-07-04",
+     "reason": "1465 expected session(s) since 2014-07-03 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "911201",
+     "first_missing": "2014-05-06",
+     "reason": "1507 expected session(s) since 2014-05-05 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "911606",
+     "first_missing": "2012-11-06",
+     "reason": "1872 expected session(s) since 2012-11-05 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "911610",
+     "first_missing": "2014-02-05",
+     "reason": "1568 expected session(s) since 2014-01-27 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "911612",
+     "first_missing": "2016-01-26",
+     "reason": "1078 expected session(s) since 2016-01-25 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "911619",
+     "first_missing": "2019-08-19",
+     "reason": "208 expected session(s) since 2019-08-16 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "911626",
+     "first_missing": "2016-05-10",
+     "reason": "1013 expected session(s) since 2016-05-09 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "913889",
+     "first_missing": "2015-12-29",
+     "reason": "1097 expected session(s) since 2015-12-28 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "9157",
+     "first_missing": "2019-11-12",
+     "reason": "151 expected session(s) since 2019-11-11 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "9801",
+     "first_missing": "2007-01-05",
+     "reason": "3324 expected session(s) since 2007-01-04 with no price and no known status or corporate action to account for it"
+    },
+    {
+     "stock_id": "9936",
+     "first_missing": "2005-05-10",
+     "reason": "3740 expected session(s) since 2005-05-09 with no price and no known status or corporate action to account for it"
+    }
+   ]
+  },
+  "enforced": false
+ },
+ "audit_B_terminal_gaps": {
+  "securities": 2306,
+  "by_cause": {
+   "still_trading_at_corpus_end": 1954,
+   "no_status_record": 66,
+   "o_e_1_same_day": 191,
+   "explained": 59,
+   "other": 36
+  },
+  "unexplained": 293,
+  "detail": [
+   {
+    "stock_id": "8723",
+    "last_price": "2004-01-16",
+    "first_missing": "2004-01-27",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "8721",
+    "last_price": "2004-02-06",
+    "first_missing": "2004-02-09",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5372",
+    "last_price": "2004-02-17",
+    "first_missing": "2004-02-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-02-18",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "1228",
+    "last_price": "2004-03-12",
+    "first_missing": "2004-03-15",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "8708",
+    "last_price": "2004-03-12",
+    "first_missing": "2004-03-15",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3001",
+    "last_price": "2004-03-17",
+    "first_missing": "2004-03-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-03-18",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "2386",
+    "last_price": "2004-03-19",
+    "first_missing": "2004-03-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2004-03-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "1407",
+    "last_price": "2004-04-28",
+    "first_missing": "2004-04-29",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-04-29",
+     "因重整事件向台灣苗栗地方法院聲請緊急處分"
+    ]
+   },
+   {
+    "stock_id": "4522",
+    "last_price": "2004-05-28",
+    "first_missing": "2004-05-31",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2398",
+    "last_price": "2004-06-23",
+    "first_missing": "2004-06-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-06-24",
+     "向士林地方法院聲請重整"
+    ]
+   },
+   {
+    "stock_id": "6157",
+    "last_price": "2004-07-20",
+    "first_missing": "2004-07-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2004-07-21",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "8012",
+    "last_price": "2004-08-02",
+    "first_missing": "2004-08-03",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2319",
+    "last_price": "2004-08-17",
+    "first_missing": "2004-08-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2004-08-18",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "4110",
+    "last_price": "2004-09-13",
+    "first_missing": "2004-09-14",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2004-09-14",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6017",
+    "last_price": "2004-10-12",
+    "first_missing": "2004-10-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2004-10-13",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2490",
+    "last_price": "2004-10-13",
+    "first_missing": "2004-10-14",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-10-14",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "8722",
+    "last_price": "2004-10-29",
+    "first_missing": "2004-11-01",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1534",
+    "last_price": "2004-11-09",
+    "first_missing": "2004-11-10",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-11-10",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "8724",
+    "last_price": "2004-11-15",
+    "first_missing": "2004-11-16",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6193",
+    "last_price": "2004-12-02",
+    "first_missing": "2004-12-03",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-12-03",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "5385",
+    "last_price": "2004-12-28",
+    "first_missing": "2004-12-29",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "8725",
+    "last_price": "2004-12-31",
+    "first_missing": "2005-01-03",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2525",
+    "last_price": "2005-01-04",
+    "first_missing": "2005-01-05",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2435",
+    "last_price": "2005-01-05",
+    "first_missing": "2005-01-06",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-01-06",
+     "本公司營業細則第五十條第一項規定"
+    ]
+   },
+   {
+    "stock_id": "5325",
+    "last_price": "2005-01-12",
+    "first_missing": "2005-01-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-01-13",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "5006",
+    "last_price": "2005-01-14",
+    "first_missing": "2005-01-17",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-01-17",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "3039",
+    "last_price": "2005-02-22",
+    "first_missing": "2005-02-23",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-02-23",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "2544",
+    "last_price": "2005-03-08",
+    "first_missing": "2005-03-09",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-03-09",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "5528",
+    "last_price": "2005-03-08",
+    "first_missing": "2005-03-09",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-03-09",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6181",
+    "last_price": "2005-03-18",
+    "first_missing": "2005-03-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-03-21",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "5524",
+    "last_price": "2005-03-30",
+    "first_missing": "2005-03-31",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-03-31",
+     "而未自行辦理股務或委託其他股務代理, 查明限期改善而未改善"
+    ]
+   },
+   {
+    "stock_id": "5497",
+    "last_price": "2005-05-03",
+    "first_missing": "2005-05-04",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-05-04",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "9936",
+    "last_price": "2005-05-09",
+    "first_missing": "2005-05-10",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-05-10",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "5442",
+    "last_price": "2005-05-12",
+    "first_missing": "2005-05-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-05-13",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "5436",
+    "last_price": "2005-05-19",
+    "first_missing": "2005-05-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-05-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "1212",
+    "last_price": "2005-06-03",
+    "first_missing": "2005-06-06",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-06-06",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "2902",
+    "last_price": "2005-06-10",
+    "first_missing": "2005-06-13",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1450",
+    "last_price": "2005-07-04",
+    "first_missing": "2005-07-05",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2318",
+    "last_price": "2005-07-04",
+    "first_missing": "2005-07-05",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6162",
+    "last_price": "2005-07-04",
+    "first_missing": "2005-07-05",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-07-05",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "2370",
+    "last_price": "2005-08-19",
+    "first_missing": "2005-08-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-08-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "1204",
+    "last_price": "2005-09-09",
+    "first_missing": "2005-09-12",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-09-12",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "1306",
+    "last_price": "2005-09-09",
+    "first_missing": "2005-09-12",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-09-12",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6132",
+    "last_price": "2005-09-09",
+    "first_missing": "2005-09-12",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-09-12",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "2389",
+    "last_price": "2005-10-18",
+    "first_missing": "2005-10-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-10-19",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2416",
+    "last_price": "2005-10-27",
+    "first_missing": "2005-10-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-10-28",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2470",
+    "last_price": "2005-10-27",
+    "first_missing": "2005-10-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-10-28",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "5473",
+    "last_price": "2005-11-10",
+    "first_missing": "2005-11-11",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5336",
+    "last_price": "2005-11-16",
+    "first_missing": "2005-11-17",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "4910",
+    "last_price": "2005-11-30",
+    "first_missing": "2005-12-01",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2808",
+    "last_price": "2005-12-13",
+    "first_missing": "2005-12-14",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-12-14",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2422",
+    "last_price": "2005-12-19",
+    "first_missing": "2005-12-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2005-12-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2533",
+    "last_price": "2006-02-06",
+    "first_missing": "2006-02-07",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2335",
+    "last_price": "2006-02-23",
+    "first_missing": "2006-02-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-02-24",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "2366",
+    "last_price": "2006-02-23",
+    "first_missing": "2006-02-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-02-24",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2822",
+    "last_price": "2006-04-18",
+    "first_missing": "2006-04-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-04-19",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2378",
+    "last_price": "2006-05-11",
+    "first_missing": "2006-05-12",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-05-12",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6262",
+    "last_price": "2006-05-15",
+    "first_missing": "2006-05-16",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-05-16",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "5494",
+    "last_price": "2006-06-06",
+    "first_missing": "2006-06-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-06-07",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "1458",
+    "last_price": "2006-06-20",
+    "first_missing": "2006-06-21",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2523",
+    "last_price": "2006-07-05",
+    "first_missing": "2006-07-06",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-07-06",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "2407",
+    "last_price": "2006-07-13",
+    "first_missing": "2006-07-14",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-07-14",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6960",
+    "last_price": "2006-07-27",
+    "first_missing": "2006-07-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-07-28",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "4404",
+    "last_price": "2006-08-14",
+    "first_missing": "2006-08-15",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1224",
+    "last_price": "2006-09-01",
+    "first_missing": "2006-09-04",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5307",
+    "last_price": "2006-09-08",
+    "first_missing": "2006-09-11",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3012",
+    "last_price": "2006-09-19",
+    "first_missing": "2006-09-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-09-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6178",
+    "last_price": "2006-09-27",
+    "first_missing": "2006-09-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-09-28",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2487",
+    "last_price": "2006-10-23",
+    "first_missing": "2006-10-24",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2394",
+    "last_price": "2006-11-20",
+    "first_missing": "2006-11-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-11-21",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2333",
+    "last_price": "2006-12-12",
+    "first_missing": "2006-12-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-12-13",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "2343",
+    "last_price": "2006-12-19",
+    "first_missing": "2006-12-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2006-12-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6137",
+    "last_price": "2006-12-22",
+    "first_missing": "2006-12-25",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5901",
+    "last_price": "2006-12-25",
+    "first_missing": "2006-12-26",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1207",
+    "last_price": "2007-01-04",
+    "first_missing": "2007-01-05",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-01-05",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "9801",
+    "last_price": "2007-01-04",
+    "first_missing": "2007-01-05",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-01-05",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "2807",
+    "last_price": "2007-01-17",
+    "first_missing": "2007-01-18",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2831",
+    "last_price": "2007-01-19",
+    "first_missing": "2007-01-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-01-22",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "3214",
+    "last_price": "2007-02-08",
+    "first_missing": "2007-02-09",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2007-02-09",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "5532",
+    "last_price": "2007-02-14",
+    "first_missing": "2007-02-26",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2811",
+    "last_price": "2007-03-07",
+    "first_missing": "2007-03-08",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6004",
+    "last_price": "2007-03-20",
+    "first_missing": "2007-03-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2007-03-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "8017",
+    "last_price": "2007-04-04",
+    "first_missing": "2007-04-09",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-04-09",
+     "營運資金嚴重不足, 全面停工"
+    ]
+   },
+   {
+    "stock_id": "3007",
+    "last_price": "2007-04-12",
+    "first_missing": "2007-04-13",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2827",
+    "last_price": "2007-04-27",
+    "first_missing": "2007-04-30",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2418",
+    "last_price": "2007-05-04",
+    "first_missing": "2007-05-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-05-07",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "5376",
+    "last_price": "2007-05-09",
+    "first_missing": "2007-05-10",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-05-10",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "1408",
+    "last_price": "2007-05-14",
+    "first_missing": "2007-05-15",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-05-15",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6280",
+    "last_price": "2007-06-20",
+    "first_missing": "2007-06-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2007-06-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "1601",
+    "last_price": "2007-07-09",
+    "first_missing": "2007-07-10",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-07-10",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "2469",
+    "last_price": "2007-07-25",
+    "first_missing": "2007-07-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2007-07-26",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "1462",
+    "last_price": "2007-08-01",
+    "first_missing": "2007-08-02",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5017",
+    "last_price": "2007-08-03",
+    "first_missing": "2007-08-06",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-08-06",
+     "台灣桃園地方法院96年8月3日之公司重整事件緊急處分裁定通知"
+    ]
+   },
+   {
+    "stock_id": "2628",
+    "last_price": "2007-08-29",
+    "first_missing": "2007-08-30",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5810",
+    "last_price": "2007-09-07",
+    "first_missing": "2007-09-10",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5818",
+    "last_price": "2007-11-22",
+    "first_missing": "2007-11-23",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2007-11-23",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2336",
+    "last_price": "2007-12-19",
+    "first_missing": "2007-12-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2007-12-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "1520",
+    "last_price": "2007-12-25",
+    "first_missing": "2007-12-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2007-12-26",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3020",
+    "last_price": "2008-01-02",
+    "first_missing": "2008-01-03",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-01-03",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2447",
+    "last_price": "2008-01-23",
+    "first_missing": "2008-01-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-01-24",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3142",
+    "last_price": "2008-02-18",
+    "first_missing": "2008-02-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-02-19",
+     "法院裁定"
+    ]
+   },
+   {
+    "stock_id": "9915",
+    "last_price": "2008-02-21",
+    "first_missing": "2008-02-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-02-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "5605",
+    "last_price": "2008-02-22",
+    "first_missing": "2008-02-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-02-25",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "1311",
+    "last_price": "2008-04-10",
+    "first_missing": "2008-04-11",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-04-11",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3079",
+    "last_price": "2008-04-17",
+    "first_missing": "2008-04-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-04-18",
+     "因營運資金嚴重不足全面停工"
+    ]
+   },
+   {
+    "stock_id": "5414",
+    "last_price": "2008-04-25",
+    "first_missing": "2008-04-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3053",
+    "last_price": "2008-05-09",
+    "first_missing": "2008-05-12",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-05-12",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6110",
+    "last_price": "2008-05-27",
+    "first_missing": "2008-05-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-05-28",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "9101",
+    "last_price": "2008-05-28",
+    "first_missing": "2008-05-29",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-05-29",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3271",
+    "last_price": "2008-06-17",
+    "first_missing": "2008-06-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-06-18",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6232",
+    "last_price": "2008-07-14",
+    "first_missing": "2008-07-15",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-07-15",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "2326",
+    "last_price": "2008-07-30",
+    "first_missing": "2008-07-31",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2479",
+    "last_price": "2008-08-08",
+    "first_missing": "2008-08-11",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5501",
+    "last_price": "2008-08-27",
+    "first_missing": "2008-08-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1606",
+    "last_price": "2008-09-10",
+    "first_missing": "2008-09-11",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-09-11",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6149",
+    "last_price": "2008-09-10",
+    "first_missing": "2008-09-11",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-09-11",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "1807",
+    "last_price": "2008-09-15",
+    "first_missing": "2008-09-16",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3298",
+    "last_price": "2008-09-18",
+    "first_missing": "2008-09-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-09-19",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2411",
+    "last_price": "2008-10-22",
+    "first_missing": "2008-10-23",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2008-10-23",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2494",
+    "last_price": "2008-10-24",
+    "first_missing": "2008-10-27",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3369",
+    "last_price": "2008-11-06",
+    "first_missing": "2008-11-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-11-07",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6159",
+    "last_price": "2009-01-21",
+    "first_missing": "2009-02-02",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5207",
+    "last_price": "2009-02-02",
+    "first_missing": "2009-02-03",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2009-02-03",
+     "茲因原股務代理機構終止代理"
+    ]
+   },
+   {
+    "stock_id": "2410",
+    "last_price": "2009-04-17",
+    "first_missing": "2009-04-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6402",
+    "last_price": "2009-05-08",
+    "first_missing": "2009-05-11",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3099",
+    "last_price": "2009-08-19",
+    "first_missing": "2009-08-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2009-08-20",
+     "台灣桃園地方法院裁定"
+    ]
+   },
+   {
+    "stock_id": "5492",
+    "last_price": "2009-10-29",
+    "first_missing": "2009-10-30",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2446",
+    "last_price": "2009-11-18",
+    "first_missing": "2009-11-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2009-11-19",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2921",
+    "last_price": "2009-12-23",
+    "first_missing": "2009-12-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2009-12-24",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3009",
+    "last_price": "2010-03-05",
+    "first_missing": "2010-03-08",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-03-08",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3063",
+    "last_price": "2010-03-19",
+    "first_missing": "2010-03-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-03-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2452",
+    "last_price": "2010-03-24",
+    "first_missing": "2010-03-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-03-25",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2526",
+    "last_price": "2010-03-25",
+    "first_missing": "2010-03-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-03-26",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2350",
+    "last_price": "2010-06-15",
+    "first_missing": "2010-06-17",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "9922",
+    "last_price": "2010-06-18",
+    "first_missing": "2010-06-21",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2391",
+    "last_price": "2010-08-03",
+    "first_missing": "2010-08-04",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-08-04",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "1523",
+    "last_price": "2010-08-19",
+    "first_missing": "2010-08-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-08-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6255",
+    "last_price": "2010-09-02",
+    "first_missing": "2010-09-03",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-09-03",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3614",
+    "last_price": "2010-09-17",
+    "first_missing": "2010-09-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-09-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2403",
+    "last_price": "2010-11-08",
+    "first_missing": "2010-11-09",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-11-09",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "9102",
+    "last_price": "2010-12-07",
+    "first_missing": "2010-12-08",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2010-12-08",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "1716",
+    "last_price": "2010-12-21",
+    "first_missing": "2010-12-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2010-12-22",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6012",
+    "last_price": "2011-04-19",
+    "first_missing": "2011-04-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2011-04-20",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2396",
+    "last_price": "2011-05-13",
+    "first_missing": "2011-05-16",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2463",
+    "last_price": "2011-05-25",
+    "first_missing": "2011-05-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2011-05-26",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "5204",
+    "last_price": "2011-08-04",
+    "first_missing": "2011-08-05",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "4408",
+    "last_price": "2011-08-08",
+    "first_missing": "2011-08-09",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2011-08-09",
+     "內控設計與執行仍存有重大缺失"
+    ]
+   },
+   {
+    "stock_id": "5387",
+    "last_price": "2011-09-05",
+    "first_missing": "2011-09-06",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2011-09-06",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "2854",
+    "last_price": "2011-09-20",
+    "first_missing": "2011-09-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2011-09-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3534",
+    "last_price": "2011-09-22",
+    "first_missing": "2011-09-23",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2011-09-23",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3367",
+    "last_price": "2011-09-28",
+    "first_missing": "2011-09-29",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2011-09-29",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3069",
+    "last_price": "2011-11-16",
+    "first_missing": "2011-11-17",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2011-11-17",
+     "依櫃買中心章則規定認為有必要停止其有價證券櫃檯買賣"
+    ]
+   },
+   {
+    "stock_id": "5854",
+    "last_price": "2011-11-18",
+    "first_missing": "2011-11-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2011-11-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3389",
+    "last_price": "2012-01-16",
+    "first_missing": "2012-01-17",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2012-01-17",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6119",
+    "last_price": "2012-02-22",
+    "first_missing": "2012-02-23",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2012-02-23",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "916665",
+    "last_price": "2012-03-27",
+    "first_missing": "2012-03-28",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1107",
+    "last_price": "2012-06-06",
+    "first_missing": "2012-06-07",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "9104",
+    "last_price": "2012-08-27",
+    "first_missing": "2012-08-28",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2381",
+    "last_price": "2012-10-12",
+    "first_missing": "2012-10-15",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5318",
+    "last_price": "2012-11-05",
+    "first_missing": "2012-11-06",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "911606",
+    "last_price": "2012-11-05",
+    "first_missing": "2012-11-06",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2341",
+    "last_price": "2012-11-12",
+    "first_missing": "2012-11-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2473",
+    "last_price": "2012-11-21",
+    "first_missing": "2012-11-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2012-11-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "5346",
+    "last_price": "2012-12-10",
+    "first_missing": "2012-12-11",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "8199",
+    "last_price": "2012-12-20",
+    "first_missing": "2012-12-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2012-12-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "8705",
+    "last_price": "2012-12-25",
+    "first_missing": "2012-12-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2012-12-26",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6008",
+    "last_price": "2013-01-07",
+    "first_missing": "2013-01-08",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2013-01-08",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3080",
+    "last_price": "2013-01-21",
+    "first_missing": "2013-01-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2013-01-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3087",
+    "last_price": "2013-04-29",
+    "first_missing": "2013-04-30",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "4801",
+    "last_price": "2013-04-29",
+    "first_missing": "2013-04-30",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3599",
+    "last_price": "2013-05-20",
+    "first_missing": "2013-05-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2013-05-21",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "8008",
+    "last_price": "2013-07-11",
+    "first_missing": "2013-07-12",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "910579",
+    "last_price": "2013-07-29",
+    "first_missing": "2013-07-30",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2315",
+    "last_price": "2013-08-30",
+    "first_missing": "2013-09-02",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2013-09-02",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "9151",
+    "last_price": "2013-10-14",
+    "first_missing": "2013-10-15",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "911602",
+    "last_price": "2013-12-02",
+    "first_missing": "2013-12-03",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5467",
+    "last_price": "2013-12-24",
+    "first_missing": "2013-12-25",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3697",
+    "last_price": "2014-01-15",
+    "first_missing": "2014-01-16",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2014-01-16",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "911610",
+    "last_price": "2014-01-27",
+    "first_missing": "2014-02-05",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "8078",
+    "last_price": "2014-02-14",
+    "first_missing": "2014-02-17",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2014-02-17",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "2837",
+    "last_price": "2014-09-01",
+    "first_missing": "2014-09-02",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2014-09-02",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3638",
+    "last_price": "2014-09-09",
+    "first_missing": "2014-09-10",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5326",
+    "last_price": "2014-09-18",
+    "first_missing": "2014-09-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2014-09-19",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2384",
+    "last_price": "2014-11-18",
+    "first_missing": "2014-11-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2014-11-19",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "5280",
+    "last_price": "2014-12-19",
+    "first_missing": "2014-12-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2014-12-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3061",
+    "last_price": "2014-12-23",
+    "first_missing": "2014-12-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2014-12-24",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3582",
+    "last_price": "2014-12-24",
+    "first_missing": "2014-12-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2014-12-25",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "5261",
+    "last_price": "2014-12-24",
+    "first_missing": "2014-12-25",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3126",
+    "last_price": "2015-02-24",
+    "first_missing": "2015-02-25",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "910069",
+    "last_price": "2015-05-12",
+    "first_missing": "2015-05-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5505",
+    "last_price": "2015-05-13",
+    "first_missing": "2015-05-14",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2015-05-14",
+     "違規退票"
+    ]
+   },
+   {
+    "stock_id": "5466",
+    "last_price": "2015-06-04",
+    "first_missing": "2015-06-05",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2015-06-05",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "911609",
+    "last_price": "2015-06-16",
+    "first_missing": "2015-06-17",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "4703",
+    "last_price": "2015-08-18",
+    "first_missing": "2015-08-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2015-08-19",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6135",
+    "last_price": "2015-08-18",
+    "first_missing": "2015-08-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2015-08-19",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "2833",
+    "last_price": "2015-10-01",
+    "first_missing": "2015-10-02",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2015-10-02",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6250",
+    "last_price": "2015-10-13",
+    "first_missing": "2015-10-14",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2015-10-14",
+     "內部控制制度顯有重大缺失，為保護投資大眾權益"
+    ]
+   },
+   {
+    "stock_id": "8925",
+    "last_price": "2015-10-27",
+    "first_missing": "2015-10-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2015-10-28",
+     "於104/10/27 新竹地方法院為記名式股票禁止轉讓之裁定"
+    ]
+   },
+   {
+    "stock_id": "5506",
+    "last_price": "2015-11-25",
+    "first_missing": "2015-11-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2361",
+    "last_price": "2015-12-25",
+    "first_missing": "2015-12-28",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "913889",
+    "last_price": "2015-12-28",
+    "first_missing": "2015-12-29",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6211",
+    "last_price": "2015-12-31",
+    "first_missing": "2016-01-04",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "911612",
+    "last_price": "2016-01-25",
+    "first_missing": "2016-01-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2847",
+    "last_price": "2016-03-09",
+    "first_missing": "2016-03-10",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-03-10",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "5266",
+    "last_price": "2016-03-23",
+    "first_missing": "2016-03-24",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3584",
+    "last_price": "2016-04-06",
+    "first_missing": "2016-04-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-04-07",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "6286",
+    "last_price": "2016-04-20",
+    "first_missing": "2016-04-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-04-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "911626",
+    "last_price": "2016-05-09",
+    "first_missing": "2016-05-10",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-05-10",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "8053",
+    "last_price": "2016-05-10",
+    "first_missing": "2016-05-11",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3598",
+    "last_price": "2016-05-25",
+    "first_missing": "2016-05-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-05-26",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3573",
+    "last_price": "2016-06-22",
+    "first_missing": "2016-06-23",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-06-23",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "5395",
+    "last_price": "2016-07-06",
+    "first_missing": "2016-07-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-07-07",
+     "其上櫃普通股未達其已發行普通股總數之25%, 普通股未達500萬股"
+    ]
+   },
+   {
+    "stock_id": "4733",
+    "last_price": "2016-08-18",
+    "first_missing": "2016-08-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-08-19",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "8079",
+    "last_price": "2016-08-24",
+    "first_missing": "2016-08-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-08-25",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "8082",
+    "last_price": "2016-09-23",
+    "first_missing": "2016-09-26",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3291",
+    "last_price": "2016-09-26",
+    "first_missing": "2016-09-29",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "8266",
+    "last_price": "2016-11-08",
+    "first_missing": "2016-11-09",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-11-09",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3658",
+    "last_price": "2016-11-15",
+    "first_missing": "2016-11-16",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-11-16",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3662",
+    "last_price": "2016-11-16",
+    "first_missing": "2016-11-17",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-11-17",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "911611",
+    "last_price": "2016-11-28",
+    "first_missing": "2016-11-29",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3474",
+    "last_price": "2016-11-29",
+    "first_missing": "2016-11-30",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2016-11-30",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6702",
+    "last_price": "2017-01-24",
+    "first_missing": "2017-02-02",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1613",
+    "last_price": "2017-04-06",
+    "first_missing": "2017-04-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2017-04-07",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "1729",
+    "last_price": "2017-05-17",
+    "first_missing": "2017-05-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2017-05-18",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "2437",
+    "last_price": "2017-06-19",
+    "first_missing": "2017-06-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-06-20",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "9106",
+    "last_price": "2017-06-26",
+    "first_missing": "2017-06-27",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5384",
+    "last_price": "2017-08-21",
+    "first_missing": "2017-08-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-08-22",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6022",
+    "last_price": "2017-08-21",
+    "first_missing": "2017-08-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-08-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3559",
+    "last_price": "2017-08-23",
+    "first_missing": "2017-08-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-08-24",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3315",
+    "last_price": "2017-09-22",
+    "first_missing": "2017-09-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-09-25",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3553",
+    "last_price": "2017-09-22",
+    "first_missing": "2017-09-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-09-25",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6105",
+    "last_price": "2017-10-06",
+    "first_missing": "2017-10-11",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-10-11",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "1715",
+    "last_price": "2017-10-18",
+    "first_missing": "2017-10-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-10-19",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6107",
+    "last_price": "2017-11-16",
+    "first_missing": "2017-11-17",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2017-11-17",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "910801",
+    "last_price": "2017-12-12",
+    "first_missing": "2017-12-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5491",
+    "last_price": "2017-12-18",
+    "first_missing": "2017-12-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2017-12-19",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2311",
+    "last_price": "2018-04-17",
+    "first_missing": "2018-04-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-04-18",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2325",
+    "last_price": "2018-04-17",
+    "first_missing": "2018-04-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-04-18",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6554",
+    "last_price": "2018-05-23",
+    "first_missing": "2018-05-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-05-24",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3068",
+    "last_price": "2018-06-06",
+    "first_missing": "2018-06-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-06-07",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "1469",
+    "last_price": "2018-07-10",
+    "first_missing": "2018-07-11",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "4984",
+    "last_price": "2018-08-23",
+    "first_missing": "2018-08-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-08-24",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "2856",
+    "last_price": "2018-09-17",
+    "first_missing": "2018-09-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-09-18",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3428",
+    "last_price": "2018-09-17",
+    "first_missing": "2018-09-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-09-18",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3514",
+    "last_price": "2018-09-17",
+    "first_missing": "2018-09-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-09-18",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "3561",
+    "last_price": "2018-09-17",
+    "first_missing": "2018-09-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-09-18",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "6145",
+    "last_price": "2018-09-17",
+    "first_missing": "2018-09-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-09-18",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6298",
+    "last_price": "2018-09-17",
+    "first_missing": "2018-09-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-09-18",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6422",
+    "last_price": "2018-09-19",
+    "first_missing": "2018-09-20",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-09-20",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "4103",
+    "last_price": "2018-11-06",
+    "first_missing": "2018-11-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-11-07",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3299",
+    "last_price": "2018-11-21",
+    "first_missing": "2018-11-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-11-22",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "5255",
+    "last_price": "2018-11-21",
+    "first_missing": "2018-11-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2018-11-22",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3431",
+    "last_price": "2019-01-18",
+    "first_missing": "2019-01-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2019-01-21",
+     "該公司內部控制制度顯有重大缺失"
+    ]
+   },
+   {
+    "stock_id": "1704",
+    "last_price": "2019-01-23",
+    "first_missing": "2019-01-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2019-01-24",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "5480",
+    "last_price": "2019-03-20",
+    "first_missing": "2019-03-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2019-03-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3519",
+    "last_price": "2019-04-30",
+    "first_missing": "2019-05-02",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2475",
+    "last_price": "2019-05-10",
+    "first_missing": "2019-05-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "910708",
+    "last_price": "2019-06-06",
+    "first_missing": "2019-06-10",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3579",
+    "last_price": "2019-06-25",
+    "first_missing": "2019-06-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1566",
+    "last_price": "2019-07-24",
+    "first_missing": "2019-07-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2019-07-25",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "4180",
+    "last_price": "2019-07-29",
+    "first_missing": "2019-07-30",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2019-07-30",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "911619",
+    "last_price": "2019-08-16",
+    "first_missing": "2019-08-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5317",
+    "last_price": "2019-09-17",
+    "first_missing": "2019-09-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2019-09-18",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "1262",
+    "last_price": "2019-10-07",
+    "first_missing": "2019-10-08",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2019-10-08",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "9157",
+    "last_price": "2019-11-11",
+    "first_missing": "2019-11-12",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5259",
+    "last_price": "2019-11-18",
+    "first_missing": "2019-11-19",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2019-11-19",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "1787",
+    "last_price": "2019-11-20",
+    "first_missing": "2019-11-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2019-11-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "4415",
+    "last_price": "2019-12-13",
+    "first_missing": "2019-12-16",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3452",
+    "last_price": "2020-01-10",
+    "first_missing": "2020-01-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "8913",
+    "last_price": "2020-01-13",
+    "first_missing": "2020-01-14",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-01-14",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "3562",
+    "last_price": "2020-02-14",
+    "first_missing": "2020-02-17",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-02-17",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "1333",
+    "last_price": "2020-04-06",
+    "first_missing": "2020-04-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-04-07",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "2499",
+    "last_price": "2020-04-06",
+    "first_missing": "2020-04-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-04-07",
+     "違規財報"
+    ]
+   },
+   {
+    "stock_id": "8287",
+    "last_price": "2020-04-30",
+    "first_missing": "2020-05-04",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-05-04",
+     "自行申請"
+    ]
+   },
+   {
+    "stock_id": "4947",
+    "last_price": "2020-05-20",
+    "first_missing": "2020-05-21",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-05-21",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "1902",
+    "last_price": "2020-05-25",
+    "first_missing": "2020-05-26",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-05-26",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "6238",
+    "last_price": "2020-06-10",
+    "first_missing": "2020-06-11",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-06-11",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "910482",
+    "last_price": "2020-06-12",
+    "first_missing": "2020-06-15",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6497",
+    "last_price": "2020-08-24",
+    "first_missing": "2020-08-25",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "4144",
+    "last_price": "2020-10-21",
+    "first_missing": "2020-10-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-10-22",
+     "合併下市"
+    ]
+   },
+   {
+    "stock_id": "8497",
+    "last_price": "2020-10-21",
+    "first_missing": "2020-10-22",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-10-22",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "5349",
+    "last_price": "2020-10-28",
+    "first_missing": "2020-10-29",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-10-29",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "8934",
+    "last_price": "2020-11-17",
+    "first_missing": "2020-11-18",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "5305",
+    "last_price": "2020-11-23",
+    "first_missing": "2020-11-24",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-11-24",
+     "併入控股公司下市"
+    ]
+   },
+   {
+    "stock_id": "911616",
+    "last_price": "2021-08-30",
+    "first_missing": "2021-08-31",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "911613",
+    "last_price": "2021-09-02",
+    "first_missing": "2021-09-03",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "912398",
+    "last_price": "2021-12-10",
+    "first_missing": "2021-12-13",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "1592",
+    "last_price": "2022-01-26",
+    "first_missing": "2022-02-07",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "2936",
+    "last_price": "2022-06-24",
+    "first_missing": "2022-06-27",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "3383",
+    "last_price": "2022-09-23",
+    "first_missing": "2022-09-26",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6289",
+    "last_price": "2022-09-23",
+    "first_missing": "2022-09-26",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6287",
+    "last_price": "2025-06-20",
+    "first_missing": "2025-06-23",
+    "has_any_status_record": false,
+    "blocked_by_o_e_1": null
+   },
+   {
+    "stock_id": "6806",
+    "last_price": "2026-06-22",
+    "first_missing": "2026-06-23",
+    "has_any_status_record": true,
+    "blocked_by_o_e_1": null
+   }
+  ]
+ },
+ "audit_C_interior_gaps": {
+  "runs_total": 119,
+  "by_cause": {
+   "unexplained": 115,
+   "explained": 4
+  },
+  "unexplained_runs": 115,
+  "unexplained_securities": 96,
+  "unexplained_run_length_histogram": {
+   "2": 2,
+   "3": 1,
+   "4": 1,
+   "6": 4,
+   "7": 3,
+   "11": 2,
+   "15": 1,
+   "16": 1,
+   "17": 1,
+   "18": 1,
+   "20": 2,
+   "27": 1,
+   "31": 2,
+   "33": 2,
+   "34": 1
+  },
+  "note": "a run is NOT necessarily a mark gap. A security that leaves the exchange and is relisted years later shows one enormous run here, and during it no session was expected of it at all. P-6 in the event-table audit splits the two.",
+  "runs": [
+   {
+    "stock_id": "8102",
+    "first_missing": "2005-08-31",
+    "length": 4474,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "3135",
+    "first_missing": "2005-11-04",
+    "length": 3961,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "8089",
+    "first_missing": "2005-05-03",
+    "length": 3303,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "6606",
+    "first_missing": "2009-09-04",
+    "length": 2555,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2009-09-04",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4749",
+    "first_missing": "2011-12-23",
+    "length": 2486,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2011-12-23",
+     "主辦輔導券商申請辭任"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3081",
+    "first_missing": "2004-09-23",
+    "length": 2434,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "8279",
+    "first_missing": "2005-03-14",
+    "length": 2406,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8104",
+    "first_missing": "2006-12-05",
+    "length": 2386,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "8227",
+    "first_missing": "2012-06-04",
+    "length": 2241,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2012-06-04",
+     "協辦輔導推薦券商申請辭任, 僅餘一家"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3147",
+    "first_missing": "2005-01-06",
+    "length": 2167,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "8045",
+    "first_missing": "2009-03-05",
+    "length": 2032,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "8028",
+    "first_missing": "2008-04-15",
+    "length": 1668,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-04-15",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3346",
+    "first_missing": "2006-09-18",
+    "length": 1549,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "3321",
+    "first_missing": "2009-04-30",
+    "length": 1395,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "8011",
+    "first_missing": "2004-08-03",
+    "length": 1363,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "6288",
+    "first_missing": "2005-08-31",
+    "length": 1304,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6526",
+    "first_missing": "2017-04-25",
+    "length": 1263,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "6702",
+    "first_missing": "2005-12-02",
+    "length": 1231,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8027",
+    "first_missing": "2008-12-02",
+    "length": 1231,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "6517",
+    "first_missing": "2017-03-17",
+    "length": 1143,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "4949",
+    "first_missing": "2018-09-03",
+    "length": 1070,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "3437",
+    "first_missing": "2009-06-22",
+    "length": 999,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "4415",
+    "first_missing": "2011-11-08",
+    "length": 842,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2011-11-08",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6130",
+    "first_missing": "2008-12-01",
+    "length": 760,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-12-01",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8059",
+    "first_missing": "2005-04-11",
+    "length": 703,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4989",
+    "first_missing": "2014-09-05",
+    "length": 684,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "4931",
+    "first_missing": "2014-09-02",
+    "length": 647,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "6546",
+    "first_missing": "2018-03-31",
+    "length": 638,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "2065",
+    "first_missing": "2014-03-11",
+    "length": 497,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "6131",
+    "first_missing": "2018-05-18",
+    "length": 206,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2018-05-18",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5207",
+    "first_missing": "2006-09-12",
+    "length": 173,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-09-12",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5318",
+    "first_missing": "2008-12-31",
+    "length": 169,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-12-31",
+     "向桃園地方法院聲請重整"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5321",
+    "first_missing": "2006-07-19",
+    "length": 166,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-07-19",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5414",
+    "first_missing": "2007-05-08",
+    "length": 166,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-05-08",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2396",
+    "first_missing": "2008-08-08",
+    "length": 164,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-08-08",
+     "申請公司重整"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2407",
+    "first_missing": "2005-09-12",
+    "length": 162,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-09-12",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2479",
+    "first_missing": "2007-05-07",
+    "length": 161,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-05-07",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "1785",
+    "first_missing": "2016-05-17",
+    "length": 158,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-05-17",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4413",
+    "first_missing": "2008-11-28",
+    "length": 158,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-11-28",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4415",
+    "first_missing": "2017-04-12",
+    "length": 155,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5204",
+    "first_missing": "2007-09-12",
+    "length": 152,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-09-12",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5376",
+    "first_missing": "2004-11-19",
+    "length": 148,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-11-19",
+     "因繼續6M以上持有該公司已發行股份總數10% 以上向法院聲請重整"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2341",
+    "first_missing": "2010-12-27",
+    "length": 143,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2010-12-27",
+     "法院裁定"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5501",
+    "first_missing": "2005-05-13",
+    "length": 141,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-05-13",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4413",
+    "first_missing": "2006-05-16",
+    "length": 137,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-05-16",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4413",
+    "first_missing": "2012-10-31",
+    "length": 137,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2012-10-31",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2025",
+    "first_missing": "2018-09-12",
+    "length": 134,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2018-09-12",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8077",
+    "first_missing": "2014-04-08",
+    "length": 134,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3144",
+    "first_missing": "2008-07-31",
+    "length": 133,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-07-31",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6222",
+    "first_missing": "2016-06-29",
+    "length": 132,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "4413",
+    "first_missing": "2010-09-10",
+    "length": 131,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2010-09-10",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2491",
+    "first_missing": "2008-09-11",
+    "length": 130,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-09-11",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2724",
+    "first_missing": "2017-07-06",
+    "length": 130,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "6242",
+    "first_missing": "2008-06-06",
+    "length": 130,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-06-06",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3021",
+    "first_missing": "2004-11-19",
+    "length": 129,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-11-19",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5207",
+    "first_missing": "2005-09-02",
+    "length": 129,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3219",
+    "first_missing": "2017-05-26",
+    "length": 128,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2017-05-26",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3085",
+    "first_missing": "2014-07-07",
+    "length": 127,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3219",
+    "first_missing": "2020-02-20",
+    "length": 125,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-02-20",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6242",
+    "first_missing": "2014-11-25",
+    "length": 119,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2014-11-25",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5506",
+    "first_missing": "2015-04-07",
+    "length": 118,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2015-04-07",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "1213",
+    "first_missing": "2019-04-08",
+    "length": 117,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2019-04-08",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2491",
+    "first_missing": "2005-01-04",
+    "length": 116,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-01-04",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3701",
+    "first_missing": "2016-07-07",
+    "length": 116,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-07-07",
+     "其上市普通股未達其已發行普通股總數之25%, 普通股未達6 億元"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6236",
+    "first_missing": "2013-07-09",
+    "length": 112,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "8077",
+    "first_missing": "2013-06-17",
+    "length": 111,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2013-06-17",
+     "向桃園地方法院聲請重整"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6222",
+    "first_missing": "2019-01-09",
+    "length": 109,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "1432",
+    "first_missing": "2005-04-13",
+    "length": 107,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-04-13",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6452",
+    "first_missing": "2020-08-18",
+    "length": 95,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-08-18",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3073",
+    "first_missing": "2020-08-19",
+    "length": 94,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-08-19",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6240",
+    "first_missing": "2016-07-07",
+    "length": 94,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-07-07",
+     "其上櫃普通股未達其已發行普通股總數之25%, 普通股未達500萬股"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "1603",
+    "first_missing": "2019-04-08",
+    "length": 92,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2019-04-08",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2410",
+    "first_missing": "2006-11-01",
+    "length": 90,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-11-01",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2528",
+    "first_missing": "2005-05-10",
+    "length": 90,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-05-10",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2361",
+    "first_missing": "2010-12-13",
+    "length": 87,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2010-12-13",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4404",
+    "first_missing": "2004-02-23",
+    "length": 87,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-02-23",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "1408",
+    "first_missing": "2006-11-17",
+    "length": 76,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-11-17",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4609",
+    "first_missing": "2010-08-31",
+    "length": 74,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2010-08-31",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2025",
+    "first_missing": "2016-05-04",
+    "length": 73,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-05-04",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2335",
+    "first_missing": "2005-05-10",
+    "length": 71,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-05-10",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4404",
+    "first_missing": "2005-05-13",
+    "length": 71,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-05-13",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5259",
+    "first_missing": "2019-04-08",
+    "length": 68,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2019-04-08",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4402",
+    "first_missing": "2018-08-17",
+    "length": 64,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2018-08-17",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6131",
+    "first_missing": "2016-04-07",
+    "length": 61,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-04-07",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "1760",
+    "first_missing": "2009-01-12",
+    "length": 58,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2009-01-12",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3004",
+    "first_missing": "2004-11-01",
+    "length": 51,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-11-01",
+     "向桃園地方法院申請重整"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8080",
+    "first_missing": "2019-11-19",
+    "length": 42,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2019-11-19",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6174",
+    "first_missing": "2006-08-30",
+    "length": 40,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-08-30",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5206",
+    "first_missing": "2009-07-30",
+    "length": 39,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2009-07-30",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5501",
+    "first_missing": "2006-05-02",
+    "length": 38,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-05-02",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4530",
+    "first_missing": "2010-11-04",
+    "length": 34,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2010-11-04",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4532",
+    "first_missing": "2005-09-22",
+    "length": 33,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-09-22",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6130",
+    "first_missing": "2008-09-11",
+    "length": 33,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2008-09-11",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "4415",
+    "first_missing": "2006-09-12",
+    "length": 31,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-09-12",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5204",
+    "first_missing": "2006-05-16",
+    "length": 31,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2006-05-16",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6131",
+    "first_missing": "2020-11-25",
+    "length": 27,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-11-25",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2429",
+    "first_missing": "2016-07-07",
+    "length": 20,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2016-07-07",
+     "其上市普通股未達其已發行普通股總數之25%, 普通股未達6 億元"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "9951",
+    "first_missing": "2009-02-12",
+    "length": 20,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2009-02-12",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "1805",
+    "first_missing": "2004-12-15",
+    "length": 18,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2004-12-15",
+     "違規退票"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2410",
+    "first_missing": "2007-09-12",
+    "length": 17,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-09-12",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8905",
+    "first_missing": "2020-05-20",
+    "length": 16,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2020-05-20",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "1742",
+    "first_missing": "2015-09-14",
+    "length": 15,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2015-09-14",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6250",
+    "first_missing": "2005-09-26",
+    "length": 11,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2005-09-26",
+     "違規財報"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "911619",
+    "first_missing": "2014-11-04",
+    "length": 11,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2014-11-04",
+     "自行申請"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2811",
+    "first_missing": "2007-02-06",
+    "length": 7,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-02-06",
+     "證券商營業處所買賣有價證券業務規則第13條之1規定"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "6548",
+    "first_missing": "2019-08-29",
+    "length": 7,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8070",
+    "first_missing": "2020-08-06",
+    "length": 7,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "2448",
+    "first_missing": "2020-12-24",
+    "length": 6,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-12-24",
+     "併入控股公司下市"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3138",
+    "first_missing": "2012-08-15",
+    "length": 6,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2012-08-15",
+     "輔導推薦券商僅餘一家"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "3698",
+    "first_missing": "2020-12-24",
+    "length": 6,
+    "blocked_by_o_e_1": [
+     "delisted",
+     "2020-12-24",
+     "併入控股公司下市"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "5810",
+    "first_missing": "2007-08-13",
+    "length": 6,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "2827",
+    "first_missing": "2007-04-02",
+    "length": 4,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "9157",
+    "first_missing": "2010-10-01",
+    "length": 3,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2010-10-01",
+     "股價敏感之主要交易及關聯交易待公告, 向HK交易所及結算所停牌"
+    ],
+    "has_any_status_record": true
+   },
+   {
+    "stock_id": "8040",
+    "first_missing": "2006-03-20",
+    "length": 2,
+    "blocked_by_o_e_1": null,
+    "has_any_status_record": false
+   },
+   {
+    "stock_id": "9103",
+    "first_missing": "2007-06-11",
+    "length": 2,
+    "blocked_by_o_e_1": [
+     "suspended",
+     "2007-06-11",
+     "臺灣存託憑證停止交易日(分割而新增之股票)"
+    ],
+    "has_any_status_record": true
+   }
+  ]
+ },
+ "regression_vs_prior_of_run": {
+  "prior_by_cause": {
+   "ok": 1819,
+   "o_e_1_same_day": 7,
+   "no_status_record": 12,
+   "other": 0
+  },
+  "prior_example_names_recorded": [
+   "1333",
+   "1902",
+   "2475",
+   "2499",
+   "3431",
+   "3452",
+   "3519",
+   "3562",
+   "3579",
+   "4415",
+   "4947",
+   "5259",
+   "6238",
+   "8287",
+   "8913"
+  ],
+  "prior_examples_still_unexplained": [
+   "1333",
+   "1902",
+   "2475",
+   "2499",
+   "3431",
+   "3452",
+   "3519",
+   "3562",
+   "3579",
+   "4415",
+   "4947",
+   "5259",
+   "6238",
+   "8287",
+   "8913"
+  ],
+  "prior_examples_now_explained": [],
+  "prior_measurement_defect": "price_observed_through was approximated by min(series_last, as_of); see prereg C-40",
+  "note": "the earlier run stored only 8 examples per cause; these names are REPORTED against, never used as a pass list. The verdict is the derived count in audit_A."
+ }
+}

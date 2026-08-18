@@ -1,0 +1,238 @@
+{
+ "study": "O-F status source inventory and semantics",
+ "read_only": true,
+ "performance_computed": false,
+ "source_dir": "tej_exports/DataExport0806/暫停交易2004-20260818",
+ "superseded_vintage": {
+  "folder": "tej_exports/DataExport0806/暫停交易2004-20260806",
+  "state": "DELETED_BY_USER_2026-08-18",
+  "raw_sha256": null,
+  "raw_sha256_note": "never recorded; the 20260806 vintage was imported from xlsx and only its derived table was fingerprinted",
+  "derived_artifact": "data/b0/security_status.csv"
+ },
+ "files": [
+  {
+   "file": "暫停交易2004-2007.zip",
+   "bytes": 4926,
+   "sha256": "c53639d13babf8e054eb316777406003d534dac51efc27705e94cdfccd53127d",
+   "members": [
+    "20260818044959.csv"
+   ],
+   "rows": 296
+  },
+  {
+   "file": "暫停交易2008-2011.zip",
+   "bytes": 5134,
+   "sha256": "c8d3a7e3368e2633b4579c0cc2df4d8e3829ca32e713baa114fd87ef4b17a929",
+   "members": [
+    "20260818045025.csv"
+   ],
+   "rows": 302
+  },
+  {
+   "file": "暫停交易2012-2015.zip",
+   "bytes": 4688,
+   "sha256": "ab1b184366a1443db6406a46de92d71da8cf89f53b2bd665ab4d80d3257a6845",
+   "members": [
+    "20260818045122.csv"
+   ],
+   "rows": 264
+  },
+  {
+   "file": "暫停交易2016-2019.zip",
+   "bytes": 10664,
+   "sha256": "618f3edb738ce7db6e860209932e538285efa1e142b257c4b30caa779709e67c",
+   "members": [
+    "20260818045225.csv"
+   ],
+   "rows": 489
+  },
+  {
+   "file": "暫停交易2020-2023.zip",
+   "bytes": 8186,
+   "sha256": "8e660a96dcca78a928cf0f83ccacf4d75bdf086f635ab98e9562ecc5330ed293",
+   "members": [
+    "20260818045333.csv"
+   ],
+   "rows": 384
+  },
+  {
+   "file": "暫停交易2024-20260818.zip",
+   "bytes": 6181,
+   "sha256": "67dd2f6efb9482e26a5fe626e0e34ee9add6e4218f2252e89d371fd1148a1615",
+   "members": [
+    "20260818045426.csv"
+   ],
+   "rows": 215
+  },
+  {
+   "file": "事件+下市.zip",
+   "bytes": 41226,
+   "sha256": "571f67ac76b1a27e4c9da190741a2aa18cf4484c3740fae1ebc33dd7f67384b1",
+   "members": [
+    "20260818044837.csv"
+   ],
+   "rows": 2440
+  }
+ ],
+ "suspension": {
+  "columns": [
+   "證券代碼",
+   "年月日",
+   "恢復交易日",
+   "暫停交易原因"
+  ],
+  "schema_sha256": "8e58f9792805434b126bb1d3b9058dc1a3f12c8aff88a6b5862be64c34112633",
+  "rows": 1950,
+  "securities": 1046,
+  "usable_rows": 1950,
+  "unusable": {
+   "no_reason": 2,
+   "no_resume_date": 2
+  },
+  "effective_date_range": [
+   "2004-01-12",
+   "2026-08-18"
+  ],
+  "years_covered": [
+   "2004",
+   "2005",
+   "2006",
+   "2007",
+   "2008",
+   "2009",
+   "2010",
+   "2011",
+   "2012",
+   "2013",
+   "2014",
+   "2015",
+   "2016",
+   "2017",
+   "2018",
+   "2019",
+   "2020",
+   "2021",
+   "2022",
+   "2023",
+   "2024",
+   "2025",
+   "2026"
+  ],
+  "content_sha256": "ca896a917248d2d73260bbfe11d09cda5c38945c123122ca9066f0c497ac8641",
+  "reason_top": [
+   [
+    "減資",
+    759
+   ],
+   [
+    "現金減資",
+    360
+   ],
+   [
+    "違規財報",
+    98
+   ],
+   [
+    "重大訊息之查證:",
+    98
+   ],
+   [
+    "併入控股公司下市",
+    85
+   ],
+   [
+    "自行申請",
+    77
+   ],
+   [
+    "合併下市",
+    73
+   ],
+   [
+    "重大事項待公布:",
+    39
+   ],
+   [
+    "因有重大事項待公",
+    38
+   ],
+   [
+    "違規退票",
+    21
+   ],
+   [
+    "因有重大訊息待公",
+    20
+   ],
+   [
+    "重大訊息待公布:",
+    16
+   ]
+  ]
+ },
+ "event_table": {
+  "columns": [
+   "證券代碼",
+   "危機發生日",
+   "危機發生迄日",
+   "危機事件大類別",
+   "危機事件大類別說明",
+   "危機事件類別",
+   "危機事件類別說明",
+   "下市日期"
+  ],
+  "schema_sha256": "2313c5f5135a6326cb16b2979d891cf4fc555472841d88e1622bd7c963db1e26",
+  "rows": 2440,
+  "securities": 2440
+ },
+ "coverage_check": {
+  "expected_years": [
+   "2004",
+   "2005",
+   "2006",
+   "2007",
+   "2008",
+   "2009",
+   "2010",
+   "2011",
+   "2012",
+   "2013",
+   "2014",
+   "2015",
+   "2016",
+   "2017",
+   "2018",
+   "2019",
+   "2020",
+   "2021",
+   "2022",
+   "2023",
+   "2024",
+   "2025",
+   "2026"
+  ],
+  "missing_years": [],
+  "extra_years": [],
+  "spans_2004_through_2026": true
+ },
+ "semantics": {
+  "E-1_effective_date_not_announcement": {
+   "priced_on_effective_date": 1658,
+   "not_priced_on_effective_date": 292
+  },
+  "E-1_verdict": "年月日 is an EFFECTIVE date: the majority still trade ON it, so the suspension takes hold from the NEXT session. It is not an announcement date and carries no availability information.",
+  "E-2_resume_is_first_session_back": {
+   "priced_inside_suspension_window": 1177,
+   "silent_through_resume_date": 212,
+   "clean_resume": 495,
+   "priced_inside_and_not_on_resume": 64
+  },
+  "E-3_ordering": {
+   "resume_after_start": 1947,
+   "resume_equals_start": 1
+  },
+  "A-1_availability_column_present": false,
+  "A-1_verdict": "no filing/announcement timestamp exists in the export. available_from must be DECLARED; O-E-1 then bounds what that declaration explains."
+ }
+}

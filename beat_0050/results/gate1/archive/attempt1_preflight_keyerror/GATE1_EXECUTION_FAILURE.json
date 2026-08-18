@@ -1,0 +1,51 @@
+{
+  "_what": "Gate 1 執行失敗紀錄。STARTED 刻意保留,不得刪除。",
+  "failed_at": "2026-08-02T18:01:27.473538+08:00",
+  "error_type": "KeyError",
+  "error": "'preflight_passed'",
+  "started_record": {
+    "_what": "Gate 1 正式執行的認領紀錄。在讀取任何 candidate 面板之前落地。",
+    "started_at": "2026-08-02T18:01:22.743056+08:00",
+    "command": "gate1_assemble_12arm.py --part gate --i-am-executing-the-frozen-gate --authorization beat_0050/results/gate1/gate1_authorization.json",
+    "overlay_sha256": "de43f9deb4a67c483c730e6085512d9631cd66ca3da0a7b45600eb4d9cf630d6",
+    "runner_sha256": "e4b0e2e3e9822aa74cd914af3988bf25c49e54b884a1182935beac1487ae7c88",
+    "frozen_impl_sha256": "9bcb71ff18ac09f49029023195d4e3ae53cfcd9c061b7c51a7273fce05791930",
+    "authorization_path": "beat_0050\\results\\gate1\\gate1_authorization.json",
+    "authorization_sha256": "df7eeff6fc3d4dc6fab13970f557c2b5210355707148ca5693982c04a16aa145",
+    "baseline_idx": [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "baseline_map": {
+      "A1": "V0",
+      "A2": "V0",
+      "A3": "V0",
+      "A4": "V0",
+      "C1": "V0",
+      "C3": "V0",
+      "B1": "arm_C3",
+      "B2": "arm_C3",
+      "B3": "arm_C3",
+      "B4": "arm_C3",
+      "B5": "arm_C3",
+      "C2": "arm_C3"
+    },
+    "n_perm": 2000,
+    "seed": 20260731,
+    "alpha": 0.05,
+    "note": "本檔失敗時亦不得刪除;重跑須人工封存 + 新授權。"
+  },
+  "candidate_statistics_computed": false,
+  "note": "重跑前必須人工封存 STARTED 與本檔(改名並記錄理由),並取得綁定新 overlay 的新授權檔。",
+  "note_not_fired": "permutation 未執行完成,沒有 candidate 統計量產生。"
+}

@@ -1,0 +1,53 @@
+{
+ "study": "W-1..W-4 corporate-action ledger",
+ "read_only": true,
+ "performance_computed": false,
+ "source": "tej_exports/DataExport0806/配股相關2004-20260817",
+ "window": {
+  "start": "2014-07-31",
+  "end": "2026-03-31"
+ },
+ "events_total": 46275,
+ "events_in_window": 16750,
+ "in_window_by_kind_state": {
+  "capital_reduction|NOT_RECONSTRUCTIBLE": 27,
+  "capital_reduction|RECONSTRUCTIBLE": 646,
+  "cash_capital_increase|NOT_APPLICABLE": 3295,
+  "convertible_bond_conversion|NOT_APPLICABLE": 8049,
+  "employee_bonus|NOT_APPLICABLE": 296,
+  "merger|NOT_RECONSTRUCTIBLE": 53,
+  "other_share_change|NOT_APPLICABLE": 84,
+  "par_value_change|NOT_RECONSTRUCTIBLE": 1,
+  "par_value_change|RECONSTRUCTIBLE": 22,
+  "share_conversion|NOT_RECONSTRUCTIBLE": 31,
+  "stock_dividend|NOT_RECONSTRUCTIBLE": 377,
+  "stock_dividend|RECONSTRUCTIBLE": 2423,
+  "transfer_in|NOT_APPLICABLE": 72,
+  "treasury_cancellation|NOT_APPLICABLE": 1374
+ },
+ "not_reconstructible_reasons": {
+  "capitalisation recorded without an ex-right flag: no distribution rate and no credit date; 年月日 is a registration stamp": 312,
+  "recorded only on the surviving/issuing entity; the corpus carries no counterparty security and no conversion ratio, so the holder-side leg cannot be rebuilt": 84,
+  "no 股票股利上市日/發放日 — the receivable has no observable credit date": 65,
+  "no reduction rate and it could not be derived from share counts on this row": 11,
+  "returns 1.429 per share but carries no 減資現金退款日": 1,
+  "returns 0.79 per share but carries no 減資現金退款日": 1,
+  "returns 1.993 per share but carries no 減資現金退款日": 1,
+  "returns 1.74 per share but carries no 減資現金退款日": 1,
+  "implied pre-event shares 0 is not positive; the row does not describe a rescale": 1,
+  "returns 9.75 per share but carries no 減資現金退款日": 1,
+  "returns 3.605 per share but carries no 減資現金退款日": 1,
+  "returns 7.419 per share but carries no 減資現金退款日": 1,
+  "returns 0.5 per share but carries no 減資現金退款日": 1,
+  "returns 4.5 per share but carries no 減資現金退款日": 1,
+  "returns 2.14 per share but carries no 減資現金退款日": 1,
+  "returns 3.288 per share but carries no 減資現金退款日": 1,
+  "returns 5.0 per share but carries no 減資現金退款日": 1,
+  "returns 1.099 per share but carries no 減資現金退款日": 1,
+  "returns 2.076 per share but carries no 減資現金退款日": 1,
+  "returns 2.68305718 per share but carries no 減資現金退款日": 1,
+  "returns 4.306 per share but carries no 減資現金退款日": 1
+ },
+ "ledger": "data/b0/corporate_actions_ledger.csv",
+ "stock_dividend_view": "data/b0/stock_dividend_pit.csv"
+}

@@ -1,0 +1,103 @@
+{
+ "study": "O-E market-state sources",
+ "read_only": true,
+ "performance_computed": false,
+ "contracts": [
+  {
+   "name": "b0_trading_calendar",
+   "kind": "trading_calendar",
+   "importer_version": "b0_market_state_importer@3",
+   "content_sha256": "e0cb16b53ec8f47576f03a0225efde7bd382666ff7fc175f01d84acba70bdd4e",
+   "schema_sha256": "3f3af1ecebbd1410ab417ec0d27bbfcb5d340e177ae159b59fc8626c2dfd9175",
+   "date_min": "2004-01-02",
+   "date_max": "2026-08-17",
+   "has_effective_dates": true,
+   "has_availability_semantics": true,
+   "is_current_snapshot": false,
+   "availability_convention": "observed sessions only; a session is knowable on the day it trades. A forward-published holiday schedule is not used, because it would let a replay standing at t assert facts about sessions after t.",
+   "pit_safety": "PIT_SAFE"
+  },
+  {
+   "name": "b0_security_status",
+   "kind": "security_status",
+   "importer_version": "b0_market_state_importer@3",
+   "content_sha256": "3432afe6b5fc114013a7abb3db4f1452ae766a60f4ec31f856cd4716342d22db",
+   "schema_sha256": "1cabbe96070fec4fcc27739faf25953e624176c16dca23caa097739401a72eee",
+   "date_min": "2004-02-18",
+   "date_max": "2026-08-14",
+   "has_effective_dates": true,
+   "has_availability_semantics": true,
+   "is_current_snapshot": false,
+   "availability_convention": "available_from = 年月日 (first affected session). O-E-1 then lets a record explain only sessions STRICTLY AFTER it, so a status filed after the close can never account for that day's missing price.",
+   "pit_safety": "PIT_SAFE"
+  }
+ ],
+ "b21_dataset_provenance": [
+  {
+   "name": "b0_trading_calendar",
+   "content_sha256": "e0cb16b53ec8f47576f03a0225efde7bd382666ff7fc175f01d84acba70bdd4e",
+   "schema_sha256": "3f3af1ecebbd1410ab417ec0d27bbfcb5d340e177ae159b59fc8626c2dfd9175",
+   "date_min": "2004-01-02",
+   "date_max": "2026-08-17",
+   "importer_version": "b0_market_state_importer@3"
+  },
+  {
+   "name": "b0_security_status",
+   "content_sha256": "3432afe6b5fc114013a7abb3db4f1452ae766a60f4ec31f856cd4716342d22db",
+   "schema_sha256": "1cabbe96070fec4fcc27739faf25953e624176c16dca23caa097739401a72eee",
+   "date_min": "2004-02-18",
+   "date_max": "2026-08-14",
+   "importer_version": "b0_market_state_importer@3"
+  }
+ ],
+ "outputs": {
+  "calendar": "data/b0/trading_calendar.csv",
+  "status": "data/b0/security_status.csv"
+ },
+ "status_breakdown": {
+  "suspended": 605,
+  "delisted": 167,
+  "listed": 603
+ },
+ "event_semantics": {
+  "BOOK_CLOSURE": 1148,
+  "LISTING_TERMINATION": 167,
+  "TRADING_SUSPENSION": 605,
+  "UNKNOWN": 30
+ },
+ "rows_that_produced_no_status": 1178,
+ "rows_that_produced_no_status_by_semantics": {
+  "BOOK_CLOSURE": 1148,
+  "UNKNOWN": 30
+ },
+ "uninterpretable_reasons": [
+  ".",
+  "10:39",
+  "11:00恢復",
+  "11:40",
+  "1325",
+  "1330-1415, 1430恢復",
+  "APP13007第三期臨床試驗CPN-302主要療效數據",
+  "代重要子公司LYRA INTERNATIONAL CO.,LTD.公告擬出售股權",
+  "全球皮膚醫學大廠利奧製藥與合一及中天上海生技簽署異位性皮膚炎",
+  "公司公告:香港聯合交易所恢復交易",
+  "其資訊揭露之正確性及即時性存有重大疑義",
+  "列為變更交易方法有價證券後二年內無法達成同條第4項第5款規定",
+  "因發生經營權異動及營業範圍重大變更",
+  "執行董事離世",
+  "子公司聚燁科技向Henkel收購其TCLAD部門之資產及營業",
+  "有須澄清事項待公告",
+  "未依要求之期限內完整提示該公司及其子公司所有銀行往來",
+  "未於期限內提示該公司重要子公司102年度所有銀行存摺影本",
+  "研發中生物相似藥EG12014/EGI014人體第三期臨床達標",
+  "私募應募人及公開收購人討論，目前尚無具體營運計畫",
+  "經營權異動且異動前後一定期間有營業範圍重大變更之情事",
+  "與聯策科技進行股份交換",
+  "董事會通過子公司-基勝工業(上海)有限公司停產相關事宜案",
+  "處分間接投資之大陸公司惠陽東亞電子及東威電子100%股權案",
+  "觀音廠進行產能調節，擬暫時全面停止生產案",
+  "讓與本公司主要部分之財產",
+  "透過Keen Power (Samoa)及Sparking(Belize) 取得中和羊羊",
+  "重要子公司台新藥APP13007第三期臨床試驗CPN-302主要療效數據"
+ ]
+}

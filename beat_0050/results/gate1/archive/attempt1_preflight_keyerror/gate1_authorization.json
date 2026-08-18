@@ -1,0 +1,7 @@
+{
+  "authorizes": "gate1-first-official-permutation",
+  "overlay_sha256": "de43f9deb4a67c483c730e6085512d9631cd66ca3da0a7b45600eb4d9cf630d6",
+  "authorized_by": "專案使用者(依 Codex 2026-08-02 審查核准後指示執行)",
+  "authorized_at": "2026-08-02T18:01:14.022967+08:00",
+  "note": "Codex 逐輪審查通過:per-arm baseline 勘誤、overlay --check 逐檔重算、CLI 執行順序(授權/認領先於任何 candidate 讀取)、步驟 6 封存的 failure-handled 原子落地。核准後指示執行首次正式 Gate 1,只跑一次。"
+}

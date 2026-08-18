@@ -1,0 +1,926 @@
+{
+ "study": "D-1 audit (new source)",
+ "read_only": true,
+ "performance_computed": false,
+ "which": "new",
+ "composition": {
+  "<=2018": "existing yearly export",
+  ">=2019": "20260817 re-export (wholesale)"
+ },
+ "securities": 2306,
+ "corpus_max": "2026-08-17",
+ "per_year": {
+  "2012": {
+   "year": "2012",
+   "expected_from_reference": 1494,
+   "observed_in_corpus": 1621,
+   "missing": 5,
+   "missing_pct": 0.33,
+   "missing_though_listed_after_year_end": 3,
+   "unexplained_missing_though_listed": 1,
+   "exits_observed": 14,
+   "exits_expected_from_reference": 14,
+   "unexplained_ids": [
+    "6401"
+   ]
+  },
+  "2013": {
+   "year": "2013",
+   "expected_from_reference": 1539,
+   "observed_in_corpus": 1650,
+   "missing": 4,
+   "missing_pct": 0.26,
+   "missing_though_listed_after_year_end": 2,
+   "unexplained_missing_though_listed": 1,
+   "exits_observed": 11,
+   "exits_expected_from_reference": 13,
+   "unexplained_ids": [
+    "6401"
+   ]
+  },
+  "2014": {
+   "year": "2014",
+   "expected_from_reference": 1577,
+   "observed_in_corpus": 1700,
+   "missing": 2,
+   "missing_pct": 0.13,
+   "missing_though_listed_after_year_end": 2,
+   "unexplained_missing_though_listed": 1,
+   "exits_observed": 16,
+   "exits_expected_from_reference": 10,
+   "unexplained_ids": [
+    "6401"
+   ]
+  },
+  "2015": {
+   "year": "2015",
+   "expected_from_reference": 1621,
+   "observed_in_corpus": 1735,
+   "missing": 4,
+   "missing_pct": 0.25,
+   "missing_though_listed_after_year_end": 1,
+   "unexplained_missing_though_listed": 1,
+   "exits_observed": 14,
+   "exits_expected_from_reference": 11,
+   "unexplained_ids": [
+    "6401"
+   ]
+  },
+  "2016": {
+   "year": "2016",
+   "expected_from_reference": 1668,
+   "observed_in_corpus": 1773,
+   "missing": 7,
+   "missing_pct": 0.42,
+   "missing_though_listed_after_year_end": 1,
+   "unexplained_missing_though_listed": 1,
+   "exits_observed": 20,
+   "exits_expected_from_reference": 23,
+   "unexplained_ids": [
+    "6401"
+   ]
+  },
+  "2017": {
+   "year": "2017",
+   "expected_from_reference": 1686,
+   "observed_in_corpus": 1795,
+   "missing": 4,
+   "missing_pct": 0.24,
+   "missing_though_listed_after_year_end": 1,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 18,
+   "exits_expected_from_reference": 17,
+   "unexplained_ids": []
+  },
+  "2018": {
+   "year": "2018",
+   "expected_from_reference": 1731,
+   "observed_in_corpus": 1817,
+   "missing": 3,
+   "missing_pct": 0.17,
+   "missing_though_listed_after_year_end": 1,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 19,
+   "exits_expected_from_reference": 19,
+   "unexplained_ids": []
+  },
+  "2019": {
+   "year": "2019",
+   "expected_from_reference": 1747,
+   "observed_in_corpus": 1827,
+   "missing": 1,
+   "missing_pct": 0.06,
+   "missing_though_listed_after_year_end": 1,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 16,
+   "exits_expected_from_reference": 15,
+   "unexplained_ids": []
+  },
+  "2020": {
+   "year": "2020",
+   "expected_from_reference": 1762,
+   "observed_in_corpus": 1842,
+   "missing": 2,
+   "missing_pct": 0.11,
+   "missing_though_listed_after_year_end": 1,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 17,
+   "exits_expected_from_reference": 18,
+   "unexplained_ids": []
+  },
+  "2021": {
+   "year": "2021",
+   "expected_from_reference": 1773,
+   "observed_in_corpus": 1870,
+   "missing": 0,
+   "missing_pct": 0.0,
+   "missing_though_listed_after_year_end": 0,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 15,
+   "exits_expected_from_reference": 15,
+   "unexplained_ids": []
+  },
+  "2022": {
+   "year": "2022",
+   "expected_from_reference": 1805,
+   "observed_in_corpus": 1890,
+   "missing": 0,
+   "missing_pct": 0.0,
+   "missing_though_listed_after_year_end": 0,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 17,
+   "exits_expected_from_reference": 17,
+   "unexplained_ids": []
+  },
+  "2023": {
+   "year": "2023",
+   "expected_from_reference": 1821,
+   "observed_in_corpus": 1917,
+   "missing": 0,
+   "missing_pct": 0.0,
+   "missing_though_listed_after_year_end": 0,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 8,
+   "exits_expected_from_reference": 8,
+   "unexplained_ids": []
+  },
+  "2024": {
+   "year": "2024",
+   "expected_from_reference": 1870,
+   "observed_in_corpus": 1957,
+   "missing": 0,
+   "missing_pct": 0.0,
+   "missing_though_listed_after_year_end": 0,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 11,
+   "exits_expected_from_reference": 10,
+   "unexplained_ids": []
+  },
+  "2025": {
+   "year": "2025",
+   "expected_from_reference": 1933,
+   "observed_in_corpus": 1965,
+   "missing": 1,
+   "missing_pct": 0.05,
+   "missing_though_listed_after_year_end": 0,
+   "unexplained_missing_though_listed": 0,
+   "exits_observed": 7,
+   "exits_expected_from_reference": 8,
+   "unexplained_ids": []
+  },
+  "2026": {
+   "year": "2026",
+   "expected_from_reference": 1961,
+   "observed_in_corpus": 1959,
+   "missing": 2,
+   "missing_pct": 0.1,
+   "missing_though_listed_after_year_end": 2,
+   "unexplained_missing_though_listed": 2,
+   "exits_observed": null,
+   "exits_expected_from_reference": 7,
+   "unexplained_ids": [
+    "3718",
+    "7855"
+   ]
+  }
+ },
+ "terminal_date_clusters": {
+  "2005-09-09": {
+   "corpus_terminations": 3,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2007-01-04": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2004-03-12": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2020-04-06": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2005-07-04": {
+   "corpus_terminations": 3,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2008-09-10": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2018-04-17": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2006-02-23": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2024-11-18": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2005-10-27": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2021-01-05": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2005-03-08": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2018-09-17": {
+   "corpus_terminations": 6,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2013-04-29": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 1
+  },
+  "2018-11-21": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2017-09-22": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2022-09-23": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2014-12-24": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2020-10-21": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2015-08-18": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2012-11-05": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  },
+  "2017-08-21": {
+   "corpus_terminations": 2,
+   "unexplained_terminations_on_date": 0,
+   "reference_delistings_on_date": 0
+  }
+ },
+ "unexplained_early_terminations": [
+  {
+   "stock_id": "3126",
+   "last_price": "2015-02-24",
+   "reference_delisted": "2016-04-06"
+  },
+  {
+   "stock_id": "3291",
+   "last_price": "2016-09-26",
+   "reference_delisted": "2016-10-06"
+  },
+  {
+   "stock_id": "6159",
+   "last_price": "2009-01-21",
+   "reference_delisted": "2009-02-06"
+  }
+ ],
+ "known_cases": [
+  {
+   "stock_id": "1258",
+   "reference_delisted": "2023-06-09",
+   "last_price": "2023-06-08",
+   "explained": true
+  },
+  {
+   "stock_id": "1262",
+   "reference_delisted": "2019-10-14",
+   "last_price": "2019-10-07",
+   "explained": true
+  },
+  {
+   "stock_id": "1333",
+   "reference_delisted": "2020-11-17",
+   "last_price": "2020-04-06",
+   "explained": true
+  },
+  {
+   "stock_id": "1507",
+   "reference_delisted": "2022-04-21",
+   "last_price": "2022-04-20",
+   "explained": true
+  },
+  {
+   "stock_id": "1566",
+   "reference_delisted": "2019-07-31",
+   "last_price": "2019-07-24",
+   "explained": true
+  },
+  {
+   "stock_id": "1592",
+   "reference_delisted": "2022-01-27",
+   "last_price": "2022-01-26",
+   "explained": true
+  },
+  {
+   "stock_id": "1701",
+   "reference_delisted": "2024-09-02",
+   "last_price": "2024-08-30",
+   "explained": true
+  },
+  {
+   "stock_id": "1704",
+   "reference_delisted": "2019-01-30",
+   "last_price": "2019-01-23",
+   "explained": true
+  },
+  {
+   "stock_id": "1724",
+   "reference_delisted": "2021-11-01",
+   "last_price": "2021-10-29",
+   "explained": true
+  },
+  {
+   "stock_id": "1787",
+   "reference_delisted": "2019-11-29",
+   "last_price": "2019-11-20",
+   "explained": true
+  },
+  {
+   "stock_id": "1902",
+   "reference_delisted": "2020-06-01",
+   "last_price": "2020-05-25",
+   "explained": true
+  },
+  {
+   "stock_id": "2358",
+   "reference_delisted": "2024-11-19",
+   "last_price": "2024-11-18",
+   "explained": true
+  },
+  {
+   "stock_id": "2443",
+   "reference_delisted": "2024-11-19",
+   "last_price": "2024-11-18",
+   "explained": true
+  },
+  {
+   "stock_id": "2448",
+   "reference_delisted": "2021-01-06",
+   "last_price": "2021-01-05",
+   "explained": true
+  },
+  {
+   "stock_id": "2456",
+   "reference_delisted": "2022-01-05",
+   "last_price": "2022-01-04",
+   "explained": true
+  },
+  {
+   "stock_id": "2475",
+   "reference_delisted": "2019-05-13",
+   "last_price": "2019-05-10",
+   "explained": true
+  },
+  {
+   "stock_id": "2499",
+   "reference_delisted": "2020-11-10",
+   "last_price": "2020-04-06",
+   "explained": true
+  },
+  {
+   "stock_id": "2809",
+   "reference_delisted": "2025-10-01",
+   "last_price": "2025-09-30",
+   "explained": true
+  },
+  {
+   "stock_id": "2823",
+   "reference_delisted": "2021-12-30",
+   "last_price": "2021-12-29",
+   "explained": true
+  },
+  {
+   "stock_id": "2841",
+   "reference_delisted": "2022-08-04",
+   "last_price": "2022-08-03",
+   "explained": true
+  },
+  {
+   "stock_id": "2867",
+   "reference_delisted": "2026-09-01",
+   "last_price": "2026-08-17",
+   "explained": true
+  },
+  {
+   "stock_id": "2888",
+   "reference_delisted": "2025-07-24",
+   "last_price": "2025-07-23",
+   "explained": true
+  },
+  {
+   "stock_id": "2928",
+   "reference_delisted": "2021-10-22",
+   "last_price": "2021-10-21",
+   "explained": true
+  },
+  {
+   "stock_id": "2936",
+   "reference_delisted": "2022-06-27",
+   "last_price": "2022-06-24",
+   "explained": true
+  },
+  {
+   "stock_id": "3089",
+   "reference_delisted": "2024-03-04",
+   "last_price": "2024-03-01",
+   "explained": true
+  },
+  {
+   "stock_id": "3144",
+   "reference_delisted": "2021-12-20",
+   "last_price": "2021-12-17",
+   "explained": true
+  },
+  {
+   "stock_id": "3202",
+   "reference_delisted": "2025-07-21",
+   "last_price": "2025-07-18",
+   "explained": true
+  },
+  {
+   "stock_id": "3383",
+   "reference_delisted": "2022-09-26",
+   "last_price": "2022-09-23",
+   "explained": true
+  },
+  {
+   "stock_id": "3426",
+   "reference_delisted": "2026-06-08",
+   "last_price": "2026-06-05",
+   "explained": true
+  },
+  {
+   "stock_id": "3431",
+   "reference_delisted": "2019-09-02",
+   "last_price": "2019-01-18",
+   "explained": true
+  },
+  {
+   "stock_id": "3452",
+   "reference_delisted": "2020-01-13",
+   "last_price": "2020-01-10",
+   "explained": true
+  },
+  {
+   "stock_id": "3454",
+   "reference_delisted": "2026-03-27",
+   "last_price": "2026-03-26",
+   "explained": true
+  },
+  {
+   "stock_id": "3519",
+   "reference_delisted": "2019-05-02",
+   "last_price": "2019-04-30",
+   "explained": true
+  },
+  {
+   "stock_id": "3536",
+   "reference_delisted": "2023-06-26",
+   "last_price": "2023-06-21",
+   "explained": true
+  },
+  {
+   "stock_id": "3562",
+   "reference_delisted": "2020-02-27",
+   "last_price": "2020-02-14",
+   "explained": true
+  },
+  {
+   "stock_id": "3579",
+   "reference_delisted": "2019-06-26",
+   "last_price": "2019-06-25",
+   "explained": true
+  },
+  {
+   "stock_id": "3642",
+   "reference_delisted": "2023-06-27",
+   "last_price": "2023-06-26",
+   "explained": true
+  },
+  {
+   "stock_id": "3682",
+   "reference_delisted": "2023-12-15",
+   "last_price": "2023-12-14",
+   "explained": true
+  },
+  {
+   "stock_id": "3698",
+   "reference_delisted": "2021-01-06",
+   "last_price": "2021-01-05",
+   "explained": true
+  },
+  {
+   "stock_id": "4130",
+   "reference_delisted": "2026-07-28",
+   "last_price": "2026-07-27",
+   "explained": true
+  },
+  {
+   "stock_id": "4141",
+   "reference_delisted": "2022-05-03",
+   "last_price": "2022-04-29",
+   "explained": true
+  },
+  {
+   "stock_id": "4144",
+   "reference_delisted": "2020-10-30",
+   "last_price": "2020-10-21",
+   "explained": true
+  },
+  {
+   "stock_id": "4152",
+   "reference_delisted": "2021-10-08",
+   "last_price": "2021-10-07",
+   "explained": true
+  },
+  {
+   "stock_id": "4180",
+   "reference_delisted": "2019-08-05",
+   "last_price": "2019-07-29",
+   "explained": true
+  },
+  {
+   "stock_id": "4415",
+   "reference_delisted": "2019-12-16",
+   "last_price": "2019-12-13",
+   "explained": true
+  },
+  {
+   "stock_id": "4429",
+   "reference_delisted": "2022-05-31",
+   "last_price": "2022-05-30",
+   "explained": true
+  },
+  {
+   "stock_id": "4712",
+   "reference_delisted": "2024-09-25",
+   "last_price": "2024-09-24",
+   "explained": true
+  },
+  {
+   "stock_id": "4725",
+   "reference_delisted": "2021-01-18",
+   "last_price": "2021-01-15",
+   "explained": true
+  },
+  {
+   "stock_id": "4803",
+   "reference_delisted": "2021-12-27",
+   "last_price": "2021-12-24",
+   "explained": true
+  },
+  {
+   "stock_id": "4944",
+   "reference_delisted": "2023-11-01",
+   "last_price": "2023-10-31",
+   "explained": true
+  },
+  {
+   "stock_id": "4945",
+   "reference_delisted": "2025-09-08",
+   "last_price": "2025-09-05",
+   "explained": true
+  },
+  {
+   "stock_id": "4947",
+   "reference_delisted": "2020-05-28",
+   "last_price": "2020-05-20",
+   "explained": true
+  },
+  {
+   "stock_id": "4987",
+   "reference_delisted": "2026-05-29",
+   "last_price": "2026-05-28",
+   "explained": true
+  },
+  {
+   "stock_id": "5102",
+   "reference_delisted": "2022-07-15",
+   "last_price": "2022-07-14",
+   "explained": true
+  },
+  {
+   "stock_id": "5259",
+   "reference_delisted": "2020-01-09",
+   "last_price": "2019-11-18",
+   "explained": true
+  },
+  {
+   "stock_id": "5264",
+   "reference_delisted": "2021-01-15",
+   "last_price": "2021-01-14",
+   "explained": true
+  },
+  {
+   "stock_id": "5281",
+   "reference_delisted": "2023-10-31",
+   "last_price": "2023-10-30",
+   "explained": true
+  },
+  {
+   "stock_id": "5304",
+   "reference_delisted": "2020-11-20",
+   "last_price": "2020-11-19",
+   "explained": true
+  },
+  {
+   "stock_id": "5305",
+   "reference_delisted": "2020-11-30",
+   "last_price": "2020-11-23",
+   "explained": true
+  },
+  {
+   "stock_id": "5317",
+   "reference_delisted": "2019-09-30",
+   "last_price": "2019-09-17",
+   "explained": true
+  },
+  {
+   "stock_id": "5349",
+   "reference_delisted": "2020-11-04",
+   "last_price": "2020-10-28",
+   "explained": true
+  },
+  {
+   "stock_id": "5371",
+   "reference_delisted": "2026-09-03",
+   "last_price": "2026-08-17",
+   "explained": true
+  },
+  {
+   "stock_id": "5383",
+   "reference_delisted": "2024-05-31",
+   "last_price": "2024-05-30",
+   "explained": true
+  },
+  {
+   "stock_id": "5480",
+   "reference_delisted": "2019-03-29",
+   "last_price": "2019-03-20",
+   "explained": true
+  },
+  {
+   "stock_id": "5820",
+   "reference_delisted": "2022-11-11",
+   "last_price": "2022-11-10",
+   "explained": true
+  },
+  {
+   "stock_id": "6131",
+   "reference_delisted": "2021-07-05",
+   "last_price": "2021-07-02",
+   "explained": true
+  },
+  {
+   "stock_id": "6172",
+   "reference_delisted": "2022-06-29",
+   "last_price": "2022-06-28",
+   "explained": true
+  },
+  {
+   "stock_id": "6238",
+   "reference_delisted": "2020-06-19",
+   "last_price": "2020-06-10",
+   "explained": true
+  },
+  {
+   "stock_id": "6247",
+   "reference_delisted": "2023-02-10",
+   "last_price": "2023-02-09",
+   "explained": true
+  },
+  {
+   "stock_id": "6251",
+   "reference_delisted": "2022-08-25",
+   "last_price": "2022-08-24",
+   "explained": true
+  },
+  {
+   "stock_id": "6287",
+   "reference_delisted": "2025-06-23",
+   "last_price": "2025-06-20",
+   "explained": true
+  },
+  {
+   "stock_id": "6288",
+   "reference_delisted": "2025-08-15",
+   "last_price": "2025-08-14",
+   "explained": true
+  },
+  {
+   "stock_id": "6289",
+   "reference_delisted": "2022-09-26",
+   "last_price": "2022-09-23",
+   "explained": true
+  },
+  {
+   "stock_id": "6404",
+   "reference_delisted": "2024-07-02",
+   "last_price": "2024-07-01",
+   "explained": true
+  },
+  {
+   "stock_id": "6452",
+   "reference_delisted": "2021-04-01",
+   "last_price": "2021-03-31",
+   "explained": true
+  },
+  {
+   "stock_id": "6457",
+   "reference_delisted": "2025-01-01",
+   "last_price": "2024-12-31",
+   "explained": true
+  },
+  {
+   "stock_id": "6497",
+   "reference_delisted": "2020-08-25",
+   "last_price": "2020-08-24",
+   "explained": true
+  },
+  {
+   "stock_id": "6514",
+   "reference_delisted": "2024-10-18",
+   "last_price": "2024-10-17",
+   "explained": true
+  },
+  {
+   "stock_id": "6594",
+   "reference_delisted": "2023-04-01",
+   "last_price": "2023-03-31",
+   "explained": true
+  },
+  {
+   "stock_id": "6747",
+   "reference_delisted": "2025-12-04",
+   "last_price": "2025-12-03",
+   "explained": true
+  },
+  {
+   "stock_id": "6806",
+   "reference_delisted": "2026-06-23",
+   "last_price": "2026-06-22",
+   "explained": true
+  },
+  {
+   "stock_id": "8287",
+   "reference_delisted": "2020-05-11",
+   "last_price": "2020-04-30",
+   "explained": true
+  },
+  {
+   "stock_id": "8406",
+   "reference_delisted": "2022-04-29",
+   "last_price": "2022-04-28",
+   "explained": true
+  },
+  {
+   "stock_id": "8418",
+   "reference_delisted": "2024-01-31",
+   "last_price": "2024-01-30",
+   "explained": true
+  },
+  {
+   "stock_id": "8420",
+   "reference_delisted": "2024-11-29",
+   "last_price": "2024-11-28",
+   "explained": true
+  },
+  {
+   "stock_id": "8427",
+   "reference_delisted": "2022-03-03",
+   "last_price": "2022-03-02",
+   "explained": true
+  },
+  {
+   "stock_id": "8480",
+   "reference_delisted": "2022-12-21",
+   "last_price": "2022-12-20",
+   "explained": true
+  },
+  {
+   "stock_id": "8497",
+   "reference_delisted": "2020-10-30",
+   "last_price": "2020-10-21",
+   "explained": true
+  },
+  {
+   "stock_id": "8913",
+   "reference_delisted": "2020-01-20",
+   "last_price": "2020-01-13",
+   "explained": true
+  },
+  {
+   "stock_id": "8934",
+   "reference_delisted": "2020-11-18",
+   "last_price": "2020-11-17",
+   "explained": true
+  },
+  {
+   "stock_id": "910482",
+   "reference_delisted": "2020-06-15",
+   "last_price": "2020-06-12",
+   "explained": true
+  },
+  {
+   "stock_id": "910708",
+   "reference_delisted": "2019-06-10",
+   "last_price": "2019-06-06",
+   "explained": true
+  },
+  {
+   "stock_id": "911613",
+   "reference_delisted": "2021-09-03",
+   "last_price": "2021-09-02",
+   "explained": true
+  },
+  {
+   "stock_id": "911616",
+   "reference_delisted": "2021-08-31",
+   "last_price": "2021-08-30",
+   "explained": true
+  },
+  {
+   "stock_id": "911619",
+   "reference_delisted": "2019-08-19",
+   "last_price": "2019-08-16",
+   "explained": true
+  },
+  {
+   "stock_id": "912398",
+   "reference_delisted": "2021-12-13",
+   "last_price": "2021-12-10",
+   "explained": true
+  },
+  {
+   "stock_id": "9157",
+   "reference_delisted": "2019-11-12",
+   "last_price": "2019-11-11",
+   "explained": true
+  },
+  {
+   "stock_id": "9188",
+   "reference_delisted": "2022-03-18",
+   "last_price": "2022-03-17",
+   "explained": true
+  }
+ ]
+}

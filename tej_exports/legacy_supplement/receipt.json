@@ -1,0 +1,242 @@
+{
+  "generated_at_utc": "2026-08-07T14:19:51.317685+00:00",
+  "script_relpath": "scripts/extract_legacy_supplement.py",
+  "script_sha256": "6aa2fc11e9133fe43fd440655ffe53c4a97eb02abcf98de9629f635e4ac9fb7c",
+  "sources": {
+    "roe_after_tax": {
+      "relpath": "tej_exports/inbox_fundamentals/2019-202603 EPS ROE OI.xlsx",
+      "sha256": "07173f9b0c2aaefe85a173b93baa70709f6497ea73083d8aa1a25ac4e3d6f145"
+    },
+    "recurring_net_income_2019plus": {
+      "relpath": "tej_exports/inbox_fundamentals/三大財報2019~202603.xlsx",
+      "sha256": "cbe35710e071013c0e518c90222cf86bb72165660f0e551553a31b91aa97c797"
+    },
+    "recurring_net_income_2005_2018": {
+      "relpath": "tej_exports/inbox/2005-2018 三大財報+ROE 上下市.xlsx",
+      "sha256": "053f83f20dad3293be539aed6e62a87508396e2950f089d814793bae29eca4fa"
+    },
+    "revenue_last_year": {
+      "relpath": "tej_exports/inbox_revenue/YoY 201901~202607.xlsx",
+      "sha256": "9d2569e523562196b9527b527f0cda680f1b4c01579874905614167447b2de5b"
+    }
+  },
+  "outputs": {
+    "roe_after_tax": {
+      "sha256": "8c641c27c757c26fd76130fabafda28a00f3335e897b5d891c8f69e2a99536f8",
+      "schema": [
+        "stock_id",
+        "date",
+        "roe_after_tax"
+      ],
+      "dtypes": {
+        "stock_id": "object",
+        "date": "object",
+        "roe_after_tax": "float64"
+      },
+      "row_count": 53812,
+      "stock_count": 1952,
+      "date_min": "2019-03-01",
+      "date_max": "2026-03-01",
+      "duplicate_key_row_count": 0,
+      "null_key_row_count": 0,
+      "dedup": {
+        "sources": {
+          "roe_after_tax": [
+            {
+              "stage": "raw_source",
+              "checked_columns": [
+                "stock_id",
+                "stock_name",
+                "period",
+                "net_income",
+                "eps",
+                "roe_after_tax",
+                "operating_income",
+                "date"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            },
+            {
+              "stage": "projected",
+              "checked_columns": [
+                "stock_id",
+                "date",
+                "roe_after_tax"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            }
+          ]
+        }
+      }
+    },
+    "recurring_net_income": {
+      "sha256": "4104c3779380f905286e168eb7470d3b40d67b40b73aae1846dacf66a56c72ca",
+      "schema": [
+        "stock_id",
+        "date",
+        "recurring_net_income"
+      ],
+      "dtypes": {
+        "stock_id": "object",
+        "date": "object",
+        "recurring_net_income": "float64"
+      },
+      "row_count": 136241,
+      "stock_count": 2311,
+      "date_min": "2005-06-01",
+      "date_max": "2026-03-01",
+      "duplicate_key_row_count": 0,
+      "null_key_row_count": 0,
+      "dedup": {
+        "sources": {
+          "recurring_net_income_2005_2018": [
+            {
+              "stage": "raw_source",
+              "checked_columns": [
+                "stock_id",
+                "stock_name",
+                "period",
+                "quarter",
+                "revenue",
+                "gross_profit",
+                "operating_income",
+                "net_income",
+                "eps",
+                "recurring_net_income",
+                "total_assets",
+                "total_liabilities",
+                "current_assets",
+                "current_liabilities",
+                "equity",
+                "operating_cash_flow",
+                "capex",
+                "roe",
+                "date"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            },
+            {
+              "stage": "projected",
+              "checked_columns": [
+                "stock_id",
+                "date",
+                "recurring_net_income"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            }
+          ],
+          "recurring_net_income_2019plus": [
+            {
+              "stage": "raw_source",
+              "checked_columns": [
+                "combined_id",
+                "period",
+                "quarter",
+                "revenue",
+                "gross_profit",
+                "operating_income",
+                "net_income",
+                "eps",
+                "recurring_net_income",
+                "total_assets",
+                "total_liabilities",
+                "current_assets",
+                "current_liabilities",
+                "equity",
+                "operating_cash_flow",
+                "capex",
+                "stock_id",
+                "date"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            },
+            {
+              "stage": "projected",
+              "checked_columns": [
+                "stock_id",
+                "date",
+                "recurring_net_income"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            }
+          ]
+        },
+        "cross_window_overlap": {
+          "n_overlap_keys": 0,
+          "n_overlap_identical": 0,
+          "n_overlap_conflicting": 0
+        }
+      }
+    },
+    "revenue_last_year": {
+      "sha256": "122b5d3a4216d439c14086c98c513b60c17d9b26984a0d4b4a91ad2c691dfd71",
+      "schema": [
+        "stock_id",
+        "date",
+        "revenue_last_year",
+        "cum_revenue_last_year"
+      ],
+      "dtypes": {
+        "stock_id": "object",
+        "date": "object",
+        "revenue_last_year": "float64",
+        "cum_revenue_last_year": "float64"
+      },
+      "row_count": 168885,
+      "stock_count": 1952,
+      "date_min": "2019-01-01",
+      "date_max": "2026-06-01",
+      "duplicate_key_row_count": 0,
+      "null_key_row_count": 0,
+      "dedup": {
+        "sources": {
+          "revenue_last_year": [
+            {
+              "stage": "raw_source",
+              "checked_columns": [
+                "combined_id",
+                "period",
+                "release_date",
+                "yoy_pct",
+                "revenue",
+                "revenue_last_year",
+                "cum_revenue",
+                "cum_revenue_last_year",
+                "stock_id",
+                "date"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            },
+            {
+              "stage": "projected",
+              "checked_columns": [
+                "stock_id",
+                "date",
+                "revenue_last_year",
+                "cum_revenue_last_year"
+              ],
+              "n_duplicate_key_rows": 0,
+              "n_exact_duplicate_rows_removed": 0,
+              "n_conflicting_keys": 0
+            }
+          ]
+        }
+      }
+    }
+  },
+  "overall_status": "PASS"
+}

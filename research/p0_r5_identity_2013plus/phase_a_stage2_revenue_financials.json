@@ -1,0 +1,3693 @@
+{
+ "study": "P0-R5 Phase A — Stage 2 (monthly_revenue, financial_statements)",
+ "read_only": true,
+ "tdcc_weekly": "NOT_JUDGED — blocked by §3a-2 pending user ruling",
+ "specification_gap_disclosed": {
+  "gap": "§3 never defines which monthly_revenue rows are the '必要列' for a given (decision month, ticker).",
+  "resolution": "Defined in this script during Phase A, therefore NOT pre-frozen.",
+  "mitigation": "Reported under lookbacks 3/6/12; verdict treated as stable only if identical under all three.",
+  "verdict_stable_across_lookbacks": true
+ },
+ "thresholds": {
+  "full_window": 0.005,
+  "per_month": 0.02,
+  "purity": "Partial preregistration — set with knowledge of P0-R4 observed values; not adjusted after seeing these results."
+ },
+ "monthly_revenue": {
+  "source": "tej_exports/DataExport0806/月營收2004-202608/20260806091706.xlsx",
+  "whole_file_per_year_release_date_classes": {
+   "2026": {
+    "genuine": 12436,
+    "placeholder": 7
+   },
+   "2025": {
+    "genuine": 24134,
+    "placeholder": 12
+   },
+   "2024": {
+    "genuine": 24199,
+    "placeholder": 2
+   },
+   "2023": {
+    "genuine": 24079,
+    "placeholder": 2
+   },
+   "2022": {
+    "genuine": 23812,
+    "placeholder": 1
+   },
+   "2021": {
+    "genuine": 23510
+   },
+   "2020": {
+    "genuine": 23184
+   },
+   "2019": {
+    "genuine": 22999
+   },
+   "2018": {
+    "genuine": 22865
+   },
+   "2017": {
+    "genuine": 22563
+   },
+   "2016": {
+    "genuine": 22262
+   },
+   "2015": {
+    "genuine": 21907
+   },
+   "2014": {
+    "genuine": 21435
+   },
+   "2013": {
+    "genuine": 20862
+   },
+   "2012": {
+    "placeholder": 20049
+   },
+   "2011": {
+    "placeholder": 19877
+   },
+   "2010": {
+    "placeholder": 19266
+   },
+   "2009": {
+    "placeholder": 18616
+   },
+   "2008": {
+    "placeholder": 18218
+   },
+   "2007": {
+    "placeholder": 18106
+   },
+   "2006": {
+    "placeholder": 17919
+   },
+   "2005": {
+    "placeholder": 17878
+   },
+   "2004": {
+    "placeholder": 17927
+   }
+  },
+  "window_evaluation": {
+   "lookback_3": {
+    "lookback_months": 3,
+    "total_stock_months": 178464,
+    "total_not_reconstructible": 2633,
+    "total_no_rows_in_window": 0,
+    "full_window_rate": 0.01475367581136812,
+    "full_window_threshold": 0.005,
+    "full_window_pass": false,
+    "months_exceeding_per_month_threshold": 3,
+    "per_month_threshold": 0.02,
+    "per_month_pass": false,
+    "worst_months": [
+     {
+      "month": "2013-01-31",
+      "rate": 1.0,
+      "not_reconstructible": 866,
+      "stock_months": 866
+     },
+     {
+      "month": "2013-02-27",
+      "rate": 1.0,
+      "not_reconstructible": 875,
+      "stock_months": 875
+     },
+     {
+      "month": "2013-03-29",
+      "rate": 1.0,
+      "not_reconstructible": 892,
+      "stock_months": 892
+     }
+    ],
+    "max_rate_month": {
+     "month": "2013-01-31",
+     "stock_months": 866,
+     "not_reconstructible": 866,
+     "no_rows": 0,
+     "rate": 1.0
+    },
+    "item_status": "FAIL",
+    "per_month": [
+     {
+      "month": "2013-01-31",
+      "stock_months": 866,
+      "not_reconstructible": 866,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-02-27",
+      "stock_months": 875,
+      "not_reconstructible": 875,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-03-29",
+      "stock_months": 892,
+      "not_reconstructible": 892,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-04-30",
+      "stock_months": 910,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-05-31",
+      "stock_months": 863,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-06-28",
+      "stock_months": 926,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-07-31",
+      "stock_months": 926,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-08-30",
+      "stock_months": 943,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-09-30",
+      "stock_months": 911,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-10-31",
+      "stock_months": 948,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-11-29",
+      "stock_months": 902,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-12-31",
+      "stock_months": 974,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-01-27",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-02-27",
+      "stock_months": 1025,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-03-31",
+      "stock_months": 1046,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-04-30",
+      "stock_months": 1042,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-05-30",
+      "stock_months": 973,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-06-30",
+      "stock_months": 1083,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-07-31",
+      "stock_months": 1083,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-08-29",
+      "stock_months": 1069,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-09-30",
+      "stock_months": 1012,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-10-31",
+      "stock_months": 1039,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-11-28",
+      "stock_months": 1003,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-12-31",
+      "stock_months": 1094,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-01-30",
+      "stock_months": 1099,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-02-26",
+      "stock_months": 1077,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-03-31",
+      "stock_months": 1113,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-04-30",
+      "stock_months": 1125,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-05-29",
+      "stock_months": 1051,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-06-30",
+      "stock_months": 1069,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-07-31",
+      "stock_months": 1031,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-08-31",
+      "stock_months": 1049,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-09-30",
+      "stock_months": 972,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-10-30",
+      "stock_months": 1028,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-11-30",
+      "stock_months": 972,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-12-31",
+      "stock_months": 983,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-01-30",
+      "stock_months": 959,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-02-26",
+      "stock_months": 983,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-03-31",
+      "stock_months": 1078,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-04-29",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-05-31",
+      "stock_months": 924,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-06-30",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-07-29",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-08-31",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-09-30",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-10-31",
+      "stock_months": 1022,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-11-30",
+      "stock_months": 974,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-12-30",
+      "stock_months": 1018,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-01-24",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-02-24",
+      "stock_months": 1107,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-03-31",
+      "stock_months": 1112,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-04-28",
+      "stock_months": 1096,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-05-31",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-06-30",
+      "stock_months": 1095,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-07-31",
+      "stock_months": 1097,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-08-31",
+      "stock_months": 1107,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-09-30",
+      "stock_months": 1075,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-10-31",
+      "stock_months": 1099,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-11-30",
+      "stock_months": 1082,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-12-29",
+      "stock_months": 1101,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-01-31",
+      "stock_months": 1154,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-02-27",
+      "stock_months": 1146,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-03-31",
+      "stock_months": 1157,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-04-30",
+      "stock_months": 1151,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-05-31",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-06-29",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-07-31",
+      "stock_months": 1077,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-08-31",
+      "stock_months": 1072,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-09-28",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-10-31",
+      "stock_months": 1086,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-11-30",
+      "stock_months": 945,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-12-28",
+      "stock_months": 991,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-01-30",
+      "stock_months": 990,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-02-27",
+      "stock_months": 1055,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-03-29",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-04-30",
+      "stock_months": 1113,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-05-31",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-06-28",
+      "stock_months": 1041,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-07-31",
+      "stock_months": 1093,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-08-30",
+      "stock_months": 1079,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-09-27",
+      "stock_months": 1035,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-10-31",
+      "stock_months": 1054,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-11-29",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-12-31",
+      "stock_months": 1089,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-01-31",
+      "stock_months": 1109,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-02-27",
+      "stock_months": 1079,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-03-31",
+      "stock_months": 1143,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-04-30",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-05-29",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-06-30",
+      "stock_months": 1101,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-07-31",
+      "stock_months": 1130,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-08-31",
+      "stock_months": 1114,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-09-30",
+      "stock_months": 1043,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-10-30",
+      "stock_months": 1035,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-11-30",
+      "stock_months": 1064,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-12-31",
+      "stock_months": 1144,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-01-29",
+      "stock_months": 1143,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-02-26",
+      "stock_months": 1144,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-03-31",
+      "stock_months": 1190,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-04-29",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-05-31",
+      "stock_months": 1151,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-06-30",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-07-30",
+      "stock_months": 1236,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-08-31",
+      "stock_months": 1201,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-09-30",
+      "stock_months": 1163,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-10-29",
+      "stock_months": 1225,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-11-30",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-12-30",
+      "stock_months": 1271,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-01-26",
+      "stock_months": 1269,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-02-25",
+      "stock_months": 1261,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-03-31",
+      "stock_months": 1274,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-04-29",
+      "stock_months": 1284,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-05-31",
+      "stock_months": 1191,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-06-30",
+      "stock_months": 1278,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-07-29",
+      "stock_months": 1224,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-08-31",
+      "stock_months": 1291,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-09-30",
+      "stock_months": 1243,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-10-31",
+      "stock_months": 1200,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-11-30",
+      "stock_months": 1213,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-12-30",
+      "stock_months": 1254,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-01-31",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-02-24",
+      "stock_months": 1324,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-03-31",
+      "stock_months": 1363,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-04-28",
+      "stock_months": 1363,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-05-31",
+      "stock_months": 1249,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-06-30",
+      "stock_months": 1297,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-07-31",
+      "stock_months": 1292,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-08-31",
+      "stock_months": 1246,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-09-28",
+      "stock_months": 1169,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-10-31",
+      "stock_months": 1195,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-11-30",
+      "stock_months": 1182,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-12-29",
+      "stock_months": 1241,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-01-31",
+      "stock_months": 1215,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-02-29",
+      "stock_months": 1257,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-03-29",
+      "stock_months": 1296,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-04-30",
+      "stock_months": 1277,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-05-31",
+      "stock_months": 1225,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-06-28",
+      "stock_months": 1325,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-07-31",
+      "stock_months": 1332,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-08-30",
+      "stock_months": 1330,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-09-30",
+      "stock_months": 1262,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-10-30",
+      "stock_months": 1303,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-11-29",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-12-31",
+      "stock_months": 1251,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-01-22",
+      "stock_months": 1242,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-02-27",
+      "stock_months": 1256,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-03-31",
+      "stock_months": 1280,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-04-30",
+      "stock_months": 1293,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-05-29",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-06-30",
+      "stock_months": 1268,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-07-31",
+      "stock_months": 1249,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-08-29",
+      "stock_months": 1305,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-09-30",
+      "stock_months": 1193,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-10-31",
+      "stock_months": 1204,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-11-28",
+      "stock_months": 1170,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-12-31",
+      "stock_months": 1207,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-01-30",
+      "stock_months": 1280,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-02-26",
+      "stock_months": 1274,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-03-31",
+      "stock_months": 1277,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     }
+    ]
+   },
+   "lookback_6": {
+    "lookback_months": 6,
+    "total_stock_months": 178464,
+    "total_not_reconstructible": 5332,
+    "total_no_rows_in_window": 0,
+    "full_window_rate": 0.029877174107943338,
+    "full_window_threshold": 0.005,
+    "full_window_pass": false,
+    "months_exceeding_per_month_threshold": 6,
+    "per_month_threshold": 0.02,
+    "per_month_pass": false,
+    "worst_months": [
+     {
+      "month": "2013-01-31",
+      "rate": 1.0,
+      "not_reconstructible": 866,
+      "stock_months": 866
+     },
+     {
+      "month": "2013-02-27",
+      "rate": 1.0,
+      "not_reconstructible": 875,
+      "stock_months": 875
+     },
+     {
+      "month": "2013-03-29",
+      "rate": 1.0,
+      "not_reconstructible": 892,
+      "stock_months": 892
+     },
+     {
+      "month": "2013-04-30",
+      "rate": 1.0,
+      "not_reconstructible": 910,
+      "stock_months": 910
+     },
+     {
+      "month": "2013-05-31",
+      "rate": 1.0,
+      "not_reconstructible": 863,
+      "stock_months": 863
+     },
+     {
+      "month": "2013-06-28",
+      "rate": 1.0,
+      "not_reconstructible": 926,
+      "stock_months": 926
+     }
+    ],
+    "max_rate_month": {
+     "month": "2013-01-31",
+     "stock_months": 866,
+     "not_reconstructible": 866,
+     "no_rows": 0,
+     "rate": 1.0
+    },
+    "item_status": "FAIL",
+    "per_month": [
+     {
+      "month": "2013-01-31",
+      "stock_months": 866,
+      "not_reconstructible": 866,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-02-27",
+      "stock_months": 875,
+      "not_reconstructible": 875,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-03-29",
+      "stock_months": 892,
+      "not_reconstructible": 892,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-04-30",
+      "stock_months": 910,
+      "not_reconstructible": 910,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-05-31",
+      "stock_months": 863,
+      "not_reconstructible": 863,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-06-28",
+      "stock_months": 926,
+      "not_reconstructible": 926,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-07-31",
+      "stock_months": 926,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-08-30",
+      "stock_months": 943,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-09-30",
+      "stock_months": 911,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-10-31",
+      "stock_months": 948,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-11-29",
+      "stock_months": 902,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2013-12-31",
+      "stock_months": 974,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-01-27",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-02-27",
+      "stock_months": 1025,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-03-31",
+      "stock_months": 1046,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-04-30",
+      "stock_months": 1042,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-05-30",
+      "stock_months": 973,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-06-30",
+      "stock_months": 1083,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-07-31",
+      "stock_months": 1083,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-08-29",
+      "stock_months": 1069,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-09-30",
+      "stock_months": 1012,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-10-31",
+      "stock_months": 1039,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-11-28",
+      "stock_months": 1003,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-12-31",
+      "stock_months": 1094,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-01-30",
+      "stock_months": 1099,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-02-26",
+      "stock_months": 1077,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-03-31",
+      "stock_months": 1113,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-04-30",
+      "stock_months": 1125,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-05-29",
+      "stock_months": 1051,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-06-30",
+      "stock_months": 1069,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-07-31",
+      "stock_months": 1031,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-08-31",
+      "stock_months": 1049,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-09-30",
+      "stock_months": 972,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-10-30",
+      "stock_months": 1028,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-11-30",
+      "stock_months": 972,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-12-31",
+      "stock_months": 983,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-01-30",
+      "stock_months": 959,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-02-26",
+      "stock_months": 983,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-03-31",
+      "stock_months": 1078,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-04-29",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-05-31",
+      "stock_months": 924,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-06-30",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-07-29",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-08-31",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-09-30",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-10-31",
+      "stock_months": 1022,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-11-30",
+      "stock_months": 974,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-12-30",
+      "stock_months": 1018,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-01-24",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-02-24",
+      "stock_months": 1107,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-03-31",
+      "stock_months": 1112,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-04-28",
+      "stock_months": 1096,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-05-31",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-06-30",
+      "stock_months": 1095,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-07-31",
+      "stock_months": 1097,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-08-31",
+      "stock_months": 1107,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-09-30",
+      "stock_months": 1075,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-10-31",
+      "stock_months": 1099,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-11-30",
+      "stock_months": 1082,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-12-29",
+      "stock_months": 1101,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-01-31",
+      "stock_months": 1154,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-02-27",
+      "stock_months": 1146,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-03-31",
+      "stock_months": 1157,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-04-30",
+      "stock_months": 1151,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-05-31",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-06-29",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-07-31",
+      "stock_months": 1077,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-08-31",
+      "stock_months": 1072,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-09-28",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-10-31",
+      "stock_months": 1086,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-11-30",
+      "stock_months": 945,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-12-28",
+      "stock_months": 991,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-01-30",
+      "stock_months": 990,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-02-27",
+      "stock_months": 1055,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-03-29",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-04-30",
+      "stock_months": 1113,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-05-31",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-06-28",
+      "stock_months": 1041,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-07-31",
+      "stock_months": 1093,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-08-30",
+      "stock_months": 1079,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-09-27",
+      "stock_months": 1035,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-10-31",
+      "stock_months": 1054,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-11-29",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-12-31",
+      "stock_months": 1089,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-01-31",
+      "stock_months": 1109,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-02-27",
+      "stock_months": 1079,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-03-31",
+      "stock_months": 1143,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-04-30",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-05-29",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-06-30",
+      "stock_months": 1101,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-07-31",
+      "stock_months": 1130,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-08-31",
+      "stock_months": 1114,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-09-30",
+      "stock_months": 1043,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-10-30",
+      "stock_months": 1035,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-11-30",
+      "stock_months": 1064,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-12-31",
+      "stock_months": 1144,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-01-29",
+      "stock_months": 1143,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-02-26",
+      "stock_months": 1144,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-03-31",
+      "stock_months": 1190,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-04-29",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-05-31",
+      "stock_months": 1151,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-06-30",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-07-30",
+      "stock_months": 1236,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-08-31",
+      "stock_months": 1201,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-09-30",
+      "stock_months": 1163,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-10-29",
+      "stock_months": 1225,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-11-30",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-12-30",
+      "stock_months": 1271,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-01-26",
+      "stock_months": 1269,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-02-25",
+      "stock_months": 1261,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-03-31",
+      "stock_months": 1274,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-04-29",
+      "stock_months": 1284,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-05-31",
+      "stock_months": 1191,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-06-30",
+      "stock_months": 1278,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-07-29",
+      "stock_months": 1224,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-08-31",
+      "stock_months": 1291,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-09-30",
+      "stock_months": 1243,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-10-31",
+      "stock_months": 1200,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-11-30",
+      "stock_months": 1213,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-12-30",
+      "stock_months": 1254,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-01-31",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-02-24",
+      "stock_months": 1324,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-03-31",
+      "stock_months": 1363,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-04-28",
+      "stock_months": 1363,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-05-31",
+      "stock_months": 1249,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-06-30",
+      "stock_months": 1297,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-07-31",
+      "stock_months": 1292,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-08-31",
+      "stock_months": 1246,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-09-28",
+      "stock_months": 1169,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-10-31",
+      "stock_months": 1195,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-11-30",
+      "stock_months": 1182,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-12-29",
+      "stock_months": 1241,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-01-31",
+      "stock_months": 1215,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-02-29",
+      "stock_months": 1257,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-03-29",
+      "stock_months": 1296,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-04-30",
+      "stock_months": 1277,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-05-31",
+      "stock_months": 1225,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-06-28",
+      "stock_months": 1325,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-07-31",
+      "stock_months": 1332,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-08-30",
+      "stock_months": 1330,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-09-30",
+      "stock_months": 1262,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-10-30",
+      "stock_months": 1303,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-11-29",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-12-31",
+      "stock_months": 1251,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-01-22",
+      "stock_months": 1242,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-02-27",
+      "stock_months": 1256,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-03-31",
+      "stock_months": 1280,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-04-30",
+      "stock_months": 1293,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-05-29",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-06-30",
+      "stock_months": 1268,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-07-31",
+      "stock_months": 1249,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-08-29",
+      "stock_months": 1305,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-09-30",
+      "stock_months": 1193,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-10-31",
+      "stock_months": 1204,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-11-28",
+      "stock_months": 1170,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-12-31",
+      "stock_months": 1207,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-01-30",
+      "stock_months": 1280,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-02-26",
+      "stock_months": 1274,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-03-31",
+      "stock_months": 1277,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     }
+    ]
+   },
+   "lookback_12": {
+    "lookback_months": 12,
+    "total_stock_months": 178464,
+    "total_not_reconstructible": 10936,
+    "total_no_rows_in_window": 0,
+    "full_window_rate": 0.06127846512461897,
+    "full_window_threshold": 0.005,
+    "full_window_pass": false,
+    "months_exceeding_per_month_threshold": 12,
+    "per_month_threshold": 0.02,
+    "per_month_pass": false,
+    "worst_months": [
+     {
+      "month": "2013-01-31",
+      "rate": 1.0,
+      "not_reconstructible": 866,
+      "stock_months": 866
+     },
+     {
+      "month": "2013-02-27",
+      "rate": 1.0,
+      "not_reconstructible": 875,
+      "stock_months": 875
+     },
+     {
+      "month": "2013-03-29",
+      "rate": 1.0,
+      "not_reconstructible": 892,
+      "stock_months": 892
+     },
+     {
+      "month": "2013-04-30",
+      "rate": 1.0,
+      "not_reconstructible": 910,
+      "stock_months": 910
+     },
+     {
+      "month": "2013-05-31",
+      "rate": 1.0,
+      "not_reconstructible": 863,
+      "stock_months": 863
+     },
+     {
+      "month": "2013-06-28",
+      "rate": 1.0,
+      "not_reconstructible": 926,
+      "stock_months": 926
+     },
+     {
+      "month": "2013-07-31",
+      "rate": 1.0,
+      "not_reconstructible": 926,
+      "stock_months": 926
+     },
+     {
+      "month": "2013-08-30",
+      "rate": 1.0,
+      "not_reconstructible": 943,
+      "stock_months": 943
+     },
+     {
+      "month": "2013-09-30",
+      "rate": 1.0,
+      "not_reconstructible": 911,
+      "stock_months": 911
+     },
+     {
+      "month": "2013-10-31",
+      "rate": 1.0,
+      "not_reconstructible": 948,
+      "stock_months": 948
+     },
+     {
+      "month": "2013-11-29",
+      "rate": 1.0,
+      "not_reconstructible": 902,
+      "stock_months": 902
+     },
+     {
+      "month": "2013-12-31",
+      "rate": 1.0,
+      "not_reconstructible": 974,
+      "stock_months": 974
+     }
+    ],
+    "max_rate_month": {
+     "month": "2013-01-31",
+     "stock_months": 866,
+     "not_reconstructible": 866,
+     "no_rows": 0,
+     "rate": 1.0
+    },
+    "item_status": "FAIL",
+    "per_month": [
+     {
+      "month": "2013-01-31",
+      "stock_months": 866,
+      "not_reconstructible": 866,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-02-27",
+      "stock_months": 875,
+      "not_reconstructible": 875,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-03-29",
+      "stock_months": 892,
+      "not_reconstructible": 892,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-04-30",
+      "stock_months": 910,
+      "not_reconstructible": 910,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-05-31",
+      "stock_months": 863,
+      "not_reconstructible": 863,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-06-28",
+      "stock_months": 926,
+      "not_reconstructible": 926,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-07-31",
+      "stock_months": 926,
+      "not_reconstructible": 926,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-08-30",
+      "stock_months": 943,
+      "not_reconstructible": 943,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-09-30",
+      "stock_months": 911,
+      "not_reconstructible": 911,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-10-31",
+      "stock_months": 948,
+      "not_reconstructible": 948,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-11-29",
+      "stock_months": 902,
+      "not_reconstructible": 902,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2013-12-31",
+      "stock_months": 974,
+      "not_reconstructible": 974,
+      "no_rows": 0,
+      "rate": 1.0
+     },
+     {
+      "month": "2014-01-27",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-02-27",
+      "stock_months": 1025,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-03-31",
+      "stock_months": 1046,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-04-30",
+      "stock_months": 1042,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-05-30",
+      "stock_months": 973,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-06-30",
+      "stock_months": 1083,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-07-31",
+      "stock_months": 1083,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-08-29",
+      "stock_months": 1069,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-09-30",
+      "stock_months": 1012,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-10-31",
+      "stock_months": 1039,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-11-28",
+      "stock_months": 1003,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2014-12-31",
+      "stock_months": 1094,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-01-30",
+      "stock_months": 1099,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-02-26",
+      "stock_months": 1077,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-03-31",
+      "stock_months": 1113,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-04-30",
+      "stock_months": 1125,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-05-29",
+      "stock_months": 1051,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-06-30",
+      "stock_months": 1069,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-07-31",
+      "stock_months": 1031,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-08-31",
+      "stock_months": 1049,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-09-30",
+      "stock_months": 972,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-10-30",
+      "stock_months": 1028,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-11-30",
+      "stock_months": 972,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2015-12-31",
+      "stock_months": 983,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-01-30",
+      "stock_months": 959,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-02-26",
+      "stock_months": 983,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-03-31",
+      "stock_months": 1078,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-04-29",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-05-31",
+      "stock_months": 924,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-06-30",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-07-29",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-08-31",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-09-30",
+      "stock_months": 998,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-10-31",
+      "stock_months": 1022,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-11-30",
+      "stock_months": 974,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2016-12-30",
+      "stock_months": 1018,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-01-24",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-02-24",
+      "stock_months": 1107,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-03-31",
+      "stock_months": 1112,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-04-28",
+      "stock_months": 1096,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-05-31",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-06-30",
+      "stock_months": 1095,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-07-31",
+      "stock_months": 1097,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-08-31",
+      "stock_months": 1107,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-09-30",
+      "stock_months": 1075,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-10-31",
+      "stock_months": 1099,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-11-30",
+      "stock_months": 1082,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2017-12-29",
+      "stock_months": 1101,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-01-31",
+      "stock_months": 1154,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-02-27",
+      "stock_months": 1146,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-03-31",
+      "stock_months": 1157,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-04-30",
+      "stock_months": 1151,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-05-31",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-06-29",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-07-31",
+      "stock_months": 1077,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-08-31",
+      "stock_months": 1072,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-09-28",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-10-31",
+      "stock_months": 1086,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-11-30",
+      "stock_months": 945,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2018-12-28",
+      "stock_months": 991,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-01-30",
+      "stock_months": 990,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-02-27",
+      "stock_months": 1055,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-03-29",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-04-30",
+      "stock_months": 1113,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-05-31",
+      "stock_months": 1032,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-06-28",
+      "stock_months": 1041,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-07-31",
+      "stock_months": 1093,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-08-30",
+      "stock_months": 1079,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-09-27",
+      "stock_months": 1035,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-10-31",
+      "stock_months": 1054,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-11-29",
+      "stock_months": 1057,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2019-12-31",
+      "stock_months": 1089,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-01-31",
+      "stock_months": 1109,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-02-27",
+      "stock_months": 1079,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-03-31",
+      "stock_months": 1143,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-04-30",
+      "stock_months": 1111,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-05-29",
+      "stock_months": 1036,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-06-30",
+      "stock_months": 1101,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-07-31",
+      "stock_months": 1130,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-08-31",
+      "stock_months": 1114,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-09-30",
+      "stock_months": 1043,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-10-30",
+      "stock_months": 1035,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-11-30",
+      "stock_months": 1064,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2020-12-31",
+      "stock_months": 1144,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-01-29",
+      "stock_months": 1143,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-02-26",
+      "stock_months": 1144,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-03-31",
+      "stock_months": 1190,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-04-29",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-05-31",
+      "stock_months": 1151,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-06-30",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-07-30",
+      "stock_months": 1236,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-08-31",
+      "stock_months": 1201,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-09-30",
+      "stock_months": 1163,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-10-29",
+      "stock_months": 1225,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-11-30",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2021-12-30",
+      "stock_months": 1271,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-01-26",
+      "stock_months": 1269,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-02-25",
+      "stock_months": 1261,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-03-31",
+      "stock_months": 1274,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-04-29",
+      "stock_months": 1284,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-05-31",
+      "stock_months": 1191,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-06-30",
+      "stock_months": 1278,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-07-29",
+      "stock_months": 1224,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-08-31",
+      "stock_months": 1291,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-09-30",
+      "stock_months": 1243,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-10-31",
+      "stock_months": 1200,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-11-30",
+      "stock_months": 1213,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2022-12-30",
+      "stock_months": 1254,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-01-31",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-02-24",
+      "stock_months": 1324,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-03-31",
+      "stock_months": 1363,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-04-28",
+      "stock_months": 1363,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-05-31",
+      "stock_months": 1249,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-06-30",
+      "stock_months": 1297,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-07-31",
+      "stock_months": 1292,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-08-31",
+      "stock_months": 1246,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-09-28",
+      "stock_months": 1169,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-10-31",
+      "stock_months": 1195,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-11-30",
+      "stock_months": 1182,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2023-12-29",
+      "stock_months": 1241,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-01-31",
+      "stock_months": 1215,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-02-29",
+      "stock_months": 1257,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-03-29",
+      "stock_months": 1296,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-04-30",
+      "stock_months": 1277,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-05-31",
+      "stock_months": 1225,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-06-28",
+      "stock_months": 1325,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-07-31",
+      "stock_months": 1332,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-08-30",
+      "stock_months": 1330,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-09-30",
+      "stock_months": 1262,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-10-30",
+      "stock_months": 1303,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-11-29",
+      "stock_months": 1227,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2024-12-31",
+      "stock_months": 1251,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-01-22",
+      "stock_months": 1242,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-02-27",
+      "stock_months": 1256,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-03-31",
+      "stock_months": 1280,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-04-30",
+      "stock_months": 1293,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-05-29",
+      "stock_months": 1218,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-06-30",
+      "stock_months": 1268,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-07-31",
+      "stock_months": 1249,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-08-29",
+      "stock_months": 1305,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-09-30",
+      "stock_months": 1193,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-10-31",
+      "stock_months": 1204,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-11-28",
+      "stock_months": 1170,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2025-12-31",
+      "stock_months": 1207,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-01-30",
+      "stock_months": 1280,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-02-26",
+      "stock_months": 1274,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     },
+     {
+      "month": "2026-03-31",
+      "stock_months": 1277,
+      "not_reconstructible": 0,
+      "no_rows": 0,
+      "rate": 0.0
+     }
+    ]
+   }
+  }
+ },
+ "financial_statements": {
+  "scope": "rows whose ticker appears in the frozen population and whose 年月 is in [201101, 202603] (24-month margin before window start)",
+  "rows_in_scope": 104764,
+  "non_genuine_rows": 0,
+  "non_genuine_rate": 0.0,
+  "non_genuine_samples": [],
+  "per_year": {
+   "2026": {
+    "genuine": 1880
+   },
+   "2025": {
+    "genuine": 7533
+   },
+   "2024": {
+    "genuine": 7538
+   },
+   "2023": {
+    "genuine": 7445
+   },
+   "2022": {
+    "genuine": 7305
+   },
+   "2021": {
+    "genuine": 7179
+   },
+   "2020": {
+    "genuine": 7089
+   },
+   "2019": {
+    "genuine": 6989
+   },
+   "2018": {
+    "genuine": 6938
+   },
+   "2017": {
+    "genuine": 6863
+   },
+   "2016": {
+    "genuine": 6723
+   },
+   "2015": {
+    "genuine": 6622
+   },
+   "2014": {
+    "genuine": 6465
+   },
+   "2013": {
+    "genuine": 6259
+   },
+   "2012": {
+    "genuine": 6069
+   },
+   "2011": {
+    "genuine": 5867
+   }
+  },
+  "item_status": "PASS",
+  "source": "tej_exports/DataExport0806/財報2004~202606/20260806090633.xlsx"
+ }
+}

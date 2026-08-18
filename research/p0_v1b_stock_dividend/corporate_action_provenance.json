@@ -1,0 +1,21 @@
+{
+ "upstream_zips": {
+  "配股相關2004-2007.zip": "00159f1f449428200537402c683b9cd92171b17732f44c3d3f1ab3aff2239845",
+  "配股相關2008-2011.zip": "036ff6472a24c1f9742a37bd6b272f74e1383a704ce3d4957bb8c107cf4b3889",
+  "配股相關2012-2013.zip": "b62f0e0c126a8ebb919feeb1492978857cc3f56b2c17987b9cf8372171bf0f6f",
+  "配股相關2014-2017.zip": "fde19fd677bc776793849dcff801aaf7a76754a3e52bb4f21096fe085fb3be53",
+  "配股相關2018-2021.zip": "580c666873a442f7ce4ca9cb46f5e8c4cf4108c5311399d4abd6a6e098de0611",
+  "配股相關2022-2025.zip": "29993b9098ebfe505da65839f9e74060573b9fd15a9dd6f1dd9c01640245b69d",
+  "配股相關20260817.zip": "57d7c4c19e274556afd35db29cc590397cdef508022fb5d9761fd3743e9623ce"
+ },
+ "derived": {
+  "corporate_actions_ledger.csv": {
+   "sha256": "f426dbc659c68bd7f1cce0db0cff3254b1d517025cf1cff2f2cd89f9d4c1f06c",
+   "bytes": 5267513
+  },
+  "stock_dividend_pit.csv": {
+   "sha256": "783d7cc2785f9faeff637529e66138e69c70f9c3a1a4df1001a1b19b7a50a0ec",
+   "bytes": 645524
+  }
+ }
+}

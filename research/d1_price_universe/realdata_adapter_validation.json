@@ -1,0 +1,116 @@
+{
+ "study": "real-data adapter validation (no decision layer)",
+ "read_only": true,
+ "performance_computed": false,
+ "selection_computed": false,
+ "nav_computed": false,
+ "results": {
+  "price_source": {
+   "name": "b0_price_universe_20260817",
+   "content_sha256": "2646356f406a585c53954430eb5ad2967ddebc5c20ef12ea51f4333009d63549",
+   "includes_delisted": true
+  },
+  "pit": {
+   "decision_date": "2020-06-30",
+   "as_of": "2020-06-29",
+   "sessions_through_as_of": 4072,
+   "calendar_truncates_at_as_of": true
+  },
+  "listing_spells_on_holdings": {
+   "declared": 20,
+   "by_opened_by": {
+    "first_observation": 19,
+    "reappearance": 1
+   }
+  },
+  "market_state_guard_on_holdings": {
+   "positions": 20,
+   "stale_marks": 0,
+   "by_classification": {
+    "CURRENT": 20,
+    "EXPLAINED_SUSPENSION": 0,
+    "EXPLAINED_CORPORATE_ACTION": 0,
+    "UNEXPLAINED_GAP": 0
+   },
+   "max_sessions_stale": 0,
+   "detail": [],
+   "held": 20
+  },
+  "universe_gap_diagnostic": {
+   "delegated_to": "research/of_security_status/status_coverage_audit.json",
+   "as_of": "2020-06-29",
+   "by_classification": {
+    "CURRENT": 1811,
+    "UNEXPLAINED_GAP": 289,
+    "EXPLAINED_SUSPENSION": 3
+   },
+   "unexplained_by_cause": {
+    "no_status_record": 67,
+    "o_e_1_same_day": 122,
+    "other": 100
+   },
+   "enforced": false
+  },
+  "listing_spells_on_returned_securities": {
+   "as_of": "2026-08-17",
+   "securities": 27,
+   "spells_derived": 27,
+   "opened_by_reappearance": 27,
+   "examples": [
+    {
+     "stock_id": "8102",
+     "start": "2023-10-27",
+     "opened_by": "reappearance"
+    },
+    {
+     "stock_id": "3135",
+     "start": "2021-11-22",
+     "opened_by": "reappearance"
+    },
+    {
+     "stock_id": "8089",
+     "start": "2018-08-31",
+     "opened_by": "reappearance"
+    },
+    {
+     "stock_id": "6606",
+     "start": "2020-01-09",
+     "opened_by": "reappearance"
+    },
+    {
+     "stock_id": "4749",
+     "start": "2022-02-15",
+     "opened_by": "reappearance"
+    }
+   ]
+  },
+  "corporate_actions": {
+   "events": 46275,
+   "not_reconstructible": 1337,
+   "exposures_declared": 0,
+   "guard_passed_because_nothing_was_held": true
+  },
+  "canonical_input": {
+   "route_kind": "retrospective",
+   "as_of": "2020-06-29",
+   "config_hash": "27fee343a3083e2aeba87eae960c01d5916b09a61819b7623486ec4bcfd13f03",
+   "state_hash": "d7017180ddd2250c40fe0f226de5ae03faa1935331a9f010255094e427fef204"
+  },
+  "invariants": {
+   "entry_modules": 12,
+   "violations": {
+    "G14-4_legacy_cost": 0,
+    "B-17_regime": 0,
+    "B-19_overrides": 0
+   },
+   "import_time_foreign_mutations": 0,
+   "registered_overrides": 0
+  },
+  "b20_parity": {
+   "route_pairs_declared": 1,
+   "columns": 7,
+   "layers": 5,
+   "decision_run_on_real_data": false
+  }
+ }
+}

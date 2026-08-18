@@ -1,0 +1,1148 @@
+{
+ "study": "F-0 config / spec hash boundary audit",
+ "read_only": true,
+ "performance_computed": false,
+ "run_decision_called": false,
+ "producers": {
+  "spec_sha256": {
+   "producer": "research/b0_registry/freeze_master_prereg.py:75",
+   "function": "core.b0_provenance.file_sha256 (core/b0_provenance.py:64)",
+   "input": "docs/FrozenB0_MasterPreregistration.md",
+   "scope": "the master preregistration DOCUMENT BYTES ONLY",
+   "not_covered": [
+    "core/*.py normative modules (hashed separately as `normative_modules` in the same freeze record, and not combined into spec_sha256)",
+    "the resolved values of the spec registry"
+   ],
+   "serialization": "raw file bytes, 1MiB chunks, no normalisation",
+   "value": "5a87e445923efea77c361960e38d4cd814edba746762aff8791af4a9373b798b"
+  },
+  "config_hash": {
+   "producer": "core/b0_route.py:129 config_hash()",
+   "payload": "core/b0_route.py:109 canonical_config() = {k: spec(k) for k in specified_keys()}",
+   "key_selection": "core/b0_master_prereg.py:634 specified_keys() = tuple(sorted(_spec_registry()))",
+   "key_source": "core/b0_master_prereg.py:380 _spec_registry()",
+   "canonical_serialization": "core/b0_route.py:123 _hash() -> json.dumps(_stable(payload), sort_keys=True, ensure_ascii=False, separators=(',',':'))",
+   "normalisation": "core/b0_route.py:113 _stable(): tuple->list, dict->sorted str-keyed dict, None/str/int/float/bool passthrough, everything else -> str()",
+   "ordering": "keys sorted twice — once by specified_keys(), again by json sort_keys — so insertion order cannot leak",
+   "na_bool_number_encoding": {
+    "None": "JSON null (distinct from the string 'None')",
+    "bool": "JSON true/false (distinct from 0/1 — verified by the mutation control)",
+    "float": "JSON number; no rounding is applied",
+    "tuple": "JSON array via _stable"
+   },
+   "scope": "the ENTIRE frozen spec registry, not a subset",
+   "value": "fad64b65148d9d7f550aaf0d2c38ad27dcb47f399b237ed8d3a07181398f5567"
+  },
+  "state_hash": {
+   "producer": "core/b0_route.py:267 CanonicalDecisionInput.state_hash()",
+   "payload": "core/b0_route.py:198 state_payload()",
+   "canonical_serialization": "the same core/b0_route.py:123 _hash()",
+   "scope": "as_of / decision & execution dates / marks / adv20 / sigma20d / portfolio / pit_inputs / price_observations / corporate_action_events / exposures / execution prices / untradable / LISTING SPELLS / attestation id",
+   "deliberately_excluded": [
+    "route_kind"
+   ]
+  },
+  "provenance_config_sha256": {
+   "producer": "core/b0_provenance.py:105 ConfigProvenance.config_sha256",
+   "function": "core/b0_provenance.py:57 _h()",
+   "note": "a SECOND serializer over the same payload: json.dumps(sort_keys=True, separators=(',',':'), ensure_ascii=False, default=str) with no _stable() pre-pass. It agrees with config_hash on the current registry; nothing forces it to.",
+   "agrees_with_config_hash_today": true
+  }
+ },
+ "coverage_map": [
+  {
+   "master_key": "C_ref",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "2000000.0"
+  },
+  {
+   "master_key": "N_target",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": true,
+   "value_repr": "20"
+  },
+  {
+   "master_key": "X_buy",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": true,
+   "value_repr": "0.01"
+  },
+  {
+   "master_key": "X_sell",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": true,
+   "value_repr": "0.01"
+  },
+  {
+   "master_key": "adv20_definition",
+   "category": "market_quantity",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'mean(close * volume) over the 20 most recent OBSERVED sessions'"
+  },
+  {
+   "master_key": "adv20_sessions",
+   "category": "market_quantity",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "20"
+  },
+  {
+   "master_key": "adv_floor_multiple",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": true,
+   "value_repr": "5.0"
+  },
+  {
+   "master_key": "balance_sheet_basis",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'latest_statement_published_on_or_before_as_of'"
+  },
+  {
+   "master_key": "book_closure_may_explain_absence",
+   "category": "o_f_status_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "buy_priority",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": true,
+   "value_repr": "'rank'"
+  },
+  {
+   "master_key": "buy_shortfall_policy",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'cash'"
+  },
+  {
+   "master_key": "canonical_hash_json_settings",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "(('ensure_ascii', False), ('separators', (',', ':')), ('sort_keys', True))"
+  },
+  {
+   "master_key": "canonical_hash_primitive",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'b0_canonical_hash@1'"
+  },
+  {
+   "master_key": "cash_capital_increase_subscribe",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "cash_dividend_credit_event",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'payment_date'"
+  },
+  {
+   "master_key": "cash_earns_interest",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "cash_quality_alias_allowed",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "cash_quality_filter_enabled",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "chip_semantics",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "'net'"
+  },
+  {
+   "master_key": "commission_rate",
+   "category": "cost",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "0.001425"
+  },
+  {
+   "master_key": "concept_weighting",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'equal'"
+  },
+  {
+   "master_key": "concepts",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('Quality', 'Growth', 'Value', 'Momentum')"
+  },
+  {
+   "master_key": "config_hash_is_runtime_subset",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "config_hash_scope",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'complete_machine_readable_declaration_registry'"
+  },
+  {
+   "master_key": "corporate_action_stage_guards",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('assert_exposure_reconstructible', 'assert_no_unexplained_price_gap')"
+  },
+  {
+   "master_key": "current_ratio_floor_enabled",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "debt_hard_filter_enabled",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "decision_state_source",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'prior_completed_trading_session'"
+  },
+  {
+   "master_key": "declaration_binding_kinds",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "(('book_closure_may_explain_absence', 'IMPLEMENTATION_DERIVED'), ('listing_spell_break_rule', 'BEHAVIORAL_CONFORMANCE'),"
+  },
+  {
+   "master_key": "entry_eligibility_horizon_days",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "1"
+  },
+  {
+   "master_key": "eps_growth_definition",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'(EPS_t - EPS_t-4) / abs(EPS_t-4) * 100'"
+  },
+  {
+   "master_key": "eps_growth_net_income_fallback",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "eps_growth_quarters_back",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "4"
+  },
+  {
+   "master_key": "feature_orientations",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "(('roe', '+'), ('net_margin', '+'), ('gross_margin', '+'), ('debt_to_asset', '-'), ('current_ratio', '+'), ('revenue_yoy"
+  },
+  {
+   "master_key": "final_manifest_bound_sections",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('specification', 'code', 'config', 'data', 'derived', 'execution', 'output')"
+  },
+  {
+   "master_key": "first_eligible_decision_month",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'2014-07'"
+  },
+  {
+   "master_key": "forbidden_tie_break_keys",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('market_cap', 'adv20', 'turnover', 'score_secondary', 'listing_date')"
+  },
+  {
+   "master_key": "fundamental_hard_risk_filters",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('net_margin_floor',)"
+  },
+  {
+   "master_key": "impact_k",
+   "category": "cost",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "1.0"
+  },
+  {
+   "master_key": "implementation_identity",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'code_commit_sha_plus_explicit_normative_module_hashes'"
+  },
+  {
+   "master_key": "interpolation_allowed",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "intraday_sequence",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('start_of_trading_day', 'apply_known_effective_corporate_actions', 'establish_tradable_holdings', 'obtain_permitted_exe"
+  },
+  {
+   "master_key": "l2_outcomes",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('SUPPORTED', 'NOT_SUPPORTED', 'NOT_EVALUABLE_DATA_RECONSTRUCTION_BLOCK')"
+  },
+  {
+   "master_key": "l3_checkpoint_interval_months",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "24"
+  },
+  {
+   "master_key": "l3_first_checkpoint_months",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "36"
+  },
+  {
+   "master_key": "ledger_unit",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'shares'"
+  },
+  {
+   "master_key": "leverage_allowed",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "listing_spell_break_rule",
+   "category": "o_g_listing_spell",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "'unexplained_gap_then_reappearance_opens_a_spell_at_the_first_reobserved_session'"
+  },
+  {
+   "master_key": "lookback_L_months",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "18"
+  },
+  {
+   "master_key": "margin_definition",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'sum(profit, 4 quarters) / sum(revenue, 4 quarters) * 100'"
+  },
+  {
+   "master_key": "market_state_sources_require_provenance",
+   "category": "provenance_contract",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "min_fee",
+   "category": "cost",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "20.0"
+  },
+  {
+   "master_key": "missing_data_rate_threshold",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "None"
+  },
+  {
+   "master_key": "momentum_12_1_definition",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'(P_t-1 / P_t-13 - 1) * 100, price return, corporate-action adjusted'"
+  },
+  {
+   "master_key": "momentum_uses_total_return",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "negative_cash_allowed",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "net_margin_floor_pct",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "-10.0"
+  },
+  {
+   "master_key": "normative_modules",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "('core/b0_master_prereg.py', 'core/b0_canonical_hash.py', 'core/b0_corporate_actions.py', 'core/b0_pit_observability.py'"
+  },
+  {
+   "master_key": "o_e_1_availability_rule",
+   "category": "o_e_1_availability",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "'available_from < first_missing_session'"
+  },
+  {
+   "master_key": "odd_lot_enabled",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "orientation_is_caller_selectable",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "peg_definition",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'PER_TSE / eps_growth_pct'"
+  },
+  {
+   "master_key": "peg_domain",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'PE > 0 and eps_growth_pct > 0, else NA'"
+  },
+  {
+   "master_key": "pending_exit_cap_basis",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'per_session_adv20_as_of_prior_close'"
+  },
+  {
+   "master_key": "percentile_convention",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": true,
+   "value_repr": "'average_rank'"
+  },
+  {
+   "master_key": "percentile_depends_on_row_order",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "permanent_disappearance_is_a_concept",
+   "category": "o_f_gap_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "pipeline_stages",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('pit_raw_state', 'corporate_action_transition', 'portfolio_mark', 'eligibility', 'features', 'selection_score', 'target"
+  },
+  {
+   "master_key": "pre_mark_mandatory_stage",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'corporate_action_transition'"
+  },
+  {
+   "master_key": "price_lookback_reset_at_spell_start",
+   "category": "o_g_listing_spell",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "price_lookback_sessions",
+   "category": "o_g_listing_spell",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "(('adv20', 20), ('sigma20d', 20))"
+  },
+  {
+   "master_key": "proportional_scaling_allowed",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "reappearance_may_explain_earlier_gap",
+   "category": "o_g_listing_spell",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "removed_legacy_risk_legs",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('debt_hard_filter', 'cash_quality', 'current_ratio_floor', 'is_financial_exemption')"
+  },
+  {
+   "master_key": "revenue_yoy_definition",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'(revenue_m - revenue_m-12) / abs(revenue_m-12) * 100'"
+  },
+  {
+   "master_key": "reweight_when_under_target_breadth",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": true,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "risk_filter_relocation",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'legacy_F10_relocated_not_rechosen'"
+  },
+  {
+   "master_key": "risk_financial_exemption",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "risk_free_rate",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "0.0"
+  },
+  {
+   "master_key": "risk_layer_complete",
+   "category": "eligibility",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "roe_definition",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'sum(net_income, 4 quarters) / period_end_equity * 100'"
+  },
+  {
+   "master_key": "roe_requires_positive_equity",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "rounding_shortfall_policy",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'cash'"
+  },
+  {
+   "master_key": "security_status_states",
+   "category": "o_f_status_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('listed', 'suspended', 'delisted', 'unknown')"
+  },
+  {
+   "master_key": "selection_free_parameters",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "0"
+  },
+  {
+   "master_key": "selection_sort_key",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'(-SelectionScore, stock_id ascending)'"
+  },
+  {
+   "master_key": "selection_tie_break",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": true,
+   "value_repr": "'stock_id_ascending'"
+  },
+  {
+   "master_key": "selection_tie_breaks_available",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('stock_id_ascending',)"
+  },
+  {
+   "master_key": "sell_shortfall_policy",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'pending_exit_carry_forward'"
+  },
+  {
+   "master_key": "share_rounding",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": true,
+   "value_repr": "'floor'"
+  },
+  {
+   "master_key": "sharpe_metric_name",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'Sharpe_0rf'"
+  },
+  {
+   "master_key": "sigma20d_annualised",
+   "category": "market_quantity",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "sigma20d_ddof",
+   "category": "market_quantity",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "1"
+  },
+  {
+   "master_key": "sigma20d_ddof_is_sample",
+   "category": "market_quantity",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "sigma20d_definition",
+   "category": "market_quantity",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'std of daily log returns over trailing 20 sessions, PIT, UNANNUALISED'"
+  },
+  {
+   "master_key": "sigma20d_returns",
+   "category": "market_quantity",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "20"
+  },
+  {
+   "master_key": "snapshot_delisting_fields_are_audit_only",
+   "category": "o_f_gap_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "spec_sha256_scope",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'raw_bytes_of_frozen_master_preregistration_document'"
+  },
+  {
+   "master_key": "spell_bridging_tolerance",
+   "category": "o_g_listing_spell",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "None"
+  },
+  {
+   "master_key": "stale_mark_session_tolerance",
+   "category": "o_f_gap_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "None"
+  },
+  {
+   "master_key": "state_hash_is_an_implementation_hash",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "state_hash_scope",
+   "category": "hash_boundary",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'canonical_concrete_input_state_identity'"
+  },
+  {
+   "master_key": "status_availability_rule",
+   "category": "o_e_1_availability",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'available_from < missing_session (O-E-1)'"
+  },
+  {
+   "master_key": "status_by_event_semantics",
+   "category": "o_f_status_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "(('BOOK_CLOSURE', None), ('LISTING_TERMINATION', 'delisted'), ('TRADING_SUSPENSION', 'suspended'), ('UNKNOWN', None))"
+  },
+  {
+   "master_key": "status_event_semantics",
+   "category": "o_f_status_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "('TRADING_SUSPENSION', 'LISTING_TERMINATION', 'BOOK_CLOSURE', 'UNKNOWN')"
+  },
+  {
+   "master_key": "status_source_completeness_required",
+   "category": "o_f_gap_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "stock_dividend_credit_event",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'max(股票股利上市日, 股票股利發放日)'"
+  },
+  {
+   "master_key": "target_drift_policy",
+   "category": "execution",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": true,
+   "value_repr": "'rebalance_to_5pct_each_decision'"
+  },
+  {
+   "master_key": "tax_rate",
+   "category": "cost",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "0.003"
+  },
+  {
+   "master_key": "trading_calendar_semantics",
+   "category": "provenance_contract",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'observed_sessions_only'"
+  },
+  {
+   "master_key": "ttm_quarters",
+   "category": "feature_formula",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "4"
+  },
+  {
+   "master_key": "unexplained_gap_abort_scope",
+   "category": "o_f_gap_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": false,
+   "value_repr": "'held_positions_only'"
+  },
+  {
+   "master_key": "unflagged_capitalisation_policy",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'NOT_RECONSTRUCTIBLE_no_derivation'"
+  },
+  {
+   "master_key": "unknown_event_semantics_fails_closed",
+   "category": "o_f_status_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "unknown_status_is_normal",
+   "category": "o_f_gap_semantics",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "False"
+  },
+  {
+   "master_key": "w_max",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": true,
+   "value_repr": "0.05"
+  },
+  {
+   "master_key": "w_max_is_hard_cap",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  },
+  {
+   "master_key": "w_target",
+   "category": "portfolio_construction",
+   "included_in_config_hash": true,
+   "named_in_spec_document": true,
+   "looked_up_at_runtime": true,
+   "value_repr": "0.05"
+  },
+  {
+   "master_key": "window_end",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'2026-03-31'"
+  },
+  {
+   "master_key": "window_months",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "141"
+  },
+  {
+   "master_key": "window_start",
+   "category": "evidence_protocol",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "'2014-07-31'"
+  },
+  {
+   "master_key": "zero_day_receivable_allowed",
+   "category": "corporate_action",
+   "included_in_config_hash": true,
+   "named_in_spec_document": false,
+   "looked_up_at_runtime": false,
+   "value_repr": "True"
+  }
+ ],
+ "coverage_by_category": {
+  "execution": {
+   "keys": 17,
+   "in_config_hash": 17,
+   "named_in_doc": 3,
+   "runtime": 5
+  },
+  "portfolio_construction": {
+   "keys": 12,
+   "in_config_hash": 12,
+   "named_in_doc": 4,
+   "runtime": 5
+  },
+  "market_quantity": {
+   "keys": 7,
+   "in_config_hash": 7,
+   "named_in_doc": 0,
+   "runtime": 0
+  },
+  "eligibility": {
+   "keys": 12,
+   "in_config_hash": 12,
+   "named_in_doc": 0,
+   "runtime": 1
+  },
+  "feature_formula": {
+   "keys": 20,
+   "in_config_hash": 20,
+   "named_in_doc": 0,
+   "runtime": 1
+  },
+  "o_f_status_semantics": {
+   "keys": 5,
+   "in_config_hash": 5,
+   "named_in_doc": 0,
+   "runtime": 0
+  },
+  "hash_boundary": {
+   "keys": 11,
+   "in_config_hash": 11,
+   "named_in_doc": 1,
+   "runtime": 0
+  },
+  "corporate_action": {
+   "keys": 9,
+   "in_config_hash": 9,
+   "named_in_doc": 0,
+   "runtime": 0
+  },
+  "evidence_protocol": {
+   "keys": 10,
+   "in_config_hash": 10,
+   "named_in_doc": 0,
+   "runtime": 0
+  },
+  "cost": {
+   "keys": 4,
+   "in_config_hash": 4,
+   "named_in_doc": 0,
+   "runtime": 0
+  },
+  "o_g_listing_spell": {
+   "keys": 5,
+   "in_config_hash": 5,
+   "named_in_doc": 3,
+   "runtime": 0
+  },
+  "provenance_contract": {
+   "keys": 2,
+   "in_config_hash": 2,
+   "named_in_doc": 0,
+   "runtime": 0
+  },
+  "o_e_1_availability": {
+   "keys": 2,
+   "in_config_hash": 2,
+   "named_in_doc": 1,
+   "runtime": 0
+  },
+  "o_f_gap_semantics": {
+   "keys": 6,
+   "in_config_hash": 6,
+   "named_in_doc": 3,
+   "runtime": 0
+  }
+ },
+ "totals": {
+  "keys": 122,
+  "in_config_hash": 122,
+  "named_in_spec_document": 15,
+  "looked_up_at_runtime": 12,
+  "uncategorised": []
+ },
+ "v110_to_v111": {
+  "keys_added_in_v1_11": [
+   "book_closure_may_explain_absence",
+   "listing_spell_break_rule",
+   "o_e_1_availability_rule",
+   "price_lookback_reset_at_spell_start",
+   "price_lookback_sessions",
+   "reappearance_may_explain_earlier_gap",
+   "snapshot_delisting_fields_are_audit_only",
+   "spell_bridging_tolerance",
+   "status_by_event_semantics",
+   "status_event_semantics",
+   "status_source_completeness_required",
+   "unexplained_gap_abort_scope",
+   "unknown_event_semantics_fails_closed"
+  ],
+  "v110_keys": 109,
+  "v111_keys": 122,
+  "reconstructed_v110_config_hash": "8f5e57a5d18209c5b0d67535503616f2a0e8a125f22145f3a57091209dc79634",
+  "config_hash_reported_during_v1_11_work": "27fee343a3083e2aeba87eae960c01d5916b09a61819b7623486ec4bcfd13f03",
+  "reconstruction_matches_reported_value": false,
+  "config_hash_at_head": "fad64b65148d9d7f550aaf0d2c38ad27dcb47f399b237ed8d3a07181398f5567",
+  "config_hash_changed": true,
+  "finding": "config_hash DID move. The 27fee343 value carried into the v1.11 report was captured by a validation run executed BEFORE the 13 O-F/O-G keys were added to the registry, and was not re-measured afterwards. Removing exactly those 13 keys from the HEAD registry reproduces it bit-for-bit, which is what makes that a reporting error rather than a hash-scope leak."
+ }
+}

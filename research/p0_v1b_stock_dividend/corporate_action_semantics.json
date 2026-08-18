@@ -1,0 +1,293 @@
+{
+ "study": "W-3 corporate-action data semantics",
+ "read_only": true,
+ "performance_computed": false,
+ "source": "tej_exports/DataExport0806/配股相關2004-20260817",
+ "window": {
+  "start": "2014-07-31",
+  "end": "2026-03-31"
+ },
+ "report": {
+  "stock_dividend": {
+   "events_in_window": 2800,
+   "securities_in_window": 926,
+   "field_coverage": {
+    "盈餘配股率 %": {
+     "group": "ratio",
+     "present": 2488,
+     "pct": 88.86
+    },
+    "公積配股率 %": {
+     "group": "ratio",
+     "present": 2488,
+     "pct": 88.86
+    },
+    "年月日": {
+     "group": "effective",
+     "present": 2800,
+     "pct": 100.0
+    },
+    "股票股利上市日": {
+     "group": "tradable",
+     "present": 2291,
+     "pct": 81.82
+    },
+    "股票股利發放日": {
+     "group": "tradable",
+     "present": 2425,
+     "pct": 86.61
+    }
+   },
+   "quantity_direction": {
+    "issues_new_shares": 2800
+   },
+   "by_year": {
+    "2014": 264,
+    "2015": 332,
+    "2016": 276,
+    "2017": 258,
+    "2018": 235,
+    "2019": 212,
+    "2020": 192,
+    "2021": 203,
+    "2022": 215,
+    "2023": 224,
+    "2024": 200,
+    "2025": 189
+   }
+  },
+  "capital_reduction": {
+   "events_in_window": 682,
+   "securities_in_window": 487,
+   "field_coverage": {
+    "減資率 %": {
+     "group": "ratio",
+     "present": 650,
+     "pct": 95.31
+    },
+    "除權減資基準日": {
+     "group": "effective",
+     "present": 658,
+     "pct": 96.48
+    },
+    "年月日": {
+     "group": "effective",
+     "present": 682,
+     "pct": 100.0
+    },
+    "減資每股退還現金": {
+     "group": "cash",
+     "present": 682,
+     "pct": 100.0
+    },
+    "減資現金退款日": {
+     "group": "cash",
+     "present": 278,
+     "pct": 40.76
+    }
+   },
+   "quantity_direction": {
+    "issues_new_shares": 682
+   },
+   "by_year": {
+    "2014": 59,
+    "2015": 61,
+    "2016": 70,
+    "2017": 71,
+    "2018": 79,
+    "2019": 55,
+    "2020": 66,
+    "2021": 55,
+    "2022": 51,
+    "2023": 46,
+    "2024": 32,
+    "2025": 36,
+    "2026": 1
+   }
+  },
+  "merger": {
+   "events_in_window": 53,
+   "securities_in_window": 49,
+   "field_coverage": {
+    "年月日": {
+     "group": "effective",
+     "present": 53,
+     "pct": 100.0
+    }
+   },
+   "quantity_direction": {
+    "issues_new_shares": 53
+   },
+   "by_year": {
+    "2014": 7,
+    "2015": 7,
+    "2016": 6,
+    "2017": 5,
+    "2018": 10,
+    "2019": 6,
+    "2020": 3,
+    "2021": 2,
+    "2022": 4,
+    "2023": 1,
+    "2025": 2
+   }
+  },
+  "share_conversion": {
+   "events_in_window": 31,
+   "securities_in_window": 29,
+   "field_coverage": {
+    "年月日": {
+     "group": "effective",
+     "present": 31,
+     "pct": 100.0
+    }
+   },
+   "quantity_direction": {
+    "issues_new_shares": 31
+   },
+   "by_year": {
+    "2017": 2,
+    "2019": 1,
+    "2020": 8,
+    "2021": 7,
+    "2022": 3,
+    "2023": 3,
+    "2024": 3,
+    "2025": 3,
+    "2026": 1
+   }
+  },
+  "par_value_change": {
+   "events_in_window": 23,
+   "securities_in_window": 19,
+   "field_coverage": {
+    "面額": {
+     "group": "ratio",
+     "present": 23,
+     "pct": 100.0
+    },
+    "年月日": {
+     "group": "effective",
+     "present": 23,
+     "pct": 100.0
+    }
+   },
+   "quantity_direction": {
+    "issues_new_shares": 23
+   },
+   "by_year": {
+    "2019": 2,
+    "2020": 2,
+    "2021": 2,
+    "2022": 5,
+    "2024": 5,
+    "2025": 5,
+    "2026": 2
+   }
+  },
+  "cash_capital_increase": {
+   "events_in_window": 3295,
+   "securities_in_window": 1202,
+   "field_coverage": {
+    "現金認購率 %": {
+     "group": "ratio",
+     "present": 1175,
+     "pct": 35.66
+    },
+    "年月日": {
+     "group": "effective",
+     "present": 3295,
+     "pct": 100.0
+    },
+    "現增股票上市日": {
+     "group": "tradable",
+     "present": 1763,
+     "pct": 53.51
+    },
+    "現增股票發放日": {
+     "group": "tradable",
+     "present": 2514,
+     "pct": 76.3
+    },
+    "現金認購價（元）": {
+     "group": "cash",
+     "present": 3278,
+     "pct": 99.48
+    },
+    "原股東繳款-迄": {
+     "group": "cash",
+     "present": 2685,
+     "pct": 81.49
+    }
+   },
+   "quantity_direction": {
+    "issues_new_shares": 3295
+   },
+   "by_year": {
+    "2014": 167,
+    "2015": 294,
+    "2016": 257,
+    "2017": 295,
+    "2018": 301,
+    "2019": 250,
+    "2020": 239,
+    "2021": 284,
+    "2022": 295,
+    "2023": 278,
+    "2024": 308,
+    "2025": 271,
+    "2026": 56
+   }
+  },
+  "stock_dividend_ordering": {
+   "counts": {
+    "after_ex": 2422,
+    "missing_tradable": 65,
+    "same_day": 1
+   },
+   "missing_by_year": {
+    "2014": 1,
+    "2015": 3,
+    "2016": 2,
+    "2017": 2,
+    "2018": 7,
+    "2019": 3,
+    "2020": 8,
+    "2021": 7,
+    "2022": 9,
+    "2023": 8,
+    "2024": 10,
+    "2025": 5
+   }
+  },
+  "capital_reduction_detail": {
+   "events": 682,
+   "with_cash_back": 293,
+   "cash_back_without_refund_date": 17,
+   "without_reduction_rate": 32,
+   "without_effective_date": 24
+  },
+  "dilution_only_events": {
+   "証券轉換_可轉債(仟股)": {
+    "events_in_window": 8049,
+    "securities": 578
+   },
+   "庫藏股註銷(仟股)": {
+    "events_in_window": 1374,
+    "securities": 664
+   },
+   "員工分紅(仟股)": {
+    "events_in_window": 296,
+    "securities": 97
+   },
+   "受讓(仟股)": {
+    "events_in_window": 72,
+    "securities": 65
+   },
+   "其它(仟股)": {
+    "events_in_window": 84,
+    "securities": 79
+   }
+  }
+ }
+}

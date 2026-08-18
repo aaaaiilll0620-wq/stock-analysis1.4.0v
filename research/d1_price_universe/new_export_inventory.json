@@ -1,0 +1,66 @@
+{
+ "study": "D-1 new price export inventory",
+ "read_only": true,
+ "performance_computed": false,
+ "source_dir": "tej_exports/DataExport0806/個股股價、本益比2004-20260817",
+ "members": [
+  {
+   "zip": "股價 2019-2022.zip",
+   "zip_sha256": "41ef1cce47ffb8dc9f58fb9c47cfd579b00fbeab61b61cb3a4fc5df0e0823413",
+   "zip_bytes": 70810249,
+   "member": "20260818033649.csv",
+   "member_bytes": 285907334,
+   "member_date": "2026-08-18"
+  },
+  {
+   "zip": "股價2023-20260817.zip",
+   "zip_sha256": "049881046ef564e856c3564244337b00bc284707744d0595d8ced0842e19e409",
+   "zip_bytes": 67936256,
+   "member": "20260818033836.csv",
+   "member_bytes": 272860926,
+   "member_date": "2026-08-18"
+  }
+ ],
+ "schema_identical_across_members": true,
+ "schema_matches_expected": true,
+ "schema": [
+  "證券代碼",
+  "年月日",
+  "開盤價(元)",
+  "最高價(元)",
+  "最低價(元)",
+  "收盤價(元)",
+  "成交量(千股)",
+  "成交值(千元)",
+  "流通在外股數(千股)",
+  "本益比-TEJ",
+  "股價淨值比-TEJ"
+ ],
+ "securities": 2050,
+ "rows": 3470627,
+ "date_min": "2019-01-02",
+ "date_max": "2026-08-17",
+ "years": [
+  "2019",
+  "2020",
+  "2021",
+  "2022",
+  "2023",
+  "2024",
+  "2025",
+  "2026"
+ ],
+ "securities_per_year": {
+  "2019": 1827,
+  "2020": 1842,
+  "2021": 1870,
+  "2022": 1890,
+  "2023": 1917,
+  "2024": 1957,
+  "2025": 1965,
+  "2026": 1959
+ },
+ "content_sha256": "9e7d4fab584daddff1260cbec863532db0202374a4ad74e9dbc9d864ffc99af6",
+ "schema_sha256": "e6c55c6e89486cbbca2452b1b979c2ab25a8e793cf40ab83e911cfe61b1bf062",
+ "row_key_sha256": "b67d1eb054187483d30713caec98d1bf76ccbfb473b408acd880d67977cc71ae"
+}

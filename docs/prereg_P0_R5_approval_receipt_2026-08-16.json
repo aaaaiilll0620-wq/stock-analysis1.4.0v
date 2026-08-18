@@ -1,0 +1,85 @@
+{
+  "study": "P0-R5 — 2013+ Identity Reconstruction",
+  "prereg_path": "docs/prereg_P0_R5_2013PlusIdentityReconstruction_2026-08-16.md",
+
+  "approval_event": {
+    "stage": "Phase A",
+    "date": "2026-08-16",
+    "user_approval": "APPROVED",
+    "user_words_verbatim": "Phase A可以核准",
+    "approved_scope": [
+      "§1 — mechanical derivation of the 159-month window as a subset of the frozen 255 decision months in research/p0_r2_identity_collector/a_leg_parity_result.json; count must equal exactly 159 or FAIL and stop",
+      "§2/§3 Phase A read-only checks for monthly_revenue — structural coverage plus per-row genuine-vs-placeholder classification of 營收發布日 within the frozen decision-time stock-month population",
+      "§2/§3 Phase A read-only checks for financial_statements — re-confirmation of genuine 財報發布日 restricted to the 159-month subset",
+      "§2/§3 Phase A read-only checks for institutional_gross — full-corpus (all 16 files, not sampled, per AC-R5-2) header and per-row value verification",
+      "§3 raw-file SHA256 rules — recomputation against P0-R4-recorded hashes where they exist, and source_pre_sha256/source_post_sha256 self-consistency where they do not",
+      "§3 the 0.5% full-window / 2.0% per-month escalation thresholds added in revision 3 (AC-R5-1b), including their partial-preregistration purity disclosure",
+      "Writing this receipt plus the Phase A report/JSON/audit-script artifacts under research/p0_r5_identity_2013plus/"
+    ],
+    "explicitly_not_authorized_this_stage": [
+      "tdcc_weekly Phase A judgement — blocked by §3a-2 until the user rules between option 2 and option 3; option 1'-B was rejected this event, option 1'-A is neither approved nor rejected",
+      "Creating any candidate cache, parquet, lock, or snapshot of any kind (Phase B)",
+      "Any raw-score, membership, parity, performance, OOS, or backtest computation (Phase C)",
+      "Any modification to production code, including tej_importer.py, core/tej_bundle.py, core/data_provider.py, core/scoring_manager.py, or scripts/universe_screen_daily.py",
+      "Any write, move, or deletion affecting ~/tej_cache, ~/market_cache, data/runtime_cache/, cloud_cache/, or tej_exports/",
+      "Any investability/liquidity gate work",
+      "Downloading any dataset from any vendor site, or invoking any importer/collector in any mode",
+      "Any Task Scheduler or production operation",
+      "Anything not explicitly listed under approved_scope above — unauthorized by default"
+    ],
+    "binding_reminder": "Phase A is read-only. Phase B and Phase C each require their own separate, explicit, future user approval and are not unlocked by this event (§5, §6, §9)."
+  },
+
+  "section_3a_ruling_recorded_this_event": {
+    "option_1_original_vendor_letter": "VOID — user clarified TEJ data is manually downloaded, no API, no channel to request written schedule documentation",
+    "option_1prime_B_forward_lag_observation": "REJECTED by user",
+    "user_words_verbatim": "我現在的想法就是,之後資料自動抓,每日更新的每日抓,每周更新的每周抓,現在不需要搞前瞻,我們是回測",
+    "disclosed_consequence": "1'-B was the only remaining path to observed publication-lag evidence. After rejection, tdcc_weekly availability/lag has no provable evidence; only option 2 (declared conservative lag plus sensitivity) or option 3 (record UNRESOLVED and stop, with the P0-R4 §4c indirect dependency chain handled) remain.",
+    "technical_note_recorded_not_a_rebuttal": "The look-ahead risk created by unknown lag falls on the BACKTEST itself, not on forward trading; 'we are backtesting' does not remove it. Recorded for future adjudication only — the ruling stands and 1'-B is not re-proposed.",
+    "option_1prime_A_not_covered_by_this_ruling": "1'-A is a one-shot read-only official-vs-TEJ same-reference-date cross-check, not a forward mechanism, and answers TEJ fidelity rather than lag. Awaiting separate instruction.",
+    "option_2_vs_option_3": "PENDING"
+  },
+
+  "approved_draft": {
+    "note": "The exact pre-stamp draft content the user reviewed and approved (revision 4, before Status / User approval / Implementation authorized / §3a-2 / §9 fields were stamped in this same turn).",
+    "sha256": "57e9ca344c23659ba1c640f202bafa5197c3095ff0b7a70a990e5a247a455ef4",
+    "byte_length": 21854,
+    "line_count": 173
+  },
+
+  "final_stamped_document": {
+    "note": "The document as it exists on disk immediately after this approval event.",
+    "sha256": "765b4f39754075b7911907f9d2b7c17ee807e9e19f240ba1a08a9ebd92b80ae4",
+    "byte_length": 24079,
+    "line_count": 191,
+    "git_blob_sha1": "f138a5a92295b8365a75a0c6ade63f61bcda9a99",
+    "git_blob_capture_method": "git hash-object on the working-tree file; computed without staging, without writing a loose object, and without touching the index or any ref."
+  },
+
+  "approved_repository_baseline_commit": {
+    "sha1": "05ec67c368e8ae2b467dd4c73970653ea915835e",
+    "subject": "research(P0-R4): archive DataExport feasibility preflight",
+    "verified_as_head_at_approval_time": true
+  },
+
+  "section_1_gate_precheck": {
+    "note": "Run at approval time as the §1 mechanical gate; recorded here because §1 requires it before any subsequent judgement.",
+    "frozen_months_source": "research/p0_r2_identity_collector/a_leg_parity_result.json -> a_leg_parity_result.per_date keys",
+    "frozen_month_count": 255,
+    "frozen_month_range": "2005-01-31 .. 2026-03-31",
+    "filter_applied": ">= 2013-01-01",
+    "derived_month_count": 159,
+    "derived_month_range": "2013-01-31 .. 2026-03-31",
+    "equals_159": true,
+    "status": "PASS"
+  },
+
+  "frozen_population_artifact_resolution": {
+    "issue": "§3 refers to the frozen decision-time stock-month population (159 months x that month's valid stocks) but does not name the artifact holding the per-month ticker lists; a_leg_parity_result.json carries counts only.",
+    "candidate_identified": "research/p0_u1_canonical_universe/canonical_universe_by_date/canonical_universe_{date}.csv (255 files, one per frozen decision month)",
+    "evidence": "Sampled dates 2005-01-31/2005-02-25/2005-03-31/2005-04-29/2005-05-31/2013-01-31/2013-02-27/2013-03-29 — CSV data-row count equals a_leg_parity_result.per_date[date].population_diagnostics.oracle_population exactly in every case (736/796/827/802/693/866/875/892).",
+    "status_at_approval": "SAMPLED_ONLY — to be re-verified across all 159 months inside Phase A before use, per the full-corpus principle of AC-R5-2; if any month mismatches, the population artifact is UNRESOLVED and Phase A stops rather than substituting a different population."
+  },
+
+  "no_production_side_effects_this_event": "This approval-recording action wrote exactly two files: this receipt and the prereg document above (header status fields, §3a-2 ruling block, §9 approval block). No production file, dataset, cache, schedule, or state was created, moved, modified, or deleted. Nothing was staged or committed. No vendor site was accessed and no dataset was downloaded as part of this event."
+}
