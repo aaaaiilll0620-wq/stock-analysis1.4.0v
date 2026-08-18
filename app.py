@@ -37,6 +37,7 @@ if _ROOT not in sys.path:
 
 from main import build_engines, analyze_stock          # 重用:引擎組裝 + 四維度分析
 from core.data_provider import DataProvider
+from core import data_provider as _data_provider_module
 from core.scoring_manager import ScoringManager
 from core import data_cache
 from core import score_store                            # 綜合分快取:整個名單的跨股排名選股
@@ -79,7 +80,7 @@ def _loader_for(token: str):
             _loaders[token] = data_cache.install(dl)   # 仍共用本機 Parquet 快取 (公開資料,共用有益)
         return _loaders[token]
 
-st.set_page_config(page_title="台股四維度決策系統", page_icon="📊", layout="wide")
+st.set_page_config(page_title="台股個股決策系統", page_icon=":material/query_stats:", layout="wide")
 
 # ------------------------------------------------------------------ 說明文案 (= 使用指南的核心)
 MODE_HELP = {
@@ -97,6 +98,15 @@ RATING_STYLE = {
     "謹慎避開": ("#808080", "#F2F2F2", "基本面或技術面不佳,避開。"),
 }
 
+# 舊四級名稱是 frozen backtest 的分桶鍵，不能為了 UI 改名而污染研究血緣。
+# 網頁只呈現不暗示下單的「條件狀態」；核心 rating 保持原值供回測與快取相容。
+RATING_DISPLAY = {
+    "強勢買進": ("趨勢與籌碼同步", "趨勢、動能與籌碼條件同時成立；這是狀態描述，不等於現在買進。"),
+    "強烈推薦": ("核心條件成立", "價值品質或順勢條件成立；是否進場仍須看交易計畫與風險。"),
+    "觀望追蹤": ("條件未齊", "目前條件混合或資料不足，沒有足夠依據形成行動。"),
+    "謹慎避開": ("風險條件觸發", "基本面或趨勢風險條件已觸發；不是報酬預測。"),
+}
+
 
 def rating_badge(rating: str) -> str:
     """評級徽章。**沒有評級就不要畫徽章** —— 全市場掃描的 Top-10 是粗篩層、本來就沒有四維評級,
@@ -106,8 +116,50 @@ def rating_badge(rating: str) -> str:
     if not rating:
         return ""
     fg, bg, _ = RATING_STYLE.get(rating, ("#333", "#eee", ""))
+    display, definition = RATING_DISPLAY.get(rating, (rating, ""))
     return (f"<span style='background:{bg};color:{fg};padding:4px 12px;border-radius:6px;"
-            f"font-weight:700;font-size:1.05rem'>{rating}</span>")
+            f"font-weight:700;font-size:1.05rem' title='{escape(definition)}'>{escape(display)}</span>")
+
+
+def _quarter_label(date_text: str) -> str:
+    """把季末日期轉成人可讀季度；沒有日期時明確顯示未知。"""
+    try:
+        ts = pd.Timestamp(date_text)
+        return f"{ts.year} Q{((ts.month - 1) // 3) + 1}"
+    except Exception:
+        return "未提供"
+
+
+def _evidence_rows(r: dict) -> list:
+    """只列 frozen research 已覆蓋的訊號；方向與強度分開，不合成分數。"""
+    rows = []
+    specs = [
+        ("RSI14", r.get("rsi"), "{:.1f}", "↓", "★★★",
+         "預註冊研究：數值越高與短中期後續報酬呈負向關聯；六時代同號。"),
+        ("布林 %B", r.get("bb_percent_b"), "{:.2f}", "↓", "★★★",
+         "預註冊研究：數值越高與短中期後續報酬呈負向關聯；不等於可交易策略。"),
+        ("MA20 乖離", r.get("ma20_bias"), "{:+.1f}%", "↓", "★★★",
+         "預註冊研究：偏離越高與短中期後續報酬呈負向關聯；不設定臨時買賣門檻。"),
+        ("KD", None, "{}", "≈", "—", "本輪 frozen panel 未測試 KD，不參與判讀。"),
+    ]
+    for name, value, fmt, direction, strength, note in specs:
+        shown = "未取得" if value is None or pd.isna(value) else fmt.format(float(value))
+        rows.append({"證據": name, "目前值": shown, "研究方向": direction,
+                     "證據強度": strength, "判讀": note})
+
+    ratios = r.get("institution_ratios") or {}
+    short = ratios.get("short")
+    long = ratios.get("long")
+    if short is None or long is None:
+        current, direction, strength = "無法辨識", "≈", "—"
+    elif long < 0 < short:
+        current, direction, strength = "20日偏賣、5日轉買", "↓", "★★★"
+    else:
+        current, direction, strength = "目前非賣轉買型態", "≈", "★★★"
+    rows.append({"證據": "法人賣轉買", "目前值": current, "研究方向": direction,
+                 "證據強度": strength,
+                 "判讀": "六時代寬市場結果為負向；dual100 近顯著結果僅屬 exploratory，不加分。"})
+    return rows
 
 
 # 去除圖示/emoji (保留 —、…、（）、%、「」等標點)
@@ -244,13 +296,35 @@ def analyze(symbol: str, mode: str, refresh: bool, token: str = ""):
     if refresh:
         data_cache.FORCE_REFRESH = True
         return _do_analyze(symbol, mode, token)
-    return _analyze_cached(symbol, mode, token)
+    return _analyze_cached(symbol, mode, token, _runtime_overlay_version())
+
+
+def _runtime_overlay_version() -> tuple:
+    """Runtime overlay 重建後自動更換個股分析 cache key，不必等 TTL 過期。"""
+    # Streamlit 熱重載時，背景程序可能暫時保留較舊的 data_provider 模組。
+    # 使用相容 fallback 避免 app.py 因新常數尚未載入而整頁中斷；完整 overlay
+    # 讀取仍會在程序重啟後由最新版 DataProvider 接手。
+    root = getattr(
+        _data_provider_module,
+        "TEJ_RUNTIME_OVERLAY_DIR",
+        os.path.join(_ROOT, "data", "runtime_cache", "dataexport0806"),
+    )
+    versions = []
+    for name in ("financial_statements.parquet", "monthly_revenue.parquet", "receipt.json"):
+        path = os.path.join(root, name) if root else ""
+        try:
+            stat = os.stat(path)
+            versions.append((name, stat.st_mtime_ns, stat.st_size))
+        except OSError:
+            versions.append((name, None, None))
+    return tuple(versions)
 
 
 @st.cache_data(show_spinner=False, ttl=3600)
-def _analyze_cached(symbol: str, mode: str, token: str = ""):
+def _analyze_cached(symbol: str, mode: str, token: str = "", runtime_version: tuple = ()):
     """
-    refresh=False 的快取路徑。token 進 cache key → 不同訪客各自快取、各用自己的 FinMind 額度。
+    refresh=False 的快取路徑。token 與 runtime overlay 版本都進 cache key；
+    不同訪客各自快取、各用自己的 FinMind 額度，overlay 重建後也立即失效。
     ttl=3600:雲端 st.cache_data 是跨所有訪客共用的伺服器端快取、預設無過期時間,
     沒有 ttl 會導致某訪客的即時分析結果被無限期快取、之後所有人(含本機以外的雲端訪客)
     都看到那個舊價格/舊分數,直到 app 容器重啟——與本機新啟動的開發伺服器現抓現算對不起來。
@@ -297,6 +371,20 @@ def _do_analyze(symbol: str, mode: str, token: str):
         "advice": getattr(score, "actionable_advice", "") or getattr(score, "advice_main", ""),
         "confidence": getattr(score, "data_confidence", 100.0),
         "sector": getattr(stock, "sector_category", ""),
+        "financials_asof": getattr(stock, "financials_asof", None),
+        "revenue_asof": getattr(stock, "revenue_asof", None),
+        "missing_fields": list(getattr(stock, "missing_fields", []) or []),
+        "rsi": getattr(stock, "rsi", None),
+        "bb_percent_b": getattr(stock, "bb_percent_b", None),
+        "ma20_bias": getattr(stock, "ma20_bias", None),
+        "institution_ratios": {
+            "short": (float(getattr(stock, "foreign_net_ratio", {}).get(5, 0.0))
+                      + float(getattr(stock, "trust_net_ratio", {}).get(5, 0.0)))
+                     if getattr(stock, "foreign_net_ratio", None) else None,
+            "long": (float(getattr(stock, "foreign_net_ratio", {}).get(20, 0.0))
+                     + float(getattr(stock, "trust_net_ratio", {}).get(20, 0.0)))
+                    if getattr(stock, "foreign_net_ratio", None) else None,
+        },
     }
 
 
@@ -331,19 +419,19 @@ def get_score_history(stock_id: str, mode: str, limit: int = 10):
     return score_store.score_history(stock_id, mode=mode, limit=limit)
 
 
-@st.cache_data(show_spinner="載入產業資金流向…")
+@st.cache_data(show_spinner="載入產業資金流向…", ttl=300, max_entries=8)
 def get_industry_flow(level: str):
-    """各產業每日法人淨流入 (億元) 長格式 (讀 snapshot;本機無則即時算)。"""
+    """各產業每日法人淨流入。5 分鐘 TTL，避免長開網頁停在前一交易日。"""
     return industry_flow.load_flow(level)
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=300, max_entries=128)
 def get_industry_members(level: str, industry: str, date, start=None, end=None):
     """某產業的成分股法人淨流入 (下鑽用;date=None 則看 [start, end] 區間累計)。"""
     return industry_flow.load_members(level, industry, date=date, start=start, end=end)
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=300, max_entries=4)
 def get_members_range():
     """下鑽成分股資料實際涵蓋的日期範圍 (可能比主圖短) → (min, max)。"""
     return industry_flow.members_range()
@@ -428,11 +516,11 @@ user_token = st.sidebar.text_input(
     "你的 FinMind API token", value="", type="password",
     help="即時『個股分析/多檔排行』會用『你自己的』token 打 FinMind,額度算你的、不共用、"
          "也不會寫入伺服器。留空=匿名 (每小時 300 次,且雲端為共用 IP、尖峰易被分光)。"
-         "『綜合分選股』分頁免 token。")
+         "『雙確認投組』分頁免 token。")
 if user_token:
     st.sidebar.caption("✅ 已使用你的 token (額度算你的)")
 else:
-    st.sidebar.caption("ℹ️ 未貼 token → 匿名模式;建議用『綜合分選股』分頁 (免 token)")
+    st.sidebar.caption("ℹ️ 未貼 token → 匿名模式;建議用『雙確認投組』分頁 (免 token)")
 st.sidebar.divider()
 st.sidebar.caption("⚠️ 研究/篩選輔助,非投資建議。評級是『狀態分類』,不是立刻買進;"
                    "進場價位請看每檔的『買點提示』。")
@@ -476,10 +564,10 @@ def _render_stale_banner():
 
 _render_stale_banner()
 
-(tab_one, tab_rank, tab_screen, tab_univ, tab_fusion, tab_flow,
+(tab_one, tab_rank, tab_fusion, tab_flow,
  tab_regime, tab_dca, tab_drill, tab_help) = st.tabs(
-    ["🔎 個股分析", "🏆 多檔排行", "🎯 綜合分選股", "🌐 全市場掃描",
-     "✨ 雙確認精選", "🏭 法人流向", "🚦 市場燈號", "💰 定期定額", "📋 實戰演練", "📖 使用說明"])
+    ["🔎 個股分析", "🏆 多檔排行",
+     "雙確認投組", "🏭 法人流向", "🚦 市場燈號", "💰 定期定額", "📋 實戰演練", "📖 使用說明"])
 
 
 # ------------------------------------------------------------------ 法人資金流向產業 (想法2 B版)
@@ -490,6 +578,14 @@ with tab_flow:
         "歷史來自本機 TEJ 種子(2004 起)、最新一段由證交所 T86＋櫃買 3insti 每日 17:30 自動接續"
         "(全程 0 FinMind API)。"
         "**這是資金流向的描述圖,非買賣訊號** —— 法人賣轉買在本專案實證是反指標。")
+
+    if st.button(":material/refresh: 重新載入最新法人資料",
+                 help="清除法人流向、成分股與日期範圍的伺服器快取。",
+                 width="content"):
+        get_industry_flow.clear()
+        get_industry_members.clear()
+        get_members_range.clear()
+        st.rerun()
 
     _lv = st.radio("產業層級", list(industry_flow.LEVELS.keys()), index=0, horizontal=True,
                    help="子產業最細(散裝航運/貨櫃輪級,~250 類);產業/上市產業較粗。")
@@ -505,6 +601,17 @@ with tab_flow:
             "(需本機 `~/tej_cache` 種子或 `~/market_cache` 每日快照;跑完按 R 重整。)")
     else:
         _all_dates = sorted(_flow_all["date"].unique())
+        _latest_flow_date = _all_dates[-1]
+        _latest_flow_file = industry_flow.DAILY_FLOW_DIR / f"{_latest_flow_date}.parquet"
+        if not _latest_flow_file.exists():
+            _latest_flow_file = industry_flow.SNAPSHOT
+        _flow_updated = "無法讀取"
+        if _latest_flow_file.exists():
+            _flow_updated = pd.Timestamp.fromtimestamp(
+                _latest_flow_file.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+        st.caption(
+            f"最新資料日 **{_latest_flow_date}** · 產業彙總檔更新 **{_flow_updated}** "
+            "· 網頁快取最長 5 分鐘")
 
         # ---- 期間:全期可能上千個交易日,播放/累計都要先收斂範圍 ----
         _win_map = {"近 20 日": 20, "近 60 日": 60, "近 120 日": 120, "近 250 日": 250,
@@ -792,7 +899,7 @@ with tab_flow:
         if _view == "單日掃描(可移動)":
             # 播放鈕:自動逐日推進 (bar-chart-race);滑桿:手動掃描單日
             _c1, _c2 = st.columns([1, 2])
-            _play = _c1.button("▶ 播放連續天數", key="flow_play", use_container_width=True)
+            _play = _c1.button("▶ 播放連續天數", key="flow_play", width="stretch")
             _speed = _c2.select_slider("播放速度", options=["慢", "中", "快"], value="中")
             _delay = {"慢": 1.1, "中": 0.6, "快": 0.3}[_speed]
             _fix_axis = st.checkbox("固定 x 軸 (動畫不跳動)", value=True,
@@ -826,13 +933,13 @@ with tab_flow:
                 for _d in _frames:
                     _ph.altair_chart(
                         _flow_hbar(_day_show(_d), _mcol, f"{_axis_title} — {_d}", _xdom),
-                        use_container_width=True)
+                        width="stretch")
                     _cap.caption(f"▶ 播放中… {_d}")
                     time.sleep(_delay)
                 _pick = _frames[-1]
             _show = _day_show(_pick)
             _ph.altair_chart(_flow_hbar(_show, _mcol, f"{_axis_title} — {_pick}", _xdom),
-                             use_container_width=True)
+                             width="stretch")
             _unit_s = "%" if _pct else "億"
             _cap.caption(f"📅 {_pick} 當日 {_mlabel}淨流入前 {_topn} 買 / 前 {_topn} 賣。"
                          "按『▶ 播放連續天數』看逐日移動,或拖滑桿手動掃描。"
@@ -872,7 +979,7 @@ with tab_flow:
                     st.info("此條件下沒有成交額資料可畫。")
                 else:
                     st.markdown(f"**{_ttl}**")   # 標題畫在圖外,不佔 Vega 繪圖區 (見 _TM_LEGEND)
-                    st.altair_chart(_tmchart, use_container_width=False)
+                    st.altair_chart(_tmchart, width="content")
                     _cv = float(_show["cover"].sum())
                     _thin = _n_all - len(_show) - _cut         # 被薄量門檻剔除的產業數
                     _miss = ([f"成交額排名 {len(_show)} 名之後的 {_cut} 個" ] if _cut else []) \
@@ -896,7 +1003,7 @@ with tab_flow:
                                _cum.nsmallest(_topn, _mcol)]).drop_duplicates(subset=["industry"])
             st.altair_chart(_flow_hbar(_show, _mcol, f"{_mlabel} 累計淨流入 "
                                        f"({'占成交額 %' if _pct else '億元'})"),
-                            use_container_width=True)
+                            width="stretch")
 
             # 前 5 淨買產業的累計流入趨勢線 (看資金持續流入還是單日爆量)
             _top5 = _cum.nlargest(5, _mcol)["industry"].tolist()
@@ -915,7 +1022,7 @@ with tab_flow:
                         tooltip=["date", "industry", alt.Tooltip("累計:Q", format=_fmt)])
                      .properties(height=300))
             st.markdown("**前 5 淨買產業 · 累計流入趨勢**")
-            st.altair_chart(_line, use_container_width=True)
+            st.altair_chart(_line, width="stretch")
             st.caption(f"整段 {_dmin}～{_dmax}（{len(_dates)} 日）的 {_mlabel}累計淨流入"
                        f"前 {_topn} 買 / 前 {_topn} 賣;下圖看前 5 是持續吸金還是單日脈衝。"
                        + (f"　占比口徑=Σ淨流入÷Σ成交額,且剔除累計成交額 "
@@ -985,14 +1092,14 @@ with tab_flow:
                          (_mem_show[_mem_show["_dir"] == "賣超"], "right", -4)) if not _s.empty]
             st.altair_chart(alt.layer(_mem_bar, *_mem_txt)
                             .properties(height=_bar_h(len(_mem_show))),
-                            use_container_width=True)
+                            width="stretch")
             _cols = ["stock_id", "名稱", "foreign", "trust", "combined"]
             _ren = {"stock_id": "代號", "foreign": "外資", "trust": "投信", "combined": "合計"}
             if _has_turn and "combined_pct" in _mem.columns:
                 _cols += ["turnover", "combined_pct"]
                 _ren |= {"turnover": "成交額(億)", "combined_pct": "合計占成交額%"}
             st.dataframe(_mem[_cols].rename(columns=_ren).round(2),
-                         use_container_width=True, hide_index=True)
+                         width="stretch", hide_index=True)
             st.caption(f"**{_sel_ind}** 成分股（{_when}）{_mlabel}淨流入;"
                        "金額 = 法人淨買股數 × 收盤 ÷ 1e8（億元）,占比 = 該金額 ÷ 同期成交額。"
                        "貼代號到『個股分析』可看該檔四維度深評。")
@@ -1006,13 +1113,40 @@ def _cached_exposure():
 
 
 with tab_regime:
-    st.subheader("🚦 市場燈號 — 現在該持有幾成")
+    st.subheader("🚦 市場燈號 — 建議曝險(α=0.25 部分套用)")
+    st.warning(
+        "⚠️ **這是「研究否定 + 使用者明文豁免」的部署決定,不是研究通過。**\n\n"
+        "本站採用的是**壓縮版**曝險階梯 —— 曝險只在 **75% ~ 100%** 之間移動"
+        "(α=0.25 內插),**不會空手、不會腰斬倉位**:\n\n"
+        "| 站上幾條均線 | 建議曝險 |\n|---|---|\n"
+        "| 3/3 趨勢完整 | 100% |\n| 2/3 | 91.7% |\n| 1/3 | 83.3% |\n"
+        "| 0/3 全數轉弱 | **75%(下限)** |\n\n"
+        "**為什麼是豁免而不是通過**:`預註冊_OverlayAlpha強度掃描.md` 的凍結判定是 "
+        "**HOα-4a 否定**(α=0.25 在滑價 0.60% 壓力下 CAGR 17.55%,沒到 20% 門檻)。"
+        "使用者 2026-08-10 依既有前例明文豁免該門檻採用。關鍵背景:**裸上在同樣 0.60% "
+        "滑價下也只有 18.77%,一樣沒過門檻** —— 那個門檻在該壓力下並沒有區分兩者。")
     st.info("**訊號標的:全市場等權指數**(約 1,950 檔個股每檔一票的廣度指數)。"
             "**不是加權指數,也不是 0050。** 三者可以同時一個跌破均線、另一個還站在均線之上 ——"
             "看到燈號說『跌破』時,請不要拿你看盤軟體上的大盤或 0050 來對照。")
-    st.caption("反應式訊號:判斷『該承受多少風險』,**不是預測漲跌**。全循環(2005-2026)含息回測中,"
-               "此訊號疊在價值+基本面選股上,夏普 0.95 > 0050 的 0.69、最大回撤 -25.4% 優於 0050 的 -54%"
-               "(月換手、來回成本 0.72% 含滑價 0.25%)。")
+    with st.expander("📊 採用 α=0.25 的實測依據與兩個必讀但書", expanded=False):
+        st.markdown(
+            "**實測**(`overlay_alpha_describe.py`,事後描述性量測):\n\n"
+            "| | CAGR | 夏普 | MDD |\n|---|---|---|---|\n"
+            "| OOS 裸上 | 22.48% | 1.11 | −33.73% |\n"
+            "| **OOS α=0.25** | 20.93% | **1.17** | **−27.91%** |\n"
+            "| 全期裸上 | 20.59% | 0.90 | −71.67% |\n"
+            "| **全期 α=0.25** | 20.28% | **1.01** | **−62.71%** |\n\n"
+            "全期只付 **0.30pp** CAGR,換到 **8.95pp** 回撤改善;夏普在四種情境下全部改善。\n\n"
+            "---\n\n"
+            "⚠️ **但書 1 —— 價值集中在 2008,而那段是 in-sample。** 六個時代裡 CAGR 只有 "
+            "2005-2009 那段贏(21.27% vs 17.60%),其餘五段都小輸;全期「幾乎免費」是被那一段"
+            "拉起來的。而挑這個訊號規則時用的是全歷史,**真本事與後見之明無法乾淨拆開**。\n\n"
+            "⚠️ **但書 2 —— 2022 型陰跌幫不上忙。** 該段回撤只改善 1.27pp,CAGR 反而從 "
+            "−0.62% 惡化到 −2.79%。**對「反覆磨、每次反彈都失敗」那種空頭,這一層近乎無效"
+            "甚至扣分**;它真正保護的是 2008 那種急跌。\n\n"
+            "⚠️ **不得宣稱擇時能力**:HO2 檢定顯示,回撤改善在統計上**分不出**是擇時、"
+            "還是單純「平均持有比較少」的結果。你買的是較低的平均曝險,不是「它看得準轉折」。")
+    st.caption("反應式訊號(依市場廣度與趨勢完整度調整曝險),**不預測漲跌**。")
     try:
         _r = _cached_exposure()
     except Exception as e:
@@ -1020,27 +1154,32 @@ with tab_regime:
     else:
         _expo, _n = _r["exposure"], _r["ladder_n"]
         _color = "🟢" if _n == 3 else ("🟡" if _n >= 1 else "🔴")
-        _label = {3: "滿倉 risk-on", 2: "偏多", 1: "防禦減碼", 0: "空手 risk-off"}[_n]
+        # 單一事實來源:直接用 regime_exposure.LADDER_LABEL,不在這裡另抄一份
+        # (2026-08-10 降級時就是因為 app 抄了一份舊標籤沒跟著改,顯示「防禦減碼」這種操作指令)
+        from core.regime_exposure import LADDER_LABEL as _LADDER_LABEL
+        _label = _LADDER_LABEL[_n]
         c1, c2 = st.columns([1, 2])
         with c1:
             st.markdown(f"<div style='font-size:64px;line-height:1'>{_color}</div>",
                         unsafe_allow_html=True)
-            st.metric("建議曝險", f"{_expo*100:.0f}%", _label)
-            st.caption(f"資料截至 {_r['as_of']}")
+            st.metric("建議曝險", f"{_expo*100:.1f}%", _label)
+            st.caption(f"資料截至 {_r['as_of']}　·　原始階梯 "
+                       f"{_r.get('raw_ladder_exposure', float('nan'))*100:.0f}% "
+                       f"→ α={_r.get('overlay_alpha', 0.25)} 壓縮後 {_expo*100:.1f}%")
             _rl = _r.get("rate_limit")
             if _rl:
                 if not _rl["active"]:
                     st.caption(f"⏸ 曝險調整速率限制({_rl['cap']*100:.0f}%/日)"
-                               f"**{_rl['effective_from']} 起生效**,目前不作用"
-                               f"(冷卻期,見 `docs/預註冊_ExposureRateLimit.md`)。")
+                               f"**{_rl['effective_from']} 起生效**,目前不作用。")
                 elif _rl["days_to_target"] > 0:
                     st.warning(f"**分批執行中** —— 訊號目標 "
-                               f"{_r['target_exposure']*100:.0f}%,今日應到 {_expo*100:.0f}%。"
+                               f"{_r['target_exposure']*100:.1f}%,今日應到 {_expo*100:.1f}%。"
                                f"每日上限 {_rl['cap']*100:.0f}%,還需約 "
                                f"**{_rl['days_to_target']} 個交易日**走到位。"
                                f"\n\n照上限走完為止,**中途不因新訊號以外的理由停手**。")
                 else:
-                    st.caption(f"✓ 已在目標曝險上(速率限制 {_rl['cap']*100:.0f}%/日,雙向對稱)。")
+                    st.caption(f"✓ 已在目標曝險上(速率限制 {_rl['cap']*100:.0f}%/日,雙向對稱)。"
+                               f"α=0.25 下單次最大跳動 {0.25/3*100:.1f}pp,通常不會觸發限速。")
         with c2:
             st.markdown("**均線階梯 —— 標的是「全市場等權指數」**"
                         "(每檔股票一票的廣度指數,**不是加權指數、也不是 0050**)")
@@ -1050,8 +1189,9 @@ with tab_regime:
                 st.write(f"{icon} **等權指數 vs MA{L['ma']}**:"
                          f"{'站上' if L['above'] else '跌破'} "
                          f"{L['days']} 天　(距均線 {L['gap_pct']:+.1f}%){pend}")
-            st.caption("站上幾條 → 曝險 3/3、2/3、1/3、0。空頭時逐階減碼→轉現金;"
-                       "遲滯(確認3d)濾掉碎波假訊號,避免賣低買高。")
+            st.caption("站上幾條 → 原始階梯 3/3、2/3、1/3、0,**再經 α=0.25 壓縮成 "
+                       "100%/91.7%/83.3%/75%**(不會空手)。遲滯(確認3d)濾掉碎波假訊號,"
+                       "避免在盤整時來回進出。")
 
         # ---- 為什麼是這個燈號 ----
         _rs = _r.get("reason")
@@ -1096,10 +1236,11 @@ with tab_regime:
                     "不增加識別力 —— 同樣效果直接把曝險係數乘 0.8 就有,不需要新訊號\n\n"
                     "所以它們留在這裡當**看盤參考**,不當訊號輸入。")
 
-        st.markdown("**近 120 日建議曝險**")
+        st.markdown("**近 120 日建議曝險(α=0.25 壓縮後)**")
         st.area_chart(_r["hist"].set_index("date"), height=170)
-        st.caption("⚠️ 反應式、非預測:它會**落後轉折點**,碎波盤可能小幅拉鋸。只告訴你『持有幾成』,"
-                   "不告訴你買哪檔或漲跌方向。回測 ≠ 未來,非投資建議。")
+        st.caption("⚠️ 反應式、非預測:它會**落後轉折點**,碎波盤可能小幅拉鋸。它只告訴你"
+                   "『原班人馬要留幾成在場內』(75%~100%),**不告訴你買哪檔或漲跌方向**。"
+                   "**對 2022 型陰跌保護有限**(見上方但書)。回測 ≠ 未來,非投資建議。")
 
 
 # ------------------------------------------------------------------ 定期定額試算 (DCA)
@@ -1180,39 +1321,43 @@ with tab_one:
                 continue
             st.markdown(f"### {r['symbol']} {r['name']}　{rating_badge(r['rating'])}",
                         unsafe_allow_html=True)
-            c1, c2, c3 = st.columns(3)
-            c1.metric("綜合評分", f"{r['total']:.1f}")
-            c2.metric("現價", f"{r['price']:.2f}")
-            c3.metric("資料信心", f"{r['confidence']:.0f}%")
+            _display_rating, _rating_definition = RATING_DISPLAY.get(
+                r["rating"], (r["rating"], "歷史條件分類"))
+            st.caption(f"條件狀態定義：{_rating_definition}｜核心研究桶：{r['rating']}（僅供血緣核對）")
+            with st.container(horizontal=True):
+                st.metric("現價", f"{r['price']:.2f}", border=True)
+                st.metric("季報期間", _quarter_label(r.get("financials_asof")), border=True)
+                st.metric("月營收期間", r.get("revenue_asof") or "未提供", border=True)
+            st.caption("月營收由官方每日收集器補充；季報仍需在公告後匯入 TEJ 檔案。期間不是發布日，請以資料更新時間核對新鮮度。")
             st.markdown(
                 f"<div style='font-size:1rem;color:inherit;opacity:.82;margin:2px 0 10px'>"
                 f"基本面:{escape(r['fundamental_label'])}　｜　趨勢:{escape(r['trend_label'])}　｜　"
                 f"估值:{escape(r['valuation_status'])}　｜　獲利:{escape(r['quality_flag'])}　｜　"
                 f"類別 {escape(r['sector'])}</div>", unsafe_allow_html=True)
-            # 分項長條圖:X 軸標籤強制橫向 (labelAngle=0)
-            dim_df = pd.DataFrame({"維度": list(r["dims"].keys()),
-                                   "分數": [round(v, 1) for v in r["dims"].values()]})
-            chart = (alt.Chart(dim_df).mark_bar(color="#4472C4")
-                     .encode(x=alt.X("維度:N", sort=None,
-                                     axis=alt.Axis(labelAngle=0, labelFontSize=15, title=None)),
-                             y=alt.Y("分數:Q", scale=alt.Scale(domain=[0, 100]),
-                                     axis=alt.Axis(title=None)),
-                             tooltip=["維度", "分數"])
-                     .properties(height=260))
-            st.altair_chart(chart, use_container_width=True)
-            # 系統建議:自動分行、放大字體、無圖示
-            lines = format_advice(r["advice"])
-            if lines:
-                html = ("<div style='font-size:1.1rem;line-height:1.9'>"
-                        + "".join(f"<p style='margin:8px 0'>{escape(l)}</p>" for l in lines)
-                        + "</div>")
-                st.markdown(html, unsafe_allow_html=True)
-            else:
-                st.markdown("（無額外建議文字）")
+            st.subheader(":material/assignment: 個股決策摘要")
+            d1, d2 = st.columns(2)
+            with d1.container(border=True, height="stretch"):
+                st.markdown("**新部位：尚未判定**")
+                st.caption("目前尚無通過預註冊與回測的 evidence → 可建立／等待／避開映射規則。")
+            with d2.container(border=True, height="stretch"):
+                st.markdown("**既有部位：尚未判定**")
+                st.caption("目前尚無通過預註冊與回測的 evidence → 續抱／減碼／退出映射規則。")
+
+            st.markdown("**已驗證與未測試證據**")
+            _edf = pd.DataFrame(_evidence_rows(r))
+            st.dataframe(_edf, hide_index=True, width="stretch")
+            st.caption("★★★ strong verified｜★★ moderate｜★ weak｜◇ exploratory｜— untested。星等只代表證據強度；↑／↓／≈ 才是研究方向。統計關聯不等於扣成本後可交易。")
+
+            with st.container(border=True):
+                st.markdown("**What changes my view｜什麼情況才會改變判讀**")
+                st.markdown("1. 先凍結新部位與既有部位的 evidence → 狀態映射。  \n"
+                            "2. 用 live configuration 分開驗證進場、續抱與退出規則，納入成本與六時代穩定性。  \n"
+                            "3. 通過前，RSI、BB %B、MA 乖離與法人賣轉買只顯示證據，不觸發買賣狀態。")
             # 交易計畫:進場區間 / 停損 / 目標 (與 main.py CLI、其他分頁同一套規則換算)
             _plan = r.get("plan_lines") or []
             if _plan:
-                st.markdown("**📐 交易計畫（進場區間・停損・目標;規則換算的價位參考,非投資建議）**")
+                st.subheader(":material/route: 交易計畫")
+                st.caption("買進區間、停損與目標整合於同一處；屬規則換算的價位參考，不是正式買賣狀態。")
                 for _ln in _plan:
                     st.markdown(
                         f"<div style='font-size:1rem;color:inherit;opacity:.9;margin:2px 0 2px 8px'>· {escape(_ln)}</div>",
@@ -1220,34 +1365,28 @@ with tab_one:
             # 近日綜合分走勢 (讀 scores 快取,0 API;僅每日名單內的股票有歷史)
             _hist = get_score_history(r["symbol"], mode, limit=10)
             if _hist is not None and len(_hist) >= 2:
-                st.markdown("**📈 近日綜合分走勢（每日名單快取・0 API・同權重版本才連線）**")
-                # 綜合分主線 (較粗) + 五維分項細線,melt 成長格式一次畫;看『哪個維度在拉動綜合分』
+                st.subheader(":material/monitoring: 近期狀態變化")
+                st.caption("先看單一綜合分方向；分項變化收進下方明細，避免六條線同時爭奪注意力。")
                 _dim_map = {"composite": "綜合分", "fundamental": "基本面", "valuation": "估值",
                             "technical": "技術面", "momentum": "動能", "whale": "籌碼"}
-                _long = _hist.melt(id_vars="as_of",
-                                   value_vars=[c for c in _dim_map if c in _hist.columns],
-                                   var_name="_k", value_name="分數")
-                _long["項目"] = _long["_k"].map(_dim_map)
-                _order = [v for v in _dim_map.values()]
-                _base = alt.Chart(_long).encode(
+                _comp_hist = _hist[["as_of", "composite"]].dropna().copy()
+                _trend = alt.Chart(_comp_hist).mark_line(point=True, color="#2563EB", strokeWidth=3).encode(
                     x=alt.X("as_of:O", axis=alt.Axis(title=None, labelAngle=-40)),
-                    y=alt.Y("分數:Q", scale=alt.Scale(domain=[0, 100]), axis=alt.Axis(title=None)),
-                    color=alt.Color("項目:N", sort=_order,
-                                    scale=alt.Scale(domain=_order,
-                                                    range=["#C00000", "#4472C4", "#70AD47",
-                                                           "#ED7D31", "#7030A0", "#7F7F7F"]),
-                                    legend=alt.Legend(title=None, orient="top")),
-                    tooltip=["as_of", "項目", alt.Tooltip("分數:Q", format=".1f")])
-                _comp = _long[_long["_k"] == "composite"]
-                _trend = (
-                    _base.mark_line(point=True).encode(
-                        size=alt.condition("datum.項目 == '綜合分'", alt.value(3.0), alt.value(1.3)))
-                    .properties(height=260)
-                    + alt.Chart(_comp).mark_point(size=60, filled=True, color="#C00000")
-                      .encode(x="as_of:O", y="分數:Q"))
-                st.altair_chart(_trend, use_container_width=True)
-                st.caption("走勢來自每日 0-API 名單快取（TEJ 五維，與即時 FinMind 綜合分近乎一致）；"
-                           "僅涵蓋每日名單內個股，點數隨每日更新累積。")
+                    y=alt.Y("composite:Q", title="綜合分", scale=alt.Scale(domain=[0, 100])),
+                    tooltip=["as_of", alt.Tooltip("composite:Q", title="綜合分", format=".1f")]
+                ).properties(height=220)
+                st.altair_chart(_trend, width="stretch")
+                with st.expander("查看五維變化明細", icon=":material/table_chart:"):
+                    _latest = _hist.sort_values("as_of").tail(2)
+                    _changes = []
+                    if len(_latest) == 2:
+                        for key, label in _dim_map.items():
+                            if key in _latest.columns:
+                                _changes.append({"項目": label,
+                                                 "目前": round(float(_latest.iloc[-1][key]), 1),
+                                                 "較前次": round(float(_latest.iloc[-1][key] - _latest.iloc[-2][key]), 1)})
+                    st.dataframe(pd.DataFrame(_changes), hide_index=True, width="stretch")
+                st.caption("走勢來自每日名單快取，僅供觀察舊綜合分變化，不參與上方正式決策狀態。")
             elif _hist is not None and len(_hist) == 1:
                 st.caption("📈 此檔在每日名單內但目前只有 1 個歷史分數點，連續走勢待每日更新累積。")
             st.divider()
@@ -1271,149 +1410,9 @@ with tab_rank:
             prog.progress((i + 1) / len(codes))
         if rows:
             rows.sort(key=lambda x: x["綜合分"], reverse=True)
-            st.dataframe(rows, use_container_width=True, hide_index=True)
+            st.dataframe(rows, width="stretch", hide_index=True)
         else:
             st.warning("沒有可用結果。")
-
-# ------------------------------------------------------------------ 綜合分選股 (讀 scores 快取)
-with tab_screen:
-    st.caption(
-        "從已建好的 **scores 快取**,對整個名單依五維綜合分跨股排名 —— 0 API、瞬間出。"
-        "先在專案根目錄跑 `python build_cache.py --build-scores` 建/更新快取;"
-        "排名依左側選的『策略模式』(三個模式各自一套分數)。")
-
-    if st.button("↻ 重新載入快取",
-                 help="剛在終端機跑完 --build-scores 後按這裡,讓網頁抓最新的 scores"):
-        st.cache_data.clear()
-        st.rerun()
-
-    info = get_universe_info(mode)
-    if info is None:
-        st.warning(
-            f"目前沒有「{MODE_LABELS[mode]}」模式的 scores 快取。\n\n"
-            "請先在專案根目錄執行:\n\n"
-            "```\n"
-            "python build_cache.py --build-scores            # 建三個模式\n"
-            f"python build_cache.py --build-scores --modes {mode}   # 只建這個模式\n"
-            "```\n"
-            "建好後回來按上面的「重新載入快取」。")
-    else:
-        st.markdown(
-            f"名單共 **{info['stocks']}** 檔　｜　最新基準日 **{info['as_of']}**　｜　"
-            f"權重版本 `{info['weights_version']}`　"
-            "<span style='color:inherit;opacity:.65'>(排名只在此名單內相對比較)</span>",
-            unsafe_allow_html=True)
-
-        # 日期回顧:預設「最新」(每檔取各自最新一筆);選歷史某日則鎖定該 as_of 快照比對
-        _screen_dates = get_as_of_dates(mode)
-        _LATEST = "最新（每檔最新一筆）"
-        _date_opts = [_LATEST] + _screen_dates[::-1] if _screen_dates else [_LATEST]
-        _spick = st.selectbox("資料日(日期回顧)", _date_opts, index=0,
-                              help="事後核對某一天的綜合分 Top 名單用;預設『最新』與過去慣用行為相同,"
-                                   "可切到歷史某一交易日,與『雙確認精選/全市場掃描』同日對照。")
-
-        f1, f2, f3 = st.columns(3)
-        default_min = int(ScoringManager.MODES[mode]["min_score"])
-        min_comp = f1.slider("綜合分下限", 0, 100, default_min,
-                             help=f"預設 = 此模式門檻 min_score ({default_min})")
-        min_conf = f2.slider("資料信心下限 (%)", 0, 100, 0)
-        top = f3.slider("顯示檔數", 5, 100, 30)
-        ratings = st.multiselect("限定評級 (不選 = 全部)", list(RATING_STYLE.keys()), default=[])
-
-        if _spick == _LATEST:
-            df = screen_universe(mode, min_comp, tuple(ratings), min_conf, top)
-        else:
-            df = screen_universe_at(_spick, mode, min_comp, tuple(ratings), min_conf, top)
-            st.caption(f"📅 日期回顧:顯示 **{_spick}** 當日快照的排名 (非最新);"
-                       "與『雙確認精選/全市場掃描』切到同一天即可三邊對照。")
-        # 名稱回填:舊快取的 name 欄可能等於代號 → 先用 TEJ 全市場對照 (2,400+ 檔),
-        # 再讓 watchlist.txt 的自訂股名覆蓋 (例 2330 → 台積電)。
-        if df is not None and not df.empty and "stock_id" in df.columns and "name" in df.columns:
-            _nmap = {**tej_stock_names(), **watchlist_names()}
-            if _nmap:
-                df = df.copy()
-                df["name"] = [_nmap.get(str(sid), nm) for sid, nm in zip(df["stock_id"], df["name"])]
-        if df is None or df.empty:
-            st.info("沒有符合條件的個股 —— 放寬門檻或評級再試。")
-        else:
-            # ---- 整體推薦 Top 10:收斂視圖 (理由 + main.py 同款交易計畫) ----
-            # 兩道推薦閘門 (完整名單不篩,下方表格照列):
-            #   1. 可行動評級:只留『強勢買進 / 強烈推薦』——『觀望追蹤』是訊號不足/偏貴先看不買,
-            #      不該當推薦第一名 (如豐祥昂貴、新紡動能弱皆為觀望追蹤)。
-            #   2. 法人淨買確認:排除法人沒在買的檔 (whale 維市值中性、薄量股會失真,如 1256/新紡)。
-            _ACTIONABLE = ("強勢買進", "強烈推薦")
-            _inst_col = "inst_participation" in df.columns and df["inst_participation"].notna().any()
-            _reco = df[df["rating"].isin(_ACTIONABLE)] if "rating" in df.columns else df
-            _rating_held = len(df) - len(_reco)
-            if _inst_col:
-                _reco = _reco[_reco.apply(_inst_buying, axis=1)]
-            _inst_held = len(df) - _rating_held - len(_reco)
-            st.markdown("#### 🎯 整體推薦 Top 10（可行動評級＋法人淨買確認，含理由與價位參考）")
-            _has_plan = "atr" in df.columns and df["atr"].notna().any()
-            if not _has_plan:
-                st.caption("ℹ️ 目前 scores 快取尚未含價量結構欄位 → 交易計畫顯示為『資料不足』。"
-                           "請在專案根目錄重跑 `python build_cache.py --build-scores` 後按上方『重新載入快取』。")
-            if _rating_held or (_inst_col and _inst_held):
-                st.caption(f"🛡️ 已從推薦排除:{_rating_held} 檔非可行動評級 (觀望追蹤/謹慎避開)"
-                           + (f"、{_inst_held} 檔法人沒在買 (占比 <{_INST_MIN_PARTICIPATION:.0f}% 或無吸籌持續性)"
-                              if _inst_col else "")
-                           + "。完整名單仍列於下方。")
-            for _i, (_, _r) in enumerate(_reco.head(10).iterrows(), 1):
-                _nm = _r.get("name", "") or _r.get("stock_id", "")
-                _extra = (f"綜合分 <b>{float(_r['composite']):.1f}</b>"
-                          f"（名單百分位 {float(_r.get('pct_rank', 0)):.0f}）")
-                _reason = _reason_line_screen(_r)
-                _inote = _inst_note(_r)
-                if _inote:
-                    _reason = f"{_reason}　🏦 {_inote}" if _reason else f"🏦 {_inote}"
-                _render_reco_card(_i, _r.get("stock_id", ""), _nm, _r.get("rating", ""),
-                                  _extra, _reason, _trade_plan_lines_from_row(_r))
-                st.divider()
-            st.caption("上表為『可行動評級 (強勢買進/強烈推薦) 且 法人淨買確認』中綜合分最高的前 10。"
-                       "法人確認用原始法人占比/連買/淨流向 (非 whale 維,後者市值中性、薄量股會失真)；"
-                       "交易計畫為規則換算的價位參考、非投資建議。")
-            st.markdown("##### 完整名單")
-
-            # 法人淨買標記 (供完整名單一眼辨識推薦是否被閘門擋下)
-            if _inst_col:
-                df = df.copy()
-                df["法人淨買"] = ["✅" if _inst_buying(r) else "—" for _, r in df.iterrows()]
-            # 缺漏資料欄:空 = 資料齊 (顯示 ✅),有值 = 缺哪些 (信心也已對應扣分)
-            if "data_gaps" in df.columns:
-                df["缺漏資料"] = ["✅ 齊" if not str(g or "").strip() else str(g)
-                                  for g in df["data_gaps"]]
-            disp = df.rename(columns={
-                "stock_id": "代號", "name": "名稱", "as_of": "基準日",
-                "composite": "綜合分", "pct_rank": "百分位",
-                "rating": "評級", "fundamental": "基本面", "valuation": "估值",
-                "technical": "技術", "momentum": "動能", "whale": "籌碼",
-                "valuation_status": "估值狀態", "data_confidence": "信心",
-                "dyn_weight": "動態權重",
-                "inst_participation": "法人占比%", "foreign_flow": "外資淨買(張)",
-                "trust_flow": "投信淨買(張)", "foreign_buy_days": "外資連買",
-                "trust_buy_days": "投信連買",
-            })
-            for col in ("基本面", "估值", "技術", "動能", "籌碼", "法人占比%",
-                        "外資淨買(張)", "投信淨買(張)"):
-                if col in disp.columns:
-                    disp[col] = disp[col].round(0)
-            if "綜合分" in disp.columns:
-                disp["綜合分"] = disp["綜合分"].round(1)
-            order = ["代號", "名稱", "評級", "綜合分", "百分位",
-                     "基本面", "估值", "技術", "動能", "籌碼",
-                     "法人淨買", "法人占比%", "外資淨買(張)", "投信淨買(張)",
-                     "外資連買", "投信連買",
-                     "估值狀態", "信心", "缺漏資料", "動態權重", "基準日"]
-            disp = disp[[c for c in order if c in disp.columns]]
-            st.dataframe(disp, use_container_width=True, hide_index=True)
-            st.download_button(
-                "⬇️ 下載結果 (CSV)",
-                data=disp.to_csv(index=False).encode("utf-8-sig"),
-                file_name=f"screen_{mode}_{info['as_of']}.csv",
-                mime="text/csv")
-            st.caption("綜合分 = 五維加權;百分位 = 該檔綜合分在此名單內的橫斷面排名 (越高越前)。"
-                       "信心 = 資料完整度 (原始資料集每缺一類 −8、估值鏡頭每缺一角 −5);"
-                       "『缺漏資料』標出實際缺哪些 (齊全顯示 ✅)。此頁純讀快取。")
 
 # ------------------------------------------------------------------ 全市場掃描
 _UNIV_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs", "universe_pool")
@@ -1425,6 +1424,44 @@ _ARMS = {"value_ind_pct_pool_pct": "便宜", "momentum20_pool_pct": "動能",
 @st.cache_data(show_spinner=False)
 def _univ_load(path: str) -> pd.DataFrame:
     return pd.read_csv(path, dtype={"stock_id": str}).set_index("stock_id")
+
+
+# --- 訊號可信度(scripts/signal_integrity_audit.py 的凍結輸出) ---
+#   這一欄回答的是「這檔的分數建立在有效輸入上嗎」,**不是**「這檔值不值得買」。
+#   專案已五度量到「在雙確認交集內再排序」是負值(TOP15 H4 否定、產業上限、
+#   低波排除、流動性門檻 V1、技術指標負IC機制檢驗),因此本欄:
+#     - 不進 _sort_options(不得用它排序,排序會讓旗標退化成推薦順位)
+#     - 不參與任何權重、不影響等權目標、不進 L4a
+#   查不到稽核資料一律顯示「未稽核」而非留白或打勾——沒跑過的檢查不能長得像通過。
+_INTEGRITY_ICON = {"HIGH": "🔴", "MED": "🟡", "LOW": "⚪"}
+_INTEGRITY_DESC = {
+    "X0": "稽核資料缺漏", "R0": "營收基期無法驗證", "R1": "營收基期塌陷",
+    "L1": "c2 腿缺失(分數為部分平均)", "R2": "營收資料過期",
+    "V1": "PE 分位樣本薄", "H1": "52週窗不足",
+    "A1": "ADV20 被單日撐起", "P1": "近期缺交易日",
+}
+
+
+@st.cache_data(show_spinner=False)
+def _signal_integrity(as_of: str) -> dict:
+    """{stock_id: 顯示字串}。無稽核檔回傳 {},由呼叫端標示「未稽核」。"""
+    import glob as _g
+    cands = [os.path.join(_UNIV_DIR, f"signal_integrity_{as_of}.csv"),
+             os.path.join(os.path.dirname(os.path.abspath(__file__)), "cloud_cache",
+                          "UniversePool", f"signal_integrity_{as_of}.csv")]
+    path = next((p for p in cands if os.path.exists(p)), None)
+    if path is None:
+        return {}
+    df = pd.read_csv(path, dtype={"stock_id": str}, encoding="utf-8-sig")
+    if not {"stock_id", "severity", "flags"} <= set(df.columns):
+        return {}
+    # 無旗標的列 flags 是 NaN,而 `nan or ""` 會回傳 nan(NaN 是 truthy)——
+    # 必須用 isna 判,否則乾淨的股票會印成「⚠ nan」。
+    out = {}
+    for sid, sev, flags in zip(df["stock_id"], df["severity"], df["flags"]):
+        flags = "" if pd.isna(flags) else str(flags).strip()
+        out[str(sid)] = "✅" if not flags else f"{_INTEGRITY_ICON.get(sev, '⚠')} {flags}"
+    return out
 
 
 @st.cache_data(show_spinner=False)
@@ -1468,6 +1505,58 @@ def _univ_price_hist(sid: str, as_of: str) -> pd.DataFrame:
         return pd.DataFrame()
     d = d[d["date"] <= as_of].sort_values("date")
     return d.rename(columns={"Trading_Volume": "volume"})
+
+
+@st.cache_data(show_spinner=False)
+def _univ_day_changes(sids: tuple, as_of: str) -> dict:
+    """當日收盤相對前一交易日收盤的漲跌幅；只讀本機 TEJ 種子與官方快照。"""
+    import glob as _g
+
+    wanted = {str(sid) for sid in sids}
+    parts = []
+    for sid in wanted:
+        hist = _univ_price_hist(sid, as_of)
+        if not hist.empty:
+            tail = hist.tail(2)[["date", "close"]].copy()
+            tail["stock_id"] = sid
+            parts.append(tail)
+
+    snapshot_files = []
+    for path in _g.glob(os.path.join(_UNIV_SNAP, "*.parquet")):
+        date_text = os.path.splitext(os.path.basename(path))[0]
+        if date_text <= as_of:
+            snapshot_files.append(path)
+    for path in sorted(snapshot_files)[-2:]:
+        try:
+            snap = pd.read_parquet(path, columns=["stock_id", "date", "close"])
+        except Exception:
+            continue
+        snap["stock_id"] = snap["stock_id"].astype(str)
+        parts.append(snap[snap["stock_id"].isin(wanted)])
+
+    if not parts:
+        return {}
+    prices = pd.concat(parts, ignore_index=True)
+    prices["stock_id"] = prices["stock_id"].astype(str)
+    prices["date_text"] = prices["date"].astype(str).str[:10]
+    prices["close"] = pd.to_numeric(prices["close"], errors="coerce")
+    prices = prices[
+        prices["stock_id"].isin(wanted)
+        & prices["date_text"].le(as_of)
+        & prices["close"].notna()
+    ].sort_values(["stock_id", "date_text"])
+    prices = prices.drop_duplicates(["stock_id", "date_text"], keep="last")
+
+    out = {}
+    for sid, stock_prices in prices.groupby("stock_id", sort=False):
+        stock_prices = stock_prices.tail(2)
+        if len(stock_prices) < 2 or stock_prices.iloc[-1]["date_text"] != as_of:
+            continue
+        previous = float(stock_prices.iloc[-2]["close"])
+        current = float(stock_prices.iloc[-1]["close"])
+        if previous > 0:
+            out[sid] = (current / previous - 1.0) * 100.0
+    return out
 
 
 def _univ_trade_plans(sids: tuple, as_of: str, closes: tuple) -> dict:
@@ -1553,158 +1642,46 @@ def _univ_coarse_note(row) -> str:
     return f"位置參考：{base}。精確進場/停損/目標請把代號貼到『個股分析』深評。"
 
 
-with tab_univ:
-    import glob as _glob
-    _files = sorted(_glob.glob(os.path.join(_UNIV_DIR, "shortlist_*.csv")))
-    if not _files:   # 雲端部署沒有 outputs/ → 退回 repo 內的 cloud_cache 快照
-        _files = sorted(_glob.glob(os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "cloud_cache", "UniversePool",
-            "shortlist_*.csv")))
-    if not _files:
-        st.info("找不到 shortlist 檔案。此分頁讀本機每日粗篩產出 (`outputs/universe_pool/`),"
-                "由排程 Market_SnapshotCollector 每早自動生成;歷史可用 "
-                "`python scripts/universe_screen_backfill.py` 回補。")
-    else:
-        _dates = [os.path.basename(f)[10:-4] for f in _files]
-        _pick = st.selectbox("資料日", _dates[::-1], index=0)
-        _f = _files[_dates.index(_pick)]
-        _df_raw = _univ_load(_f)
-        _rc = "c2_score" if "c2_score" in _df_raw.columns else "composite"   # 舊檔無 c2_score 回退
-        _df = _df_raw.sort_values(_rc, ascending=False)
-        _streaks = _univ_streaks(tuple(_files[: _dates.index(_pick) + 1][-40:]))
-
-        _data_dir = os.path.dirname(_f)
-        _pool_f = os.path.join(_data_dir, f"pool_{_pick}.csv")
-        if os.path.exists(_pool_f):
-            _p1 = pd.read_csv(_pool_f, nrows=1)
-            if "bear_regime" in _p1.columns and bool(_p1["bear_regime"].iloc[0]):
-                st.warning("⚠️ 市場 regime:空頭 —— 歷史上此狀態 shortlist 超額為負,參考性降低"
-                           " (詳見 DevLog §16-D)。")
-
-        _df["來源臂"] = ["+".join(lbl for c, lbl in _ARMS.items()
-                                   if c in _df.columns and pd.notna(_df.loc[i, c]) and _df.loc[i, c] > 85)
-                         for i in _df.index]
-        _df["連續在榜"] = [_streaks.get(i, 1) for i in _df.index]
-        _prev_idx = _dates.index(_pick) - 1
-        _new50 = set(_df.head(50).index)
-        if _prev_idx >= 0:
-            _prev_df = _univ_load(_files[_prev_idx])
-            _prev_rc = "c2_score" if "c2_score" in _prev_df.columns else "composite"
-            _new50 -= set(_prev_df.sort_values(_prev_rc, ascending=False).head(50).index)
-
-        # 便宜臂旗 / 新進旗 (供表格與面板共用)
-        _df["陷阱旗"] = [_cheap_trap_flag(a) for a in _df["來源臂"]]
-        _df["新進"] = ["🆕" if i in _new50 else "" for i in _df.index]
-
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("shortlist 檔數", len(_df))
-        c2.metric("新進前 50", len(_new50))
-        c3.metric("連續在榜 ≥5 天", int((_df["連續在榜"] >= 5).sum()))
-        c4.metric("歷史資料天數", len(_files))
-
-        # ---- 整體推薦 Top 10 (依 C2 排序分;理由 + 交易計畫) ----
-        # 純便宜修正 (Part 4 實證『便宜單臂 −2~−3%』):Top-10 資格閘 —— 排除『僅便宜臂』,
-        # 且要求一條確認腿 (營收未衰退 revenue_yoy>0,或掛 ≥2 條臂)。只篩推薦卡,完整表格不動。
-        def _arm_count(a) -> int:
-            return len([x for x in str(a or "").split("+") if x])
-        _yoy = pd.to_numeric(_df["revenue_yoy"], errors="coerce") if "revenue_yoy" in _df.columns \
-            else pd.Series(index=_df.index, dtype=float)
-        _eligible = (_df["陷阱旗"] != "僅便宜臂") & (
-            (_yoy > 0) | (_df["來源臂"].apply(_arm_count) >= 2))
-        _held = int((~_eligible).sum())
-        st.markdown(f"#### 🌐 整體推薦 Top 10（依 {'C2排序分' if _rc == 'c2_score' else 'composite'}，含理由與價位）")
-        _top10 = _df[_eligible].head(10)
-        if _held:
-            st.caption(f"🛡️ 已從推薦排除 {_held} 檔『純便宜/無確認腿』候選（仍列於下方完整表格）："
-                       "進榜需非僅便宜臂，且營收未衰退或另掛第二條臂。")
-        _local = _has_local_price_cache()
-        _plans = (_univ_trade_plans(tuple(_top10.index), _pick,
-                                    tuple(_top10["close"] if "close" in _top10 else []))
-                  if _local else {})
-        if _local:
-            st.caption(f"✅ 本機價格快取可用：Top-10 現算完整價位（0 API，量價結構來自 TEJ 日線；"
-                       f"其中 {len(_plans)}/{len(_top10)} 檔有足量歷史，其餘退粗略讀）。")
-        else:
-            st.caption("ℹ️ 未偵測到本機價格快取（雲端）：Top-10 顯示粗略位置判讀；精確價位請把代號貼到"
-                       "『個股分析』深評。")
-        for _i, (_sid, _r) in enumerate(_top10.iterrows(), 1):
-            _nm = _r.get("name", "")
-            _tags = " ".join(t for t in (_r.get("新進", ""),
-                                         ("⚠️" + _r["陷阱旗"] if _r.get("陷阱旗") else "")) if t)
-            _extra = f"{_rc_label(_rc)} <b>{float(_r[_rc]):.1f}</b>　{_tags}"
-            _plan_lines = _plans.get(_sid)
-            if not _plan_lines:                       # 雲端 / 本機抓不到 → 粗略位置讀
-                _plan_lines = [_univ_coarse_note(_r)]
-            _render_reco_card(_i, _sid, _nm, "", _extra, _univ_reason(_r), _plan_lines)
-            st.divider()
-        st.caption("排序=C2排序分（產業內估值+營收YoY+52週高−動能，寬池六時代IC全正）；推薦已排除"
-                   "『僅便宜臂且無確認腿』（Part 4 實證便宜單臂相對落後 −2~−3%）；⚠️含便宜臂=仍帶便宜腿但另有強臂；"
-                   "🆕=今日新進。此頁為分流參考、非投組。")
-
-        _arm_sel = st.multiselect("來源臂 (留空=全部)", list(_ARMS.values()), default=[])
-        _c1, _c2 = st.columns(2)
-        _streak_min = _c1.slider("連續在榜 ≥ N 天", 1, 20, 1)
-        _ind_sel = _c2.multiselect("產業 (留空=全部)",
-                                    sorted(_df["industry"].dropna().unique()) if "industry" in _df.columns else [])
-
-        _v = _df
-        if _arm_sel:
-            _v = _v[_v["來源臂"].apply(lambda a: any(x in a for x in _arm_sel))]
-        _v = _v[_v["連續在榜"] >= _streak_min]
-        if _ind_sel and "industry" in _v.columns:
-            _v = _v[_v["industry"].isin(_ind_sel)]
-
-        _cols = [c for c in ("name", "industry", "close", _rc, "composite",
-                              "新進", "來源臂", "陷阱旗", "連續在榜",
-                              "value_ind_pct", "revenue_yoy", "high52_prox", "momentum20",
-                              "chip20_turnover", "rev_accel", "adv20") if c in _v.columns]
-        _disp = _v[_cols].sort_values(_rc, ascending=False).rename(columns={
-            "name": "名稱", "industry": "產業", "close": "收盤",
-            "c2_score": "C2排序分", "composite": "舊5F(對照)",
-            "value_ind_pct": "產業內便宜", "revenue_yoy": "營收YoY",
-            "momentum20": "20日動能%", "chip20_turnover": "法人流向",
-            "high52_prox": "距52週高%", "rev_accel": "營收加速", "adv20": "20日均額"})
-        st.dataframe(_disp.round(2), use_container_width=True, height=520)
-        _new_rows = _df.loc[sorted(_new50)]
-        if len(_new_rows):
-            st.markdown(f"#### 🆕 今日新進 {'C2排序分' if _rc == 'c2_score' else 'composite'} 前 50")
-            st.dataframe(_new_rows[_cols].rename(columns={
-                "name": "名稱", "industry": "產業", "c2_score": "C2排序分",
-                "composite": "舊5F(對照)"}).round(2),
-                         use_container_width=True)
-        _digest_f = os.path.join(_data_dir, f"digest_{_pick}.md")
-        if os.path.exists(_digest_f):
-            with st.expander("📄 當日文字摘要 (digest)"):
-                st.markdown(open(_digest_f, encoding="utf-8").read())
-        st.caption("資料=TWSE/TPEx 官方快照+TEJ 種子 (0 FinMind);L0-L2 粗篩後五因子聯集圈人,"
-                   "排序=C2排序分 (產業內估值+營收YoY+52週高點−20日動能,寬池驗證六時代IC全正,"
-                   "見 DevLog §19);舊5F(對照)為聯集用的召回因子平均,寬池排序力≈0僅供對照。"
-                   "**分流參考,非投組**;個股請至『個股分析』深評。")
-        st.caption("『連續在榜』是顯示用、**不是驗證過的訊號**:Part 4 回測 (streak_return_lab) 顯示"
-                   "在榜天數對相對報酬幾乎無預測力 (excess t<1.4),越久≠越好也≠越差,排序請看 C2 而非榜齡。"
-                   "詳見『使用說明 → 連續在榜越久越好嗎?』。")
-
-# ------------------------------------------------------------------ 雙確認精選 (c2 ∩ 綜合分)
-_FUSION_PCT = 20   # 各取前 N%%;回測甜蜜點 (regime_switch_lab):全期 excess +1.04%/月 t5.3、~25檔、2022不翻車
+# ------------------------------------------------------------------ 雙確認模型投組 (c2 ∩ 綜合分)
+# 回測數字來源 2026-08-09 更正:原本掛的是 regime_switch_lab 的 proxy 因子回測
+# (+1.04%/月 t5.3),跟下面驗證過的「雙確認 @ADV≥100萬」H1-H5 是兩份不同的回測、
+# 用替身因子算的,不是同一個東西。已換成 docs/預註冊_雙確認ADV100萬.md §7.1 的
+# 真身數字。MDD 與 regime 揭露另見下方 caption。
+_FUSION_PCT = 20   # 各取前 N%,對應已驗證的 dual100(real_composite Top20% ∩ c2 Top20%)
 with tab_fusion:
-    st.markdown("### ✨ 雙確認精選（全市場掃描 c2 × 綜合分 同時看好）")
+    st.markdown("### 雙確認模型投組")
     st.caption(
-        f"同時落在『c2 前 {_FUSION_PCT}%』且『綜合分前 {_FUSION_PCT}%』的股 —— 兩套**幾乎獨立**(排序相關 +0.18、"
-        f"名單重疊僅 12%) 的視角一致認可。回測 (2005-2026,proxy):全期 excess **+1.04%/月 (t5.3)**、"
-        f"多頭 +1.36%;因 c2 認可自動濾掉純動能股,**2022 空頭不像純綜合分翻車**。"
-        f"⚠️ 集中約 20-30 檔、高信心高波動;**分流參考、非投資建議**。")
+        f"同時落在『c2 前 {_FUSION_PCT}%』且『綜合分前 {_FUSION_PCT}%』的完整交集。"
+        f"已驗證的是**完整等權投組、月底收盤產生訊號、次一交易日開盤執行**，不是由上到下的個股推薦。"
+        f"**已驗證回測(H1–H5 全過,`dual100`,真身分數,ADV≥100萬,平均約 48 檔,月頻換股)**:"
+        f"OOS(2010+) CAGR **22.79%** / 夏普 **1.20**(同期 0050 買進持有:16.52% / 0.86)。"
+        f"⚠️ **回撤也大**:OOS 期間 MDD **−33.7%**,全期(含 2005-2009)MDD 深至 **−68~−70%**——"
+        f"比 0050 全期 MDD(−52.9%)深很多,這是本策略的真實代價,不是顯示錯誤。"
+        f"⚠️ 排序權重**含市場燈號(regime)自動調整**(2019 年後生效,已測過拿掉沒有顯著幫助),"
+        f"不是純靜態選股。"
+        f"⚠️ **本頁即時名單與上述回測口徑接近但不完全相同**(c2 取樣池已對齊 ADV≥100萬全池,"
+        f"2026-08-10 起;綜合分母體是人工維護的觀察名單,不是逐日 ADV 篩選;估值窗與籌碼資料源"
+        f"仍是研究與 live 兩套定義,尚未對齊),回測數字是「這套選股邏輯驗證過的樣子」,不是這份即時清單"
+        f"逐日重現的績效保證。"
+        f"⚠️ 本頁可回看每日資料，但非月底日期只屬觀察快照；正式交易仍須以 L4a 產生的 OrderIntent 為準。"
+        f"**研究與投組管理用途、非投資建議**。")
     import glob as _gf
-    _pf = sorted(_gf.glob(os.path.join(_UNIV_DIR, "pool_*.csv"))) or \
+    # c2 百分位一律讀 c2_fullpool_{date}.csv(2026-08-10 起):ADV≥100萬、無 L0/L2 過濾,
+    # 對齊 docs/預註冊_雙確認ADV100萬.md 驗證用的母體定義。舊 pool_{date}.csv 的 c2_score
+    # 是在粗篩後的窄池(L0/L1/L2,預設 ADV≥1000萬)內排的,不是同一個母體,不再用於此分頁。
+    _pf = sorted(_gf.glob(os.path.join(_UNIV_DIR, "c2_fullpool_*.csv"))) or \
         sorted(_gf.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                     "cloud_cache", "UniversePool", "pool_*.csv")))
-    _pool_dates = [os.path.basename(f)[5:-4] for f in _pf]           # pool_{date}.csv
+                                     "cloud_cache", "UniversePool", "c2_fullpool_*.csv")))
+    _pool_dates = [os.path.basename(f)[12:-4] for f in _pf]          # c2_fullpool_{date}.csv
     _score_dates = set(score_store.as_of_dates(mode))
     _fusion_dates = [d for d in _pool_dates if d in _score_dates]     # 兩邊當天都有資料才能比對
 
     if not _pf:
-        st.info("找不到 pool_*.csv (c2 來源)。由每日粗篩產出,可用 universe_screen_backfill.py 回補。")
+        st.info("找不到 c2_fullpool_*.csv(c2 全池來源)。由每日粗篩產出"
+                "(`scripts/universe_screen_daily.py`,2026-08-10 起新增此輸出),"
+                "舊資料日尚無此檔需重跑補產。")
     elif not _fusion_dates:
-        st.info("找不到『pool 快照』與『綜合分 scores』同一天都有資料的日期,無法比對。"
+        st.info("找不到『c2 全池快照』與『綜合分 scores』同一天都有資料的日期,無法比對。"
                 "先跑 `python build_cache.py --build-scores` 補齊綜合分快取。")
     else:
         _fpick = st.selectbox("資料日(日期回顧)", _fusion_dates[::-1], index=0,
@@ -1713,105 +1690,567 @@ with tab_fusion:
         _pool = pd.read_csv(_pf[_pool_dates.index(_fpick)], dtype={"stock_id": str})
         if _dfc is None or _dfc.empty:
             st.info("該日綜合分快取為空,無法比對。")
-        elif "c2_score" not in _pool.columns:
-            st.info("pool 檔無 c2_score (舊格式);請重跑 scripts/universe_screen_daily.py。")
+        elif "c2_score_full" not in _pool.columns:
+            st.info("c2_fullpool 檔缺 c2_score_full 欄;請重跑 scripts/universe_screen_daily.py。")
         else:
-            _pool["c2_pct"] = _pool["c2_score"].rank(pct=True) * 100.0
+            _pool["c2_pct"] = _pool["c2_score_full"].rank(pct=True) * 100.0
             _dfc = _dfc.copy()
             _dfc["c2_pct"] = _dfc["stock_id"].map(dict(zip(_pool["stock_id"], _pool["c2_pct"])))
             _thr = 100.0 - _FUSION_PCT
             _fus = _dfc[(_dfc["pct_rank"] >= _thr) & (_dfc["c2_pct"] >= _thr)].copy()
-            _fus = _fus.sort_values("composite", ascending=False)
+            _fus = _fus.sort_values("stock_id", ascending=True)
             _nmap = {**tej_stock_names(), **watchlist_names()}
             if _nmap and "name" in _fus.columns:
                 _fus["name"] = [_nmap.get(str(s), n) for s, n in zip(_fus["stock_id"], _fus["name"])]
-            # 閘門:可行動評級 + 法人淨買 (與綜合分頁一致)
-            _ACT = ("強勢買進", "強烈推薦")
-            _inst_ok = "inst_participation" in _fus.columns and _fus["inst_participation"].notna().any()
-            _reco = _fus[_fus["rating"].isin(_ACT)] if "rating" in _fus.columns else _fus
-            if _inst_ok:
-                _reco = _reco[_reco.apply(_inst_buying, axis=1)]
-            st.markdown(f"雙確認共 **{len(_fus)}** 檔（c2 前 {_FUSION_PCT}% ∩ 綜合分前 {_FUSION_PCT}%）；"
-                        f"再套可行動評級+法人淨買 → **{len(_reco)}** 檔可行動。")
-            if _reco.empty:
-                st.info("目前沒有『雙確認 + 可行動 + 法人在買』的個股 —— 空頭時常見(綜合分前段縮水),"
-                        "這時回歸『🌐 全市場掃描 c2』較穩。")
+
+            # 這個分頁是每日資料快照；dual100 的正式部署口徑是月底 close(t) 決策、
+            # 次一交易日 open(t+1) 執行。不得把日更名單或顯示排序冒充 OrderIntent。
+            _pool["stock_id"] = _pool["stock_id"].astype(str)
+            if "adv20" in _pool.columns:
+                _fus["adv20"] = _fus["stock_id"].map(dict(zip(_pool["stock_id"], _pool["adv20"])))
+            if "day_change_pct" in _pool.columns:
+                _fus["day_change_pct"] = _fus["stock_id"].map(
+                    dict(zip(_pool["stock_id"], _pool["day_change_pct"]))
+                )
             else:
-                for _i, (_, _r) in enumerate(_reco.head(15).iterrows(), 1):
-                    _nm = _r.get("name", "") or _r.get("stock_id", "")
-                    _extra = (f"綜合分 <b>{float(_r['composite']):.1f}</b>（前{100 - float(_r['pct_rank']):.0f}%）"
-                              f"　c2 前 {100 - float(_r['c2_pct']):.0f}%　🔁雙確認")
-                    _reason = _reason_line_screen(_r)
-                    _in = _inst_note(_r)
-                    if _in:
-                        _reason = f"{_reason}　🏦 {_in}" if _reason else f"🏦 {_in}"
-                    _render_reco_card(_i, _r.get("stock_id", ""), _nm, _r.get("rating", ""),
-                                      _extra, _reason, _trade_plan_lines_from_row(_r))
-                    st.divider()
-            # 完整雙確認名單
-            st.markdown("##### 完整雙確認名單")
+                # 舊 c2_fullpool 凍結件沒有此描述欄位；用同日官方快照/TEJ 價格回算。
+                _day_change_lookup = _univ_day_changes(
+                    tuple(_fus["stock_id"].astype(str)), _fpick
+                )
+                _fus["day_change_pct"] = _fus["stock_id"].map(_day_change_lookup)
+
+            # 流動性門檻 V1（2026-08-10）三個候選 20M/50M/100M 全未通過。
+            # 因此 20M 只能作為使用者指定的保守「紙上演練安全檢視」，不得改寫
+            # frozen dual100、不得送進 L4a，也不得繼承 baseline 的 H1-H5 數字。
+            _LIQUIDITY_PAPER_FLOOR = 20_000_000.0
+            _adv_numeric = pd.to_numeric(_fus.get("adv20"), errors="coerce")
+            _liq_paper_ok = _adv_numeric.ge(_LIQUIDITY_PAPER_FLOOR)
+            _liq_paper_excluded = ~_liq_paper_ok
+            _n_liq_excluded = int(_liq_paper_excluded.sum())
+
+            _price = pd.to_numeric(_fus.get("price"), errors="coerce")
+            _ma20 = pd.to_numeric(_fus.get("ma20"), errors="coerce")
+            _vah = pd.to_numeric(_fus.get("value_area_high"), errors="coerce")
+            _fus["ma20_gap_pct"] = ((_price / _ma20) - 1.0) * 100.0
+            _fus["vah_gap_pct"] = ((_price / _vah) - 1.0) * 100.0
+            if "rating" in _fus.columns:
+                _fus["condition_state"] = _fus["rating"].map(
+                    lambda value: RATING_DISPLAY.get(value, (value, ""))[0])
+
+            # 訊號可信度:唯讀旗標欄。刻意不進 _sort_options——可排序的旗標會退化成
+            # 推薦順位,而「在交集內再排序」已五度量到是負值(見 _signal_integrity 註解)。
+            _integrity = _signal_integrity(_fpick)
+            _fus["integrity"] = [_integrity.get(str(s), "未稽核") for s in _fus["stock_id"]]
+
+            _purpose = st.segmented_control(
+                "頁面用途",
+                ["紙上演練", "正式月頻"],
+                default="紙上演練",
+                key="dual_portfolio_purpose",
+                help="紙上演練可立即勾選個股做模擬；正式月頻只顯示 frozen 策略的月底執行口徑。",
+            )
+            _metrics = st.columns(4)
+            _metrics[0].metric("完整模型投組", f"{len(_fus)} 檔")
+            _metrics[1].metric("安全檢視可演練", f"{int(_liq_paper_ok.sum())} 檔")
+            _metrics[2].metric("安全檢視排除", f"{_n_liq_excluded} 檔")
+            _metrics[3].metric("目前用途", _purpose)
+            if _purpose == "紙上演練":
+                st.warning(
+                    f"安全檢視預設不讓 ADV20 低於 2,000 萬元或缺資料的 {_n_liq_excluded} 檔進入紙上演練。"
+                    "這是保守的執行限制，不是通過驗證的新策略；20M／50M／100M 三個版本均未通過完整關卡，"
+                    "因此不能引用原策略績效，也不會產生 OrderIntent。",
+                    icon=":material/shield:",
+                )
+            else:
+                st.info(
+                    "正式月頻保留 frozen dual100 完整投組。流動性 V1 的三個提高門檻版本全部未通過，"
+                    "所以目前不修改 L4a；低流動性股票會明確標示，但不假裝已有可部署的新規則。",
+                    icon=":material/calendar_month:",
+                )
+
+            _sort_options = {
+                "代號（中性預設）": ("stock_id", True),
+                "距20日均線較低（僅檢視）": ("ma20_gap_pct", True),
+                "距價值區上緣較低（僅檢視）": ("vah_gap_pct", True),
+                "流動性較高（僅檢視）": ("adv20", False),
+                "綜合分排名較前（僅核對）": ("pct_rank", False),
+                "c2排名較前（僅核對）": ("c2_pct", False),
+            }
+            _sort_label = st.selectbox(
+                "檢視排序",
+                list(_sort_options),
+                help="只改變表格顯示順序，不改變等權目標，也不代表推薦先後。",
+            )
+            _sort_col, _sort_asc = _sort_options[_sort_label]
+            _fus = _fus.sort_values(
+                _sort_col,
+                ascending=_sort_asc,
+                na_position="last",
+                kind="stable",
+            )
+
+            _table_source = _fus.loc[_liq_paper_ok].copy() if _purpose == "紙上演練" else _fus.copy()
+            st.markdown(
+                "##### 流動性安全演練清單" if _purpose == "紙上演練"
+                else "##### 完整雙確認研究投組"
+            )
+            if not _integrity:
+                st.caption(
+                    f":material/help: 「訊號可信度」欄未稽核——{_fpick} 尚無 "
+                    f"`signal_integrity_{_fpick}.csv`。產生：`python scripts/"
+                    f"signal_integrity_audit.py --as-of {_fpick}`。")
+            else:
+                # 計數用 _table_source(畫面上真的看得到的那些列),不用 _fus——
+                # 紙上演練模式表格只有 61 檔,拿 67 檔去數會讓標題跟畫面對不上。
+                _shown = _table_source["integrity"]
+                _n_unaudited = int((_shown == "未稽核").sum())
+                _n_flagged = int((~_shown.isin(["✅", "未稽核"])).sum())
+                st.caption(
+                    f":material/verified: 訊號可信度已稽核：本表 {len(_shown)} 檔中 "
+                    f"{_n_flagged} 檔被標記"
+                    + (f"、{_n_unaudited} 檔未稽核" if _n_unaudited else "")
+                    + "，其餘輸入健康。**被標記 ≠ 該賣，未標記 ≠ 該買**——"
+                    "這一欄只說明分數的輸入是否有效，不含任何報酬預期，也不是推薦順位。")
+                with st.expander("旗標定義"):
+                    st.markdown(
+                        "🔴 高：分數建立在無效或不完整的輸入上　"
+                        "🟡 中：輸入偏薄或偏舊　⚪ 低：執行面提醒\n\n"
+                        + "\n".join(f"- `{k}` {v}" for k, v in _INTEGRITY_DESC.items())
+                        + "\n\n來源：`scripts/signal_integrity_audit.py`（唯讀稽核，"
+                          "不改分數、不改 frozen strategy、不進 L4a）。")
             _fus["c2前%"] = (100.0 - _fus["c2_pct"]).round(0)
             _fus["綜合前%"] = (100.0 - _fus["pct_rank"]).round(0)
+            _table_source["c2前%"] = (100.0 - _table_source["c2_pct"]).round(0)
+            _table_source["綜合前%"] = (100.0 - _table_source["pct_rank"]).round(0)
+            if _purpose == "正式月頻":
+                _table_adv = pd.to_numeric(_table_source.get("adv20"), errors="coerce")
+                _table_source["liquidity_note"] = ""
+                _table_source.loc[_table_adv.isna(), "liquidity_note"] = "ADV資料不足"
+                _table_source.loc[
+                    _table_adv.notna() & _table_adv.lt(_LIQUIDITY_PAPER_FLOOR),
+                    "liquidity_note",
+                ] = "低於2,000萬"
             if "data_gaps" in _fus.columns:
                 _fus["缺漏"] = ["✅" if not str(g or "").strip() else str(g) for g in _fus["data_gaps"]]
-            _fd = _fus.rename(columns={
-                "stock_id": "代號", "name": "名稱", "composite": "綜合分", "rating": "評級",
-                "fundamental": "基本面", "valuation": "估值", "technical": "技術",
-                "momentum": "動能", "whale": "籌碼", "valuation_status": "估值狀態",
-                "data_confidence": "信心", "inst_participation": "法人占比%"})
-            for _c in ("綜合分", "基本面", "估值", "技術", "動能", "籌碼", "法人占比%"):
+            _fd = _table_source.rename(columns={
+                "stock_id": "代號", "name": "名稱", "price": "收盤價",
+                "integrity": "訊號可信度",
+                "condition_state": "條件狀態（參考）",
+                "day_change_pct": "當日漲跌%",
+                "ma20_gap_pct": "距20MA%",
+                "vah_gap_pct": "距價值區上緣%", "adv20": "ADV20（百萬）",
+                "liquidity_note": "流動性提示",
+                "composite": "綜合分", "data_confidence": "資料完整度"})
+            if "ADV20（百萬）" in _fd.columns:
+                _fd["ADV20（百萬）"] = pd.to_numeric(_fd["ADV20（百萬）"], errors="coerce") / 1_000_000.0
+            for _c in ("綜合分", "當日漲跌%", "距20MA%", "距價值區上緣%", "ADV20（百萬）"):
                 if _c in _fd.columns:
-                    _fd[_c] = _fd[_c].round(0 if _c != "綜合分" else 1)
-            _ford = ["代號", "名稱", "評級", "綜合分", "綜合前%", "c2前%",
-                     "基本面", "估值", "技術", "動能", "籌碼", "法人占比%",
-                     "估值狀態", "信心", "缺漏"]
+                    _fd[_c] = _fd[_c].round(1)
+            _ford = ["代號", "名稱", "訊號可信度", "收盤價", "當日漲跌%", "距20MA%",
+                     "距價值區上緣%", "ADV20（百萬）", "綜合前%", "c2前%", "條件狀態（參考）"]
+            if _purpose == "正式月頻":
+                _ford.insert(7, "流動性提示")
             _fd = _fd[[c for c in _ford if c in _fd.columns]]
-            st.dataframe(_fd, use_container_width=True, hide_index=True)
-            st.caption("雙確認 = c2(反動能/價值·全天候) 與 綜合分(順動能/品質·多頭強) 兩套獨立排序都進前段。"
-                       "回測甜蜜點取各前 20%(t 最穩、約 25 檔、2022 不翻車)。空頭時此名單會自然縮水 → "
-                       "回歸全市場掃描 c2。**非投資建議,個股請至『個股分析』深評。**")
+            _table_config = {
+                "代號": st.column_config.TextColumn("代號", pinned=True),
+                "名稱": st.column_config.TextColumn("名稱", pinned=True),
+                "訊號可信度": st.column_config.TextColumn(
+                    "訊號可信度",
+                    help="這檔的分數是不是建立在有效輸入上。不是報酬預測，也不是推薦順位。"),
+                "收盤價": st.column_config.NumberColumn("收盤價", format="%.2f"),
+                "當日漲跌%": st.column_config.NumberColumn("當日漲跌%", format="%+.1f%%"),
+                "距20MA%": st.column_config.NumberColumn("距20MA%", format="%+.1f%%"),
+                "距價值區上緣%": st.column_config.NumberColumn("距價值區上緣%", format="%+.1f%%"),
+                "ADV20（百萬）": st.column_config.NumberColumn("ADV20（百萬）", format="%.1f"),
+            }
+            if _purpose == "紙上演練":
+                st.caption("在表格左側勾選一檔或多檔，即可建立本次紙上演練清單。")
+                _table_event = st.dataframe(
+                    _fd,
+                    width="stretch",
+                    hide_index=True,
+                    column_config=_table_config,
+                    key=f"dual_paper_{_fpick}_{_sort_col}",
+                    on_select="rerun",
+                    selection_mode="multi-row",
+                )
+                _selected_rows = list(_table_event.selection.rows)
+                if _selected_rows:
+                    _paper = _fd.iloc[_selected_rows].copy()
+                    _paper.insert(0, "演練資料日", _fpick)
+                    _paper.insert(1, "演練限制", "ADV20>=2,000萬；未通過策略驗證")
+                    st.success(
+                        "已選擇 " + "、".join(
+                            f"{row['代號']} {row['名稱']}" for _, row in _paper.iterrows()
+                        )
+                    )
+                    st.download_button(
+                        ":material/download: 下載紙上演練清單",
+                        data=_paper.to_csv(index=False).encode("utf-8-sig"),
+                        file_name=f"dual100_paper_{_fpick}.csv",
+                        mime="text/csv",
+                        width="content",
+                    )
+            else:
+                st.dataframe(
+                    _fd,
+                    width="stretch",
+                    hide_index=True,
+                    column_config=_table_config,
+                )
+            if _n_liq_excluded:
+                with st.expander(
+                    f"查看安全檢視排除的 {_n_liq_excluded} 檔（仍屬 frozen 模型投組）",
+                    expanded=False,
+                ):
+                    _excluded = _fus.loc[_liq_paper_excluded, ["stock_id", "name", "adv20"]].copy()
+                    _excluded["adv20"] = pd.to_numeric(_excluded["adv20"], errors="coerce") / 1_000_000.0
+                    _excluded = _excluded.rename(
+                        columns={"stock_id": "代號", "name": "名稱", "adv20": "ADV20（百萬）"}
+                    ).sort_values("ADV20（百萬）", na_position="first")
+                    st.caption(
+                        "排除只作用於紙上演練安全檢視。因流動性門檻版本未通過研究關卡，"
+                        "這些股票沒有從 frozen 模型投組中被事後刪除。"
+                    )
+                    st.dataframe(
+                        _excluded,
+                        width="stretch",
+                        hide_index=True,
+                        column_config={
+                            "代號": st.column_config.TextColumn("代號", pinned=True),
+                            "ADV20（百萬）": st.column_config.NumberColumn("ADV20（百萬）", format="%.1f"),
+                        },
+                    )
+            st.caption(
+                "表格順序只是檢視方式，不是推薦順位。安全檢視犧牲部分模型持股以降低相對流動性尾端，"
+                "但它未通過策略驗證；只有原始月底完整交集、等權配置、次一交易日開盤執行有既有驗證。"
+            )
+            with st.container(border=True):
+                st.markdown("**什麼會改變目前狀態？**")
+                st.write(
+                    "月底正式重算後，個股若仍在完整交集，才進入 L4a 決策；若掉出交集，就不再屬於下一期目標。"
+                    "紙上演練另以 ADV20 2,000 萬做保守安全檢視；正式策略是否提高流動性門檻的 V1 研究已否定，"
+                    "所以目前只揭露風險，不把否定版本寫進 L4a。"
+                )
 
-# ------------------------------------------------------------------ 實戰演練
-_HOME = os.path.expanduser("~")
-_PLAN_TEJ = os.path.join(_HOME, "tej_cache", "price_valuation")
-_PLAN_SNAP = os.path.join(_HOME, "market_cache", "price_valuation_daily")
-_PLAN_0050 = os.path.join(_HOME, "finmind_cache", "TaiwanStockPrice", "0050.parquet")
+
+    st.divider()
+    with st.expander("📎 參考資料（非驗證過的選股建議，僅供對照／診斷）", expanded=False):
+        st.caption("下面兩個子分頁本身都**沒有**單獨通過驗證——綜合分單獨排序在 864-arm 掃描已被否定（2010年後沒有單一因子贏過0050），全市場掃描本來就是每日粗篩的分流參考池、不是投組。留著是給想深入對照個股、或想擴大觀察範圍的人用，**不是選股建議，真正驗證過的名單看上面**。")
+        ref_screen, ref_univ = st.tabs(["🎯 綜合分選股（參考）", "🌐 全市場掃描（參考）"])
+        with ref_screen:
+            st.info("⚠️ 這不是驗證過的選股建議——綜合分單獨排序（不搭配 c2 交集）在 864-arm 掃描中已被否定，2010 年後沒有一支單因子贏過 0050。這裡僅供查某支股票在綜合分排名中的相對位置，不建議直接依此買賣。")
+            st.caption(
+                "從已建好的 **scores 快取**,對整個名單依五維綜合分跨股排名 —— 0 API、瞬間出。"
+                "先在專案根目錄跑 `python build_cache.py --build-scores` 建/更新快取;"
+                "排名依左側選的『策略模式』(三個模式各自一套分數)。")
+
+            if st.button("↻ 重新載入快取",
+                         help="剛在終端機跑完 --build-scores 後按這裡,讓網頁抓最新的 scores"):
+                st.cache_data.clear()
+                st.rerun()
+
+            info = get_universe_info(mode)
+            if info is None:
+                st.warning(
+                    f"目前沒有「{MODE_LABELS[mode]}」模式的 scores 快取。\n\n"
+                    "請先在專案根目錄執行:\n\n"
+                    "```\n"
+                    "python build_cache.py --build-scores            # 建三個模式\n"
+                    f"python build_cache.py --build-scores --modes {mode}   # 只建這個模式\n"
+                    "```\n"
+                    "建好後回來按上面的「重新載入快取」。")
+            else:
+                st.markdown(
+                    f"名單共 **{info['stocks']}** 檔　｜　最新基準日 **{info['as_of']}**　｜　"
+                    f"權重版本 `{info['weights_version']}`　"
+                    "<span style='color:inherit;opacity:.65'>(排名只在此名單內相對比較)</span>",
+                    unsafe_allow_html=True)
+
+                # 日期回顧:預設「最新」(每檔取各自最新一筆);選歷史某日則鎖定該 as_of 快照比對
+                _screen_dates = get_as_of_dates(mode)
+                _LATEST = "最新（每檔最新一筆）"
+                _date_opts = [_LATEST] + _screen_dates[::-1] if _screen_dates else [_LATEST]
+                _spick = st.selectbox("資料日(日期回顧)", _date_opts, index=0,
+                                      help="事後核對某一天的綜合分 Top 名單用;預設『最新』與過去慣用行為相同,"
+                                           "可切到歷史某一交易日,與『雙確認投組/全市場掃描』同日對照。")
+
+                f1, f2, f3 = st.columns(3)
+                default_min = int(ScoringManager.MODES[mode]["min_score"])
+                min_comp = f1.slider("綜合分下限", 0, 100, default_min,
+                                     help=f"預設 = 此模式門檻 min_score ({default_min})")
+                min_conf = f2.slider("資料信心下限 (%)", 0, 100, 0)
+                top = f3.slider("顯示檔數", 5, 100, 30)
+                ratings = st.multiselect("限定評級 (不選 = 全部)", list(RATING_STYLE.keys()), default=[])
+
+                if _spick == _LATEST:
+                    df = screen_universe(mode, min_comp, tuple(ratings), min_conf, top)
+                else:
+                    df = screen_universe_at(_spick, mode, min_comp, tuple(ratings), min_conf, top)
+                    st.caption(f"📅 日期回顧:顯示 **{_spick}** 當日快照的排名 (非最新);"
+                               "與『雙確認投組/全市場掃描』切到同一天即可三邊對照。")
+                # 名稱回填:舊快取的 name 欄可能等於代號 → 先用 TEJ 全市場對照 (2,400+ 檔),
+                # 再讓 watchlist.txt 的自訂股名覆蓋 (例 2330 → 台積電)。
+                if df is not None and not df.empty and "stock_id" in df.columns and "name" in df.columns:
+                    _nmap = {**tej_stock_names(), **watchlist_names()}
+                    if _nmap:
+                        df = df.copy()
+                        df["name"] = [_nmap.get(str(sid), nm) for sid, nm in zip(df["stock_id"], df["name"])]
+                if df is None or df.empty:
+                    st.info("沒有符合條件的個股 —— 放寬門檻或評級再試。")
+                else:
+                    # ---- 整體推薦 Top 10:收斂視圖 (理由 + main.py 同款交易計畫) ----
+                    # 兩道推薦閘門 (完整名單不篩,下方表格照列):
+                    #   1. 可行動評級:只留『強勢買進 / 強烈推薦』——『觀望追蹤』是訊號不足/偏貴先看不買,
+                    #      不該當推薦第一名 (如豐祥昂貴、新紡動能弱皆為觀望追蹤)。
+                    #   2. 法人淨買確認:排除法人沒在買的檔 (whale 維市值中性、薄量股會失真,如 1256/新紡)。
+                    _ACTIONABLE = ("強勢買進", "強烈推薦")
+                    _inst_col = "inst_participation" in df.columns and df["inst_participation"].notna().any()
+                    _reco = df[df["rating"].isin(_ACTIONABLE)] if "rating" in df.columns else df
+                    _rating_held = len(df) - len(_reco)
+                    if _inst_col:
+                        _reco = _reco[_reco.apply(_inst_buying, axis=1)]
+                    _inst_held = len(df) - _rating_held - len(_reco)
+                    st.markdown("#### 🎯 整體推薦 Top 10（可行動評級＋法人淨買確認，含理由與價位參考）")
+                    _has_plan = "atr" in df.columns and df["atr"].notna().any()
+                    if not _has_plan:
+                        st.caption("ℹ️ 目前 scores 快取尚未含價量結構欄位 → 交易計畫顯示為『資料不足』。"
+                                   "請在專案根目錄重跑 `python build_cache.py --build-scores` 後按上方『重新載入快取』。")
+                    if _rating_held or (_inst_col and _inst_held):
+                        st.caption(f"🛡️ 已從推薦排除:{_rating_held} 檔非可行動評級 (觀望追蹤/謹慎避開)"
+                                   + (f"、{_inst_held} 檔法人沒在買 (占比 <{_INST_MIN_PARTICIPATION:.0f}% 或無吸籌持續性)"
+                                      if _inst_col else "")
+                                   + "。完整名單仍列於下方。")
+                    for _i, (_, _r) in enumerate(_reco.head(10).iterrows(), 1):
+                        _nm = _r.get("name", "") or _r.get("stock_id", "")
+                        _extra = (f"綜合分 <b>{float(_r['composite']):.1f}</b>"
+                                  f"（名單百分位 {float(_r.get('pct_rank', 0)):.0f}）")
+                        _reason = _reason_line_screen(_r)
+                        _inote = _inst_note(_r)
+                        if _inote:
+                            _reason = f"{_reason}　🏦 {_inote}" if _reason else f"🏦 {_inote}"
+                        _render_reco_card(_i, _r.get("stock_id", ""), _nm, _r.get("rating", ""),
+                                          _extra, _reason, _trade_plan_lines_from_row(_r))
+                        st.divider()
+                    st.caption("上表為『可行動評級 (強勢買進/強烈推薦) 且 法人淨買確認』中綜合分最高的前 10。"
+                               "法人確認用原始法人占比/連買/淨流向 (非 whale 維,後者市值中性、薄量股會失真)；"
+                               "交易計畫為規則換算的價位參考、非投資建議。")
+                    st.markdown("##### 完整名單")
+
+                    # 法人淨買標記 (供完整名單一眼辨識推薦是否被閘門擋下)
+                    if _inst_col:
+                        df = df.copy()
+                        df["法人淨買"] = ["✅" if _inst_buying(r) else "—" for _, r in df.iterrows()]
+                    # 缺漏資料欄:空 = 資料齊 (顯示 ✅),有值 = 缺哪些 (信心也已對應扣分)
+                    if "data_gaps" in df.columns:
+                        df["缺漏資料"] = ["✅ 齊" if not str(g or "").strip() else str(g)
+                                          for g in df["data_gaps"]]
+                    disp = df.rename(columns={
+                        "stock_id": "代號", "name": "名稱", "as_of": "基準日",
+                        "composite": "綜合分", "pct_rank": "百分位",
+                        "rating": "評級", "fundamental": "基本面", "valuation": "估值",
+                        "technical": "技術", "momentum": "動能", "whale": "籌碼",
+                        "valuation_status": "估值狀態", "data_confidence": "信心",
+                        "dyn_weight": "動態權重",
+                        "inst_participation": "法人占比%", "foreign_flow": "外資淨買(張)",
+                        "trust_flow": "投信淨買(張)", "foreign_buy_days": "外資連買",
+                        "trust_buy_days": "投信連買",
+                    })
+                    for col in ("基本面", "估值", "技術", "動能", "籌碼", "法人占比%",
+                                "外資淨買(張)", "投信淨買(張)"):
+                        if col in disp.columns:
+                            disp[col] = disp[col].round(0)
+                    if "綜合分" in disp.columns:
+                        disp["綜合分"] = disp["綜合分"].round(1)
+                    order = ["代號", "名稱", "評級", "綜合分", "百分位",
+                             "基本面", "估值", "技術", "動能", "籌碼",
+                             "法人淨買", "法人占比%", "外資淨買(張)", "投信淨買(張)",
+                             "外資連買", "投信連買",
+                             "估值狀態", "信心", "缺漏資料", "動態權重", "基準日"]
+                    disp = disp[[c for c in order if c in disp.columns]]
+                    st.dataframe(disp, width="stretch", hide_index=True)
+                    st.download_button(
+                        "⬇️ 下載結果 (CSV)",
+                        data=disp.to_csv(index=False).encode("utf-8-sig"),
+                        file_name=f"screen_{mode}_{info['as_of']}.csv",
+                        mime="text/csv")
+                    st.caption("綜合分 = 五維加權;百分位 = 該檔綜合分在此名單內的橫斷面排名 (越高越前)。"
+                               "信心 = 資料完整度 (原始資料集每缺一類 −8、估值鏡頭每缺一角 −5);"
+                               "『缺漏資料』標出實際缺哪些 (齊全顯示 ✅)。此頁純讀快取。")
+
+        with ref_univ:
+            st.info("⚠️ 這不是驗證過的選股建議——本頁是每日粗篩的分流參考池（shortlist），用來擴大觀察範圍，不是投資組合。")
+            import glob as _glob
+            _files = sorted(_glob.glob(os.path.join(_UNIV_DIR, "shortlist_*.csv")))
+            if not _files:   # 雲端部署沒有 outputs/ → 退回 repo 內的 cloud_cache 快照
+                _files = sorted(_glob.glob(os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "cloud_cache", "UniversePool",
+                    "shortlist_*.csv")))
+            if not _files:
+                st.info("找不到 shortlist 檔案。此分頁讀本機每日粗篩產出 (`outputs/universe_pool/`),"
+                        "由排程 Market_SnapshotCollector 每早自動生成;歷史可用 "
+                        "`python scripts/universe_screen_backfill.py` 回補。")
+            else:
+                _dates = [os.path.basename(f)[10:-4] for f in _files]
+                _pick = st.selectbox("資料日", _dates[::-1], index=0)
+                _f = _files[_dates.index(_pick)]
+                _df_raw = _univ_load(_f)
+                _rc = "c2_score" if "c2_score" in _df_raw.columns else "composite"   # 舊檔無 c2_score 回退
+                _df = _df_raw.sort_values(_rc, ascending=False)
+                _streaks = _univ_streaks(tuple(_files[: _dates.index(_pick) + 1][-40:]))
+
+                _data_dir = os.path.dirname(_f)
+                _pool_f = os.path.join(_data_dir, f"pool_{_pick}.csv")
+                if os.path.exists(_pool_f):
+                    _p1 = pd.read_csv(_pool_f, nrows=1)
+                    if "bear_regime" in _p1.columns and bool(_p1["bear_regime"].iloc[0]):
+                        st.warning("⚠️ 市場 regime:空頭 —— 歷史上此狀態 shortlist 超額為負,參考性降低"
+                                   " (詳見 DevLog §16-D)。")
+
+                _df["來源臂"] = ["+".join(lbl for c, lbl in _ARMS.items()
+                                           if c in _df.columns and pd.notna(_df.loc[i, c]) and _df.loc[i, c] > 85)
+                                 for i in _df.index]
+                _df["連續在榜"] = [_streaks.get(i, 1) for i in _df.index]
+                _prev_idx = _dates.index(_pick) - 1
+                _new50 = set(_df.head(50).index)
+                if _prev_idx >= 0:
+                    _prev_df = _univ_load(_files[_prev_idx])
+                    _prev_rc = "c2_score" if "c2_score" in _prev_df.columns else "composite"
+                    _new50 -= set(_prev_df.sort_values(_prev_rc, ascending=False).head(50).index)
+
+                # 便宜臂旗 / 新進旗 (供表格與面板共用)
+                _df["陷阱旗"] = [_cheap_trap_flag(a) for a in _df["來源臂"]]
+                _df["新進"] = ["🆕" if i in _new50 else "" for i in _df.index]
+
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("shortlist 檔數", len(_df))
+                c2.metric("新進前 50", len(_new50))
+                c3.metric("連續在榜 ≥5 天", int((_df["連續在榜"] >= 5).sum()))
+                c4.metric("歷史資料天數", len(_files))
+
+                # ---- 整體推薦 Top 10 (依 C2 排序分;理由 + 交易計畫) ----
+                # 純便宜修正 (Part 4 實證『便宜單臂 −2~−3%』):Top-10 資格閘 —— 排除『僅便宜臂』,
+                # 且要求一條確認腿 (營收未衰退 revenue_yoy>0,或掛 ≥2 條臂)。只篩推薦卡,完整表格不動。
+                def _arm_count(a) -> int:
+                    return len([x for x in str(a or "").split("+") if x])
+                _yoy = pd.to_numeric(_df["revenue_yoy"], errors="coerce") if "revenue_yoy" in _df.columns \
+                    else pd.Series(index=_df.index, dtype=float)
+                _eligible = (_df["陷阱旗"] != "僅便宜臂") & (
+                    (_yoy > 0) | (_df["來源臂"].apply(_arm_count) >= 2))
+                _held = int((~_eligible).sum())
+                st.markdown(f"#### 🌐 整體推薦 Top 10（依 {'C2排序分' if _rc == 'c2_score' else 'composite'}，含理由與價位）")
+                _top10 = _df[_eligible].head(10)
+                if _held:
+                    st.caption(f"🛡️ 已從推薦排除 {_held} 檔『純便宜/無確認腿』候選（仍列於下方完整表格）："
+                               "進榜需非僅便宜臂，且營收未衰退或另掛第二條臂。")
+                _local = _has_local_price_cache()
+                _plans = (_univ_trade_plans(tuple(_top10.index), _pick,
+                                            tuple(_top10["close"] if "close" in _top10 else []))
+                          if _local else {})
+                if _local:
+                    st.caption(f"✅ 本機價格快取可用：Top-10 現算完整價位（0 API，量價結構來自 TEJ 日線；"
+                               f"其中 {len(_plans)}/{len(_top10)} 檔有足量歷史，其餘退粗略讀）。")
+                else:
+                    st.caption("ℹ️ 未偵測到本機價格快取（雲端）：Top-10 顯示粗略位置判讀；精確價位請把代號貼到"
+                               "『個股分析』深評。")
+                for _i, (_sid, _r) in enumerate(_top10.iterrows(), 1):
+                    _nm = _r.get("name", "")
+                    _tags = " ".join(t for t in (_r.get("新進", ""),
+                                                 ("⚠️" + _r["陷阱旗"] if _r.get("陷阱旗") else "")) if t)
+                    _extra = f"{_rc_label(_rc)} <b>{float(_r[_rc]):.1f}</b>　{_tags}"
+                    _plan_lines = _plans.get(_sid)
+                    if not _plan_lines:                       # 雲端 / 本機抓不到 → 粗略位置讀
+                        _plan_lines = [_univ_coarse_note(_r)]
+                    _render_reco_card(_i, _sid, _nm, "", _extra, _univ_reason(_r), _plan_lines)
+                    st.divider()
+                st.caption("排序=C2排序分（產業內估值+營收YoY+52週高−動能，寬池六時代IC全正）；推薦已排除"
+                           "『僅便宜臂且無確認腿』（Part 4 實證便宜單臂相對落後 −2~−3%）；⚠️含便宜臂=仍帶便宜腿但另有強臂；"
+                           "🆕=今日新進。此頁為分流參考、非投組。")
+
+                _arm_sel = st.multiselect("來源臂 (留空=全部)", list(_ARMS.values()), default=[])
+                _c1, _c2 = st.columns(2)
+                _streak_min = _c1.slider("連續在榜 ≥ N 天", 1, 20, 1)
+                _ind_sel = _c2.multiselect("產業 (留空=全部)",
+                                            sorted(_df["industry"].dropna().unique()) if "industry" in _df.columns else [])
+
+                _v = _df
+                if _arm_sel:
+                    _v = _v[_v["來源臂"].apply(lambda a: any(x in a for x in _arm_sel))]
+                _v = _v[_v["連續在榜"] >= _streak_min]
+                if _ind_sel and "industry" in _v.columns:
+                    _v = _v[_v["industry"].isin(_ind_sel)]
+
+                _cols = [c for c in ("name", "industry", "close", _rc, "composite",
+                                      "新進", "來源臂", "陷阱旗", "連續在榜",
+                                      "value_ind_pct", "revenue_yoy", "high52_prox", "momentum20",
+                                      "chip20_turnover", "rev_accel", "adv20") if c in _v.columns]
+                _disp = _v[_cols].sort_values(_rc, ascending=False).rename(columns={
+                    "name": "名稱", "industry": "產業", "close": "收盤",
+                    "c2_score": "C2排序分", "composite": "舊5F(對照)",
+                    "value_ind_pct": "產業內便宜", "revenue_yoy": "營收YoY",
+                    "momentum20": "20日動能%", "chip20_turnover": "法人流向",
+                    "high52_prox": "距52週高%", "rev_accel": "營收加速", "adv20": "20日均額"})
+                st.dataframe(_disp.round(2), width="stretch", height=520)
+                _new_rows = _df.loc[sorted(_new50)]
+                if len(_new_rows):
+                    st.markdown(f"#### 🆕 今日新進 {'C2排序分' if _rc == 'c2_score' else 'composite'} 前 50")
+                    st.dataframe(_new_rows[_cols].rename(columns={
+                        "name": "名稱", "industry": "產業", "c2_score": "C2排序分",
+                        "composite": "舊5F(對照)"}).round(2),
+                                 width="stretch")
+                _digest_f = os.path.join(_data_dir, f"digest_{_pick}.md")
+                if os.path.exists(_digest_f):
+                    with st.expander("📄 當日文字摘要 (digest)"):
+                        st.markdown(open(_digest_f, encoding="utf-8").read())
+                st.caption("資料=TWSE/TPEx 官方快照+TEJ 種子 (0 FinMind);L0-L2 粗篩後五因子聯集圈人,"
+                           "排序=C2排序分 (產業內估值+營收YoY+52週高點−20日動能,寬池驗證六時代IC全正,"
+                           "見 DevLog §19);舊5F(對照)為聯集用的召回因子平均,寬池排序力≈0僅供對照。"
+                           "**分流參考,非投組**;個股請至『個股分析』深評。")
+                st.caption("『連續在榜』是顯示用、**不是驗證過的訊號**:Part 4 回測 (streak_return_lab) 顯示"
+                           "在榜天數對相對報酬幾乎無預測力 (excess t<1.4),越久≠越好也≠越差,排序請看 C2 而非榜齡。"
+                           "詳見『使用說明 → 連續在榜越久越好嗎?』。")
+
+    # ------------------------------------------------------------------ 實戰演練
+    _HOME = os.path.expanduser("~")
+    _PLAN_TEJ = os.path.join(_HOME, "tej_cache", "price_valuation")
+    _PLAN_SNAP = os.path.join(_HOME, "market_cache", "price_valuation_daily")
+    _PLAN_0050 = os.path.join(_HOME, "finmind_cache", "TaiwanStockPrice", "0050.parquet")
 
 
-@st.cache_data(show_spinner=False, ttl=3600)
-def _plan_prices(sids: tuple, start: str) -> pd.DataFrame:
-    """演練標的日線 (TEJ 種子 ∪ 官方快照,0 API)。"""
-    import glob as _g
-    frames = []
-    for sid in sids:
-        f = os.path.join(_PLAN_TEJ, f"{sid}.parquet")
-        if os.path.exists(f):
-            d = pd.read_parquet(f, columns=["stock_id", "date", "open", "close"])
-            frames.append(d[d["date"] >= start])
-    tej_max = max((f["date"].max() for f in frames if len(f)), default="")
-    for sf in sorted(_g.glob(os.path.join(_PLAN_SNAP, "*.parquet"))):
-        _d = os.path.basename(sf)[:-8]
-        if _d > tej_max and _d >= start:
-            d = pd.read_parquet(sf, columns=["stock_id", "date", "open", "close"])
-            frames.append(d[d["stock_id"].isin(sids)])
-    if not frames:
-        return pd.DataFrame()
-    px = pd.concat(frames, ignore_index=True).drop_duplicates(["stock_id", "date"])
-    return px.sort_values(["stock_id", "date"])
+    @st.cache_data(show_spinner=False, ttl=3600)
+    def _plan_prices(sids: tuple, start: str) -> pd.DataFrame:
+        """演練標的日線 (TEJ 種子 ∪ 官方快照,0 API)。"""
+        import glob as _g
+        frames = []
+        for sid in sids:
+            f = os.path.join(_PLAN_TEJ, f"{sid}.parquet")
+            if os.path.exists(f):
+                d = pd.read_parquet(f, columns=["stock_id", "date", "open", "close"])
+                frames.append(d[d["date"] >= start])
+        tej_max = max((f["date"].max() for f in frames if len(f)), default="")
+        for sf in sorted(_g.glob(os.path.join(_PLAN_SNAP, "*.parquet"))):
+            _d = os.path.basename(sf)[:-8]
+            if _d > tej_max and _d >= start:
+                d = pd.read_parquet(sf, columns=["stock_id", "date", "open", "close"])
+                frames.append(d[d["stock_id"].isin(sids)])
+        if not frames:
+            return pd.DataFrame()
+        px = pd.concat(frames, ignore_index=True).drop_duplicates(["stock_id", "date"])
+        return px.sort_values(["stock_id", "date"])
 
 
-@st.cache_data(show_spinner=False, ttl=3600)
-def _plan_bench(start: str) -> pd.DataFrame:
-    """0050 基準 (自動還原分割,同 portfolio_simulator_lab)。"""
-    if not os.path.exists(_PLAN_0050):
-        return pd.DataFrame()
-    d = pd.read_parquet(_PLAN_0050)[["date", "close"]].sort_values("date").reset_index(drop=True)
-    r = d["close"].pct_change()
-    for i in d.index[r < -0.5]:
-        ratio = round(d.loc[i - 1, "close"] / d.loc[i, "close"])
-        if ratio >= 2:
-            d.loc[:i - 1, "close"] /= ratio
-    return d[d["date"] >= start]
+    @st.cache_data(show_spinner=False, ttl=3600)
+    def _plan_bench(start: str) -> pd.DataFrame:
+        """0050 基準 (自動還原分割,同 portfolio_simulator_lab)。"""
+        if not os.path.exists(_PLAN_0050):
+            return pd.DataFrame()
+        d = pd.read_parquet(_PLAN_0050)[["date", "close"]].sort_values("date").reset_index(drop=True)
+        r = d["close"].pct_change()
+        for i in d.index[r < -0.5]:
+            ratio = round(d.loc[i - 1, "close"] / d.loc[i, "close"])
+            if ratio >= 2:
+                d.loc[:i - 1, "close"] /= ratio
+        return d[d["date"] >= start]
 
 
 with tab_drill:
@@ -1851,7 +2290,7 @@ with tab_drill:
             _fills[_c] = pd.to_datetime(_fills[_c], errors="coerce")
         st.markdown("##### ① 回填實際成交 (買進填 fill_date / fill_price,股數選填;賣出時填 sell_*)")
         _edited = st.data_editor(
-            _fills, num_rows="fixed", use_container_width=True, key=f"fills_{_ppick}",
+            _fills, num_rows="fixed", width="stretch", key=f"fills_{_ppick}",
             disabled=["stock_id", "name", "frozen_close", "buy_low", "buy_ref", "buy_high"],
             column_config={
                 # WP1-2 輸入硬化:日期改 DateColumn — TextColumn 下格式 typo 會被 len>=8 靜默踢出追蹤,
@@ -1983,7 +2422,7 @@ with tab_drill:
                 st.dataframe(_t[["name", "狀態", "fill_date", "fill_price", "帶內", "滑價vs理論開盤%",
                                   "出場價", "毛報酬%", "淨報酬%", "實際損益TWD"]].rename(columns={
                     "name": "名稱", "fill_date": "成交日", "fill_price": "成交價"}).round(2),
-                    use_container_width=True)
+                    width="stretch")
                 st.caption(f"淨額費率:買 {_FEE_BUY_PCT*100:.4f}% / 賣 {_FEE_SELL_PCT*100:.4f}% (含證交稅"
                            f" {_FEE_TAX_PCT*100:.2f}%),單筆手續費地板 NT${_FEE_MIN_TWD:.0f}。"
                            "填 shares 走 TWD 精算 (含地板真實成本),否則走百分比近似。")
@@ -2025,21 +2464,23 @@ with tab_drill:
 
 # ------------------------------------------------------------------ 使用說明
 with tab_help:
-    st.subheader("🧭 這個工具是什麼 + 10 個分頁總覽")
+    st.subheader("🧭 這個工具是什麼 + 8 個分頁總覽")
     st.markdown(
         "這是一套**選股研究 / 紀律輔助**工具,幫你對台股做多維度評分與排名。**它不預測漲跌、"
-        "不是印鈔機**;定位是『幫你有系統地篩、有紀律地追蹤』。十個分頁分三類:\n\n"
+        "不是印鈔機**;定位是『幫你有系統地篩、有紀律地追蹤』。八個分頁分三類:\n\n"
         "**A. 即時查單檔(需自己的 FinMind token)**\n"
         "- 🔎 **個股分析**:單檔四維度深評 + 精確買點,即時抓最新資料。\n"
         "- 🏆 **多檔排行**:多檔並排即時比較。\n\n"
-        "**B. 讀本機分數快照(0 API、免 token、瞬間出)**\n"
-        "- 🎯 **綜合分選股**:整份名單依五維綜合分排名,先海選一輪。\n"
-        "- 🌐 **全市場掃描**:C2 排序 + 五來源臂 shortlist,看整體 Top 10。\n"
-        "- ✨ **雙確認精選**:同時進 c2 前 20% 與 綜合分前 20% 的交集(附誠實回測)。\n\n"
+        "**B. 模型投組(0 API、免 token、瞬間出)**\n"
+        "- **雙確認投組**:同時進 c2 前 20% 與綜合分前 20% 的完整等權交集(附誠實回測)。"
+        "**這是本工具唯一驗證通過(H1–H5 全過)的投組邏輯，不是個股推薦順位**——2026-08-10 起,"
+        "『綜合分選股』與『全市場掃描』已縮到這頁底下當『參考資料』子分頁,不再是獨立的選股建議"
+        "(綜合分單獨排序在 864-arm 掃描已被否定;全市場掃描本來就是分流參考,不是投組)。\n\n"
         "**C. 風控與試算工具(0 API)**\n"
         "- 🏭 **法人流向**:各產業每日法人淨流入(億元 / 占成交額%),可播放、可下鑽成分股。"
         "**描述圖,不是買賣訊號**。\n"
-        "- 🚦 **市場燈號**:現在該持有幾成(反應式風控,非預測方向)。\n"
+        "- 🚦 **市場燈號**:原班人馬要留幾成在場內(**α=0.25 壓縮版,只在 75%~100% 間移動、"
+        "不會空手**;屬使用者明文豁免的部署決定,非研究通過,詳見該頁)。\n"
         "- 💰 **定期定額**:試算你 DCA 的真實個人報酬(MWRR),對比 0050。\n"
         "- 📋 **實戰演練**:30 天 plan 操作卡 × 實際成交對帳,練執行紀律。\n"
         "- 📖 **使用說明**:本頁。\n\n"
@@ -2062,14 +2503,14 @@ with tab_help:
             "**各身分的 API 額度(大致)**\n"
             "- **不貼 token(匿名)**:每小時 **300 次**(FinMind 以 IP 計算)。雲端部署對外是"
             "**共用 IP**,這 300 次是整台伺服器共用、會被同 IP 的其他流量一起吃掉,尖峰時很容易"
-            "抓不到資料 → 建議貼自己的 token,或改用免 token 的『綜合分選股』分頁。\n"
+            "抓不到資料 → 建議貼自己的 token,或改用免 token 的『雙確認投組』分頁。\n"
             "- **免費註冊會員**:每小時約 **600 次**請求,以帳號計算、跟 IP 無關,不會被別人分掉,個人研究用綽綽有餘。\n"
             "- **贊助 / Sponsor 方案**:每小時上限更高,適合大量掃描;詳見官網贊助方案。\n\n"
             "**常見問題**\n"
             "- *貼了 token 還是抓不到?* 先確認 token 有沒有整串複製到、帳號 Email 是否已完成驗證;"
             "短時間查太多檔可能撞到每小時上限,等一小時額度會重置。\n"
             "- *代碼要怎麼填?* 直接填台股代號(例:台積電 `2330`、聯發科 `2454`),多檔用空白或逗號隔開。\n"
-            "- *完全不想註冊?* 用『綜合分選股』分頁 —— 它讀本機已建好的 scores 快取、**0 API、免 token**,"
+            "- *完全不想註冊?* 用『雙確認投組』分頁 —— 它讀本機已建好的分數快取、**0 API、免 token**,"
             "只是資料是上次建快取的基準日、不是當下即時價。\n\n"
             "官網:https://finmindtrade.com/　｜　登入說明:https://finmind.github.io/login/")
     st.divider()
@@ -2085,10 +2526,11 @@ with tab_help:
         "- **個股分析**:一次輸入 **1～5 檔**最順手,想深入看單檔就直接查。\n"
         "- **多檔排行**:此頁逐檔即時打 API,建議**一次 20 檔以內**、單次盡量**不要超過 30 檔**,"
         "以免逼近每小時上限(30 檔全新 ≈ 270 次)。\n"
-        "- **想一次掃描上百檔** → 改用『🎯 綜合分選股』分頁:它讀本機已建好的 scores 快取,"
-        "**0 API、免 token、瞬間出結果**,最適合大範圍選股。\n\n"
+        "- **想一次掃描上百檔** → 改用『雙確認投組』分頁:它讀本機已建好的分數快取,"
+        "**0 API、免 token、瞬間出結果**,而且是本工具唯一驗證通過的選股邏輯,比大海撈針式的"
+        "全名單掃描更值得先看。\n\n"
         "小提醒:若短時間內連續分析大量『沒查過的』新股票而跳出抓不到資料,通常就是撞到每小時上限,"
-        "**等一小時額度重置**即可,或先用『綜合分選股』頂著。")
+        "**等一小時額度重置**即可,或先用『雙確認投組』頂著。")
     st.divider()
 
     st.subheader("三種模式怎麼選")
@@ -2110,84 +2552,62 @@ with tab_help:
         "**評級看值不值得擁有,買點提示看該在什麼價位進場**,兩段一起讀。")
 
     st.divider()
-    st.subheader("🎯 『綜合分選股』分頁怎麼用")
+    st.subheader("『雙確認投組』怎麼用 + 實測證據 —— 對『含息 0050』誠實對照")
     st.markdown(
-        "這頁跟『個股分析 / 多檔排行』最大的差別:那兩頁是**即時抓最新資料、一檔一檔算**;"
-        "這頁是讀一份**事先算好的分數快照**,把**整份追蹤名單**一次拿來比高下、由高到低排名。"
-        "所以它 **0 API、免 token、瞬間出結果**,最適合『先海選一輪』。\n\n"
-        "**操作三步驟**\n"
-        "1. 左側選好**策略模式**(三個模式各一套權重、各一套分數,換模式排名就會變)。\n"
-        "2. 設四個篩選條件:**綜合分下限**(預設=該模式門檻)、**資料信心下限**、**顯示檔數**、"
-        "**限定評級**(不選=全部)。\n"
-        "3. 看排名表,右下角可**下載 CSV**。想深入某幾檔,再把代號貼到『個股分析』看即時細節。\n\n"
-        "**欄位怎麼看**\n"
-        "- **綜合分**:五個維度(基本面、估值、技術、動能、籌碼)加權後的總分;權重依模式不同。\n"
-        "- **百分位**:這檔的綜合分在**這份名單裡**的橫斷面排名(0～100,越高代表在名單中越前面)。\n"
-        "- **五維分數 / 估值狀態 / 信心**:各面向細分與資料完整度(信心低=部分資料缺漏,分數參考性打折)。\n"
-        "- **基準日**:這批分數是「哪一天」算出來的 —— 它是**快照、不是當下即時價**。\n\n"
-        "**重要:資料是快照,不是即時**　名單概況會顯示「共 N 檔｜基準日 X｜權重版本」。"
-        "排名只在這份名單內相對比較(名單來源是專案的 `watchlist.txt` 自選股池)。"
-        "想要最新即時的單檔狀態,還是要回『個股分析』用你的 token 重抓。\n\n"
-        "**多久更新一次?**　部署站的分數由維護者定期重算後上傳,你只要選條件檢視、不需自己建。"
-        "(若你是自架/本機執行:先在專案根目錄跑 `python build_cache.py --build-scores` 建/更新快取,"
-        "再按分頁上的『↻ 重新載入快取』即可。)")
-
-    st.divider()
-    st.subheader("🌐 『全市場掃描』& 來源臂到底哪個好")
+        "**這是本工具唯一驗證通過的投組邏輯**——同時落在 **c2 前 20%(價值/反動能)** "
+        "且 **綜合分前 20%(品質/順動能)** 的交集,兩套幾乎獨立的視角一致認可。\n\n"
+        "**操作方式**\n"
+        "1. 左側選好**策略模式**(換模式,綜合分那一腿的排序會變)。\n"
+        "2. 打開分頁,選**資料日(日期回顧)**；日更資料只作觀察。\n"
+        "3. 正式策略只在月底重算完整交集，並於次一交易日開盤執行。\n"
+        "4. 表格可按價格延伸、流動性或兩項排名切換檢視，但排序不代表推薦先後。\n"
+        "5. 想深入某幾檔,把代號貼到『個股分析』看即時細節。")
     st.markdown(
-        "**先講結論:沒有『哪個來源臂最好』。** 五個來源臂(便宜/動能/籌碼/突破/營收加速)只是"
-        "**召回網**——某檔在池內某因子百分位>85 就掛上該臂,用來『把可能有戲的股撈進 shortlist』,"
-        "**它們單獨都不會選股**。\n\n"
-        "真正有樣本外報酬證據的,是把幾個因子**組合**起來的 **C2 排序分**:\n"
-        "> C2 = 產業內便宜 ＋ 營收 YoY ＋ 接近 52 週高 **－ 動能**\n\n"
-        "(動能是**反向**的:C2 偏好『便宜又剛轉強、但還沒噴上去』的,不追已經漲多的。這條在寬池、"
-        "六個時代的樣本外 IC 全正,見 DevLog §19。)\n\n"
-        "**為什麼『便宜也不代表好』——這是資料結論,不是感覺:**\n"
-        "- Part 4 回測(`scripts/streak_return_lab.py`):**便宜臂整體相對落後**,去掉大盤漲跌後的超額"
-        "(excess)每一個在榜天數桶都是 **−2%~−3%**(新進與 5–9 天桶統計上顯著)。\n"
-        "- TEJ Phase 2 研究更早就發現:極端便宜的排名本身**附著價值陷阱(接落刀)**。\n"
-        "- 直白說:便宜是『撈進來看一眼』的理由,**不是買進理由**。要便宜**加上**營收在成長、"
-        "且股價已站上結構(接近 52 週高、不是還在破底),才是 C2 真正獎勵的組合。\n\n"
-        "**所以要怎麼用這一頁?**\n"
-        "1. 直接看最上面的 **🌐 整體推薦 Top 10**(已依 C2 排序,附理由與價位),不要自己在大表裡大海撈針。\n"
-        "2. **多臂交集**的股(來源臂欄有 2~3 個)通常比單臂更值得先看;看到 **⚠️僅便宜臂** 要特別保守。\n"
-        "3. 想買哪一檔,把代號貼到『個股分析』做四維度深評 + 精確買點,再決定。")
-
-    st.divider()
-    st.subheader("✨ 『雙確認精選』的實測證據 —— 對『含息 0050』誠實對照")
+        "**已驗證回測**(2005–2026、255 個月、真身分數、ADV≥100萬、月頻全換股、含息、"
+        "來回成本 0.72%,基準是可投資的『含息 0050 買進持有』;完整判定見 "
+        "`docs/預註冊_雙確認ADV100萬.md`):")
     st.markdown(
-        "『雙確認精選』= 同時落在 **c2 前 20%(價值/反動能)** 且 **綜合分前 20%(品質/順動能)** 的交集。"
-        "以下是 **2005–2026、257 個月、含股息、扣元大 6 折成本**的回測,**基準是可投資的『含息 0050 買進持有』**"
-        "(不是等權除息母體——那個嚴重低估、會讓人自我感覺良好):")
-    st.markdown(
-        "| 配置 | 年化 CAGR | 夏普 | 最大回撤 |\n"
+        "| 配置 | OOS(2010+) CAGR | OOS 夏普 | 全期(255月)MDD |\n"
         "|---|---|---|---|\n"
-        "| 雙確認 20%(無風控) | +14.5% | 0.58 | −70% |\n"
-        "| **雙確認 + 🚦 市場燈號風控(月換手)** | **+16.4%** | **0.95** | **−25%** |\n"
-        "| **含息 0050 買進持有** | +14.7% | 0.69 | −54% |")
-    st.caption("燈號那列 = `regime_hysteresis_lab` 的「+對稱確認3d」,即 `core/regime_exposure.py` "
-               "實際採用的參數 (UP=DOWN=3)。⚠️ **那是月換手的數字,而 SOP 規定季換手** —— "
-               "季換手 10 年滾動中位僅 **10.7%**,與 0050 的 10.7% 打平(換手頻率之爭尚未對雙確認籃"
-               "正式驗證,見待辦)。2026-07-29 滑價假設由 0.10% 上修至 0.25%(舊值低於最小跳動單位"
-               "算出的理論下限 0.217%),全表已用新成本重跑。")
+        "| **雙確認 @ADV≥100萬**(策略本體,固定曝險) | **+22.79%** | **1.20** | −68~−70% |\n"
+        "| 含息 0050 買進持有 | +16.52% | 0.86 | −52.9% |")
+    st.caption("H1–H5 六道關卡(前置閘/OOS/三組虛無檢定/滑價穩健/六時代穩健)**全過**"
+               "(2026-07-30 凍結,`docs/預註冊_雙確認ADV100萬.md`)。**排序權重含市場燈號(regime)"
+               "自動調整**(2019 年後生效,已測過拿掉沒有顯著幫助),但**沒有套用額外的曝險/資金控管"
+               "overlay**——2026-08-09 裁決是策略本體『裸上』,不疊加根據市場燈號動態調節持股比例的"
+               "額外機制(overlay 本身的增益尚未獨立驗證通過部署門檻,見 "
+               "`docs/架構分離_StrategyBodyVsOverlay.md`)。")
     st.markdown(
-        "**誠實的四句話:**\n"
-        "1. **選股的 alpha 撐不住成本與回撤**:沒有風控時回撤 −70%、夏普 0.58,"
-        "連 CAGR(+14.5%)都輸 0050 的 +14.7% ——問題不在選股,在回撤與周轉成本。\n"
-        "2. **加上『市場燈號』風控後才淨贏 0050**:夏普 0.95 > 0.69、回撤 −25% 遠優於 −54%,"
-        "CAGR +16.4% 高於 0050 的 +14.7%。**但別把 CAGR 那 1.7pp 當成可預期的報酬** —— "
-        "夏普與回撤的差距在統計上站得住,單一路徑的 CAGR 差距不然;樣本只有一條歷史,"
-        "換個起訖點它就可能消失。\n"
-        "3. **這是樣本內的結果。** 規則(三條均線 + 遲滯天數)是在**看過這段歷史之後**選出來的,"
-        "數字天生偏樂觀。2026-07 的獨立複驗(`docs/預註冊_RegimeInputLab.md`)測了 26 種替代設計,"
-        "**沒有一種能再提升**——這說明現有設計沒有被過度調校,但**不代表未來會複製這個數字**。\n"
-        "4. 這是用 **app 精確綜合分**(2005-2018 財報已補齊)複驗的結果、不是近似,可信度比舊版高。\n\n"
-        "**能不能用它,取決於你能不能照燈號的紀律動**(空頭減碼、別追高)。多數人做不到——"
-        "『數字漂亮的策略』實盤賺不到,通常是紀律在最痛時斷掉,不是策略錯。")
+        "**誠實的三句話:**\n"
+        "1. **回撤是真實代價,不是顯示錯誤**:全期 MDD 深達 −68~−70%,比 0050 的 −52.9% "
+        "深很多——這是選股 alpha 的真實尾端風險,沒有額外風控機制在裸上狀態下把它壓下來。\n"
+        "2. **這是樣本內挑出來又樣本外驗證過的結果,不是憑空樂觀**:雙確認規則本身是先前研究挑出來的,"
+        "但 H2 的 walk-forward OOS(2010-01~2026-03,195 月)夏普 1.20、CAGR 22.79% 皆勝同段 0050,"
+        "H3 的三組虛無對照與 DSR 也都通過——不是純粹的樣本內幸運數字。\n"
+        "3. **本頁即時名單與上述回測口徑接近但不完全相同**(見上方分頁內的完整揭露文字:c2 取樣池"
+        "已對齊、但估值窗與籌碼資料源仍是研究與 live 兩套定義)——2026-08-10 已針對這個落差單獨"
+        "驗證過 live 設定本身,四項門檻同樣全過,見 `docs/預註冊_Live設定驗證.md`。")
     st.info(
-        "**打折因素(實盤只會更差):** ①close 未還原除權息、零股有價差滑價;②**回測 ≠ 未來**。\n\n"
-        "**定位:** 這是**衛星部位**——只放你能承受回撤的小部分資金,搭『🚦 市場燈號』控風險,"
-        "每檔仍到『個股分析』深評,**不機械照單全買**。核心資金的擺法見最下方『務實用法』。**非投資建議。**")
+        "**打折因素(實盤只會更差):** ①close 未還原除權息、零股有價差滑價、零股撮合溢折價"
+        "無歷史資料可回測;②**回測 ≠ 未來**。\n\n"
+        "**定位:** 集中約 20-50 檔、高信心高波動,MDD 很深——只放你能承受這種回撤的資金,"
+        "每檔仍到『個股分析』深評,**不機械照單全買**。核心資金的擺法見最下方『務實用法』。"
+        "**非投資建議。**")
+
+    st.divider()
+    st.subheader("『雙確認投組』底下的兩個參考子分頁")
+    st.markdown(
+        "『雙確認投組』分頁底下藏了兩個子分頁,**都不是驗證過的選股建議**,是給想深入對照、"
+        "或想擴大觀察範圍的人用的參考工具:\n\n"
+        "**🎯 綜合分選股(參考)**——讀本機已建好的分數快照,把整份追蹤名單依五維綜合分排名。"
+        "**綜合分單獨排序在 864-arm 掃描中已被否定**(2010 年後沒有一支單因子贏過 0050),"
+        "所以這裡只拿來查『某支股票在綜合分排名裡的相對位置』,不是拿排名去選股。"
+        "**操作**:選策略模式 → 設綜合分下限/資料信心下限/顯示檔數/評級篩選 → 看排名表,可下載 CSV。\n\n"
+        "**🌐 全市場掃描(參考)**——每日粗篩的分流參考池(shortlist),用 C2 排序分(產業內便宜+"
+        "營收YoY+接近52週高−動能)把可能有戲的股先撈進來。**本來就標註為分流參考、不是投組**——"
+        "五個來源臂(便宜/動能/籌碼/突破/營收加速)只是召回網,單獨都不會選股,便宜臂尤其"
+        "整體相對落後(Part 4 回測 excess −2~−3%)。**操作**:看整體推薦 Top 10(已排除純便宜"
+        "無確認腿的候選),或用來源臂/連續在榜/產業篩完整表格。")
 
     st.divider()
     st.subheader("⏳ 連續在榜越久越好嗎?有沒有推薦的在榜區間?")
@@ -2210,15 +2630,34 @@ with tab_help:
         "- 組合層的證據(§22)是**季度換手、買 C2 前段**——重點在**排名**與**紀律**,不在『抱著等它變老』。")
 
     st.divider()
-    st.subheader("🚦 『市場燈號』怎麼用")
+    st.subheader("🚦 『市場燈號』怎麼用 —— α=0.25 壓縮版(2026-08-10 定案)")
     st.markdown(
-        "它回答一個問題:**現在該持有幾成?**(0 / 33% / 67% / 100%),**不預測漲跌**。\n\n"
-        "**背後邏輯**:全市場等權指數站上幾條均線(MA50 / MA100 / MA200)→ 對應曝險 3/3、2/3、1/3、0。"
-        "加一層**『確認 3 天』遲滯**:均線要**連續 3 天**穿越才改判,濾掉一兩天的碎波假訊號(避免賣低買高)。\n\n"
-        "**怎麼看**:🟢=滿倉、🟡=偏多/防禦、🔴=空手;下面列出三條均線目前站上或跌破幾天、距均線多少 %。"
-        "看到『⏳ 剛翻、遲滯確認中』表示剛穿越、還在等連 3 天確認。\n\n"
-        "**怎麼用**:給**衛星部位**當減碼依據——燈轉黃/紅就把主動選股的部位往下降。資料每天自動追最新交易日。\n\n"
-        "⚠️ **反應式、會落後轉折點**,碎波盤可能小幅拉鋸。它救的是『不接刀、不在崩盤全額硬扛』,不是抓頂抄底。")
+        "**它回答一個問題:原班人馬要留幾成在場內?** 但幅度比你想的溫和很多 —— "
+        "**只在 75% ~ 100% 之間移動,不會空手**:\n\n"
+        "| 等權指數站上幾條均線 | 建議曝險 |\n|---|---|\n"
+        "| 3/3(趨勢完整) | 100% |\n| 2/3 | 91.7% |\n| 1/3 | 83.3% |\n"
+        "| 0/3(全數轉弱) | **75%(下限)** |\n\n"
+        "**為什麼是這個幅度,不是砍到 40%?** 因為砍很深已經測過、被否決了:\n"
+        "- **滿血套用**(砍到 0~100% 全區間):CAGR 從 22.48% 掉到 **15.61%**,"
+        "回撤確實壓到 −20.56%,但代價太大 → 部署門檻否定。\n"
+        "- **α=0.25 壓縮版**:全期只付 **0.30pp** CAGR(20.59% → 20.28%),"
+        "換到 **8.95pp** 回撤改善(−71.67% → −62.71%),夏普 0.90 → **1.01**。\n\n"
+        "⚠️ **這是「研究否定 + 使用者明文豁免」,不是研究通過。** α=0.25 在滑價 0.60% "
+        "壓力測試下 CAGR 17.55%,沒到 20% 門檻 → 凍結判定是否定。採用它是使用者的部署裁決。"
+        "關鍵背景:**裸上在同樣壓力下也只有 18.77%**,那個門檻在該情境下沒有區分兩者。\n\n"
+        "### 兩個必讀但書\n"
+        "**1. 它主要保護 2008 型急跌,不是 2022 型陰跌。** 六個時代裡,CAGR 只有 2005-2009 "
+        "那段贏(21.27% vs 17.60%),其餘五段都小輸;全期看起來「幾乎免費」是被那一段拉起來的。"
+        "**而 2022 那段它幾乎沒用**:回撤只改善 1.27pp,CAGR 反而從 −0.62% 惡化到 −2.79%。"
+        "如果未來比較像「反覆磨、每次反彈都失敗」的慢性熊市,這層幫不上什麼忙。\n\n"
+        "**2. 2008 那段對這個訊號是 in-sample。** 挑訊號規則時用的是全歷史,所以那段的好表現"
+        "有多少是真本事、多少是後見之明,**無法乾淨拆開**。\n\n"
+        "**⚠️ 不得宣稱它會擇時**:統計檢定顯示,回撤改善**分不出**是「看準轉折」還是單純"
+        "「平均持有比較少」。你買的是較低的平均曝險,不是預測能力。\n\n"
+        "**怎麼看**:🟢=趨勢完整(滿倉)、🟡=部分轉弱/僅剩長期支撐(略減~減碼)、"
+        "🔴=全數轉弱(減至 75% 下限)。加一層『確認 3 天』遲滯,濾掉一兩天的碎波,"
+        "避免在盤整時來回進出。看到『⏳ 剛翻、遲滯確認中』表示剛穿越、還在等確認。\n\n"
+        "⚠️ **反應式、會落後轉折點**。它救的是『不在崩盤全額硬扛』,不是抓頂抄底。")
 
     st.divider()
     st.subheader("💰 『定期定額』怎麼用")
@@ -2244,9 +2683,13 @@ with tab_help:
         "把錢分兩桶,是全部研究驗證出來的結論:\n\n"
         "**桶 1 · 核心(每月定存的錢)→ 純 0050 DCA,穿越多空都不停。**\n"
         "讓 DCA 自己買低、0050 自己自我修復(成分股衰退會被換掉)。這桶**不要加任何開關**——DCA 的魔力就是空頭撿便宜。\n\n"
-        "**桶 2 · 衛星(賠得起的一小部分)→ 主動選股 + 🚦 市場燈號控風險。**\n"
-        "多頭用本工具選股(價值+基本面是真引擎)、空頭照燈號減碼轉現金。這桶是**練功 + 扛回撤經驗**,"
-        "報酬不保證贏 0050,但風險調整後與坐得穩上有優勢。\n\n"
+        "**桶 2 · 衛星(賠得起的一小部分)→ 主動選股(雙確認投組)+ 🚦 燈號溫和調曝險。**\n"
+        "用『雙確認投組』選股(唯一驗證通過 H1–H5 的選股邏輯);曝險依 🚦 燈號在 **75%~100%** "
+        "之間調整(α=0.25 壓縮版,**不會空手**)。全期實測:多付 0.30pp CAGR、換到 8.95pp 回撤改善。\n"
+        "⚠️ **但別把燈號當保命符**:它主要保護 2008 型急跌,**對 2022 型陰跌幾乎無效甚至扣分**;"
+        "而且即使有它,全期回撤仍達 **−62.7%**。\n"
+        "→ 所以這桶真正的風控**主要還是部位大小**:只放你能眼睜睜看著腰斬還睡得著的錢。"
+        "這桶是**練功 + 扛回撤經驗**,報酬不保證贏 0050。\n\n"
         "**關於單押龍頭(台積電/聯發科這種)**:實測 DCA,押對(台積)2005 起 24 倍電爆 0050;但『一樣安全』的"
         "聯發科同期只有 6 倍、還套牢 6.4 年。**『倒不了』≠『會贏』**——單股沒有 0050 的自癒,你是在賭『這一家續強』,"
         "所以只能當衛星、用賠得起的部位。\n\n"

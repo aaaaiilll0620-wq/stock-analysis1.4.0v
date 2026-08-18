@@ -14,7 +14,8 @@
     傍晚 17:30 排程收「當天」資料
   - 四端點資料日必須一致才落地,避免混到跨日資料
   - 重試 + 列數 sanity check;失敗以非零 exit code 結束 (bat 記 log)
-  - 漏收的日子無法回補 → 用 TEJ 手動匯出丟 tej_exports/inbox/ 重跑 tej_importer 補洞
+  - 漏收的日子無法回補 → 用 TEJ 手動匯出丟 tej_exports/DataExport0806/ 對應子夾,
+    重跑 `tej_importer.py --dataset price_valuation` 補洞 (舊 tej_exports/inbox/ 已停用)
 
 用法:
   python scripts/market_snapshot_collector.py            # 收今日 (最新交易日) 快照

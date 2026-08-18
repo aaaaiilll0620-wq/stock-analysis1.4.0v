@@ -7,19 +7,31 @@
 
 **本文件不改任何程式碼**(遵 Codex 建議與研究紀律:先釐清架構再動手)。
 
+> **勘誤(2026-08-09)**:本文件原 §2「A 確為『無 regime』」的查證方式有漏洞——只 grep
+> 了 `build_realbody_scores.py` 與 `core/scoring_manager.py` 有沒有出現 `current_regime`
+> 字樣,漏查了兩者共同呼叫的 `core/score_store.score_row()`,而該函式**無條件**執行
+> `advisor.current_regime = _regime_at(as_of)`。實測:2019 年後的 `real_composite`
+> **確實含** regime 對五面加權比重的調整,只有 2005-2018 段(因缺 0050 歷史資料,
+> `classify_regime()` 回 `'neutral'`,乘數全 1.0)才是真的無 regime。
+> **本次修正不影響任何已驗證的統計數字**——Gate 1 的 C1 arm(`current_regime` 強制
+> `None`)已直接測過「V0 拿掉 regime」,結果為負且不顯著(t=−1.613/−2.113),不需重跑。
+> 完整證據與理由見 `docs/勘誤_本體A無regime描述.md`。§1 表格與 §2 下方已就地修正,
+> 其餘段落(§3 起)引用「無 regime」時語意不變,不逐一重寫。
+
 ---
 
 ## 1. 現在被混在一起的三件事
 
 | 層 | 是什麼 | 程式入口 | 已驗證? |
 |---|---|---|---|
-| **A. 策略本體** | `real_composite` Top20% ∩ `c2` Top20%,等權、**固定 100% 曝險、無 regime** | `dual100_lab.py`(研究線)/ `scoring_manager` 真身分數 | ✅ **已驗**:H1–H5 全過 |
-| **B. regime 選股介入** | 市場燈號改**五維權重**與**評級門檻**,改變選股排序本身 | `core/advisor.py` | ❌ 未拆出來單獨驗 |
+| **A. 策略本體** | `real_composite` Top20% ∩ `c2` Top20%,等權、固定 100% 曝險。**2005-2018 無 regime、2019 年後含 B 層**(見下方勘誤) | `dual100_lab.py`(研究線)/ `scoring_manager` 真身分數 | ✅ **已驗**:H1–H5 全過(含 B 層效應) |
+| **B. regime 選股介入** | 市場燈號改**五維權重**與**評級門檻**,改變選股排序本身 | `core/advisor.py` | ⚠ **已間接驗**:Gate 1 的 C1 arm(`current_regime` 強制 `None`)= 拿掉 B 層,t=−1.613/−2.113,不顯著(見勘誤) |
 | **C. regime 曝險 overlay** | 市場燈號調整**整體持倉曝險**(0→1 階梯),純風控 | `core/regime_exposure.py` | ❌ 未預註冊、未驗增益 |
 
 > 關鍵誤導:實盤敘事裡「夏普 ~0.95 / MDD ~−25%」是 **A+B+C 疊起來的組合結果**,
-> 而本案 H1–H5 驗的是**純 A**。純 A 的真實尾端是 **H4 全期 MDD −68.7% ~ −70.4%**(0.25–0.60% 滑價)。
-> **不得把 A+B+C 的低 MDD 回稱為 A 的績效。**
+> 而本案 H1–H5 驗的是 **A+B(2019 年後 B 已生效,見下方 2026-08-09 勘誤)、無 C**。
+> H1–H5 的真實尾端是 **H4 全期 MDD −68.7% ~ −70.4%**(0.25–0.60% 滑價)。
+> **不得把 A+B+C 的低 MDD 回稱為 A(或 A+B)的績效。**
 
 ---
 
@@ -36,13 +48,25 @@
 - 已受 `docs/預註冊_ExposureRateLimit.md`(2026-07-29)約束:每交易日最大調整 0.20。
 - 輸出 `exposure`(0~1),與選股正交 —— 是**在本體選股結果之上**再乘曝險。
 
-### A 確為「無 regime」—— 已查證,不是假設
-- `beat_0050/realbody/build_realbody_scores.py`:**無** `regime` / `current_regime` 參照;
-  `score_row(..., MODE, ...)` 用固定 MODE,**從不設** `current_regime`。
-- `core/scoring_manager.py`:**無** `current_regime` / `regime_multipliers` 參照。
-- ⇒ `realbody_scores_adv100w.parquet` 的 `real_composite` 是在 `current_regime=None` 下算的,
-  **不含 regime 調整**。dual100 的 H1–H5 因此是乾淨的策略本體檢定。**這正是 Codex 要的隔離,
-  本案已天然滿足。**
+### A 是否為「無 regime」—— 2026-08-09 更正:2019 年後不成立
+
+**原判定(2026-07-30)有誤,更正如下**(完整證據見 `docs/勘誤_本體A無regime描述.md`):
+
+- `beat_0050/realbody/build_realbody_scores.py` 本身確實**無** `current_regime` 參照,
+  但它呼叫的 `core/score_store.score_row()` **內部無條件執行**
+  `advisor.current_regime = _regime_at(as_of)`(:206)——這是研究建置與線上即時計分
+  **共用**的同一行程式碼,原查證漏看了這個呼叫鏈。
+- 實測 `_regime_at()`:2019 年後的日期回傳真實 bull/bear/neutral 分類(不是 `None`);
+  2005-2018 因缺 0050 歷史資料回 `'neutral'`(乘數全 1.0,等於無作用)。
+- 實測 `regime_multipliers` 對 `composite` 的影響:bear 段差 2~4 分(0–100 分制,
+  8 組股票×日期抽測),bull 段差 <1 分——量級足以在 Top-20% 邊界翻動股票,不是雜訊。
+- **結論**:`realbody_scores_adv100w.parquet` 的 `real_composite`,**2005-2018 段無 regime,
+  2019 年後含 B 層(regime 對五面加權比重的調整)**。dual100 的 H1–H5,尤其 OOS 段
+  (2010+,含 2019 年後),驗的不是「純 A」,是「A + 已生效的 B」。
+- **這不需要重新驗證**:Gate 1 的 12 個 arm 中,C1 的凍結規格就是
+  `advisor.current_regime` 一律 `None`(即「拿掉 B 層的 A」),已在同一次單發射擊裡
+  測過:t=−1.613/−2.113,**方向為負、不顯著**——拿掉 regime 沒有讓排序力變好。
+  Gate 1 的統計效力不受本次更正影響。
 
 ---
 

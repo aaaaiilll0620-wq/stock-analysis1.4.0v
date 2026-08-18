@@ -11,7 +11,10 @@
   · ~/market_cache/institutional_flow_daily/{date}.parquet —— collector 每日 17:30 從
         證交所 T86 + 櫃買 3insti 收的全市場法人淨買 (接上 TEJ 種子的斷點,已實測一致)。
   · ~/market_cache/price_valuation_daily/{date}.parquet —— 同源全市場收盤價 + 成交量。
-  · tej_exports/inbox_industry/Industry.xlsx           —— 代號→產業/子產業對照 (2436 檔)。
+  · tej_exports/DataExport0806/產業類別/歷史產業類別.xlsx —— 代號→產業/子產業對照 (2436 檔,
+        取「歷史」不取「現在」:「現在產業類別.xlsx」只有 1952 檔,少了 484 檔已下市/已變更
+        個股的對照,「歷史」前 12 欄跟「現在」一致、多異動歷程欄,代號集合跟舊
+        inbox_industry/Industry.xlsx 完全一致)。
 
 兩種量綱 (app 可切換):
   · 金額     淨流入 = foreign_net(股) × close ÷ 1e8  → 億元
@@ -45,7 +48,7 @@ TEJ_CHIP_DIR = TEJ_CACHE / "institutional_flow"
 TEJ_PRICE_DIR = TEJ_CACHE / "price_valuation"
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
-INDUSTRY_XLSX = _PROJECT_ROOT / "tej_exports" / "inbox_industry" / "Industry.xlsx"
+INDUSTRY_XLSX = _PROJECT_ROOT / "tej_exports" / "DataExport0806" / "產業類別" / "歷史產業類別.xlsx"
 SNAPSHOT = _PROJECT_ROOT / "cloud_cache" / "IndustryFlow" / "flow.parquet"
 MEMBERS_SNAPSHOT = _PROJECT_ROOT / "cloud_cache" / "IndustryFlow" / "members.parquet"
 # 代號→產業對照的 parquet 快照。存在的理由是雲端相容:下鑽成分股 (load_members) 需要這份對照,

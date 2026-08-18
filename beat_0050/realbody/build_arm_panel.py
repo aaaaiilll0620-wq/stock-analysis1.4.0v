@@ -79,7 +79,7 @@ OOS_LO = "2019-08-31"
 FACES = ["f_fund", "f_val", "f_tech", "f_mom", "f_whale"]
 FACE2KEY = {"f_fund": "fundamental", "f_val": "valuation", "f_tech": "technical",
             "f_mom": "momentum", "f_whale": "whale"}
-ARMS = ("v0", "A1", "A2", "A3", "A4")
+ARMS = ("v0", "A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "B5", "C2")
 
 _ENG = None
 _CTX: dict = {}
@@ -136,9 +136,15 @@ def reset_arm_state() -> None:
     import core.backtest as bt
     import core.score_store as ss
     from core.valuation import ValuationEngine
+    from core.scoring_manager import ScoringManager
+    from core.fundamentals import FundamentalEngine
+    from core.advisor import InvestmentAdvisor
     # A3 / A4 的旗標
     bt.RESEARCH_ARM = None
     ValuationEngine.RESEARCH_ARM = None
+    ScoringManager.RESEARCH_ARM = None
+    FundamentalEngine.RESEARCH_ARM = None
+    InvestmentAdvisor.RESEARCH_ARM = None
     # A1 的注入(RS 消費端)—— 復位成 lazy 未載入,下次呼叫會重讀生產快取
     bt._rs_bench_bundle = None
     bt._rs_mom_cache.clear()
@@ -168,6 +174,9 @@ def apply_arm(arm: str) -> None:
     if arm not in ARMS:
         raise SystemExit(f"❌ 未知 arm {arm!r};本檔只實作 {ARMS}")
     reset_arm_state()                      # ← 一律先復位,這一步不可省
+    from core.scoring_manager import ScoringManager
+    from core.fundamentals import FundamentalEngine
+    from core.advisor import InvestmentAdvisor
     if arm == "v0":
         return                             # V0 = 全部旋鈕都在復位狀態
     if arm == "A3":
@@ -177,6 +186,15 @@ def apply_arm(arm: str) -> None:
     if arm == "A4":
         from core.valuation import ValuationEngine
         ValuationEngine.RESEARCH_ARM = "A4"
+        return
+    if arm in ("B1", "B2", "B3", "B5"):
+        ScoringManager.RESEARCH_ARM = arm
+        return
+    if arm == "B4":
+        FundamentalEngine.RESEARCH_ARM = arm
+        return
+    if arm == "C2":
+        InvestmentAdvisor.RESEARCH_ARM = arm
         return
     S = spliced_benchmark()
     if arm == "A1":
@@ -275,6 +293,8 @@ def _arm_rows(task):
             dyn_on = bool(advisor._bull_stack(stock)
                           and stock.ma20_bias >= advisor.trend_bias_min
                           and stock.rsi >= advisor.lead_rsi_min)
+            if _CTX["arm"] == "C2":
+                dyn_on = False
 
             comp_indep = _indep_composite(b, _CTX["base_w"], regime, dyn_on)
 
@@ -365,6 +385,9 @@ def acceptance(arm: str, got: pd.DataFrame, v0: pd.DataFrame, partial: bool) -> 
             rep["failures"].append(
                 f"{arm} 一列都沒改到 —— arm 旗標沒生效"
                 "(Gate 1 的 EPS_SD 守衛會把它判成『與 V0 無差異』)")
+    elif arm in ("B1", "B2", "B3", "B4", "B5", "C2"):
+        if rep["changed_rows"] == 0:
+            rep["failures"].append(f"{arm} did not change any score row")
     else:
         # --- 閘門 3:主 OOS 時鐘那一段必須與 V0 完全相同 ---
         oos = m[m["as_of"] >= OOS_LO]

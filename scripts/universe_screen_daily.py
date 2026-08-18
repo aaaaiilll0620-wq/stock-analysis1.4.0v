@@ -119,6 +119,9 @@ def main():
                           "不傳則僅做長期停滯 WARN (無網路假日日曆,故嚴格比對交由呼叫端提供期望值)。")
     ap.add_argument("--force-overwrite", action="store_true",
                      help="強制覆寫已存在的 pool/shortlist 凍結件 (預設拒絕重寫;僅供 parity 驗證/重算)。")
+    ap.add_argument("--full-pool-adv-floor", type=float, default=1_000_000,
+                     help="c2 全池百分位輸出的 ADV 門檻 (預設 1e6,對齊 docs/預註冊_雙確認ADV100萬.md "
+                          "驗證用的 ADV≥100萬;與 --adv-floor 的粗篩門檻 [預設 1e7] 是兩件事,不共用)。")
     args = ap.parse_args()
 
     con = duckdb.connect()
@@ -151,6 +154,11 @@ def main():
 
     g = px.groupby("stock_id")
     latest = px[px["date"] == as_of].set_index("stock_id")
+    day_change_pct = g["close"].apply(
+        lambda s: (float(s.iloc[-1]) / float(s.iloc[-2]) - 1.0) * 100.0
+        if len(s) >= 2 and pd.notna(s.iloc[-1]) and pd.notna(s.iloc[-2]) and float(s.iloc[-2]) > 0
+        else np.nan
+    )
 
     # --- L1:20 日均成交金額 + 上市滿一年 ---
     px["dollar_vol"] = px["close"] * px["Trading_Volume"]
@@ -199,7 +207,8 @@ def main():
 
     pool = pd.DataFrame({
         "name": names, "industry": industry,
-        "close": latest["close"], "adv20": adv20, "listed_ok": listed_ok,
+        "close": latest["close"], "day_change_pct": day_change_pct,
+        "adv20": adv20, "listed_ok": listed_ok,
         "pe_hist_pct": pe_pct, "value_pct": value_pct,
         "revenue_yoy": rev["revenue_yoy_pct"], "rev_month": rev["rev_month"],
     })
@@ -319,6 +328,39 @@ def main():
     if _weak:
         _abort(f"c2 成分覆蓋率不足 {LEG_MIN_COVERAGE_PCT:.0f}%: {', '.join(_weak)}——"
                f"該腳在 c2 skipna 下被靜默剔除,排序不可信,中止。")
+
+    # --- 全池 c2(2026-08-10 新增,附加輸出,不影響上面既有的 pool/shortlist)---
+    # 上面 sl 的四腳百分位是在 l2(L0 PE 有效 + L1 流動性/上市滿一年 + L2 排除價值陷阱)
+    # 內排的,門檻用 --adv-floor(預設 1000萬)。dual100 的 H1-H5 驗證用的母體是
+    # 「listed_ok & adv20>=100萬」,不設 PE 有效性門檻、不設陷阱過濾——兩個母體不是同一個,
+    # 百分位排序會不一樣。
+    #
+    # 四腳的原始值(vind/mom20 的 g.apply 結果/high52_prox 的 g.apply 結果/pool["revenue_yoy"])
+    # 在 l0/l1/l2 篩選之前就已經對全池算好了(見上面 pool 建構區),這裡只是換一個更寬、
+    # 門檻對的母體去重排百分位,不重算任何原始因子,不影響既有 sl/shortlist/pool 輸出。
+    # 注意:此處 pool 已在上面被 `pool = pool[quoted]` 重新賦值過(今日有報價的子集),
+    # 不必再乘一次 quoted——quoted 本身的索引對不上這個已篩過的 pool,重複套用只會
+    # 觸發 pandas 的 index-misalign reindex 警告,不是真的多濾掉什麼。
+    full_pop = pool[(pool["adv20"] >= args.full_pool_adv_floor) & pool["listed_ok"]].copy()
+    full_pop["value_ind_pct"] = vind.reindex(full_pop.index)
+    full_pop["momentum20"] = g["close"].apply(mom20).reindex(full_pop.index)
+    full_pop["high52_prox"] = g["close"].apply(high52_prox).reindex(full_pop.index)
+    # revenue_yoy 已在 pool 建構時併入(pool["revenue_yoy"] = rev["revenue_yoy_pct"]),直接沿用。
+    for _leg, _col in [("value_ind_pct", "value_ind_pct"), ("momentum20", "momentum20"),
+                       ("high52_prox", "high52_prox"), ("revenue_yoy", "revenue_yoy")]:
+        full_pop[f"{_col}_full_pct"] = full_pop[_leg].rank(pct=True) * 100.0
+    full_pop["c2_score_full"] = pd.concat([
+        full_pop["value_ind_pct_full_pct"], full_pop["revenue_yoy_full_pct"],
+        full_pop["high52_prox_full_pct"], 100.0 - full_pop["momentum20_full_pct"],
+    ], axis=1).mean(axis=1, skipna=True)
+    out3 = out_dir / f"c2_fullpool_{as_of}.csv"
+    if out3.exists() and not args.force_overwrite:
+        print(f"🔒 全池 c2 凍結件已存在,跳過: {out3.name}")
+    else:
+        full_pop[["name", "adv20", "day_change_pct", "value_ind_pct", "revenue_yoy", "high52_prox",
+                  "momentum20", "c2_score_full"]].sort_values(
+            "c2_score_full", ascending=False).to_csv(out3, encoding="utf-8-sig")
+        print(f"全池 c2(ADV≥{args.full_pool_adv_floor:,.0f},{len(full_pop)} 檔,對齊 H1-H5 母體定義) → {out3}")
 
     # 池檔延後至因子/池百分位/c2 算完才寫:活體對帳 (shortlist_ledger.py 軌1) 需要
     # 池級 c2 對全池算已實現 IC。欄位 = 舊 backfill 格式的超集 (只增不減)。

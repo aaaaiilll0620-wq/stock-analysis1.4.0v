@@ -14,6 +14,12 @@ logger = logging.getLogger(__name__)
 
 # TEJ 本機歷史庫 (tej_importer.py 匯入的 Parquet;與 finmind_cache 分開存放)
 TEJ_CACHE_DIR = os.environ.get("TEJ_CACHE", os.path.join(os.path.expanduser("~"), "tej_cache"))
+# DataExport0806 僅供網站即時資料的隔離 overlay；不覆寫上方 frozen lineage。
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEJ_RUNTIME_OVERLAY_DIR = os.environ.get(
+    "TEJ_RUNTIME_OVERLAY",
+    os.path.join(_PROJECT_ROOT, "data", "runtime_cache", "dataexport0806"),
+)
 # TWSE/TPEx 官方快照庫 (scripts/market_snapshot_collector.py 每日收集)
 MARKET_CACHE_DIR = os.environ.get("MARKET_CACHE", os.path.join(os.path.expanduser("~"), "market_cache"))
 
@@ -30,6 +36,7 @@ class DataProvider:
     _logged_in = False
     _name_map: Optional[dict] = None
     _industry_map: Optional[dict] = None       # 產業別一次性快取 {stock_id: industry_category}
+    _runtime_overlay_cache: Dict[str, tuple] = {}  # dataset -> (mtime_ns, dataframe)
 
     @classmethod
     def _stabilize_price_scale(cls, price_df: pd.DataFrame) -> pd.DataFrame:
@@ -291,18 +298,49 @@ class DataProvider:
     # ------------------------------------------------------------------
     # TEJ 本機資料 (月營收 / 三大財報):新鮮度夠就用本機,過期退回 FinMind
     # ------------------------------------------------------------------
-    @staticmethod
-    def _read_tej(dataset: str, symbol: str) -> Optional[pd.DataFrame]:
-        """讀 tej_cache/<dataset>/<symbol>.parquet;無檔或壞檔回 None (由上層 fallback)。"""
+    @classmethod
+    def _read_tej(cls, dataset: str, symbol: str) -> Optional[pd.DataFrame]:
+        """讀 frozen tej_cache，再合併 DataExport0806 runtime overlay。
+
+        overlay 只對同一 `(stock_id, date)` 的最新網站觀測值優先，不回寫
+        `~/tej_cache`，也不改變既有研究產物的 lineage。
+        """
         p = os.path.join(TEJ_CACHE_DIR, dataset, f"{symbol}.parquet")
-        if not os.path.exists(p):
+        base = None
+        if os.path.exists(p):
+            try:
+                base = pd.read_parquet(p)
+            except Exception as e:
+                logger.warning(f"[{symbol}] TEJ {dataset} frozen cache 讀取失敗: {e}")
+
+        overlay_path = os.path.join(TEJ_RUNTIME_OVERLAY_DIR, f"{dataset}.parquet")
+        overlay = None
+        if os.path.exists(overlay_path):
+            try:
+                mtime_ns = os.stat(overlay_path).st_mtime_ns
+                cached = cls._runtime_overlay_cache.get(dataset)
+                if cached is None or cached[0] != mtime_ns:
+                    cls._runtime_overlay_cache[dataset] = (mtime_ns, pd.read_parquet(overlay_path))
+                all_overlay = cls._runtime_overlay_cache[dataset][1]
+                if "stock_id" in all_overlay.columns:
+                    overlay = all_overlay[all_overlay["stock_id"].astype(str) == str(symbol)].copy()
+            except Exception as e:
+                logger.warning(f"[{symbol}] TEJ {dataset} runtime overlay 讀取失敗，僅用 frozen cache: {e}")
+
+        frames = [d for d in (base, overlay) if d is not None and not d.empty]
+        if not frames:
             return None
         try:
-            df = pd.read_parquet(p)
-            return df if not df.empty else None
+            df = pd.concat(frames, ignore_index=True, sort=False)
+            if "date" in df.columns:
+                df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                df = df.sort_values("date").drop_duplicates(["stock_id", "date"], keep="last")
+            if overlay is not None and not overlay.empty:
+                logger.info(f"[{symbol}] {dataset} 已合併 DataExport0806 runtime overlay。")
+            return df.reset_index(drop=True) if not df.empty else None
         except Exception as e:
-            logger.warning(f"[{symbol}] TEJ {dataset} 讀取失敗,退回 FinMind: {e}")
-            return None
+            logger.warning(f"[{symbol}] TEJ {dataset} 合併失敗,退回 frozen cache: {e}")
+            return base if base is not None and not base.empty else None
 
     _market_monthly_rev: Optional[pd.DataFrame] = None   # 收集器月營收增量 (一次載入快取)
     _market_daily_price: Optional[pd.DataFrame] = None   # 收集器每日價格快照 (一次載入快取)
@@ -348,11 +386,12 @@ class DataProvider:
                  if x is not None and set(cols).issubset(x.columns)]
         if not parts:
             return None
-        d = (pd.concat(parts, ignore_index=True)
-               .dropna(subset=["date"])
+        d = pd.concat(parts, ignore_index=True)
+        d["date"] = pd.to_datetime(d["date"], errors="coerce")
+        d = (d.dropna(subset=["date"])
                .drop_duplicates(subset=["date"], keep="first")   # TEJ 在前 → 以 TEJ 為準
                .sort_values("date"))
-        d = d[d["date"] >= start_date]
+        d = d[d["date"] >= pd.Timestamp(start_date)]
         # 覆蓋度守門:90 天窗約 60 個交易日;毛額列不足 (如收集器剛上線、TEJ 種子未匯)
         # 時不能拿來算連買天數/20日參與率 → 退回 FinMind
         if len(d) < 40:
@@ -386,11 +425,12 @@ class DataProvider:
         if tej is None and inc_sym is None:
             return None
         parts = [x[["date", "margin_balance"]] for x in (tej, inc_sym) if x is not None]
-        d = (pd.concat(parts, ignore_index=True)
-               .dropna(subset=["date", "margin_balance"])
+        d = pd.concat(parts, ignore_index=True)
+        d["date"] = pd.to_datetime(d["date"], errors="coerce")
+        d = (d.dropna(subset=["date", "margin_balance"])
                .drop_duplicates(subset=["date"], keep="first")
                .sort_values("date"))
-        d = d[d["date"] >= start_date]
+        d = d[d["date"] >= pd.Timestamp(start_date)]
         if len(d) < 30:            # 10日變化率需要 ≥11 筆;覆蓋不足退回 FinMind
             return None
         last = pd.to_datetime(d["date"].iloc[-1], errors="coerce")
@@ -458,6 +498,7 @@ class DataProvider:
         if tej is None and inc_sym is None:
             return None
         d = pd.concat([x for x in (tej, inc_sym) if x is not None], ignore_index=True)
+        d["date"] = pd.to_datetime(d["date"], errors="coerce")
         d = (d.dropna(subset=["date", "close"])
               .drop_duplicates(subset=["date"], keep="first")   # concat 順序 TEJ 在前 → 以 TEJ 為準
               .sort_values("date").reset_index(drop=True))

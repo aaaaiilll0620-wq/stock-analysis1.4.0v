@@ -21,6 +21,8 @@ class InvestmentAdvisor:
       2) 估值 (Valuation) ← ValuationEngine.evaluate():valuation_score / status
       3) 動態 (Dynamic)   ← ScoringManager:total_score / momentum / RSI / 乖離 / 籌碼
     """
+    # Set only by the preregistered runner; None preserves V0.
+    RESEARCH_ARM = None
 
     RATING_SUPER = "強勢買進"     # 【新增·最高級】順勢動能主流飆股 (特赦估值/RSI/乖離)
     RATING_STRONG = "強烈推薦"     # 價值型:低估值 + 動能健康 + 不過熱
@@ -491,6 +493,8 @@ class InvestmentAdvisor:
         自動把估值 (valuation) 權重砍 60%,轉移給動能 (momentum) 與籌碼 (whale),
         讓分數由順勢動能主導,不再被『便宜與否』拖累主流飆股。回傳 (新權重, 是否啟用)。
         """
+        if type(self).RESEARCH_ARM == "C2":
+            return {k: float(v) for k, v in base.items()}, False
         w = {k: float(v) for k, v in base.items()}
         strong_trend = (self._bull_stack(stock)
                         and stock.ma20_bias >= self.trend_bias_min

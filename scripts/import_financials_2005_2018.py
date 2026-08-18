@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
 """import_financials_2005_2018.py — 把 TEJ 2005-2018 合併季財報併入 tej_cache/financial_statements。
 ================================================================================
-來源:tej_exports/inbox/2005-2018 三大財報+ROE.xlsx (合併報表,金額=千元)
+⚠ DEPRECATED (2026-08-07):此腳本原本要補的 2005-2018 缺口,tej_importer.py 的
+  financial_statements 現在直接從 tej_exports/DataExport0806/財報2004~202606/ 讀,
+  該原始檔本身就是 2005-06~2026-06 一整份 (已驗證涵蓋),不再需要這支腳本另外補洞。
+  舊來源 tej_exports/inbox/2005-2018 三大財報+ROE 上下市.xlsx 已停用,程式不得再讀
+  (見 docs/資料快照遷移_DataExport0806.md)。保留本檔只是留存當初怎麼補這段歷史的
+  紀錄,SRC 已改指向新原始檔;若要重跑,先確認 tej_cache/financial_statements 是不是
+  已經被 `python tej_importer.py --dataset financial_statements` 跑過,跑過的話這支
+  腳本就是多餘的。
+
+來源 (舊):tej_exports/inbox/2005-2018 三大財報+ROE.xlsx (合併報表,金額=千元)
 目標:~/tej_cache/financial_statements/<股號>.parquet (現有僅2019+,金額=元)
 
 處理:
@@ -21,7 +30,7 @@ import shutil
 from pathlib import Path
 import pandas as pd
 
-SRC = Path("tej_exports/inbox/2005-2018 三大財報+ROE 上下市.xlsx")
+SRC = Path("tej_exports/inbox/2005-2018 三大財報+ROE 上下市.xlsx")   # 舊來源,已停用 (見檔頭 DEPRECATED 說明)
 FS_DIR = Path.home() / "tej_cache" / "financial_statements"
 BACKUP = Path.home() / "tej_cache" / "financial_statements_backup_pre2005merge"
 
@@ -55,6 +64,11 @@ def load_new() -> pd.DataFrame:
 
 
 def main(commit: bool):
+    print("❌ 本腳本已 deprecated:舊來源 tej_exports/inbox/ 已停用,程式不得再讀。\n"
+          "   改跑 `python tej_importer.py --dataset financial_statements`"
+          "(讀 tej_exports/DataExport0806/財報2004~202606/,本身已涵蓋 2005-06~2026-06)。\n"
+          "   細節見 docs/資料快照遷移_DataExport0806.md。")
+    sys.exit(1)
     if not SRC.exists():
         print(f"❌ 找不到來源:{SRC}"); sys.exit(1)
     new = load_new()

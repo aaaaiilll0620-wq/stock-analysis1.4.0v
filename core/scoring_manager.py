@@ -2,6 +2,8 @@ from typing import Dict, List
 from core.models import StockData, ScoreResult
 
 class ScoringManager:
+    # Enabled only by the preregistered research runner; None is V0.
+    RESEARCH_ARM = None
     # ------------------------------------------------------------------
     # v4.4 候選訊號開關 (未來優化藍圖 7、10):每個訊號獨立 A/B
     # (scripts/factor_experiments.py,45檔池、月頻持有20日、全期+2022空頭雙段)。
@@ -90,6 +92,8 @@ class ScoringManager:
     # 配分:均線結構 30 + 週線趨勢 15 + RSI 位階 25 + MACD 20 + 布林 8 = 最高 98
     # ------------------------------------------------------------------
     def _get_technical_score(self, data: StockData) -> float:
+        if type(self).RESEARCH_ARM == "B1":
+            return self._get_technical_score_b1(data)
         score = 0.0
 
         # (1) 短均線結構 (最多 30)
@@ -150,6 +154,53 @@ class ScoringManager:
     # ------------------------------------------------------------------
     # 動能面:漲跌幅與量能分級(單位:張),不再兩個 50 分門檻就滿分
     # ------------------------------------------------------------------
+    @staticmethod
+    def _linear_bucket(value, nodes):
+        """Frozen rule R: piecewise-linear interpolation with flat tails."""
+        if value is None:
+            return 0.0
+        try:
+            x = float(value)
+        except (TypeError, ValueError):
+            return 0.0
+        if x <= nodes[0][0]: return float(nodes[0][1])
+        if x >= nodes[-1][0]: return float(nodes[-1][1])
+        for (x0, y0), (x1, y1) in zip(nodes, nodes[1:]):
+            if x <= x1:
+                return float(y0 + (x-x0)*(y1-y0)/(x1-x0))
+        return float(nodes[-1][1])
+
+    @staticmethod
+    def _atr_slope(a, b, atr_pct, full):
+        try: a, b, atr_pct = float(a), float(b), float(atr_pct)
+        except (TypeError, ValueError): return 0.0
+        if b <= 0: return 0.0
+        d_atr=((a/b)-1.0)*100.0/max(atr_pct,0.5)
+        return float(full*min(1.0,max(0.0,(d_atr+1.0)/2.0)))
+
+    def _get_technical_score_b1(self, data: StockData) -> float:
+        score=(self._atr_slope(data.current_price,data.ma5,data.atr_pct,10.0)
+               +self._atr_slope(data.ma5,data.ma20,data.atr_pct,10.0)
+               +self._atr_slope(data.current_price,data.ma20,data.atr_pct,10.0)
+               +(self._atr_slope(data.current_price,data.weekly_ma20,data.atr_pct,15.0) if data.weekly_ma20>0 else 0.0)
+               +self._linear_bucket(data.rsi,[(25.0,0.0),(35.0,10.0),(45.0,18.0),(60.0,25.0),(72.5,15.0),(77.5,8.0)]))
+        if data.macd_status=="bullish_strong": score+=20
+        elif data.macd_status=="bullish_recovery" or data.macd_golden_cross: score+=15
+        elif data.macd_status=="neutral": score+=8
+        if data.bb_status=="squeezing": score+=8
+        elif data.bb_status=="expanding": score+=5
+        if data.ma_cross_status=="golden_cross": score+=6
+        elif data.ma_cross_status=="death_cross": score-=8
+        if self.USE_BBP and data.bb_percent_b is not None:
+            b=data.bb_percent_b
+            if 0.5<=b<=0.95: score+=5
+            elif b>1.05: score-=4
+            elif b<0.05: score-=2
+        if self.USE_KD_FULL:
+            if data.kd_k>data.kd_d and 20.0<=data.kd_j<=90.0: score+=5
+            elif data.kd_k<data.kd_d and data.kd_j<20.0: score-=3
+        return min(max(score,0.0),100.0)
+
     def _get_momentum_score(self, data: StockData) -> float:
         """
         動能面 (重建版 — 因子歸因驅動)。
@@ -160,6 +211,8 @@ class ScoringManager:
           (B) 營收動能 (加速度 / 累計年增 / 連續成長月數) — 成長領先指標。   最多 30
           (C) 短線確認與健康度 (量能 + 乖離 + 量價背離抑制) — 僅作確認。     最多 25
         """
+        if type(self).RESEARCH_ARM == "B5":
+            return self._get_momentum_score_b5(data)
         score = 0.0
 
         # ---- (A) 中期價格動能 (最多 45):近6月為主 + 近3月確認 ----
@@ -191,20 +244,21 @@ class ScoringManager:
             elif r6 < -5:             score -= 3
 
         # ---- (B) 營收動能 (最多 30):台股最即時的成長領先指標,較價格動能穩定 ----
-        accel = data.revenue_accel
-        cum = data.revenue_cum_yoy
-        streak = data.revenue_growth_streak or 0
-        if accel is not None:
-            if   accel > 8:    score += 14   # 成長加速
-            elif accel > 2:    score += 10
-            elif accel > -2:   score += 5
-            # accel <= -2 (成長減速) 給 0
-        if cum is not None:
-            if   cum > 25:     score += 10
-            elif cum > 10:     score += 7
-            elif cum > 0:      score += 4
-        if   streak >= 6:      score += 6
-        elif streak >= 3:      score += 3
+        if type(self).RESEARCH_ARM != "B3":
+            accel = data.revenue_accel
+            cum = data.revenue_cum_yoy
+            streak = data.revenue_growth_streak or 0
+            if accel is not None:
+                if   accel > 8:    score += 14   # 成長加速
+                elif accel > 2:    score += 10
+                elif accel > -2:   score += 5
+                # accel <= -2 (成長減速) 給 0
+            if cum is not None:
+                if   cum > 25:     score += 10
+                elif cum > 10:     score += 7
+                elif cum > 0:      score += 4
+            if   streak >= 6:      score += 6
+            elif streak >= 3:      score += 3
 
         # ---- (C) 短線確認與健康度 (最多 25):量能 + 乖離,退居確認角色 ----
         v = data.volume
@@ -243,6 +297,26 @@ class ScoringManager:
     #   天期 1/3/5/10/20 分開加權:短天期看即時、長天期看趨勢。
     _HORIZON_WEIGHTS = {1: 0.10, 3: 0.15, 5: 0.25, 10: 0.25, 20: 0.25}
     _RATIO_TO_POINTS = 300.0   # 淨參與率 → 分數斜率 (±0.1 淨參與 ≈ ±30 分);可調,改後需 --attribution 複驗
+
+    def _get_momentum_score_b5(self, data: StockData) -> float:
+        m6,m3=float(data.mom_6m or 0.0),float(data.mom_3m or 0.0)
+        score=self._linear_bucket(m6,[(-13.5,0.0),(-2.5,6.0),(7.5,12.0),(18.5,19.0),(32.5,25.0),(47.5,30.0)])
+        score+=self._linear_bucket(m3,[(-12.0,0.0),(-4.0,3.0),(4.0,7.0),(14.0,11.0),(26.0,15.0)])
+        if self.USE_RS_OVERLAY and data.rs_6m is not None:
+            rs=self._linear_bucket(data.rs_6m,[(-20.0,-6.0),(-10.0,-3.0),(-2.5,0.0),(4.0,2.0),(14.0,5.0),(26.0,8.0)])
+            if data.rs_6m>20.0 and float(data.rs_3m or 0.0)<=0.0: rs=min(rs,5.0)
+            score+=rs
+        if data.revenue_accel is not None: score+=self._linear_bucket(data.revenue_accel,[(-4.0,0.0),(0.0,5.0),(5.0,10.0),(11.0,14.0)])
+        if data.revenue_cum_yoy is not None: score+=self._linear_bucket(data.revenue_cum_yoy,[(-5.0,0.0),(5.0,4.0),(17.5,7.0),(32.5,10.0)])
+        score+=self._linear_bucket(float(data.revenue_growth_streak or 0),[(1.0,0.0),(4.0,3.0),(7.5,6.0)])
+        if data.volume>=500: score+=self._linear_bucket(data.volume_spike or 1.0,[(0.55,0.0),(1.05,4.0),(1.65,7.0),(2.35,10.0)])
+        score+=self._linear_bucket(data.ma20_bias,[(-15.5,0.0),(-8.5,3.0),(-2.5,8.0),(4.0,10.0),(11.5,5.0),(18.5,1.0)])
+        if m6>12.0 and m3<-5.0: score-=8.0
+        if data.volume_divergence: score-=5.0
+        elif data.obv_rising is True: score+=5.0
+        if data.kd_j>100: score-=3.0
+        if self.USE_OBV_TREND and data.obv_above_ma20 is not None: score+=4 if data.obv_above_ma20 else -2
+        return min(max(score,0.0),100.0)
 
     def _get_whale_score(self, data: StockData) -> float:
         fr = data.foreign_net_ratio or {}
@@ -299,7 +373,8 @@ class ScoringManager:
                 tdcc_adj -= 3.0          # 背離:法人在買、大戶卻週減 (趁強出貨)
         tdcc_adj = max(-8.0, min(8.0, tdcc_adj))
 
-        return min(max(score + adj + tdcc_adj, 0.0), 100.0)
+        raw=score + adj + tdcc_adj
+        return raw if type(self).RESEARCH_ARM == "B2" else min(max(raw,0.0),100.0)
 
     # ------------------------------------------------------------------
     # 舊版籌碼計法 (連買天數為基底) — 僅在無多天期淨參與率資料時回退使用
@@ -357,7 +432,8 @@ class ScoringManager:
                 tdcc_adj -= 3.0
         tdcc_adj = max(-8.0, min(8.0, tdcc_adj))
 
-        return min(max(combined + adj + tdcc_adj, 0.0), 100.0)
+        raw=combined + adj + tdcc_adj
+        return raw if type(self).RESEARCH_ARM == "B2" else min(max(raw,0.0),100.0)
 
     def _generate_comment(self, data: StockData, total: float, tech: float, whale: float) -> str:
         status_tags = []

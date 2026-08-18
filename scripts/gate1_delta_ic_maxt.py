@@ -150,32 +150,113 @@ def _t_of(x: np.ndarray, axis: int = 0) -> np.ndarray:
     return np.where(degenerate, 0.0, out)
 
 
-def delta_ic_t(blocks) -> np.ndarray:
-    """**凍結的統計量**:每個 arm 的 `t(ΔIC)`,ΔIC(t) = IC_arm(t) − IC_V0(t)
-    在**同一組 `M*` 與同一組 `I(t)`** 上逐月配對相減。回長度 K 的陣列。"""
+V0_BASELINE = -1   # baseline_idx 中代表「對 V0(即 build_month_blocks 的 v0_col)」
+
+
+def _check_baseline_idx(baseline_idx, K: int) -> np.ndarray:
+    """驗證 per-arm baseline 宣告(勘誤 E1)。回正規化後的 int64 陣列。
+
+    **一律拒絕靜默轉型**(Codex 2026-08-02 §3):`np.asarray(x, dtype=int)` 會把
+    `2.0` 變 `2`、把 `True` 變 `1`、把 `[[...]]` 壓平 —— 宣告表是凍結研究設定,
+    型別出錯時必須 raise 讓人看見,不得默默改成某個「看起來合理」的值。
+    """
+    if isinstance(baseline_idx, (str, bytes, bool, int, float, np.generic)):
+        raise TypeError(
+            f"baseline_idx 必須是長度 {K} 的一維整數序列,"
+            f"收到純量/字串 {type(baseline_idx).__name__}")
+
+    if isinstance(baseline_idx, np.ndarray):
+        if baseline_idx.ndim != 1:
+            raise ValueError(f"baseline_idx 必須是一維,收到 ndim={baseline_idx.ndim}")
+        if baseline_idx.dtype == np.bool_:
+            raise TypeError("baseline_idx 不得為 bool 陣列 —— True/False 不是 arm 索引")
+        if baseline_idx.dtype.kind not in ("i", "u"):
+            raise TypeError(
+                f"baseline_idx 必須是整數 dtype,收到 {baseline_idx.dtype} —— 不做靜默轉型")
+        b = baseline_idx.astype(np.int64, copy=True)
+    else:
+        try:
+            seq = list(baseline_idx)
+        except TypeError as exc:
+            raise TypeError(f"baseline_idx 不可迭代:{exc}") from None
+        for k, v in enumerate(seq):
+            if isinstance(v, bool):          # 必須先於 int 檢查:Python 的 bool 是 int 子類
+                raise TypeError(f"baseline_idx[{k}] 是 bool {v!r} —— 不是 arm 索引")
+            if isinstance(v, (list, tuple, np.ndarray)):
+                raise ValueError(f"baseline_idx 必須是一維,baseline_idx[{k}] 是序列")
+            if not isinstance(v, (int, np.integer)):
+                raise TypeError(
+                    f"baseline_idx[{k}] = {v!r}({type(v).__name__})不是整數 —— 不做靜默轉型")
+        b = np.asarray(seq, dtype=np.int64)
+
+    if b.shape != (K,):
+        raise ValueError(f"baseline_idx 長度須為 K={K},收到 {b.shape}")
+    bad = [(k, int(v)) for k, v in enumerate(b)
+           if not (v == V0_BASELINE or 0 <= v < K)]
+    if bad:
+        raise ValueError(f"baseline_idx 含越界值(須為 -1 或 0..{K-1}):{bad}")
+    self_ref = [k for k, v in enumerate(b) if v == k]
+    if self_ref:
+        raise ValueError(
+            f"baseline_idx 讓 arm {self_ref} 以自己為 baseline → ΔIC 恆為 0,"
+            "那不是檢定而是恆等式;宣告寫錯了。")
+    return b
+
+
+def _delta_ic_matrix(ica: np.ndarray, ic0: np.ndarray,
+                     baseline_idx=None) -> np.ndarray:
+    """逐月配對的 ΔIC 矩陣 (T×K)。
+
+    `baseline_idx=None` → 全族對 V0,`ica - ic0[:, None]`,**與勘誤前逐位元相同**。
+    給定時 → 每個 arm 用自己宣告的 baseline:`-1` 代表 V0,`j` 代表族內第 j 個 arm。
+    兩種情形都在**同一組 `M*` / `I(t)` / 同一組(置換後的)報酬**上相減,
+    所以 paired 與 joint 的性質都保住(勘誤 E2)。
+    """
+    if baseline_idx is None:
+        return ica - ic0[:, None]
+    b = _check_baseline_idx(baseline_idx, ica.shape[1])
+    base = np.where(b[None, :] == V0_BASELINE, ic0[:, None], ica[:, np.clip(b, 0, None)])
+    return ica - base
+
+
+def delta_ic_t(blocks, baseline_idx=None) -> np.ndarray:
+    """**凍結的統計量**:每個 arm 的 `t(ΔIC)`,ΔIC(t) = IC_arm(t) − IC_baseline(t)
+    在**同一組 `M*` 與同一組 `I(t)`** 上逐月配對相減。回長度 K 的陣列。
+
+    `baseline_idx`(勘誤 E1,2026-08-02 加入):per-arm 的配對基準。
+    省略 → 全族對 V0,行為與勘誤前完全相同(既有 11 項測試不受影響)。
+    """
     ica, ic0 = _ic_row(blocks)
-    return _t_of(ica - ic0[:, None])
+    return _t_of(_delta_ic_matrix(ica, ic0, baseline_idx))
 
 
 # ============================================================================
 # 2. 凍結的 12-arm joint max-t 虛無
 # ============================================================================
 def joint_maxt_null(blocks, n_perm: int = N_PERM, seed: int = SEED,
-                    alpha: float = ALPHA) -> dict:
+                    alpha: float = ALPHA, baseline_idx=None) -> dict:
     """**凍結的虛無**:逐 as_of 打散報酬 rank,**同一次置換的同一組打散順序
     同時套用到全部 12 個 arm 與 V0**(這是 paired + joint 的關鍵:
     保留 arm 之間的相關結構,否則 max-t 會退化成 Bonferroni)。
 
     每次置換 → 12 個 `t(ΔIC)` → 取 max → n_perm 次形成虛無分布 → 取 p(1−alpha)。
+
+    `baseline_idx`(勘誤 E1):per-arm 的配對基準,語意見 `_delta_ic_matrix`。
+    **max 一律跨全族 12 個 arm 取**,不因 baseline 不同而分組 —— 分組取 max 就是
+    分批降低多重比較懲罰,第二批 §7 明文禁止(勘誤 E3)。
+    當某個 arm 的 baseline 是族內另一個 arm 時,兩者的 IC 在**同一次置換的同一組
+    打散順序**下算出,配對結構與「對 V0」的情形完全一致。
     """
     rng = np.random.default_rng(seed)
     K = blocks[0][0].shape[1]
+    if baseline_idx is not None:
+        _check_baseline_idx(baseline_idx, K)     # fail fast:不要跑完 2000 次才發現宣告錯
     maxt = np.empty(n_perm)
     allt = np.empty((n_perm, K))
     for b in range(n_perm):
         yp = [rng.permutation(y) for (_, _, y) in blocks]   # 同一組順序餵給所有 arm 與 V0
         ica, ic0 = _ic_row(blocks, yp)
-        t = _t_of(ica - ic0[:, None])
+        t = _t_of(_delta_ic_matrix(ica, ic0, baseline_idx))
         allt[b] = t
         maxt[b] = np.nanmax(t)
     thr = float(np.percentile(maxt[np.isfinite(maxt)], 100 * (1 - alpha)))

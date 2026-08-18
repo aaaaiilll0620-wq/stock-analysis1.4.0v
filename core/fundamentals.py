@@ -17,6 +17,8 @@ class FundamentalEngine:
          OCF 為負或與淨利嚴重背離時列為「高風險」。
       3. 資料治理:任何欄位缺失都不讓流程崩潰,改以缺漏清單降低信心分數。
     """
+    # Set only by the preregistered runner; None preserves V0.
+    RESEARCH_ARM = None
     # v4.4 候選訊號開關 (未來優化藍圖 10):總資產週轉率 (年化季營收÷總資產) 進獲利能力組。
     # A/B (scripts/factor_experiments.py):基本面單因子多空 全期 +1.51→+2.05%、2022 +0.14→+0.26%,
     # 綜合多空全期 +2.63→+2.93% ✅ 通過 → 預設開啟。金融股豁免 (資產結構特殊)。
@@ -337,11 +339,14 @@ class FundamentalEngine:
         score_safety = _avg_present(["debt_to_asset", "current_ratio"])
         pe_v = raw_data.get("pe_vs_industry")
         score_valuation = scores["pe_vs_industry"] if (pe_v is not None and not pd.isna(pe_v)) else 50.0
+        weights = self.weights
+        if type(self).RESEARCH_ARM == "B4":
+            weights = {"profitability": 0.375, "growth": 0.3125, "safety": 0.3125}
         total_score = (
-            score_profit * self.weights["profitability"] +
-            score_growth * self.weights["growth"] +
-            score_safety * self.weights["safety"] +
-            score_valuation * self.weights["valuation"]
+            score_profit * weights["profitability"] +
+            score_growth * weights["growth"] +
+            score_safety * weights["safety"] +
+            (score_valuation * weights["valuation"] if "valuation" in weights else 0.0)
         )
 
         # --- 新增:獲利品質 + 現金流健康 ---
