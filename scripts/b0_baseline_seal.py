@@ -410,12 +410,14 @@ def main() -> None:
         "note": ("Pre-L2 baseline. No B0 decision route was run; no selection, "
                  "portfolio, NAV or performance quantity exists at this seal."),
     }
-    out = os.path.join(OUT_DIR, "b0_baseline_seal.json")
-    with open(out, "w", encoding="utf-8", newline="\n") as fh:
-        json.dump(record, fh, ensure_ascii=False, indent=2, sort_keys=True)
-        fh.write("\n")
-    print(f"written       : {out}")
-    print(f"record sha256 : {file_sha256(out)}")
+    # C-52/R1. The content-addressed path is the archival identity; the pointer
+    # is a convenience copy. `write_immutable` aborts rather than overwrite, and
+    # reopens what it wrote to check the body reproduces the name it was given.
+    archive, pointer = write_immutable(record, seal_hash)
+    record_lineage(seal_hash, m)
+    print(f"archived      : {archive}")
+    print(f"record sha256 : {file_sha256(archive)}")
+    print(f"latest pointer: {pointer}  (convenience copy, NOT the identity)")
     print("\nL2 NOT opened. Opening L2 requires explicit user authorisation.")
 
 
