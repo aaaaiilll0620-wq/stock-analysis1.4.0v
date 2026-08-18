@@ -1,0 +1,55 @@
+{
+  "artefact": "data/b0/financials_pit.parquet",
+  "availability_rule": "real 財報發布日 -> release_date; fixed-lag proxies forbidden (§2.2)",
+  "builder": "research/b0_materializer/build_financials_pit.py",
+  "bytes": 11931474,
+  "columns": [
+    "stock_id",
+    "date",
+    "release_date",
+    "quarter",
+    "consolidated",
+    "eps",
+    "capex",
+    "current_assets",
+    "current_liabilities",
+    "equity",
+    "gross_profit",
+    "net_income",
+    "operating_cash_flow",
+    "operating_income",
+    "revenue",
+    "total_assets",
+    "total_liabilities"
+  ],
+  "consolidation_basis_counts": {
+    "N": 13814,
+    "Y": 122558
+  },
+  "content_sha256": "1d0c39d1b3eedd601df03fa0210c2a80e9f1253e7e39a0bb8c37db118733b8d6",
+  "importer_spec": "tej_importer.DATASETS['financial_statements'] (frozen)",
+  "performance_computed": false,
+  "period_max": "2025-12-01",
+  "period_min": "2005-06-01",
+  "release_max": "2026-03-31",
+  "release_min": "2005-08-02",
+  "rows_dropped_no_release_date": 0,
+  "rows_dropped_released_after_window_end": 2954,
+  "rows_kept": 136372,
+  "rows_raw": 139326,
+  "schema_sha256": "a3c5de31efbded0940d94066cf2b97f3cdd7efd2b8621529474b66e76c8a14b2",
+  "securities": 2315,
+  "sources": [
+    {
+      "file": "tej_exports\\DataExport0806\\財報2004~202606\\202606 財報583家 8-10.xlsx",
+      "rows": 595,
+      "sha256": "d0b9ef3b31efd32549d5153c7124d8b2e97a559a822d4aea98f9d1f923d54418"
+    },
+    {
+      "file": "tej_exports\\DataExport0806\\財報2004~202606\\20260806090633.xlsx",
+      "rows": 138731,
+      "sha256": "97574a0892ed01292b0ea781c340ce711ae96bd7c17d3fd5aad79ead57016832"
+    }
+  ],
+  "window_end": "2026-03-31"
+}

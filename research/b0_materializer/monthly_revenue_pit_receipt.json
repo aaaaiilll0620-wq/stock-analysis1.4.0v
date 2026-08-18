@@ -1,0 +1,40 @@
+{
+  "artefact": "data/b0/monthly_revenue_pit.parquet",
+  "availability_rule": "real release_date; fixed-lag proxies forbidden (§2.2)",
+  "builder": "research/b0_materializer/build_monthly_revenue_pit.py",
+  "bytes": 2500431,
+  "carried_columns": [
+    "stock_id",
+    "date",
+    "release_date",
+    "revenue"
+  ],
+  "content_sha256": "7c0d651c900dfa5d6aca33f595cfb20585a8a642dc042aa15eae063f41c449ab",
+  "declared_data_boundary": "2013-01 (§2.1)",
+  "excluded_by_frozen_lineage": [
+    "revenue_yoy_pct",
+    "cum_revenue",
+    "cum_revenue_last_year",
+    "revenue_last_year"
+  ],
+  "first_real_release_date": "2013-02-01",
+  "lineage_note": "revenue_yoy / revenue_accel are derived by core.b0_features.compute_revenue_yoy (§3.5); the vendor YoY column is excluded so it cannot become a second growth definition.",
+  "month_max": "2026-02-01",
+  "month_min": "2013-01-01",
+  "performance_computed": false,
+  "revenue_na_rate": 0.000298,
+  "rows_dropped_no_release_date": 167880,
+  "rows_dropped_released_after_window_end": 8446,
+  "rows_kept": 301801,
+  "rows_raw": 478127,
+  "schema_sha256": "78ebc109eb2527cbaf54b202f3ba1281488706f76151dd551d39ea4e5f29352a",
+  "securities": 2168,
+  "upstream_sources": [
+    {
+      "file": "tej_exports\\DataExport0806\\月營收2004-202608\\20260806091706.xlsx",
+      "rows": 478127,
+      "sha256": "237e13abae8dafbadd01881920427ef1c3f0f7da9b226f88495f770b1d0b0fab"
+    }
+  ],
+  "window_end": "2026-03-31"
+}

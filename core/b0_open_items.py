@@ -109,6 +109,46 @@ OPEN_ITEMS: tuple[OpenItem, ...] = (
     #                                      exemption does not promote
     #                                      the rule it guarded
 
+    OpenItem(
+        key="value_pbr_lineage_2019plus",
+        layer="features",
+        materiality="structural",
+        question=(
+            "From which ADMISSIBLE source does `pbr_tse` come for decision dates "
+            "2019-01-31 onward? Measured, not inferred: the TSE valuation columns "
+            "(本益比-TSE / 股價淨值比-TSE) exist ONLY in the yearly-xlsx vintage of "
+            "個股股價、本益比2004-20260817, which is the corpus D-1 quarantined for "
+            "survivorship filtering (content sha256 aeda65b9…ea49c1). The vintage "
+            "that REPLACED it for 2019+ — 股價 2019-2022.zip and "
+            "股價2023-20260817.zip — carries only 本益比-TEJ / 股價淨值比-TEJ. So "
+            "every candidate is already excluded by something frozen: the TSE "
+            "series by D-1, and the TEJ series by B-09's lineage."
+        ),
+        why_it_matters=(
+            "Value = industry-relative B/M is one of the four equally weighted "
+            "Selection concepts (§3.2), and B-09 freezes it on the TSE PBR lineage. "
+            "87 of the 141 sealed decision months are 2019-01-31 or later — the same "
+            "87 months core/b0_adapter_retrospective.py already names as where a "
+            "survivorship-filtered universe does its damage. Without a ruling the "
+            "only reachable options each break a different frozen rule: substituting "
+            "PBR_TEJ is the silent lineage substitution B-09 forbids; reading the "
+            "quarantined corpus is the survivorship bias D-1 exists to remove; "
+            "deriving B/M from book equity and shares outstanding is a new valuation "
+            "field; and leaving pbr_tse NA makes §4.1 complete-case drop the entire "
+            "universe for 62% of the window. Choosing among them at implementation "
+            "time is exactly the unregistered free parameter M-3 forbids."
+        ),
+        demoted_evidence=(
+            "B-09 Phase 1/2 closure fixes B/M on PBR_TSE and records the TSE-vs-TEJ "
+            "distinction as deliberate. research/p0_b09_value_reference/"
+            "build_b_value_reference.py reads ~/tej_cache/price_valuation, whose "
+            "fingerprint IS the quarantined hash — so the existing "
+            "b_value_reference_candidate_v2.parquet is contaminated from 2019 and "
+            "cannot be promoted. D1-6 quarantines by content, so copying or renaming "
+            "that corpus does not launder it. None of this is a ruling: the "
+            "specification does not say what an admissible 2019+ TSE PBR source is."
+        ),
+    ),
 )
 
 _BY_KEY: dict[str, OpenItem] = {i.key: i for i in OPEN_ITEMS}
