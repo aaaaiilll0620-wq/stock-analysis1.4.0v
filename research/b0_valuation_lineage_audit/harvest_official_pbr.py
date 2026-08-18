@@ -104,6 +104,33 @@ def decision_sessions(first_ym: str, last_ym: str) -> list[tuple[str, str, str]]
     return out
 
 
+def route_as_of_sessions(first_ym: str, last_ym: str) -> list[tuple[str, str, str]]:
+    """The sessions the ROUTE will ask for, which are not the month-end ones.
+
+    §6.6 / `b0_route.resolve_as_of` takes the last session STRICTLY BEFORE the
+    decision date. The coverage audit used the last session on or before the
+    month end, which is the same date whenever the month end is not a session
+    and one session later whenever it is — 85 of the 141 decision months. Both
+    are correct for their own question, and materialising the sealed panel off
+    the audit's set would key the frozen input to a session the route never
+    reads.
+    """
+    import pandas as pd
+
+    sess = _sessions()
+    months = pd.date_range(pd.Period(first_ym, freq="M").start_time,
+                           pd.Period(last_ym, freq="M").end_time.normalize(),
+                           freq="ME")
+    out = []
+    for m in months:
+        d = m.strftime("%Y-%m-%d")
+        prior = [s for s in sess if s < d]
+        if not prior:
+            raise SystemExit(f"abort: no completed session before {d}")
+        out.append((m.strftime("%Y-%m"), d, prior[-1]))
+    return out
+
+
 def to_roc(ymd: str) -> str:
     y, m, d = ymd.split("-")
     return f"{int(y) - 1911}%2F{m}%2F{d}"
@@ -312,6 +339,8 @@ def main() -> None:
         months += decision_sessions(WINDOW_FROM, WINDOW_TO)
     if WHICH in ("overlap", "all"):
         months += decision_sessions(OVERLAP_FROM, OVERLAP_TO)
+    if WHICH == "route":
+        months += route_as_of_sessions(WINDOW_FROM, WINDOW_TO)
     months.sort()
 
     srcs = ["twse", "tpex"] if ONLY == "both" else [ONLY]

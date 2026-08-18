@@ -1634,9 +1634,12 @@ NORMATIVE_MODULES                23 → 24（新增 core/b0_valuation_source.py�
 | ~~**P-2**~~ | ~~兩個 adapter 向同一 core 供料~~ | ✅ **DONE（v1.7）** | —— |
 | ~~**`value_pbr_lineage_2019plus`**~~ | ~~2019+ 的 `pbr_tse` 無 admissible 來源~~ —— **v1.14 之後登記、v1.15 由 R1~R7 關閉**（C-48）。官方 TWSE/TPEx 歷史 PBR 為 admissible continuation，證據為 overlap 期逐筆同值 | ~~SPEC / BLOCKING~~ | ✅ **已關閉**（曾擋住 L2 sealed-input materializer） |
 
+| **`value_per_lineage_2019plus`** | **2019+ 的 `per_tse` 無 admissible 來源** —— 與 C-48 完全相同的缺口、同一個 corpus，於 C-48 之後物化 sealed panel 時撞到。**C-48 未裁決此項**（R1 只談 PBR），依 M-3 登記，**不得以「同理可推」擴張** | **SPEC / BLOCKING** | ⛔ L2 sealed-input materializer 的 valuation leg（PEG 是 Value 的凍結成員，C-17） |
+
 **✅ P-1b-U 已於 v1.6 關閉：canonical core 的 UNSPECIFIED 項目為 0。**
 **該計數在 v1.14 之後曾短暫回到 1**（`value_pbr_lineage_2019plus`，materializer 施工時撞到），
-**於 v1.15 由 C-48 裁決關回 0** —— 登記簿確實承接了新發現的未定行為，這正是它存在的理由。
+**於 v1.15 由 C-48 裁決關回 0**；**隨即因 `value_per_lineage_2019plus` 再回到 1**
+—— 登記簿確實承接了新發現的未定行為，這正是它存在的理由。**S-1 因此再度為紅，是機制正常運作，不是回歸缺陷。**
 
 ```python
 >>> from core.b0_open_items import summary

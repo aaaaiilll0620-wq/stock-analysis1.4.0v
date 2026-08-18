@@ -1,0 +1,704 @@
+{
+  "performance_computed": false,
+  "sessions": [
+    {
+      "as_of_session": "2019-01-30",
+      "decision_date": "2019-01-31",
+      "decision_month": "2019-01",
+      "tpex_rows": 766,
+      "tpex_state": "OK",
+      "tpex_values": 766
+    },
+    {
+      "as_of_session": "2019-02-27",
+      "decision_date": "2019-02-28",
+      "decision_month": "2019-02",
+      "tpex_rows": 767,
+      "tpex_state": "OK",
+      "tpex_values": 767
+    },
+    {
+      "as_of_session": "2019-03-29",
+      "decision_date": "2019-03-31",
+      "decision_month": "2019-03",
+      "tpex_rows": 768,
+      "tpex_state": "OK",
+      "tpex_values": 768
+    },
+    {
+      "as_of_session": "2019-04-29",
+      "decision_date": "2019-04-30",
+      "decision_month": "2019-04",
+      "tpex_rows": 768,
+      "tpex_state": "OK",
+      "tpex_values": 768
+    },
+    {
+      "as_of_session": "2019-05-30",
+      "decision_date": "2019-05-31",
+      "decision_month": "2019-05",
+      "tpex_rows": 771,
+      "tpex_state": "OK",
+      "tpex_values": 771
+    },
+    {
+      "as_of_session": "2019-06-28",
+      "decision_date": "2019-06-30",
+      "decision_month": "2019-06",
+      "tpex_rows": 775,
+      "tpex_state": "OK",
+      "tpex_values": 775
+    },
+    {
+      "as_of_session": "2019-07-30",
+      "decision_date": "2019-07-31",
+      "decision_month": "2019-07",
+      "tpex_rows": 773,
+      "tpex_state": "OK",
+      "tpex_values": 773
+    },
+    {
+      "as_of_session": "2019-08-30",
+      "decision_date": "2019-08-31",
+      "decision_month": "2019-08",
+      "tpex_rows": 772,
+      "tpex_state": "OK",
+      "tpex_values": 772
+    },
+    {
+      "as_of_session": "2019-09-27",
+      "decision_date": "2019-09-30",
+      "decision_month": "2019-09",
+      "tpex_rows": 766,
+      "tpex_state": "OK",
+      "tpex_values": 766
+    },
+    {
+      "as_of_session": "2019-10-30",
+      "decision_date": "2019-10-31",
+      "decision_month": "2019-10",
+      "tpex_rows": 775,
+      "tpex_state": "OK",
+      "tpex_values": 775
+    },
+    {
+      "as_of_session": "2019-11-29",
+      "decision_date": "2019-11-30",
+      "decision_month": "2019-11",
+      "tpex_rows": 772,
+      "tpex_state": "OK",
+      "tpex_values": 772
+    },
+    {
+      "as_of_session": "2019-12-30",
+      "decision_date": "2019-12-31",
+      "decision_month": "2019-12",
+      "tpex_rows": 774,
+      "tpex_state": "OK",
+      "tpex_values": 774
+    },
+    {
+      "as_of_session": "2020-01-30",
+      "decision_date": "2020-01-31",
+      "decision_month": "2020-01",
+      "tpex_rows": 774,
+      "tpex_state": "OK",
+      "tpex_values": 774
+    },
+    {
+      "as_of_session": "2020-02-27",
+      "decision_date": "2020-02-29",
+      "decision_month": "2020-02",
+      "tpex_rows": 772,
+      "tpex_state": "OK",
+      "tpex_values": 772
+    },
+    {
+      "as_of_session": "2020-03-30",
+      "decision_date": "2020-03-31",
+      "decision_month": "2020-03",
+      "tpex_rows": 775,
+      "tpex_state": "OK",
+      "tpex_values": 774
+    },
+    {
+      "as_of_session": "2020-04-29",
+      "decision_date": "2020-04-30",
+      "decision_month": "2020-04",
+      "tpex_rows": 774,
+      "tpex_state": "OK",
+      "tpex_values": 772
+    },
+    {
+      "as_of_session": "2020-05-29",
+      "decision_date": "2020-05-31",
+      "decision_month": "2020-05",
+      "tpex_rows": 772,
+      "tpex_state": "OK",
+      "tpex_values": 771
+    },
+    {
+      "as_of_session": "2020-06-29",
+      "decision_date": "2020-06-30",
+      "decision_month": "2020-06",
+      "tpex_rows": 772,
+      "tpex_state": "OK",
+      "tpex_values": 771
+    },
+    {
+      "as_of_session": "2020-07-30",
+      "decision_date": "2020-07-31",
+      "decision_month": "2020-07",
+      "tpex_rows": 774,
+      "tpex_state": "OK",
+      "tpex_values": 773
+    },
+    {
+      "as_of_session": "2020-08-28",
+      "decision_date": "2020-08-31",
+      "decision_month": "2020-08",
+      "tpex_rows": 773,
+      "tpex_state": "OK",
+      "tpex_values": 773
+    },
+    {
+      "as_of_session": "2020-09-29",
+      "decision_date": "2020-09-30",
+      "decision_month": "2020-09",
+      "tpex_rows": 772,
+      "tpex_state": "OK",
+      "tpex_values": 772
+    },
+    {
+      "as_of_session": "2020-10-30",
+      "decision_date": "2020-10-31",
+      "decision_month": "2020-10",
+      "tpex_rows": 775,
+      "tpex_state": "OK",
+      "tpex_values": 775
+    },
+    {
+      "as_of_session": "2020-11-27",
+      "decision_date": "2020-11-30",
+      "decision_month": "2020-11",
+      "tpex_rows": 774,
+      "tpex_state": "OK",
+      "tpex_values": 774
+    },
+    {
+      "as_of_session": "2020-12-30",
+      "decision_date": "2020-12-31",
+      "decision_month": "2020-12",
+      "tpex_rows": 778,
+      "tpex_state": "OK",
+      "tpex_values": 778
+    },
+    {
+      "as_of_session": "2021-01-29",
+      "decision_date": "2021-01-31",
+      "decision_month": "2021-01",
+      "tpex_rows": 783,
+      "tpex_state": "OK",
+      "tpex_values": 783
+    },
+    {
+      "as_of_session": "2021-02-26",
+      "decision_date": "2021-02-28",
+      "decision_month": "2021-02",
+      "tpex_rows": 786,
+      "tpex_state": "OK",
+      "tpex_values": 786
+    },
+    {
+      "as_of_session": "2021-03-30",
+      "decision_date": "2021-03-31",
+      "decision_month": "2021-03",
+      "tpex_rows": 785,
+      "tpex_state": "OK",
+      "tpex_values": 785
+    },
+    {
+      "as_of_session": "2021-04-29",
+      "decision_date": "2021-04-30",
+      "decision_month": "2021-04",
+      "tpex_rows": 785,
+      "tpex_state": "OK",
+      "tpex_values": 785
+    },
+    {
+      "as_of_session": "2021-05-28",
+      "decision_date": "2021-05-31",
+      "decision_month": "2021-05",
+      "tpex_rows": 785,
+      "tpex_state": "OK",
+      "tpex_values": 785
+    },
+    {
+      "as_of_session": "2021-06-29",
+      "decision_date": "2021-06-30",
+      "decision_month": "2021-06",
+      "tpex_rows": 784,
+      "tpex_state": "OK",
+      "tpex_values": 784
+    },
+    {
+      "as_of_session": "2021-07-30",
+      "decision_date": "2021-07-31",
+      "decision_month": "2021-07",
+      "tpex_rows": 788,
+      "tpex_state": "OK",
+      "tpex_values": 787
+    },
+    {
+      "as_of_session": "2021-08-30",
+      "decision_date": "2021-08-31",
+      "decision_month": "2021-08",
+      "tpex_rows": 788,
+      "tpex_state": "OK",
+      "tpex_values": 787
+    },
+    {
+      "as_of_session": "2021-09-29",
+      "decision_date": "2021-09-30",
+      "decision_month": "2021-09",
+      "tpex_rows": 788,
+      "tpex_state": "OK",
+      "tpex_values": 787
+    },
+    {
+      "as_of_session": "2021-10-29",
+      "decision_date": "2021-10-31",
+      "decision_month": "2021-10",
+      "tpex_rows": 788,
+      "tpex_state": "OK",
+      "tpex_values": 786
+    },
+    {
+      "as_of_session": "2021-11-29",
+      "decision_date": "2021-11-30",
+      "decision_month": "2021-11",
+      "tpex_rows": 790,
+      "tpex_state": "OK",
+      "tpex_values": 786
+    },
+    {
+      "as_of_session": "2021-12-30",
+      "decision_date": "2021-12-31",
+      "decision_month": "2021-12",
+      "tpex_rows": 789,
+      "tpex_state": "OK",
+      "tpex_values": 785
+    },
+    {
+      "as_of_session": "2022-01-26",
+      "decision_date": "2022-01-31",
+      "decision_month": "2022-01",
+      "tpex_rows": 789,
+      "tpex_state": "OK",
+      "tpex_values": 786
+    },
+    {
+      "as_of_session": "2022-02-25",
+      "decision_date": "2022-02-28",
+      "decision_month": "2022-02",
+      "tpex_rows": 789,
+      "tpex_state": "OK",
+      "tpex_values": 788
+    },
+    {
+      "as_of_session": "2022-03-30",
+      "decision_date": "2022-03-31",
+      "decision_month": "2022-03",
+      "tpex_rows": 794,
+      "tpex_state": "OK",
+      "tpex_values": 793
+    },
+    {
+      "as_of_session": "2022-04-29",
+      "decision_date": "2022-04-30",
+      "decision_month": "2022-04",
+      "tpex_rows": 796,
+      "tpex_state": "OK",
+      "tpex_values": 795
+    },
+    {
+      "as_of_session": "2022-05-30",
+      "decision_date": "2022-05-31",
+      "decision_month": "2022-05",
+      "tpex_rows": 797,
+      "tpex_state": "OK",
+      "tpex_values": 797
+    },
+    {
+      "as_of_session": "2022-06-29",
+      "decision_date": "2022-06-30",
+      "decision_month": "2022-06",
+      "tpex_rows": 798,
+      "tpex_state": "OK",
+      "tpex_values": 798
+    },
+    {
+      "as_of_session": "2022-07-29",
+      "decision_date": "2022-07-31",
+      "decision_month": "2022-07",
+      "tpex_rows": 796,
+      "tpex_state": "OK",
+      "tpex_values": 796
+    },
+    {
+      "as_of_session": "2022-08-30",
+      "decision_date": "2022-08-31",
+      "decision_month": "2022-08",
+      "tpex_rows": 796,
+      "tpex_state": "OK",
+      "tpex_values": 796
+    },
+    {
+      "as_of_session": "2022-09-29",
+      "decision_date": "2022-09-30",
+      "decision_month": "2022-09",
+      "tpex_rows": 797,
+      "tpex_state": "OK",
+      "tpex_values": 797
+    },
+    {
+      "as_of_session": "2022-10-28",
+      "decision_date": "2022-10-31",
+      "decision_month": "2022-10",
+      "tpex_rows": 802,
+      "tpex_state": "OK",
+      "tpex_values": 799
+    },
+    {
+      "as_of_session": "2022-11-29",
+      "decision_date": "2022-11-30",
+      "decision_month": "2022-11",
+      "tpex_rows": 802,
+      "tpex_state": "OK",
+      "tpex_values": 802
+    },
+    {
+      "as_of_session": "2022-12-30",
+      "decision_date": "2022-12-31",
+      "decision_month": "2022-12",
+      "tpex_rows": 807,
+      "tpex_state": "OK",
+      "tpex_values": 807
+    },
+    {
+      "as_of_session": "2023-01-30",
+      "decision_date": "2023-01-31",
+      "decision_month": "2023-01",
+      "tpex_rows": 808,
+      "tpex_state": "OK",
+      "tpex_values": 808
+    },
+    {
+      "as_of_session": "2023-02-24",
+      "decision_date": "2023-02-28",
+      "decision_month": "2023-02",
+      "tpex_rows": 804,
+      "tpex_state": "OK",
+      "tpex_values": 804
+    },
+    {
+      "as_of_session": "2023-03-30",
+      "decision_date": "2023-03-31",
+      "decision_month": "2023-03",
+      "tpex_rows": 807,
+      "tpex_state": "OK",
+      "tpex_values": 807
+    },
+    {
+      "as_of_session": "2023-04-28",
+      "decision_date": "2023-04-30",
+      "decision_month": "2023-04",
+      "tpex_rows": 806,
+      "tpex_state": "OK",
+      "tpex_values": 806
+    },
+    {
+      "as_of_session": "2023-05-30",
+      "decision_date": "2023-05-31",
+      "decision_month": "2023-05",
+      "tpex_rows": 809,
+      "tpex_state": "OK",
+      "tpex_values": 809
+    },
+    {
+      "as_of_session": "2023-06-29",
+      "decision_date": "2023-06-30",
+      "decision_month": "2023-06",
+      "tpex_rows": 810,
+      "tpex_state": "OK",
+      "tpex_values": 810
+    },
+    {
+      "as_of_session": "2023-07-28",
+      "decision_date": "2023-07-31",
+      "decision_month": "2023-07",
+      "tpex_rows": 810,
+      "tpex_state": "OK",
+      "tpex_values": 810
+    },
+    {
+      "as_of_session": "2023-08-30",
+      "decision_date": "2023-08-31",
+      "decision_month": "2023-08",
+      "tpex_rows": 811,
+      "tpex_state": "OK",
+      "tpex_values": 811
+    },
+    {
+      "as_of_session": "2023-09-28",
+      "decision_date": "2023-09-30",
+      "decision_month": "2023-09",
+      "tpex_rows": 811,
+      "tpex_state": "OK",
+      "tpex_values": 811
+    },
+    {
+      "as_of_session": "2023-10-30",
+      "decision_date": "2023-10-31",
+      "decision_month": "2023-10",
+      "tpex_rows": 810,
+      "tpex_state": "OK",
+      "tpex_values": 810
+    },
+    {
+      "as_of_session": "2023-11-29",
+      "decision_date": "2023-11-30",
+      "decision_month": "2023-11",
+      "tpex_rows": 810,
+      "tpex_state": "OK",
+      "tpex_values": 810
+    },
+    {
+      "as_of_session": "2023-12-29",
+      "decision_date": "2023-12-31",
+      "decision_month": "2023-12",
+      "tpex_rows": 811,
+      "tpex_state": "OK",
+      "tpex_values": 811
+    },
+    {
+      "as_of_session": "2024-01-30",
+      "decision_date": "2024-01-31",
+      "decision_month": "2024-01",
+      "tpex_rows": 811,
+      "tpex_state": "OK",
+      "tpex_values": 811
+    },
+    {
+      "as_of_session": "2024-02-27",
+      "decision_date": "2024-02-29",
+      "decision_month": "2024-02",
+      "tpex_rows": 812,
+      "tpex_state": "OK",
+      "tpex_values": 812
+    },
+    {
+      "as_of_session": "2024-03-29",
+      "decision_date": "2024-03-31",
+      "decision_month": "2024-03",
+      "tpex_rows": 817,
+      "tpex_state": "OK",
+      "tpex_values": 817
+    },
+    {
+      "as_of_session": "2024-04-29",
+      "decision_date": "2024-04-30",
+      "decision_month": "2024-04",
+      "tpex_rows": 818,
+      "tpex_state": "OK",
+      "tpex_values": 818
+    },
+    {
+      "as_of_session": "2024-05-30",
+      "decision_date": "2024-05-31",
+      "decision_month": "2024-05",
+      "tpex_rows": 819,
+      "tpex_state": "OK",
+      "tpex_values": 819
+    },
+    {
+      "as_of_session": "2024-06-28",
+      "decision_date": "2024-06-30",
+      "decision_month": "2024-06",
+      "tpex_rows": 822,
+      "tpex_state": "OK",
+      "tpex_values": 822
+    },
+    {
+      "as_of_session": "2024-07-30",
+      "decision_date": "2024-07-31",
+      "decision_month": "2024-07",
+      "tpex_rows": 823,
+      "tpex_state": "OK",
+      "tpex_values": 823
+    },
+    {
+      "as_of_session": "2024-08-30",
+      "decision_date": "2024-08-31",
+      "decision_month": "2024-08",
+      "tpex_rows": 820,
+      "tpex_state": "OK",
+      "tpex_values": 820
+    },
+    {
+      "as_of_session": "2024-09-27",
+      "decision_date": "2024-09-30",
+      "decision_month": "2024-09",
+      "tpex_rows": 824,
+      "tpex_state": "OK",
+      "tpex_values": 824
+    },
+    {
+      "as_of_session": "2024-10-30",
+      "decision_date": "2024-10-31",
+      "decision_month": "2024-10",
+      "tpex_rows": 830,
+      "tpex_state": "OK",
+      "tpex_values": 830
+    },
+    {
+      "as_of_session": "2024-11-29",
+      "decision_date": "2024-11-30",
+      "decision_month": "2024-11",
+      "tpex_rows": 830,
+      "tpex_state": "OK",
+      "tpex_values": 830
+    },
+    {
+      "as_of_session": "2024-12-30",
+      "decision_date": "2024-12-31",
+      "decision_month": "2024-12",
+      "tpex_rows": 836,
+      "tpex_state": "OK",
+      "tpex_values": 836
+    },
+    {
+      "as_of_session": "2025-01-22",
+      "decision_date": "2025-01-31",
+      "decision_month": "2025-01",
+      "tpex_rows": 839,
+      "tpex_state": "OK",
+      "tpex_values": 839
+    },
+    {
+      "as_of_session": "2025-02-27",
+      "decision_date": "2025-02-28",
+      "decision_month": "2025-02",
+      "tpex_rows": 843,
+      "tpex_state": "OK",
+      "tpex_values": 843
+    },
+    {
+      "as_of_session": "2025-03-28",
+      "decision_date": "2025-03-31",
+      "decision_month": "2025-03",
+      "tpex_rows": 846,
+      "tpex_state": "OK",
+      "tpex_values": 846
+    },
+    {
+      "as_of_session": "2025-04-29",
+      "decision_date": "2025-04-30",
+      "decision_month": "2025-04",
+      "tpex_rows": 846,
+      "tpex_state": "OK",
+      "tpex_values": 846
+    },
+    {
+      "as_of_session": "2025-05-29",
+      "decision_date": "2025-05-31",
+      "decision_month": "2025-05",
+      "tpex_rows": 852,
+      "tpex_state": "OK",
+      "tpex_values": 851
+    },
+    {
+      "as_of_session": "2025-06-27",
+      "decision_date": "2025-06-30",
+      "decision_month": "2025-06",
+      "tpex_rows": 851,
+      "tpex_state": "OK",
+      "tpex_values": 851
+    },
+    {
+      "as_of_session": "2025-07-30",
+      "decision_date": "2025-07-31",
+      "decision_month": "2025-07",
+      "tpex_rows": 852,
+      "tpex_state": "OK",
+      "tpex_values": 852
+    },
+    {
+      "as_of_session": "2025-08-29",
+      "decision_date": "2025-08-31",
+      "decision_month": "2025-08",
+      "tpex_rows": 854,
+      "tpex_state": "OK",
+      "tpex_values": 854
+    },
+    {
+      "as_of_session": "2025-09-26",
+      "decision_date": "2025-09-30",
+      "decision_month": "2025-09",
+      "tpex_rows": 853,
+      "tpex_state": "OK",
+      "tpex_values": 853
+    },
+    {
+      "as_of_session": "2025-10-30",
+      "decision_date": "2025-10-31",
+      "decision_month": "2025-10",
+      "tpex_rows": 859,
+      "tpex_state": "OK",
+      "tpex_values": 859
+    },
+    {
+      "as_of_session": "2025-11-28",
+      "decision_date": "2025-11-30",
+      "decision_month": "2025-11",
+      "tpex_rows": 862,
+      "tpex_state": "OK",
+      "tpex_values": 862
+    },
+    {
+      "as_of_session": "2025-12-30",
+      "decision_date": "2025-12-31",
+      "decision_month": "2025-12",
+      "tpex_rows": 873,
+      "tpex_state": "OK",
+      "tpex_values": 873
+    },
+    {
+      "as_of_session": "2026-01-30",
+      "decision_date": "2026-01-31",
+      "decision_month": "2026-01",
+      "tpex_rows": 876,
+      "tpex_state": "OK",
+      "tpex_values": 876
+    },
+    {
+      "as_of_session": "2026-02-26",
+      "decision_date": "2026-02-28",
+      "decision_month": "2026-02",
+      "tpex_rows": 878,
+      "tpex_state": "OK",
+      "tpex_values": 878
+    },
+    {
+      "as_of_session": "2026-03-30",
+      "decision_date": "2026-03-31",
+      "decision_month": "2026-03",
+      "tpex_rows": 881,
+      "tpex_state": "OK",
+      "tpex_values": 881
+    }
+  ],
+  "sources": [
+    "tpex"
+  ]
+}

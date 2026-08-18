@@ -178,9 +178,15 @@ def test_the_ruling_is_in_the_frozen_spec_not_only_in_a_document():
 
 
 def test_the_open_item_is_closed_and_the_module_is_normative():
+    """Scoped to C-48's own item on purpose.
+
+    Whether the register is globally empty is a different claim, pinned by
+    `test_the_register_is_empty_and_that_is_the_goal_state`. Asserting it here
+    too would make this test go red when some LATER behaviour is registered —
+    which is the mechanism working, not C-48 coming undone.
+    """
     from core.b0_master_prereg import NORMATIVE_MODULES
     from core.b0_open_items import OPEN_ITEMS
 
     assert "core/b0_valuation_source.py" in NORMATIVE_MODULES
-    assert OPEN_ITEMS == ()
     assert "value_pbr_lineage_2019plus" not in [i.key for i in OPEN_ITEMS]

@@ -25,11 +25,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 
-from harvest_official_pbr import decision_sessions  # noqa: E402
+from harvest_official_pbr import decision_sessions, route_as_of_sessions  # noqa: E402
 
 ART = os.path.join(os.environ.get("B0_ARTIFACT_DIR") or
                    os.path.join(REPO, "artifacts"), "valuation_lineage_audit")
-OUT = os.path.join(ART, "closes_2019plus_month_ends.csv")
+# `month_ends` is the audit's session set (last session on or before the month
+# end); `route` is §6.6's (last session strictly before the decision date). They
+# differ on 85 of the 141 decision months, so the file name carries which one.
+MODE = os.environ.get("B0_SESSION_MODE", "month_ends").lower()
+OUT = os.path.join(ART, "closes_2019plus_%s.csv" % MODE)
 SRC_DIR = os.path.join(
     REPO, "tej_exports", "DataExport0806", "個股股價、本益比2004-20260817")
 
@@ -37,7 +41,9 @@ SRC_DIR = os.path.join(
 def main() -> None:
     import pandas as pd
 
-    sessions = {s for _, _, s in decision_sessions("2019-01", "2026-03")}
+    resolve = route_as_of_sessions if MODE == "route" else decision_sessions
+    sessions = {s for _, _, s in resolve("2019-01", "2026-03")}
+    print("session mode: %s (%d sessions)" % (MODE, len(sessions)), flush=True)
     zips = sorted(glob.glob(os.path.join(SRC_DIR, "*.zip")))
     if not zips:
         raise SystemExit("abort: no admissible zip vintage found in %s" % SRC_DIR)

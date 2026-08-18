@@ -2,8 +2,8 @@
  "document": "docs/FrozenB0_MasterPreregistration.md",
  "version": "1.15",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "6a83ff7e87493f9cdc50479f3471c59a9d9b5b72766d58f942a9da5c0cef2c33",
- "spec_bytes": 132100,
+ "spec_sha256": "1c58c93b35af905972fadca8d36987950e62cd84183846219c475fff4468c602",
+ "spec_bytes": 132641,
  "normative_modules": {
   "core/b0_master_prereg.py": "c5b3faf9ef56cc42f56fa46c0593920306ec8c7866c40fed64697f33b627bde7",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
@@ -16,7 +16,7 @@
   "core/b0_invariants.py": "34566e8254fdd5407adddc3e1acccea98affbc37be9a5455c60712f54c7204af",
   "core/b0_parity.py": "debaa9b09f5d00208e19a5aa31debf5a237e861af0c10ed163cd78c377733eba",
   "core/b0_provenance.py": "65299580e322696107f38fd2583a91cd177887f772e1240cf42577ff7b7fe224",
-  "core/b0_open_items.py": "dd544483dbb9239f611889f327c30a66e36465317df751b2f6f8c78147a92e07",
+  "core/b0_open_items.py": "673a62e177a30c55e6d3afef820ec79e752860897aabc5cdc5a639f1f920a653",
   "core/b0_finalization_items.py": "ff13a01e64dbac6b6f33a73cb293eccdcb2151dddaa2f3fff32bba7358f105b0",
   "core/b0_declaration_conformance.py": "b8dea19303579064ee0c281755166f20c997a80292e98ff9e10337307e131552",
   "core/b0_state.py": "9bbeda9aa706767ba5a93b15c59919190328e440ba37c0a8e39fb1e7c2d95eff",
@@ -237,20 +237,22 @@
   "zero_day_receivable_allowed"
  ],
  "open_specification_items": {
-  "total": 0,
+  "total": 1,
   "by_layer": {
-   "features": 0,
+   "features": 1,
    "eligibility": 0,
    "decision": 0,
    "execution": 0
   },
   "by_materiality": {
-   "structural": 0,
+   "structural": 1,
    "high": 0,
    "moderate": 0,
    "low": 0
   },
-  "keys": []
+  "keys": [
+   "value_per_lineage_2019plus"
+  ]
  },
  "open_finalization_items": {
   "total": 0,
