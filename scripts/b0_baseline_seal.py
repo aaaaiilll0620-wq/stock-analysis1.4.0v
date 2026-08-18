@@ -253,8 +253,13 @@ def build_manifest() -> ProvenanceManifest:
 # --- C-52/R1 · immutable, content-addressed seal retention --------------------
 
 SEAL_ARCHIVE = os.path.join(OUT_DIR, "seals")
-SEAL_LINEAGE = os.path.join(REPO, "research", "b0_registry",
-                            "baseline_seal_lineage.jsonl")
+# Co-located with the immutable bodies it indexes, and deliberately NOT under
+# version control. The ledger can only be written AFTER a seal hash exists, so
+# a tracked ledger would dirty the tree every time a seal is taken and the
+# commit that cleaned it would invalidate the commit_sha the seal just bound.
+# The tracked copy under research/b0_registry/ is the historical snapshot of
+# what the chain looked like at commit time.
+SEAL_LINEAGE = os.path.join(OUT_DIR, "baseline_seal_lineage.jsonl")
 
 
 class SealOverwrite(RuntimeError):

@@ -31,8 +31,13 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 
 P1_RECEIPT = os.path.join(REPO, "research", "b0_materializer",
                           "period1_full_input_receipt.json")
-LINEAGE = os.path.join(REPO, "research", "b0_registry",
-                       "baseline_seal_lineage.jsonl")
+# The live ledger sits with the immutable bodies; the tracked copy under
+# research/b0_registry/ is the snapshot committed alongside a given tree.
+LINEAGE_LIVE = os.path.join(REPO, "artifacts", "baseline_seal",
+                            "baseline_seal_lineage.jsonl")
+LINEAGE_TRACKED = os.path.join(REPO, "research", "b0_registry",
+                               "baseline_seal_lineage.jsonl")
+LINEAGE = LINEAGE_LIVE if os.path.exists(LINEAGE_LIVE) else LINEAGE_TRACKED
 
 
 def _pair(**over):
