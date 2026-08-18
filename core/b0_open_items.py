@@ -31,7 +31,7 @@ both have to be ruled on, but they do not have to be ruled on with the same
 urgency, and pretending otherwise makes the list easier to ignore.
 
 The register is currently EMPTY: every behaviour the canonical core reaches is
-now specified (C-16 ~ C-36, plus C-48, C-49 and C-50 — the items that needed a
+now specified (C-16 ~ C-36, plus C-48, C-49, C-50 and C-51 — the items that needed a
 ruling rather than a recovered omission). That is the goal state, not the end of the
 mechanism — the module stays because the next undetermined behaviour anybody
 finds has to land here rather than in a default, and `raise_unspecified` on an
@@ -81,59 +81,6 @@ class OpenItem:
 
 
 OPEN_ITEMS: tuple[OpenItem, ...] = (
-
-    OpenItem(
-        key="stock_dividend_holder_multiplier_source",
-        layer="features",
-        materiality="structural",
-        question=(
-            "From which ADMISSIBLE source does the HOLDER multiplier of a stock "
-            "dividend come? C-50/R2 makes stock dividends eligible for share-unit "
-            "adjustment and R3 needs `m` such that old_holder_shares x m = "
-            "new_holder_shares. Measured: NONE of the 9,120 stock-dividend rows "
-            "carries `share_multiplier` — only capital_reduction (1,293) and "
-            "par_value_change (25) do. What the registered artefacts carry instead "
-            "is `distribution_ratio_or_new_shares`, and its own name says it is "
-            "either a ratio or a share count. It is a COUNT: across the 8,109 "
-            "RECONSTRUCTIBLE rows the values run p50 = 6,692, p95 = 203,088, "
-            "max = 2,837,327, and only 4.6% are <= 1,000, so a per-1,000-shares "
-            "reading would make the median stock dividend 669%. So m needs shares "
-            "outstanding at the boundary, which no registered PIT-safe artefact "
-            "carries for <= 2018: the pre-2019 price leg has no share-count column "
-            "at all, and the 2019+ zips' 流通在外股數(千股) would itself need a "
-            "lineage ruling of the C-48/C-49 shape."
-        ),
-        why_it_matters=(
-            "C-50/R8 says an eligible event with an absent multiplier returns NA "
-            "under the frozen complete-case semantics OR gets a new M-3 item where "
-            "existing rules do not uniquely determine the disposition. They do "
-            "not, because the two branches are far apart and the cost of the NA "
-            "branch is measured, not hypothetical: a stock-dividend ex-date falls "
-            "inside the 13-month momentum window of 8.1% to 20.9% of the priced "
-            "universe per period (median 10.6%; 2014-2015 run 19-21%, decaying to "
-            "8.8% by 2026). For comparison, §2.3's accepted industry-UNRESOLVED "
-            "exclusion is a median of 2.303%. This is 4-9x larger AND it is not "
-            "random: stock dividends are paid by profitable companies capitalising "
-            "earnings, so dropping them tilts the universe systematically in every "
-            "period, in the direction of the selection signal. Choosing the branch "
-            "at implementation time would put a systematic universe filter into B0 "
-            "without a ruling."
-        ),
-        demoted_evidence=(
-            "C-50/R2 already settles that a stock dividend IS a holder-level "
-            "transformation and R4 already settles that its boundary is the "
-            "ex-right session, so nothing about the RULE is open — only the "
-            "multiplier's source. `data/b0/stock_dividend_pit.csv` carries "
-            "ex_right_date, distribution_ratio_or_new_shares, "
-            "actual_credit_tradable_date and reconstructibility for all 9,120 "
-            "events; the corporate-action ledger carries the same count as "
-            "new_shares_thousands. Both are counts. The implementation is already "
-            "correct for whichever branch is chosen: "
-            "core.b0_share_unit_adjustment.holder_multiplier raises "
-            "UnreconstructibleAdjustment rather than inferring a factor, and its "
-            "test pins that behaviour."
-        ),
-    ),
 
     # --- features -------------------------------------------------------------
     # RESOLVED and removed from this register. Every one was a master OMISSION,
@@ -199,6 +146,22 @@ OPEN_ITEMS: tuple[OpenItem, ...] = (
     # and ADV20 stay on observed prices. core/b0_share_unit_adjustment.py is the
     # single producer, and R8's fail-loud paths are what exposed the one
     # remaining input question above.
+    #
+    #   stock_dividend_holder_multiplier_source -> C-51  RULED AND CLOSED (2026-08-19)
+    #
+    # The input C-50/R8 exposed, and the one item here that was closed by going
+    # and looking rather than by reasoning: BOTH exchanges publish the
+    # holder-level ratio directly — TWSE field A of the 除權除息計算結果表 detail,
+    # TPEx 每仟股無償配股 in its range table — so the shares-outstanding
+    # denominator never has to be reconstructed. The unit was measured against
+    # the exchanges' own reference-price identity (per-1,000 satisfies it to
+    # max |Δ| 0.005 / 0.0999; decimal-ratio and percent readings miss by 953 to
+    # 2,095), not read off the column name. 2,399 of 3,215 events in the frozen
+    # lookback window carry an official ratio, 0 transport failures, and the
+    # unresolved share of the priced universe falls from a median of 10.56% to
+    # 1.41% — below the §2.3 exclusion the specification already accepts. The
+    # ruling, the two residual dispositions and the sealed-source contract live
+    # in core/b0_bonus_share_source.py, where a route can check them.
 
 )
 

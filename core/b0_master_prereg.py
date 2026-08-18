@@ -70,6 +70,7 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     "core/b0_price_universe.py",
     "core/b0_valuation_source.py",
     "core/b0_share_unit_adjustment.py",
+    "core/b0_bonus_share_source.py",
 )
 
 
@@ -438,6 +439,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_market_state as ms
     from core import b0_provenance as prov
     from core import b0_share_unit_adjustment as sua
+    from core import b0_bonus_share_source as bsrc
     from core import b0_valuation_source as vsrc
     prereg_modules = NORMATIVE_MODULES
     from core import b0_pit_observability as pit
@@ -514,6 +516,27 @@ def _spec_registry() -> dict[str, Any]:
         "share_unit_excluded_from_factor": sua.EXCLUDED_FROM_FACTOR,
         "share_unit_boundary_field": sua.BOUNDARY_FIELD,
         "share_unit_not_boundary_field": sua.NOT_BOUNDARY_FIELD,
+        # v1.18 · C-51 · the holder multiplier C-50 needed and no registered
+        # artefact carried. Both exchanges publish the holder-level ratio
+        # directly, and their own field layout separates it from the employee
+        # bonus and cash-increase legs exactly as R2 had already ruled — so no
+        # shares-outstanding denominator is reconstructed anywhere.
+        "bonus_share_official_field": bsrc.OFFICIAL_BONUS_FIELD,
+        "bonus_share_official_endpoint": bsrc.OFFICIAL_ENDPOINT,
+        "bonus_share_unit": bsrc.BONUS_UNIT,
+        "bonus_share_conversion": bsrc.CANONICAL_CONVERSION,
+        "bonus_share_forbidden_sources": bsrc.FORBIDDEN_MULTIPLIER_SOURCES,
+        "bonus_share_parser_version": bsrc.BONUS_PARSER_VERSION,
+        "bonus_share_importer_version": bsrc.BONUS_IMPORTER_VERSION,
+        "bonus_share_dispositions": bsrc.DISPOSITIONS,
+        "bonus_share_pre_listing_disposition": bsrc.PRE_LISTING_DISPOSITION,
+        "bonus_share_board_attribution_source": bsrc.BOARD_ATTRIBUTION_SOURCE,
+        "bonus_share_current_listing_label_allowed":
+            bsrc.CURRENT_LISTING_LABEL_ALLOWED,
+        "bonus_share_event_date_normalization": bsrc.EVENT_DATE_NORMALIZATION,
+        "bonus_share_nearest_date_matching_allowed":
+            bsrc.NEAREST_DATE_MATCHING_ALLOWED,
+        "bonus_share_date_tolerance_days": bsrc.DATE_TOLERANCE_DAYS,
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,

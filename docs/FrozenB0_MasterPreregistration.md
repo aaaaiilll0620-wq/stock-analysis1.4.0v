@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.17（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**）
+**版本:** 1.18（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -1695,6 +1695,124 @@ canonical valuation panel        pbr_tse + per_tse 同一份，四份 contract�
 
 ---
 
+### C-51 · M-3 `stock_dividend_holder_multiplier_source` —— 官方交易所無償配股率為 canonical holder multiplier（v1.18）
+
+#### 問題
+
+C-50 裁完「調整是什麼」之後，剩下一個**輸入**問題：R2 已定配股是合格的 holder-level 事件、
+R4 已定以 market-effective session 為界，**規則沒有問題，缺的是 `m` 的來源**。
+9,120 筆配股**全部沒有** `share_multiplier`；登記語料帶的是**新股股數**
+（8,109 筆 RECONSTRUCTIBLE 的 p50=6,692 / p95=203,088 / max=2,837,327，僅 4.6% ≤1,000），
+而 `m = 1 + 新股/流通在外股數` 的分母在 ≤2018 沒有任何已註冊 PIT-safe 來源。
+依 C-50/R8 登記而非自行選擇：NA 分支代價已實測為每期 8.08%~20.34% 的計價母體（中位 10.56%），
+對照 §2.3 已接受的產業 UNRESOLVED 排除中位 2.303%。
+
+#### 兩輪來源稽核
+
+**第一輪：`除權息2004-20260806` —— 否決。** 六個檔案同一 schema、28,012 列、2004-01-13 … 2026-08-06、
+2,164 檔，**全部是現金股利欄位**（`息值` / `現金股利_盈餘` / `現金股利_公積`），
+以 `配股 / 股票股利 / 無償 / 每千股 / 比率 / 換股` 全字掃欄名**零命中**。
+決定性證據是加總測試：落在已註冊配股除權日的 6,708 筆中，
+`息值 = 現金_盈餘 + 現金_公積` **100.00% 成立**，兩個分項恰好把總額用完，
+故該總額整筆是現金、裡面沒有殘留的股票腿。coverage 亦僅 73.54%。
+
+**第二輪：官方交易所 —— 採用。** 關鍵發現是**兩個交易所都直接公布 holder-level 比率**，
+且交易所自己的欄位切分正好等同 C-50/R2 已裁的 eligible / ineligible：
+
+```
+TWSE  除權除息計算結果表明細 TWT49UDetail?STK_NO=&T1=
+      A. 按普通股股東持股比例每千股無償配股   <- 合格
+      B. 員工紅利轉增資                        <- 不合格（R2）
+      C. (有償) 現金增資                       <- 不合格（R2）
+TPEx  除權除息 exDailyQ?startDate=&endDate=（ROC 日期）
+      每仟股無償配股                           <- 合格，範圍表直接帶
+```
+
+**除權除息預告表（TWT48U）另行測試後否決為歷史來源**：它確實帶 `無償配股率`，
+但 `date` / `startDate/endDate` / `strDate` 全被忽略，永遠回同一個未來窗（測時 162 列、
+2026-08-17 … 2026-10-07）。它是預告表，沒有歷史。
+
+#### 單位語義以量測決定，非依欄名
+
+以交易所**自身**公布的參考價恆等式檢驗，只用交易所自身公布的分量：
+
+```
+參考價 = (前收 − 現金股利 + 認購價 × 認購率) / (1 + 無償配股率 + 認購率)
+```
+
+這不是「由價格反推 `m`」——`m` 本來就已公布；這是問哪一種單位讀法滿足發布者自己的算式，而只有一種滿足：
+
+| 讀法 | TPEx max\|Δ\| (n=1,106) | TWSE max\|Δ\| (n=1,253 純配股) | 落在 0.01 內 |
+|---|---|---|---|
+| **每 1,000 股配發** | **0.0050** | **0.0999** | **100.00% / 97.92%** |
+| 十進位比率 | 2095.11 | 1527.98 | 0% / 0% |
+| 百分比 | 953.18 | 1035.86 | 0% / 0% |
+
+超標的 14 筆全部同時有現金增資（該腿 R2 本就不合格，不會進 `m`，屬查核算式的極限而非欄位的極限）；
+純配股超標的 26 筆中 25 筆落在 0.013~0.026、皆為高價股，與公布配股率只取一位小數一致；
+餘 1 筆（`2723` / 2018-06-21，0.0999）未獲解釋，具名記錄不掩蓋。
+
+#### R1 ~ R6
+
+- **R1 · canonical source 與 canonical conversion。** 採官方交易所無償配股欄位為 C-50 配股調整的
+  canonical holder-level 來源，凍結轉換為 `holder_multiplier = 1 + bonus_shares_per_1000 / 1000`。
+  具名禁止：`新股/流通在外股數`、current shares outstanding、參考價反推、現金股利語料、
+  員工紅利轉增資、有償現金增資。禁止項是**具名拒絕**而非僅未使用。
+- **R2 · pre-listing 殘差。** 事件發生時該證券尚未出現在任一 PIT 交易板別者，
+  disposition = `NOT_APPLICABLE_TO_B0_MARKET_HISTORY`：**不要求建立 pre-listing 調整鏈，
+  也不視為 B0 缺值**，listing spell 仍從真正上市後的 canonical history 起算。
+  判定只用當期交易所出現紀錄，**不得使用 current 板別狀態**。
+- **R3 · 休市日排定除權日。** 新增 event-date normalization：若官方排定除權日**不是** observed
+  trading session，而 canonical ledger 的 `ex_or_effective_date` **恰等於**該排定日之後的
+  **第一個** observed trading session，則兩者視為同一 market-effective event。
+  **這不是 ±N 日容忍**：`NEAREST_DATE_MATCHING_ALLOWED = False`、`DATE_TOLERANCE_DAYS = 0`，
+  只有 exact next observed session 可採。實測 13 個非 session 的官方日期全為休市日，
+  且 canonical 日期在每一例都正好是其後第一個開盤日（2013-08-21、2014-07-23、2015-07-10、
+  2016-07-08、2016-09-28、2019-08-09、2019-09-30、2023-08-03、2024-07-24、2024-07-25）。
+- **R4 · 其餘未對上者。** 不屬於官方比率、不屬於 NOT_APPLICABLE、不屬於 exact normalization 者
+  一律 `UNRESOLVED`：**不得推論 multiplier**，維持 C-50/R8 的 fail-loud / NA / complete-case，
+  若既有規格無法唯一決定則再開 M-3。
+- **R5 · sealed-source contract。** L2 期間**不得**對 TWSE/TPEx 發出任何 live request
+  （`live_fetch=True` 直接不 admissible）。綁定：endpoint identity、全部 raw payload SHA256、
+  parser/importer 版本、schema hash、stock_id、官方排定除權日、canonical market-effective session、
+  PIT board/source identity、`bonus_shares_per_1000`、derived `holder_multiplier`、
+  content hash、coverage 統計、upstream manifest hash。parser 版本改變即改變 source identity。
+- **R6 · 關閉登記項**，並落地八條 negative control。
+
+#### 落地結果
+
+```
+raw payloads          1,383（twse_range 52 · tpex_range 52 · twse_detail 1,279）
+upstream manifest     870a8f3a71e5251172816e6fd41a93e8389651ac178f326ab6bb741305492d1b
+sealed panel          data/b0/bonus_share_panel.parquet
+content sha256        3b311238f121247572d84e5d1eb915d5b3538972509581fcedaffdfaa17155bb
+transport failures    0
+```
+
+窗口為 141 期 `momentum_12_1` / `sigma20d` lookback 的聯集 `2013-06-29 … 2026-03-31`
+（首個決策月 2014-07 的 `P_{t-13}` 是 2013-06 月底 session 2013-06-28；落在其上或之前的事件
+會同時整除兩個動能錨點，不改變比值），內含 3,215 筆 canonical 配股事件、996 檔：
+
+| disposition | 事件數 | 佔比 |
+|---|---|---|
+| `OFFICIAL_BONUS_RATE` | **2,399** | **74.62%** |
+| `NOT_APPLICABLE_TO_B0_MARKET_HISTORY` | 784 | 24.39% |
+| `UNRESOLVED` | 32 | 1.00% |
+
+其中 2,399 筆按當期板別為 TWSE 1,279 / TPEx 1,120，經 R3 正規化者 23 筆。
+`NOT_APPLICABLE` 的 784 筆由 381 筆真正 pre-listing 與 403 筆 ledger 自身判為
+`NOT_RECONSTRUCTIBLE`（登記戳記）組成；`UNRESOLVED` 的 32 筆為 13 + 19。
+兩者的組成以 `ledger_reconstructibility` 欄與 receipt cross-tab 揭露，**不折進 disposition**。
+
+**每期未解決曝險：中位由 10.56% 降至 1.41%（min 0.20% / max 2.97%），已低於
+§2.3 已接受的產業 UNRESOLVED 排除中位 2.303%。**
+
+- **未變更：** C-50 的 R1~R8、B-09 選股語義、§3.1 price relative、§4.1 complete-case、
+  ADV20 / marks / execution / NAV 讀 raw、Frozen A
+- **仍待：** 141 期 market-side materialization、新的 B0 Baseline Seal。**本裁決不開 L2**
+
+---
+
 ### C-13 · O-C 由 open item 轉為凍結政策
 - **來源：** 本文件 v1.0 §12 O-C，列為待決（是否另尋來源）
 - **變更：** §2.4 凍結為「不建推導模型、不猜除權日、維持 `NOT_RECONSTRUCTIBLE`」
@@ -1729,12 +1847,12 @@ canonical valuation panel        pbr_tse + per_tse 同一份，四份 contract�
 | ~~**`value_per_lineage_2019plus`**~~ | ~~2019+ 的 `per_tse` 無 admissible 來源~~ —— **v1.15 之後登記、v1.16 由 C-49 關閉**。官方本益比為 admissible continuation，先做 PE-specific reconciliation 才裁，未以「同理可推」擴張 C-48 | ~~SPEC / BLOCKING~~ | ✅ **已關閉** |
 
 | ~~**`momentum_price_adjustment`**~~ | ~~momentum 月底價序列的調整規則~~ —— **v1.17 由 C-50 (R1~R8) 關閉**。定為 share-unit adjustment：只調整「既有持有人股數的確定性轉換」，**不以流通在外股數為準**，`share_multiplier != 1` 不構成資格；現金股利不調整；只有 momentum_12_1 與 sigma20d 讀調整後序列 | ~~SPEC / BLOCKING~~ | ✅ **已關閉** |
-| **`stock_dividend_holder_multiplier_source`** | **配股的 holder multiplier 取自哪個 admissible 來源** —— C-50/R2 已定配股屬合格事件、R4 已定以除權日為界，**規則沒有問題，缺的是 m 的來源**：9,120 筆配股**全部沒有** `share_multiplier`，登記語料帶的是**新股股數**（8,109 筆 RECONSTRUCTIBLE 的 p50=6,692 / p95=203,088 / max=2,837,327，僅 4.6% ≤1,000 → 不可能是每千股比率），而 `m = 1 + 新股/流通在外股數` 的分母在 ≤2018 沒有任何已註冊 PIT-safe 來源。依 C-50/R8 登記：NA 分支的代價**已實測** —— 每期 8.1%~20.9% 的計價母體（中位 10.6%；2014-2015 為 19~21%）的 13 個月動能窗會落入配股除權日，對照 §2.3 已接受的產業 UNRESOLVED 排除中位僅 2.303%，且配股公司非隨機分布 | **SPEC / BLOCKING** | ⛔ 141 期 market-side materialization 的 `month_end_prices` / `sigma20d` |
+| ~~**`stock_dividend_holder_multiplier_source`**~~ | ~~配股的 holder multiplier 取自哪個 admissible 來源~~ —— **v1.18 由 C-51 (R1~R6) 關閉**。官方交易所無償配股欄位（TWSE `A. 按普通股股東持股比例每千股無償配股`、TPEx `每仟股無償配股`）為 canonical holder-level 來源，`m = 1 + bonus_shares_per_1000 / 1000`，單位以交易所自身參考價恆等式量測確認；**未重建流通在外股數分母**。pre-listing 事件判為 `NOT_APPLICABLE_TO_B0_MARKET_HISTORY`、休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍）、其餘 32 筆維持 `UNRESOLVED` 走 C-50/R8。每期未解決曝險中位 10.56% → **1.41%** | ~~SPEC / BLOCKING~~ | ✅ **已關閉** |
 
 **✅ P-1b-U 已於 v1.6 關閉：canonical core 的 UNSPECIFIED 項目為 0。**
 **該計數在 v1.14 之後曾短暫回到 1**（`value_pbr_lineage_2019plus`，materializer 施工時撞到），
 **於 v1.15 由 C-48 裁決關回 0**；**隨即因 `value_per_lineage_2019plus` 再回到 1**，**再於 v1.16 由 C-49 關回 0**。
-**其後 materializer 施工又撞到 `momentum_price_adjustment`，計數再回到 1，並於 v1.17 由 C-50 關閉；同一裁決的 R8 fail-loud 路徑暴露出 `stock_dividend_holder_multiplier_source`，計數仍為 1。**
+**其後 materializer 施工又撞到 `momentum_price_adjustment`，計數再回到 1，並於 v1.17 由 C-50 關閉；同一裁決的 R8 fail-loud 路徑暴露出 `stock_dividend_holder_multiplier_source`，計數仍為 1，並於 v1.18 由 C-51 關回 0。**
 登記簿兩次承接了施工時新發現的未定行為，這正是它存在的理由 —— 期間 S-1 為紅是機制正常運作，不是回歸缺陷。
 
 ```python
@@ -1827,9 +1945,11 @@ B-20 real-data parity                              BLOCKED by D-1
 S-3b route enforcement                             ✅ SATISFIED (C-44)
 value_pbr 2019+ lineage                            ✅ CLOSED（v1.15,C-48）
 value_per 2019+ lineage                            ✅ CLOSED（v1.16,C-49）
-L2 sealed-input materializer (141 期)              BLOCKED — stock_dividend_holder_multiplier_source (M-3)
+L2 sealed-input materializer (141 期)              IN PROGRESS — 來源層已解除封鎖
 momentum 價格調整規則 (C-50)                        ✅ CLOSED（v1.17,R1~R8 + 12 條測試）
+配股 holder multiplier 來源 (C-51)                  ✅ CLOSED（v1.18,R1~R6 + 8 條 negative control）
   industry PIT / price panel / valuation panel      ✅ SEALED（三份 receipt 皆已綁 hash）
+  bonus share panel                                 ✅ SEALED（1,383 payload,0 transport failure）
 B0 Baseline Seal (pre-L2)                          FINALIZATION — v1.14 起可達(C-47)
 L2 Run Provenance                                  待使用者明示開封 L2 後才存在
 

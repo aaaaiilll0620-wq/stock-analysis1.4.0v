@@ -141,10 +141,17 @@ def assert_kind_classified(kind: str) -> str:
 def holder_multiplier(record: Mapping[str, object]) -> float:
     """R2: the multiplier, only when the record PROVES old x m = new.
 
-    `share_multiplier` is the only field that states the holder-level
-    transformation directly. A new-share COUNT does not: turning it into a
-    multiplier needs shares outstanding at the boundary, which is a different
-    quantity with its own lineage question.
+    Two admissible statements of the holder-level transformation, and no third:
+
+      * `bonus_shares_per_1000` — the official exchange bonus-share allotment,
+        ruled canonical for stock dividends by C-51/R1. Converted by C-51 and
+        not here, so there is one place the conversion lives.
+      * `share_multiplier` — the direct multiplier the ledger carries for
+        capital reductions and par-value changes.
+
+    A new-share COUNT is still not one of them: turning a count into a multiplier
+    needs shares outstanding at the boundary, which is the quantity C-51 exists
+    to avoid reconstructing.
     """
     kind = str(record.get("kind") or "")
     assert_kind_classified(kind)
@@ -155,6 +162,21 @@ def holder_multiplier(record: Mapping[str, object]) -> float:
         raise UnreconstructibleAdjustment(
             f"C-50/R8: {record.get('stock_id')} {kind} is not RECONSTRUCTIBLE "
             f"({record.get('reason') or 'no reason recorded'})")
+    bonus = str(record.get("bonus_shares_per_1000") or "").strip()
+    if bonus:
+        if kind != "stock_dividend":
+            raise ShareUnitAdjustmentError(
+                f"C-51/R1: {record.get('stock_id')} {kind} carries "
+                f"bonus_shares_per_1000. The official bonus-share field is the "
+                f"canonical source for stock dividends only; a capital reduction "
+                f"or par-value change states its own multiplier.")
+        from core.b0_bonus_share_source import holder_multiplier_from_bonus
+        m = holder_multiplier_from_bonus(bonus)
+        if m == 1.0:
+            raise ShareUnitAdjustmentError(
+                f"C-50: {record.get('stock_id')} {kind} bonus allotment is zero; "
+                f"an event that transforms nothing must not create a boundary")
+        return m
     raw = str(record.get("share_multiplier") or "").strip()
     if not raw:
         raise UnreconstructibleAdjustment(

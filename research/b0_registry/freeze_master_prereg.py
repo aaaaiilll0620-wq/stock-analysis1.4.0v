@@ -46,6 +46,7 @@ DERIVED_ARTEFACTS = (
     "data/b0/valuation_panel.parquet",
     "data/b0/industry_pit.parquet",
     "data/b0/price_panel.parquet",
+    "data/b0/bonus_share_panel.parquet",
 )
 
 CA_EXPORT_DIR = os.path.join(
@@ -58,7 +59,7 @@ def main():
     doc = os.path.join(REPO, MASTER_PREREG_DOC)
     record = {
         "document": MASTER_PREREG_DOC,
-        "version": "1.17",
+        "version": "1.18",
         "status": "NORMATIVE_FROZEN",
         "spec_sha256": spec_document_sha256(),
         "spec_bytes": os.path.getsize(doc),
