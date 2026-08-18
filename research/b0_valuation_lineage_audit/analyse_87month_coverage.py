@@ -225,8 +225,11 @@ def main() -> None:
     cols = ["decision_month", "as_of_session", "required", "twse_rows", "tpex_rows",
             "covered", "explicit_na", "off_board_unpublished",
             "transport_unresolved", "coverage_rate", "twse_state", "tpex_state"]
+    # lineterminator is explicit: csv defaults to CRLF, and the repo is `* text
+    # eol=lf` with a CRLF->LF migration ledger, so the default would dirty it.
     with open(OUT_CSV, "w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
+        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore",
+                           lineterminator="\n")
         w.writeheader()
         for r in rows:
             w.writerow(r)

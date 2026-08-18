@@ -251,10 +251,11 @@ def main() -> None:
             "tpex": field_layout_changes("tpex"),
         },
         "documentation": {
-            "twse": ("the report page states 每股參考淨值採用公開資訊觀測站公告之最近"
-                     "一季每股參考淨值 and that figures are 計算當時已公告申報之資料，"
-                     "非同期即時資訊; from the 2019 layout the payload also carries "
-                     "財報年/季 per row"),
+            "twse": ("the report page states the figures are 計算當時公開資訊觀測站"
+                     "已公告申報格式化之資料，而非同期即時資訊，且不作回溯計算 — no "
+                     "retrospective recomputation — and that 股利年度及財報年/季資訊"
+                     "自民國106年4月12日起提供 (2017-04-12); the payload carries "
+                     "財報年/季 per row from that layout onward"),
             "tpex_pre_2025": ("payload notes define 股價淨值比＝收盤價／每股淨值 only; "
                               "no statement period is named and the response "
                               "carries no vintage column"),

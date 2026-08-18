@@ -1,0 +1,992 @@
+{
+  "performance_computed": false,
+  "sessions": [
+    {
+      "as_of_session": "2016-01-30",
+      "decision_date": "2016-01-31",
+      "decision_month": "2016-01",
+      "twse_rows": 875,
+      "twse_state": "OK",
+      "twse_values": 875
+    },
+    {
+      "as_of_session": "2016-02-26",
+      "decision_date": "2016-02-29",
+      "decision_month": "2016-02",
+      "twse_rows": 875,
+      "twse_state": "OK",
+      "twse_values": 875
+    },
+    {
+      "as_of_session": "2016-03-31",
+      "decision_date": "2016-03-31",
+      "decision_month": "2016-03",
+      "twse_rows": 877,
+      "twse_state": "OK",
+      "twse_values": 877
+    },
+    {
+      "as_of_session": "2016-04-29",
+      "decision_date": "2016-04-30",
+      "decision_month": "2016-04",
+      "twse_rows": 875,
+      "twse_state": "OK",
+      "twse_values": 875
+    },
+    {
+      "as_of_session": "2016-05-31",
+      "decision_date": "2016-05-31",
+      "decision_month": "2016-05",
+      "twse_rows": 877,
+      "twse_state": "OK",
+      "twse_values": 877
+    },
+    {
+      "as_of_session": "2016-06-30",
+      "decision_date": "2016-06-30",
+      "decision_month": "2016-06",
+      "twse_rows": 876,
+      "twse_state": "OK",
+      "twse_values": 876
+    },
+    {
+      "as_of_session": "2016-07-29",
+      "decision_date": "2016-07-31",
+      "decision_month": "2016-07",
+      "twse_rows": 877,
+      "twse_state": "OK",
+      "twse_values": 877
+    },
+    {
+      "as_of_session": "2016-08-31",
+      "decision_date": "2016-08-31",
+      "decision_month": "2016-08",
+      "twse_rows": 877,
+      "twse_state": "OK",
+      "twse_values": 876
+    },
+    {
+      "as_of_session": "2016-09-30",
+      "decision_date": "2016-09-30",
+      "decision_month": "2016-09",
+      "twse_rows": 875,
+      "twse_state": "OK",
+      "twse_values": 874
+    },
+    {
+      "as_of_session": "2016-10-31",
+      "decision_date": "2016-10-31",
+      "decision_month": "2016-10",
+      "twse_rows": 882,
+      "twse_state": "OK",
+      "twse_values": 882
+    },
+    {
+      "as_of_session": "2016-11-30",
+      "decision_date": "2016-11-30",
+      "decision_month": "2016-11",
+      "twse_rows": 884,
+      "twse_state": "OK",
+      "twse_values": 884
+    },
+    {
+      "as_of_session": "2016-12-30",
+      "decision_date": "2016-12-31",
+      "decision_month": "2016-12",
+      "twse_rows": 892,
+      "twse_state": "OK",
+      "twse_values": 892
+    },
+    {
+      "as_of_session": "2017-01-24",
+      "decision_date": "2017-01-31",
+      "decision_month": "2017-01",
+      "twse_rows": 894,
+      "twse_state": "OK",
+      "twse_values": 894
+    },
+    {
+      "as_of_session": "2017-02-24",
+      "decision_date": "2017-02-28",
+      "decision_month": "2017-02",
+      "twse_rows": 894,
+      "twse_state": "OK",
+      "twse_values": 894
+    },
+    {
+      "as_of_session": "2017-03-31",
+      "decision_date": "2017-03-31",
+      "decision_month": "2017-03",
+      "twse_rows": 896,
+      "twse_state": "OK",
+      "twse_values": 896
+    },
+    {
+      "as_of_session": "2017-04-28",
+      "decision_date": "2017-04-30",
+      "decision_month": "2017-04",
+      "twse_rows": 894,
+      "twse_state": "OK",
+      "twse_values": 894
+    },
+    {
+      "as_of_session": "2017-05-31",
+      "decision_date": "2017-05-31",
+      "decision_month": "2017-05",
+      "twse_rows": 896,
+      "twse_state": "OK",
+      "twse_values": 896
+    },
+    {
+      "as_of_session": "2017-06-30",
+      "decision_date": "2017-06-30",
+      "decision_month": "2017-06",
+      "twse_rows": 898,
+      "twse_state": "OK",
+      "twse_values": 898
+    },
+    {
+      "as_of_session": "2017-07-31",
+      "decision_date": "2017-07-31",
+      "decision_month": "2017-07",
+      "twse_rows": 898,
+      "twse_state": "OK",
+      "twse_values": 898
+    },
+    {
+      "as_of_session": "2017-08-31",
+      "decision_date": "2017-08-31",
+      "decision_month": "2017-08",
+      "twse_rows": 894,
+      "twse_state": "OK",
+      "twse_values": 894
+    },
+    {
+      "as_of_session": "2017-09-30",
+      "decision_date": "2017-09-30",
+      "decision_month": "2017-09",
+      "twse_rows": 895,
+      "twse_state": "OK",
+      "twse_values": 895
+    },
+    {
+      "as_of_session": "2017-10-31",
+      "decision_date": "2017-10-31",
+      "decision_month": "2017-10",
+      "twse_rows": 901,
+      "twse_state": "OK",
+      "twse_values": 901
+    },
+    {
+      "as_of_session": "2017-11-30",
+      "decision_date": "2017-11-30",
+      "decision_month": "2017-11",
+      "twse_rows": 902,
+      "twse_state": "OK",
+      "twse_values": 902
+    },
+    {
+      "as_of_session": "2017-12-29",
+      "decision_date": "2017-12-31",
+      "decision_month": "2017-12",
+      "twse_rows": 906,
+      "twse_state": "OK",
+      "twse_values": 906
+    },
+    {
+      "as_of_session": "2018-01-31",
+      "decision_date": "2018-01-31",
+      "decision_month": "2018-01",
+      "twse_rows": 910,
+      "twse_state": "OK",
+      "twse_values": 910
+    },
+    {
+      "as_of_session": "2018-02-27",
+      "decision_date": "2018-02-28",
+      "decision_month": "2018-02",
+      "twse_rows": 912,
+      "twse_state": "OK",
+      "twse_values": 912
+    },
+    {
+      "as_of_session": "2018-03-31",
+      "decision_date": "2018-03-31",
+      "decision_month": "2018-03",
+      "twse_rows": 913,
+      "twse_state": "OK",
+      "twse_values": 913
+    },
+    {
+      "as_of_session": "2018-04-30",
+      "decision_date": "2018-04-30",
+      "decision_month": "2018-04",
+      "twse_rows": 915,
+      "twse_state": "OK",
+      "twse_values": 914
+    },
+    {
+      "as_of_session": "2018-05-31",
+      "decision_date": "2018-05-31",
+      "decision_month": "2018-05",
+      "twse_rows": 915,
+      "twse_state": "OK",
+      "twse_values": 914
+    },
+    {
+      "as_of_session": "2018-06-29",
+      "decision_date": "2018-06-30",
+      "decision_month": "2018-06",
+      "twse_rows": 916,
+      "twse_state": "OK",
+      "twse_values": 915
+    },
+    {
+      "as_of_session": "2018-07-31",
+      "decision_date": "2018-07-31",
+      "decision_month": "2018-07",
+      "twse_rows": 917,
+      "twse_state": "OK",
+      "twse_values": 916
+    },
+    {
+      "as_of_session": "2018-08-31",
+      "decision_date": "2018-08-31",
+      "decision_month": "2018-08",
+      "twse_rows": 916,
+      "twse_state": "OK",
+      "twse_values": 916
+    },
+    {
+      "as_of_session": "2018-09-28",
+      "decision_date": "2018-09-30",
+      "decision_month": "2018-09",
+      "twse_rows": 912,
+      "twse_state": "OK",
+      "twse_values": 912
+    },
+    {
+      "as_of_session": "2018-10-31",
+      "decision_date": "2018-10-31",
+      "decision_month": "2018-10",
+      "twse_rows": 915,
+      "twse_state": "OK",
+      "twse_values": 914
+    },
+    {
+      "as_of_session": "2018-11-30",
+      "decision_date": "2018-11-30",
+      "decision_month": "2018-11",
+      "twse_rows": 918,
+      "twse_state": "OK",
+      "twse_values": 917
+    },
+    {
+      "as_of_session": "2018-12-28",
+      "decision_date": "2018-12-31",
+      "decision_month": "2018-12",
+      "twse_rows": 924,
+      "twse_state": "OK",
+      "twse_values": 923
+    },
+    {
+      "as_of_session": "2019-01-30",
+      "decision_date": "2019-01-31",
+      "decision_month": "2019-01",
+      "twse_rows": 927,
+      "twse_state": "OK",
+      "twse_values": 926
+    },
+    {
+      "as_of_session": "2019-02-27",
+      "decision_date": "2019-02-28",
+      "decision_month": "2019-02",
+      "twse_rows": 927,
+      "twse_state": "OK",
+      "twse_values": 926
+    },
+    {
+      "as_of_session": "2019-03-29",
+      "decision_date": "2019-03-31",
+      "decision_month": "2019-03",
+      "twse_rows": 931,
+      "twse_state": "OK",
+      "twse_values": 930
+    },
+    {
+      "as_of_session": "2019-04-30",
+      "decision_date": "2019-04-30",
+      "decision_month": "2019-04",
+      "twse_rows": 931,
+      "twse_state": "OK",
+      "twse_values": 931
+    },
+    {
+      "as_of_session": "2019-05-31",
+      "decision_date": "2019-05-31",
+      "decision_month": "2019-05",
+      "twse_rows": 930,
+      "twse_state": "OK",
+      "twse_values": 930
+    },
+    {
+      "as_of_session": "2019-06-28",
+      "decision_date": "2019-06-30",
+      "decision_month": "2019-06",
+      "twse_rows": 928,
+      "twse_state": "OK",
+      "twse_values": 928
+    },
+    {
+      "as_of_session": "2019-07-31",
+      "decision_date": "2019-07-31",
+      "decision_month": "2019-07",
+      "twse_rows": 930,
+      "twse_state": "OK",
+      "twse_values": 930
+    },
+    {
+      "as_of_session": "2019-08-30",
+      "decision_date": "2019-08-31",
+      "decision_month": "2019-08",
+      "twse_rows": 929,
+      "twse_state": "OK",
+      "twse_values": 929
+    },
+    {
+      "as_of_session": "2019-09-27",
+      "decision_date": "2019-09-30",
+      "decision_month": "2019-09",
+      "twse_rows": 931,
+      "twse_state": "OK",
+      "twse_values": 931
+    },
+    {
+      "as_of_session": "2019-10-31",
+      "decision_date": "2019-10-31",
+      "decision_month": "2019-10",
+      "twse_rows": 933,
+      "twse_state": "OK",
+      "twse_values": 933
+    },
+    {
+      "as_of_session": "2019-11-29",
+      "decision_date": "2019-11-30",
+      "decision_month": "2019-11",
+      "twse_rows": 934,
+      "twse_state": "OK",
+      "twse_values": 934
+    },
+    {
+      "as_of_session": "2019-12-31",
+      "decision_date": "2019-12-31",
+      "decision_month": "2019-12",
+      "twse_rows": 941,
+      "twse_state": "OK",
+      "twse_values": 941
+    },
+    {
+      "as_of_session": "2020-01-31",
+      "decision_date": "2020-01-31",
+      "decision_month": "2020-01",
+      "twse_rows": 941,
+      "twse_state": "OK",
+      "twse_values": 941
+    },
+    {
+      "as_of_session": "2020-02-27",
+      "decision_date": "2020-02-29",
+      "decision_month": "2020-02",
+      "twse_rows": 940,
+      "twse_state": "OK",
+      "twse_values": 940
+    },
+    {
+      "as_of_session": "2020-03-31",
+      "decision_date": "2020-03-31",
+      "decision_month": "2020-03",
+      "twse_rows": 942,
+      "twse_state": "OK",
+      "twse_values": 942
+    },
+    {
+      "as_of_session": "2020-04-30",
+      "decision_date": "2020-04-30",
+      "decision_month": "2020-04",
+      "twse_rows": 942,
+      "twse_state": "OK",
+      "twse_values": 942
+    },
+    {
+      "as_of_session": "2020-05-29",
+      "decision_date": "2020-05-31",
+      "decision_month": "2020-05",
+      "twse_rows": 942,
+      "twse_state": "OK",
+      "twse_values": 942
+    },
+    {
+      "as_of_session": "2020-06-30",
+      "decision_date": "2020-06-30",
+      "decision_month": "2020-06",
+      "twse_rows": 943,
+      "twse_state": "OK",
+      "twse_values": 943
+    },
+    {
+      "as_of_session": "2020-07-31",
+      "decision_date": "2020-07-31",
+      "decision_month": "2020-07",
+      "twse_rows": 943,
+      "twse_state": "OK",
+      "twse_values": 943
+    },
+    {
+      "as_of_session": "2020-08-31",
+      "decision_date": "2020-08-31",
+      "decision_month": "2020-08",
+      "twse_rows": 944,
+      "twse_state": "OK",
+      "twse_values": 944
+    },
+    {
+      "as_of_session": "2020-09-30",
+      "decision_date": "2020-09-30",
+      "decision_month": "2020-09",
+      "twse_rows": 942,
+      "twse_state": "OK",
+      "twse_values": 942
+    },
+    {
+      "as_of_session": "2020-10-30",
+      "decision_date": "2020-10-31",
+      "decision_month": "2020-10",
+      "twse_rows": 941,
+      "twse_state": "OK",
+      "twse_values": 941
+    },
+    {
+      "as_of_session": "2020-11-30",
+      "decision_date": "2020-11-30",
+      "decision_month": "2020-11",
+      "twse_rows": 942,
+      "twse_state": "OK",
+      "twse_values": 942
+    },
+    {
+      "as_of_session": "2020-12-31",
+      "decision_date": "2020-12-31",
+      "decision_month": "2020-12",
+      "twse_rows": 942,
+      "twse_state": "OK",
+      "twse_values": 942
+    },
+    {
+      "as_of_session": "2021-01-29",
+      "decision_date": "2021-01-31",
+      "decision_month": "2021-01",
+      "twse_rows": 944,
+      "twse_state": "OK",
+      "twse_values": 943
+    },
+    {
+      "as_of_session": "2021-02-26",
+      "decision_date": "2021-02-28",
+      "decision_month": "2021-02",
+      "twse_rows": 945,
+      "twse_state": "OK",
+      "twse_values": 944
+    },
+    {
+      "as_of_session": "2021-03-31",
+      "decision_date": "2021-03-31",
+      "decision_month": "2021-03",
+      "twse_rows": 948,
+      "twse_state": "OK",
+      "twse_values": 947
+    },
+    {
+      "as_of_session": "2021-04-29",
+      "decision_date": "2021-04-30",
+      "decision_month": "2021-04",
+      "twse_rows": 949,
+      "twse_state": "OK",
+      "twse_values": 948
+    },
+    {
+      "as_of_session": "2021-05-31",
+      "decision_date": "2021-05-31",
+      "decision_month": "2021-05",
+      "twse_rows": 952,
+      "twse_state": "OK",
+      "twse_values": 952
+    },
+    {
+      "as_of_session": "2021-06-30",
+      "decision_date": "2021-06-30",
+      "decision_month": "2021-06",
+      "twse_rows": 950,
+      "twse_state": "OK",
+      "twse_values": 950
+    },
+    {
+      "as_of_session": "2021-07-30",
+      "decision_date": "2021-07-31",
+      "decision_month": "2021-07",
+      "twse_rows": 950,
+      "twse_state": "OK",
+      "twse_values": 950
+    },
+    {
+      "as_of_session": "2021-08-31",
+      "decision_date": "2021-08-31",
+      "decision_month": "2021-08",
+      "twse_rows": 951,
+      "twse_state": "OK",
+      "twse_values": 951
+    },
+    {
+      "as_of_session": "2021-09-30",
+      "decision_date": "2021-09-30",
+      "decision_month": "2021-09",
+      "twse_rows": 951,
+      "twse_state": "OK",
+      "twse_values": 951
+    },
+    {
+      "as_of_session": "2021-10-29",
+      "decision_date": "2021-10-31",
+      "decision_month": "2021-10",
+      "twse_rows": 951,
+      "twse_state": "OK",
+      "twse_values": 951
+    },
+    {
+      "as_of_session": "2021-11-30",
+      "decision_date": "2021-11-30",
+      "decision_month": "2021-11",
+      "twse_rows": 953,
+      "twse_state": "OK",
+      "twse_values": 953
+    },
+    {
+      "as_of_session": "2021-12-30",
+      "decision_date": "2021-12-31",
+      "decision_month": "2021-12",
+      "twse_rows": 954,
+      "twse_state": "OK",
+      "twse_values": 954
+    },
+    {
+      "as_of_session": "2022-01-26",
+      "decision_date": "2022-01-31",
+      "decision_month": "2022-01",
+      "twse_rows": 961,
+      "twse_state": "OK",
+      "twse_values": 961
+    },
+    {
+      "as_of_session": "2022-02-25",
+      "decision_date": "2022-02-28",
+      "decision_month": "2022-02",
+      "twse_rows": 960,
+      "twse_state": "OK",
+      "twse_values": 960
+    },
+    {
+      "as_of_session": "2022-03-31",
+      "decision_date": "2022-03-31",
+      "decision_month": "2022-03",
+      "twse_rows": 961,
+      "twse_state": "OK",
+      "twse_values": 961
+    },
+    {
+      "as_of_session": "2022-04-29",
+      "decision_date": "2022-04-30",
+      "decision_month": "2022-04",
+      "twse_rows": 960,
+      "twse_state": "OK",
+      "twse_values": 960
+    },
+    {
+      "as_of_session": "2022-05-31",
+      "decision_date": "2022-05-31",
+      "decision_month": "2022-05",
+      "twse_rows": 963,
+      "twse_state": "OK",
+      "twse_values": 963
+    },
+    {
+      "as_of_session": "2022-06-30",
+      "decision_date": "2022-06-30",
+      "decision_month": "2022-06",
+      "twse_rows": 965,
+      "twse_state": "OK",
+      "twse_values": 965
+    },
+    {
+      "as_of_session": "2022-07-29",
+      "decision_date": "2022-07-31",
+      "decision_month": "2022-07",
+      "twse_rows": 965,
+      "twse_state": "OK",
+      "twse_values": 965
+    },
+    {
+      "as_of_session": "2022-08-31",
+      "decision_date": "2022-08-31",
+      "decision_month": "2022-08",
+      "twse_rows": 965,
+      "twse_state": "OK",
+      "twse_values": 964
+    },
+    {
+      "as_of_session": "2022-09-30",
+      "decision_date": "2022-09-30",
+      "decision_month": "2022-09",
+      "twse_rows": 958,
+      "twse_state": "OK",
+      "twse_values": 957
+    },
+    {
+      "as_of_session": "2022-10-31",
+      "decision_date": "2022-10-31",
+      "decision_month": "2022-10",
+      "twse_rows": 965,
+      "twse_state": "OK",
+      "twse_values": 964
+    },
+    {
+      "as_of_session": "2022-11-30",
+      "decision_date": "2022-11-30",
+      "decision_month": "2022-11",
+      "twse_rows": 967,
+      "twse_state": "OK",
+      "twse_values": 967
+    },
+    {
+      "as_of_session": "2022-12-30",
+      "decision_date": "2022-12-31",
+      "decision_month": "2022-12",
+      "twse_rows": 968,
+      "twse_state": "OK",
+      "twse_values": 968
+    },
+    {
+      "as_of_session": "2023-01-31",
+      "decision_date": "2023-01-31",
+      "decision_month": "2023-01",
+      "twse_rows": 968,
+      "twse_state": "OK",
+      "twse_values": 968
+    },
+    {
+      "as_of_session": "2023-02-24",
+      "decision_date": "2023-02-28",
+      "decision_month": "2023-02",
+      "twse_rows": 968,
+      "twse_state": "OK",
+      "twse_values": 968
+    },
+    {
+      "as_of_session": "2023-03-31",
+      "decision_date": "2023-03-31",
+      "decision_month": "2023-03",
+      "twse_rows": 976,
+      "twse_state": "OK",
+      "twse_values": 976
+    },
+    {
+      "as_of_session": "2023-04-28",
+      "decision_date": "2023-04-30",
+      "decision_month": "2023-04",
+      "twse_rows": 974,
+      "twse_state": "OK",
+      "twse_values": 974
+    },
+    {
+      "as_of_session": "2023-05-31",
+      "decision_date": "2023-05-31",
+      "decision_month": "2023-05",
+      "twse_rows": 975,
+      "twse_state": "OK",
+      "twse_values": 975
+    },
+    {
+      "as_of_session": "2023-06-30",
+      "decision_date": "2023-06-30",
+      "decision_month": "2023-06",
+      "twse_rows": 978,
+      "twse_state": "OK",
+      "twse_values": 978
+    },
+    {
+      "as_of_session": "2023-07-31",
+      "decision_date": "2023-07-31",
+      "decision_month": "2023-07",
+      "twse_rows": 980,
+      "twse_state": "OK",
+      "twse_values": 980
+    },
+    {
+      "as_of_session": "2023-08-31",
+      "decision_date": "2023-08-31",
+      "decision_month": "2023-08",
+      "twse_rows": 981,
+      "twse_state": "OK",
+      "twse_values": 981
+    },
+    {
+      "as_of_session": "2023-09-28",
+      "decision_date": "2023-09-30",
+      "decision_month": "2023-09",
+      "twse_rows": 977,
+      "twse_state": "OK",
+      "twse_values": 977
+    },
+    {
+      "as_of_session": "2023-10-31",
+      "decision_date": "2023-10-31",
+      "decision_month": "2023-10",
+      "twse_rows": 986,
+      "twse_state": "OK",
+      "twse_values": 986
+    },
+    {
+      "as_of_session": "2023-11-30",
+      "decision_date": "2023-11-30",
+      "decision_month": "2023-11",
+      "twse_rows": 989,
+      "twse_state": "OK",
+      "twse_values": 989
+    },
+    {
+      "as_of_session": "2023-12-29",
+      "decision_date": "2023-12-31",
+      "decision_month": "2023-12",
+      "twse_rows": 997,
+      "twse_state": "OK",
+      "twse_values": 997
+    },
+    {
+      "as_of_session": "2024-01-31",
+      "decision_date": "2024-01-31",
+      "decision_month": "2024-01",
+      "twse_rows": 1001,
+      "twse_state": "OK",
+      "twse_values": 1001
+    },
+    {
+      "as_of_session": "2024-02-29",
+      "decision_date": "2024-02-29",
+      "decision_month": "2024-02",
+      "twse_rows": 1000,
+      "twse_state": "OK",
+      "twse_values": 1000
+    },
+    {
+      "as_of_session": "2024-03-29",
+      "decision_date": "2024-03-31",
+      "decision_month": "2024-03",
+      "twse_rows": 1005,
+      "twse_state": "OK",
+      "twse_values": 1005
+    },
+    {
+      "as_of_session": "2024-04-30",
+      "decision_date": "2024-04-30",
+      "decision_month": "2024-04",
+      "twse_rows": 1004,
+      "twse_state": "OK",
+      "twse_values": 1004
+    },
+    {
+      "as_of_session": "2024-05-31",
+      "decision_date": "2024-05-31",
+      "decision_month": "2024-05",
+      "twse_rows": 1011,
+      "twse_state": "OK",
+      "twse_values": 1011
+    },
+    {
+      "as_of_session": "2024-06-28",
+      "decision_date": "2024-06-30",
+      "decision_month": "2024-06",
+      "twse_rows": 1016,
+      "twse_state": "OK",
+      "twse_values": 1016
+    },
+    {
+      "as_of_session": "2024-07-31",
+      "decision_date": "2024-07-31",
+      "decision_month": "2024-07",
+      "twse_rows": 1016,
+      "twse_state": "OK",
+      "twse_values": 1016
+    },
+    {
+      "as_of_session": "2024-08-30",
+      "decision_date": "2024-08-31",
+      "decision_month": "2024-08",
+      "twse_rows": 1015,
+      "twse_state": "OK",
+      "twse_values": 1015
+    },
+    {
+      "as_of_session": "2024-09-30",
+      "decision_date": "2024-09-30",
+      "decision_month": "2024-09",
+      "twse_rows": 1019,
+      "twse_state": "OK",
+      "twse_values": 1018
+    },
+    {
+      "as_of_session": "2024-10-30",
+      "decision_date": "2024-10-31",
+      "decision_month": "2024-10",
+      "twse_rows": 1023,
+      "twse_state": "OK",
+      "twse_values": 1022
+    },
+    {
+      "as_of_session": "2024-11-29",
+      "decision_date": "2024-11-30",
+      "decision_month": "2024-11",
+      "twse_rows": 1026,
+      "twse_state": "OK",
+      "twse_values": 1026
+    },
+    {
+      "as_of_session": "2024-12-31",
+      "decision_date": "2024-12-31",
+      "decision_month": "2024-12",
+      "twse_rows": 1031,
+      "twse_state": "OK",
+      "twse_values": 1031
+    },
+    {
+      "as_of_session": "2025-01-22",
+      "decision_date": "2025-01-31",
+      "decision_month": "2025-01",
+      "twse_rows": 1034,
+      "twse_state": "OK",
+      "twse_values": 1034
+    },
+    {
+      "as_of_session": "2025-02-27",
+      "decision_date": "2025-02-28",
+      "decision_month": "2025-02",
+      "twse_rows": 1034,
+      "twse_state": "OK",
+      "twse_values": 1034
+    },
+    {
+      "as_of_session": "2025-03-31",
+      "decision_date": "2025-03-31",
+      "decision_month": "2025-03",
+      "twse_rows": 1039,
+      "twse_state": "OK",
+      "twse_values": 1039
+    },
+    {
+      "as_of_session": "2025-04-30",
+      "decision_date": "2025-04-30",
+      "decision_month": "2025-04",
+      "twse_rows": 1039,
+      "twse_state": "OK",
+      "twse_values": 1039
+    },
+    {
+      "as_of_session": "2025-05-29",
+      "decision_date": "2025-05-31",
+      "decision_month": "2025-05",
+      "twse_rows": 1041,
+      "twse_state": "OK",
+      "twse_values": 1041
+    },
+    {
+      "as_of_session": "2025-06-30",
+      "decision_date": "2025-06-30",
+      "decision_month": "2025-06",
+      "twse_rows": 1045,
+      "twse_state": "OK",
+      "twse_values": 1045
+    },
+    {
+      "as_of_session": "2025-07-31",
+      "decision_date": "2025-07-31",
+      "decision_month": "2025-07",
+      "twse_rows": 1046,
+      "twse_state": "OK",
+      "twse_values": 1046
+    },
+    {
+      "as_of_session": "2025-08-29",
+      "decision_date": "2025-08-31",
+      "decision_month": "2025-08",
+      "twse_rows": 1047,
+      "twse_state": "OK",
+      "twse_values": 1046
+    },
+    {
+      "as_of_session": "2025-09-30",
+      "decision_date": "2025-09-30",
+      "decision_month": "2025-09",
+      "twse_rows": 1048,
+      "twse_state": "OK",
+      "twse_values": 1047
+    },
+    {
+      "as_of_session": "2025-10-31",
+      "decision_date": "2025-10-31",
+      "decision_month": "2025-10",
+      "twse_rows": 1054,
+      "twse_state": "OK",
+      "twse_values": 1053
+    },
+    {
+      "as_of_session": "2025-11-28",
+      "decision_date": "2025-11-30",
+      "decision_month": "2025-11",
+      "twse_rows": 1060,
+      "twse_state": "OK",
+      "twse_values": 1060
+    },
+    {
+      "as_of_session": "2025-12-31",
+      "decision_date": "2025-12-31",
+      "decision_month": "2025-12",
+      "twse_rows": 1062,
+      "twse_state": "OK",
+      "twse_values": 1062
+    },
+    {
+      "as_of_session": "2026-01-30",
+      "decision_date": "2026-01-31",
+      "decision_month": "2026-01",
+      "twse_rows": 1066,
+      "twse_state": "OK",
+      "twse_values": 1066
+    },
+    {
+      "as_of_session": "2026-02-26",
+      "decision_date": "2026-02-28",
+      "decision_month": "2026-02",
+      "twse_rows": 1068,
+      "twse_state": "OK",
+      "twse_values": 1068
+    },
+    {
+      "as_of_session": "2026-03-31",
+      "decision_date": "2026-03-31",
+      "decision_month": "2026-03",
+      "twse_rows": 1070,
+      "twse_state": "OK",
+      "twse_values": 1070
+    }
+  ],
+  "sources": [
+    "twse"
+  ]
+}
