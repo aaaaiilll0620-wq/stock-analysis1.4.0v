@@ -250,6 +250,90 @@ def build_manifest() -> ProvenanceManifest:
     )
 
 
+# --- C-52/R1 · immutable, content-addressed seal retention --------------------
+
+SEAL_ARCHIVE = os.path.join(OUT_DIR, "seals")
+SEAL_LINEAGE = os.path.join(REPO, "research", "b0_registry",
+                            "baseline_seal_lineage.jsonl")
+
+
+class SealOverwrite(RuntimeError):
+    """C-52/R1: a seal body is immutable. Overwriting one destroys evidence."""
+
+
+def seal_archive_path(seal_hash: str) -> str:
+    return os.path.join(SEAL_ARCHIVE, "%s.json" % seal_hash)
+
+
+def write_immutable(record: dict, seal_hash: str) -> tuple[str, str]:
+    """Write the seal body to its content-addressed path. Never overwrite.
+
+    The path IS the identity, so a second seal with the same hash is the same
+    seal and a different one cannot land on the same name. The convenience
+    pointer at `b0_baseline_seal.json` is a copy; losing it costs nothing,
+    whereas the archive is the evidence a later L2 run points back at.
+    """
+    os.makedirs(SEAL_ARCHIVE, exist_ok=True)
+    archive = seal_archive_path(seal_hash)
+    if os.path.exists(archive):
+        raise SealOverwrite(
+            "C-52/R1: %s already exists. A baseline seal body is immutable; "
+            "if this is the same seal there is nothing to write, and if it is "
+            "a different one it must not claim this identity." % archive)
+    body = json.dumps(record, ensure_ascii=False, indent=2, sort_keys=True) + chr(10)
+    with open(archive, "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(body)
+
+    # R1: the payload hash must reproduce the identity the filename claims.
+    reopened = json.load(open(archive, encoding="utf-8"))
+    if reopened.get("baseline_seal_sha256") != seal_hash:
+        raise SealOverwrite(
+            "C-52/R1: %s does not reopen to the seal hash its name claims "
+            "(%s)." % (archive, seal_hash))
+    if os.path.basename(archive) != "%s.json" % reopened["baseline_seal_sha256"]:
+        raise SealOverwrite(
+            "C-52/R1: archival filename and payload identity disagree")
+
+    pointer = os.path.join(OUT_DIR, "b0_baseline_seal.json")
+    with open(pointer, "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(body)
+    return archive, pointer
+
+
+def record_lineage(seal_hash: str, manifest) -> None:
+    """Append-only supersession ledger. Predecessors are never rewritten."""
+    entries = []
+    if os.path.exists(SEAL_LINEAGE):
+        with open(SEAL_LINEAGE, encoding="utf-8") as fh:
+            entries = [json.loads(l) for l in fh if l.strip()]
+    if any(e.get("baseline_seal_sha256") == seal_hash for e in entries):
+        return
+    prior = [e for e in entries if e.get("state") == "CURRENT"]
+    for e in prior:
+        e["state"] = "SUPERSEDED"
+        e["superseded_by"] = seal_hash
+    predecessor = None
+    if prior:
+        predecessor = (prior[-1].get("baseline_seal_sha256")
+                       or prior[-1].get("historical_hash_prefix"))
+    entries.append({
+        "seq": len(entries) + 1,
+        "baseline_seal_sha256": seal_hash,
+        "master_version": manifest.specification.version,
+        "commit_sha": manifest.code.commit_sha,
+        "state": "CURRENT",
+        "historical_hash_recorded": True,
+        "canonical_body_available": True,
+        "archive_path": os.path.relpath(seal_archive_path(seal_hash), REPO)
+                        .replace("\\", "/"),
+        "supersedes": predecessor,
+        "l2_opened": False,
+    })
+    with open(SEAL_LINEAGE, "w", encoding="utf-8", newline=chr(10)) as fh:
+        for e in entries:
+            fh.write(json.dumps(e, ensure_ascii=False, sort_keys=True) + chr(10))
+
+
 # --- entry point --------------------------------------------------------------
 
 def main() -> None:

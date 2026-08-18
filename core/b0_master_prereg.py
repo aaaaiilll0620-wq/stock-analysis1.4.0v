@@ -71,6 +71,7 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     "core/b0_valuation_source.py",
     "core/b0_share_unit_adjustment.py",
     "core/b0_bonus_share_source.py",
+    "core/b0_opening_state.py",
 )
 
 
@@ -440,6 +441,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_provenance as prov
     from core import b0_share_unit_adjustment as sua
     from core import b0_bonus_share_source as bsrc
+    from core import b0_opening_state as opn
     from core import b0_valuation_source as vsrc
     prereg_modules = NORMATIVE_MODULES
     from core import b0_pit_observability as pit
@@ -537,6 +539,15 @@ def _spec_registry() -> dict[str, Any]:
         "bonus_share_nearest_date_matching_allowed":
             bsrc.NEAREST_DATE_MATCHING_ALLOWED,
         "bonus_share_date_tolerance_days": bsrc.DATE_TOLERANCE_DAYS,
+        # v1.19 · C-53 · the opening-state seam. A boundary rule for period 1
+        # and nothing else: two datings of one economic state, both bound, and
+        # no generic facility for re-dating a portfolio.
+        "opening_state_registered_date": opn.REGISTERED_OPENING_STATE_DATE,
+        "opening_state_canonical_date": opn.CANONICAL_OPENING_STATE_DATE,
+        "opening_state_normalization_scope": opn.NORMALIZATION_SCOPE,
+        "opening_state_economic_fields": opn.PORTFOLIO_ECONOMIC_FIELDS,
+        "opening_state_permitted_date_fields":
+            opn.PERMITTED_DATE_METADATA_FIELDS,
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,

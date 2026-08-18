@@ -40,6 +40,10 @@ from core.b0_features import SecurityPitInputs                # noqa: E402
 from core.b0_listing_spell import ListingSpell                # noqa: E402
 from core.b0_market_state import SourceContract, TradingCalendar   # noqa: E402
 from core.b0_master_prereg import spec                        # noqa: E402
+from core.b0_opening_state import (                           # noqa: E402
+    NORMALIZATION_PERIOD_INDEX, assert_opening_state_normalization,
+    canonical_opening_state, registered_opening_state,
+)
 from core.b0_route import resolve_as_of                       # noqa: E402
 from core.b0_state import PortfolioState, SourceAttestation   # noqa: E402
 from core.b0_adapter_retrospective import (                   # noqa: E402
@@ -56,11 +60,29 @@ class PortfolioNotYetGenerated(RuntimeError):
     """Definition B: full_input[t] cannot exist before executing t-1."""
 
 
+def opening_states(as_of: str):
+    """C-53/R2: the two datings of one economic state, checked against each other.
+
+    The registry declares the opening state at `window_start`; §6.6 dates the
+    canonical decision input at the prior completed session. Normalizing period 1
+    onto the canonical session is admissible ONLY while every portfolio-economic
+    field is identical, which the invariant below verifies rather than assumes.
+    """
+    registered = registered_opening_state(spec("window_start"), spec("C_ref"))
+    canonical = canonical_opening_state(registered, as_of)
+    assert_opening_state_normalization(
+        registered, canonical, period_index=NORMALIZATION_PERIOD_INDEX)
+    return registered, canonical
+
+
 def opening_portfolio(as_of: str) -> PortfolioState:
-    """The frozen opening state. Read from the registry, never invented."""
-    return PortfolioState(as_of=as_of, cash=float(spec("C_ref")), shares={},
-                          pending_exit={}, cash_dividend_receivable=0.0,
-                          stock_dividend_receivable={})
+    """The canonical dating of the frozen opening state. Never invented."""
+    _, canonical = opening_states(as_of)
+    return PortfolioState(
+        as_of=canonical["as_of"], cash=canonical["cash"],
+        shares=canonical["shares"], pending_exit=canonical["pending_exit"],
+        cash_dividend_receivable=canonical["cash_dividend_receivable"],
+        stock_dividend_receivable=canonical["stock_dividend_receivable"])
 
 
 def build_period_t_full_input(t: int, *, prior_execution_output=None):
@@ -200,10 +222,7 @@ def main() -> int:
                    if k not in ("cash", "shares", "pending_exit",
                                 "cash_dividend_receivable",
                                 "stock_dividend_receivable", "exposures")}
-    frozen_opening = {
-        "as_of": spec("window_start"), "cash": spec("C_ref"), "shares": {},
-        "pending_exit": {}, "cash_dividend_receivable": 0.0,
-        "stock_dividend_receivable": {}}
+    registered, canonical = opening_states(inp.as_of)
 
     try:
         build_period_t_full_input(2)
@@ -227,15 +246,17 @@ def main() -> int:
                       "shares": dict(inp.portfolio.shares),
                       "as_of": inp.portfolio.as_of},
         "opening_state_seam": {
-            "frozen_opening_state_as_of": spec("window_start"),
-            "canonical_decision_state_as_of": inp.as_of,
+            "clause": "C-53/R2",
+            "registered_opening_state_as_of": registered["as_of"],
+            "canonical_opening_state_as_of": canonical["as_of"],
+            "registered_opening_state_sha256": canonical_sha256(registered),
+            "canonical_opening_state_sha256": canonical_sha256(canonical),
+            "normalization_scope": "period_1_opening_state_only",
+            "economic_fields_identical": True,
             "note": ("the registry declares the opening state at window_start "
                      "while §6.6 dates the canonical decision state at the prior "
-                     "completed session; with no holdings the two describe the "
-                     "same economic state but hash differently"),
-            "frozen_opening_sha256": canonical_sha256(frozen_opening),
-            "as_dated_opening_sha256": canonical_sha256(
-                {**frozen_opening, "as_of": inp.as_of}),
+                     "completed session; C-53/R2 normalizes period 1 only, and "
+                     "the invariant verifies that nothing but the date moved"),
         },
         "periods_with_full_input": 1,
         "periods_deferred": 140,

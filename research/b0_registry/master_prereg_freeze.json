@@ -1,11 +1,11 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.18",
+ "version": "1.19",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "8814e4be5de484d2f5a20c2ddf334eebca363af1121140ebe32e72899663c4af",
- "spec_bytes": 148399,
+ "spec_sha256": "966663ec0e202647e20b051d197bffa5ffc0a94ff0ae437219118531bf295996",
+ "spec_bytes": 155790,
  "normative_modules": {
-  "core/b0_master_prereg.py": "796ccfec9ce4f1b9ca9bd0de453f564b6dd90542d46b3436fe17cc9279a1d88d",
+  "core/b0_master_prereg.py": "00bdf7b88386e85bee318b85ac896c5f69487252da95d52bcf75d0f01f17b73e",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
   "core/b0_corporate_actions.py": "ef6e392abaf1af94f7dcbc5c1dab9cd5f7673472c052629754fb7e5e335b18cc",
   "core/b0_pit_observability.py": "c060e8135a8c7a386b74113097cfecdfd6ffbf74b406e77e5c1f6eefc899ef1e",
@@ -30,7 +30,8 @@
   "core/b0_price_universe.py": "21c65b530f63fab21787237e6dfad6b0cc3f2830a6b8b06495d4076dbfa08ac8",
   "core/b0_valuation_source.py": "4d3ca3da3a5d7c5edad041e66783309453858591ed498158817dfc75a1026367",
   "core/b0_share_unit_adjustment.py": "be781b635505ba1c4f8e52998bdfaaedb196ecce9c1f72791352ef0d12970ad2",
-  "core/b0_bonus_share_source.py": "ec82af26214f4e0424fc5df123085f0f5520ab66cd07131d9bf440af0332d937"
+  "core/b0_bonus_share_source.py": "ec82af26214f4e0424fc5df123085f0f5520ab66cd07131d9bf440af0332d937",
+  "core/b0_opening_state.py": "988389eaf66999c8608532fa0e195e67903c0143c1dc6fe567aa579251acf83b"
  },
  "derived_artefacts": {
   "data/b0/corporate_actions_ledger.csv": {
@@ -204,6 +205,11 @@
   "normative_modules",
   "o_e_1_availability_rule",
   "odd_lot_enabled",
+  "opening_state_canonical_date",
+  "opening_state_economic_fields",
+  "opening_state_normalization_scope",
+  "opening_state_permitted_date_fields",
+  "opening_state_registered_date",
   "orientation_is_caller_selectable",
   "peg_definition",
   "peg_domain",

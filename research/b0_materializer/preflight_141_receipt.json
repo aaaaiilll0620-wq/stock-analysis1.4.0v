@@ -22,12 +22,14 @@
   "open L2"
  ],
  "full_decision_input": {
-  "full_decision_input_sha256": "e8c3157a2a09c0f409cd35f24070e92c06cb71bac6f55d834a61bb6100c016a2",
+  "canonical_opening_state_sha256": "3290cd81491d58dd692901e81bc89f37645e2546feaacd2125419473cdcd5cb3",
+  "full_decision_input_sha256": "4b808ebd9df63da071666d5195ed22a0a336ecabe88773b48e21a459c82dadb4",
   "period_1_as_of": "2014-07-30",
   "period_1_decision_date": "2014-07-31",
   "periods_deferred": 140,
   "periods_with_full_input": 1,
-  "portfolio_source": "frozen opening state (C_ref cash, no holdings), read from the registry"
+  "portfolio_source": "frozen opening state (C_ref cash, no holdings), read from the registry and normalized onto the canonical as-of session under C-53/R2",
+  "registered_opening_state_sha256": "74aa7acc49220570339598bd4c66e7f2cee8b950a92376e95fef15f537e0cd4b"
  },
  "is_blocker": false,
  "is_not_evaluable": false,
@@ -46,6 +48,7 @@
   ]
  },
  "performance_computed": false,
+ "provenance_note": "the period-1 full-input hash moved from e8c3157a to 4b808ebd solely because the source attestation binds the frozen spec hash, which changed with Master v1.19. No economic quantity moved: the 141 market-side state hashes and their composed hash bbe3d06d are unchanged, and the opening state's economic fields are pinned identical by the C-53 invariant.",
  "sealed_inputs": {
   "bonus_share_panel": "3b311238f121247572d84e5d1eb915d5b3538972509581fcedaffdfaa17155bb",
   "financials_pit": "1d0c39d1b3eedd601df03fa0210c2a80e9f1253e7e39a0bb8c37db118733b8d6",

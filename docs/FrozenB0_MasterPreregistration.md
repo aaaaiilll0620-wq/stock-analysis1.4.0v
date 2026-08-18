@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.18（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**）
+**版本:** 1.19（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -1813,6 +1813,128 @@ transport failures    0
 
 ---
 
+### C-50 · M-3 `momentum_price_adjustment` —— 價格調整定為 share-unit（v1.17；v1.19 補立章節）
+
+> **本節於 v1.19 補立。** 裁決本身於 v1.17 落地並生效，當時只記在版本行與 §12 表格中；
+> 本節是**文件整併**，不更動任何語義、不新增任何自由參數。
+
+#### 問題
+
+`compute_momentum_12_1` 要求輸入序列「已依 §2.4 股數事件調整」，並明言調整不是它自己的選擇；
+但**沒有任何條文說那個調整是什麼**。故依 M-3 登記 `momentum_price_adjustment`。
+
+#### 裁決所繫的區分
+
+```
+調整的對象是「既有持有人所持股數的確定性轉換」
+—— 不是公司流通在外股數的變動
+```
+
+因此 **`share_multiplier != 1` 不構成資格**。可轉債轉換、員工配股、現金增資、庫藏股註銷
+都會移動流通在外股數卻不乘上任何人的既有部位，為它們調整價格等於**從稀釋中製造出報酬**；
+而配股、分割、反分割、減資換股確實會乘上既有部位，不調整則會把一次分割報成 −50% 的動能。
+
+#### R1 ~ R8
+
+- **R1 · 基準。** `ADJUSTMENT_BASIS = SHARE_UNIT_ADJUSTED`，**不是** `TOTAL_RETURN_ADJUSTED`。
+  現金股利、退還現金、認購價、認購權值、再投資一律不得進入因子（`EXCLUDED_FROM_FACTOR`）。
+  §3.1 凍結的是**價格相對**，總報酬序列會用同一個名字回答不同的問題。
+- **R2 · 資格。** eligible = `stock_dividend` / `capital_reduction` / `par_value_change`；
+  ineligible（移動流通股數但不轉換既有部位）= `cash_capital_increase` /
+  `convertible_bond_conversion` / `employee_bonus` / `treasury_cancellation` /
+  `other_share_change`。未分類的 kind **不得**默默當作 ineligible —— 那與猜因子同形。
+- **R3 · 公式。** 界線之前 `adjusted = raw / m`，多個界線以乘法複合；界線當日與其後維持原值，
+  故序列最新端恆為原始報價。
+- **R4 · 界線。** `ex_or_effective_date` 解析到的 **market-effective session**；
+  **永不**使用 `credit_tradable_date`（那管的是配發股份何時可交易，是另一個問題）。
+- **R5 · 身分。** `merger` / `share_conversion` / `transfer_in` 為 identity change：
+  **不得跨證券接續價格歷史**，後繼證券使用自己的 canonical history 與自己的 listing spell。
+- **R6 · 消費者切分。**
+  ```
+  讀 adjusted : momentum_12_1 · sigma20d
+  讀 raw      : marks · execution_prices · nav · portfolio_market_value
+                order_notional · fees_tax · adv20
+  ```
+  後者都是「實際付出或實際成交的金錢數量」；調整後價格是可比性工具，沒有任何交易發生在那個價位。
+  ADV20 尤其必須留在 raw —— §4.2 是絕對新台幣門檻。
+- **R7 · 單一 producer。** `core/b0_share_unit_adjustment.py` 是唯一產生調整因子的模組，
+  raw panel 維持不可變。
+- **R8 · fail-loud。** 合格事件而 multiplier 缺失或歧義、界線無法重建、同一性無法確立者
+  一律 raise，由呼叫端依既凍結的 complete-case 語義轉為 NA；**不得代入看似合理的因子**。
+  若既有規則無法唯一決定處置，則另開 M-3 項。
+
+#### 與 C-51 的關係
+
+R8 的 fail-loud 路徑正是暴露出 `stock_dividend_holder_multiplier_source` 的地方：
+規則完整，缺的是配股 `m` 的來源。該來源問題由 **C-51** 以官方交易所無償配股率裁決關閉，
+其 canonical 轉換 `m = 1 + bonus_shares_per_1000 / 1000` 供給的正是本節 R2 的 `stock_dividend` 分支；
+R2 的 eligible / ineligible 切分與交易所欄位 A（無償配股）/ B（員工紅利轉增資）/ C（有償現金增資）
+的切分一致，此一致性是 C-51 採用該來源的理由之一。
+
+- **未變更：** §3.1 price relative、§2.4、B-09 選股語義、Frozen A
+- **落地：** 12 條必要測試（parametrise 後 32 條），9 個 registry key，
+  normative module `core/b0_share_unit_adjustment.py`
+
+---
+
+### C-52 · Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（v1.19）
+
+#### 問題
+
+seal script 原本寫死單一路徑 `artifacts/baseline_seal/b0_baseline_seal.json`，
+而 `artifacts/` 在 gitignore 內、從未進版控。因此**每取一次新 seal 就就地覆蓋前一份本體**。
+實際後果已經發生：`bdc69c32…`（v1.14）與 `292ae484…`（v1.18）兩份本體皆已滅失。
+
+#### R1
+
+- canonical 歸檔路徑為 **content-addressed 且不可覆蓋**：
+  ```
+  artifacts/baseline_seal/seals/<seal_sha256>.json
+  ```
+- 該路徑已存在時**寫入必須 abort**（`SealOverwrite`）。同一 hash 即同一 seal，無可寫；
+  不同 seal 不得冒用同一身分。
+- 寫入後必須**重新開檔驗證**：payload 的 `baseline_seal_sha256` 必須重現檔名所宣稱的身分。
+- `b0_baseline_seal.json` 可續存為 latest pointer / 便利複本，**但它不是 canonical 歸檔身分**。
+- lineage ledger（`research/b0_registry/baseline_seal_lineage.jsonl`）記錄
+  predecessor / supersession 關係，append-only，既有條目不重寫。
+- **不得重建 `bdc69c32…` 已滅失的本體。** 該條目據實記為
+  `historical_hash_recorded = true` / `canonical_body_available = false` /
+  `reason = previous single-path seal was overwritten before immutable archival was implemented`。
+  缺失的 provenance 不得捏造。
+
+---
+
+### C-53 · 開倉狀態日期接縫（v1.19）
+
+#### 問題
+
+兩個日期描述同一個時刻而不是同一個日期：
+
+```
+registered opening state    window_start                    2014-07-31（決策日）
+canonical decision input    resolve_as_of(window_start)     2014-07-30（前一完成交易日,§6.6）
+```
+
+無持股時兩者是同一個經濟狀態，但**不是同一個 hash 物件**。
+retrospective adapter 明文拒絕替 portfolio 改日期（「adapter 不重新標定 portfolio 的日期，
+它回報不一致」）—— 這是對的：被默默移到另一個 session 的 portfolio，等於宣稱它在一個
+未被觀察的日子有某個價值。
+
+#### R2
+
+- 上述區分予以**凍結**。
+- **僅 period 1** 的 registered opening state 正規化到 canonical as-of session，
+  且**不改變任何經濟狀態**。
+- 兩個 hash **同時保留並綁定**：`registered_opening_state_sha256` 與
+  `canonical_opening_state_sha256`。
+- 新增可執行不變量：除明文允許的日期／as-of metadata 欄位外，
+  `cash`、持股、pending exit、應收應付、以及一切其他 portfolio 經濟欄位**必須完全相同**
+  （相同，不是「等價」、不是「在容差內」）；並要求 canonical as-of **嚴格早於** registered 日期。
+- 這是**開倉狀態邊界規則**。**不得**建立可對任意 portfolio 改寫日期的通用機制：
+  `assert_not_a_generic_redater` 對非開倉狀態的任何改期一律 raise。
+
+---
+
 ### C-13 · O-C 由 open item 轉為凍結政策
 - **來源：** 本文件 v1.0 §12 O-C，列為待決（是否另尋來源）
 - **變更：** §2.4 凍結為「不建推導模型、不猜除權日、維持 `NOT_RECONSTRUCTIBLE`」
@@ -1945,9 +2067,11 @@ B-20 real-data parity                              BLOCKED by D-1
 S-3b route enforcement                             ✅ SATISFIED (C-44)
 value_pbr 2019+ lineage                            ✅ CLOSED（v1.15,C-48）
 value_per 2019+ lineage                            ✅ CLOSED（v1.16,C-49）
-L2 sealed-input materializer (141 期)              IN PROGRESS — 來源層已解除封鎖
+L2 sealed-input materializer (141 期)              ✅ 141/141 market-side states sealed
 momentum 價格調整規則 (C-50)                        ✅ CLOSED（v1.17,R1~R8 + 12 條測試）
 配股 holder multiplier 來源 (C-51)                  ✅ CLOSED（v1.18,R1~R6 + 8 條 negative control）
+Baseline Seal 不可覆蓋歸檔 (C-52)                   ✅ CLOSED（v1.19,content-addressed）
+開倉狀態日期接縫 (C-53)                             ✅ CLOSED（v1.19,period-1 邊界規則）
   industry PIT / price panel / valuation panel      ✅ SEALED（三份 receipt 皆已綁 hash）
   bonus share panel                                 ✅ SEALED（1,383 payload,0 transport failure）
 B0 Baseline Seal (pre-L2)                          FINALIZATION — v1.14 起可達(C-47)
