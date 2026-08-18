@@ -1,0 +1,37 @@
+{
+ "artefact": "data/b0/industry_pit.parquet",
+ "builder": "research/b0_materializer/build_industry_pit.py",
+ "bytes": 47073,
+ "clause": "§2.3 PIT TSE industry timeline",
+ "content_sha256": "a4718ae226aac7700d946ed1d410d0fbf33726aa8154661237e1ad7317980550",
+ "cross_check": {
+  "reference": "research\\p0_b09_value_reference\\pit_industry_timeline_v2.parquet",
+  "reference_sha256": "a4718ae226aac7700d946ed1d410d0fbf33726aa8154661237e1ad7317980550",
+  "rows_identical": true,
+  "unresolved_identical": true
+ },
+ "current_snapshot_used_for_backfill": false,
+ "effective_from_max": "2026-06-17",
+ "effective_from_min": "1954-08-09",
+ "importer_version": "industry_pit_importer_v1",
+ "no_history_fallback_securities": 0,
+ "performance_computed": false,
+ "rows": 4782,
+ "schema_sha256": "82aecc5a7cf00d48fd3dbf17f9c69f57ccb6ba0db3d83fc65955735d5acec608",
+ "securities": 2436,
+ "stats": {
+  "current_agrees_with_latest": 2157,
+  "no_history_fallback": 0,
+  "securities": 2436,
+  "unresolved_securities": 92,
+  "with_changes": 1203
+ },
+ "unresolved_securities": 92,
+ "unresolved_semantics": "industry = UNRESOLVED from the last dated record onward -> Value NA -> §4.1 complete-case; never back-filled from the current snapshot",
+ "upstream_sources": [
+  {
+   "file": "tej_exports\\DataExport0806\\產業類別\\歷史產業類別.xlsx",
+   "sha256": "d847caf7d788e4234e5514535354381915fad707731aa23bf236f68fdff74b73"
+  }
+ ]
+}

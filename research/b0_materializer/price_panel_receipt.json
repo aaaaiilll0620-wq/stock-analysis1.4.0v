@@ -1,0 +1,63 @@
+{
+ "adv20_sigma20d_computed_here": false,
+ "adv20_sigma20d_owner": "core.b0_state (C-25 / C-26)",
+ "artefact": "data/b0/price_panel.parquet",
+ "builder": "research/b0_materializer/build_price_panel.py",
+ "bytes": 66954211,
+ "carried_columns": [
+  "stock_id",
+  "date",
+  "open",
+  "close",
+  "volume_shares",
+  "traded_value"
+ ],
+ "clause": "§2.8.3 canonical price source, D1-6/D1-7 admissibility",
+ "close_na_rows": 0,
+ "composition": {
+  "boundary_enforced_mechanically": true,
+  "from_2019": [
+   "股價 2019-2022.zip",
+   "股價2023-20260817.zip"
+  ],
+  "pre_2019": "~/tej_cache/price_valuation, date < 2019-01-01"
+ },
+ "content_sha256": "a0681dd7e50f5c5450c5f82fab0b1f007d84df4e8e7af822116103c94e2a3b77",
+ "date_max": "2026-04-01",
+ "date_min": "2013-01-02",
+ "excluded_by_frozen_lineage": [
+  "PER_TSE",
+  "PER_TEJ",
+  "PBR_TSE",
+  "PBR_TEJ",
+  "dividend_yield_TSE",
+  "本益比-TEJ",
+  "股價淨值比-TEJ"
+ ],
+ "importer_version": "price_panel_importer_v1",
+ "performance_computed": false,
+ "price_source": {
+  "content_sha256": "2646356f406a585c53954430eb5ad2967ddebc5c20ef12ea51f4333009d63549",
+  "importer_version": "b0_price_importer@2",
+  "includes_delisted": true,
+  "lineage": "<=2018 existing yearly export; >=2019 tej_exports/DataExport0806/個股股價、本益比2004-20260817 (股價 2019-2022.zip, 股價2023-20260817.zip)",
+  "manifest_recomputed_sha256": "2646356f406a585c53954430eb5ad2967ddebc5c20ef12ea51f4333009d63549",
+  "name": "b0_price_universe_20260817",
+  "reproduces_sealed_fingerprint": true
+ },
+ "quarantined_corpus_sha256": "aeda65b99ec9d4b4e02f96e20e3d915c5519329d010415f2be3e4cb667ea49c1",
+ "quarantined_era_rows_dropped": true,
+ "rows": 5808812,
+ "schema_sha256": "a8693a67e2f3fce141bdecfb42cc823e5443a05e4b4ed42183b2da67fc1196d0",
+ "securities": 2140,
+ "unit_continuity": {
+  "median_traded_value_2018Q4": 2600000.0,
+  "median_traded_value_2019JanFeb": 3242775.0,
+  "ratio": 1.2472,
+  "unit": "NTD = close(元) * volume(shares), C-25 legacy lineage"
+ },
+ "upstream_zip_sha256": {
+  "股價 2019-2022.zip": "41ef1cce47ffb8dc9f58fb9c47cfd579b00fbeab61b61cb3a4fc5df0e0823413",
+  "股價2023-20260817.zip": "049881046ef564e856c3564244337b00bc284707744d0595d8ced0842e19e409"
+ }
+}
