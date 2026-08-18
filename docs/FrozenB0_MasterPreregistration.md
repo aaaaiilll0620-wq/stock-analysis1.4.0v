@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.15（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48**）
+**版本:** 1.16（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -1603,6 +1603,98 @@ NORMATIVE_MODULES                23 → 24（新增 core/b0_valuation_source.py�
 
 ---
 
+### C-49 · M-3 `value_per_lineage_2019plus` —— 官方本益比為 2019+ `per_tse` 的 admissible continuation（v1.16）
+
+#### 問題
+
+C-48 落地後**物化 sealed panel 時**才發現：`PEG` 是 Value 的凍結成員（C-17：`PEG = PER_TSE / eps_growth_pct`），
+所以 `per_tse` 與 `pbr_tse` **同樣**在 Selection path 上、**同樣**是那 87 個月、**同樣**只存在於
+quarantined 的逐年 vintage（取代它的 zip 表頭實測只有 `本益比-TEJ`）。
+
+**C-48 沒有裁這一項** —— R1 只談 PBR。「同理可推」正是 M-3 要擋的動作，且類比並不精確：
+PE 有定義域（EPS 非正即無比值），B/M 沒有，兩者的 NA 母體本來就不同。故依 M-3 登記、停工、上報。
+
+#### 先做 PE-specific reconciliation，且判準先於結果凍結
+
+使用者於裁決書中**先**寫死四條 admissibility 條件，才允許看數字；不得事後挑門檻，不得自創數值通過線。
+比對窗口、證券、session 與 PBR reconciliation 完全相同（2016-2018 的 36 個月底），
+**全部使用既有 cache，未對交易所發出任何新請求**（`new_exchange_requests = 0`）。
+
+| | 比對數 | 完全相同 | max \|Δ\| | 相對差 p99 | signed median |
+|---|---|---|---|---|---|
+| **TWSE 上市** | 26,062 | 26,061（**99.9962%**） | **0.01** | 0.0 | 0.0 |
+| **TPEx 上櫃** | 18,815 | 18,815（**100.00%**） | **0.00** | 0.0 | 0.0 |
+
+唯一一筆差異：`4733` 於 2016-02-26，官方 12.24 vs lineage 12.25 —— **一個 tick、相對 0.08%**，
+即公布精度捨入。
+
+#### 關鍵發現：逐年匯出用 `0.0` 當「無比值」的哨兵值
+
+實測：`本益比-TSE` 有 **4,927** 列恰為 `0.0`（**無一為負、無一為空白**），`股價淨值比-TSE` 有 **7** 列，
+且每一列都對應交易所印 `-` / `N/A` 的同一證券同一 session。
+
+**`0.0` 是一個數字。** 當成資料讀就會得到 `PEG = 0/g` —— 一檔根本沒有本益比的證券，拿到**最便宜的排名**。
+凍結語義（C-17 `PE > 0`、§3.2 `PBR > 0`）在下游本來就會拒絕它，因此在來源邊界正規化為 NA
+**不改變任何 B0 行為**，只是讓哨兵值不再以資料的身分流通。已凍結為
+`SENTINEL_ZERO_IS_UNDEFINED` / `SENTINEL_ZERO_ERAS`。
+
+把哨兵值讀成「缺值」之後，**兩邊對每一筆缺值都一致**：
+
+```
+TWSE  both_present 26,062 · both_na 6,231 · official_only 0 · lineage_only 0
+TPEx  both_present 18,815 · both_na 7,610 · official_only 0 · lineage_only 0
+```
+
+#### 四條先驗條件的判定
+
+| # | 條件 | 判定 |
+|---|---|---|
+| 1 | 同 session 值一致，差異只能由公布精度/捨入解釋 | ✅ 44,877 筆中 1 筆差 1 tick |
+| 2 | 缺值差異可歸因於 PE 定義域／官方 NA 表示法 | ✅ 解碼哨兵值後**零**缺值不一致 |
+| 3 | 無系統性水準或符號偏移 | ✅ signed median 0.0、mean ≈ 0、僅 1 筆非零 |
+| 4 | 無證據顯示官方序列是回溯重算的替代序列 | ✅ 見下 |
+
+**條件 4 的量測（隱含 EPS 步進掃描，與 PBR 同一估計器，公布精度以區間承接）：**
+
+| run | 證券數 | 單一固定分母 | 步進/證券年 | 與揭露 vintage 一致率 | recall |
+|---|---|---|---|---|---|
+| PE · TWSE 2019+ | 1,030 | **0** | 2.724 | **99.46%** | 98.51% |
+| PE · TPEx 2019+ | 846 | **0** | 2.447 | **99.66%** | 99.17% |
+| PE · TWSE 2016-2018 | 843 | **0** | 3.287 | 99.10% | 97.45% |
+| PE · TPEx 2016-2018 | 642 | 1 / 642 | 3.157 | —（無揭露） | — |
+
+步進月份集中於 03 / 05 / 08 / 11，即法定公告日曆。**3,361 檔中僅 1 檔**呈單一固定分母
+⇒ 「今天重算後回填」被否定。
+
+#### 裁決
+
+`PEG` 定義與定義域**完全不變**（`PEG = PER_TSE / eps_growth_pct`，`PE > 0 且 eps_growth_pct > 0`，否則 NA）。
+2019+ 的 `per_tse` lineage：**TWSE 官方本益比 → 上市；TPEx 官方本益比 → 上櫃**。
+`PER_TEJ`、quarantined corpus、自行重算 PE **一律禁止**；**不得**把 2019+ PEG 整段設為 NA。
+PBR 已凍結的來源治理規則**逐條同樣適用**：PIT 板別歸屬、禁用當期 `上市別`、官方 `-`/`null`/未定義 → NA、
+無 fallback、無 imputation、L2 不得 live fetch、raw payload／parser／importer／schema／content hash 全部封存。
+TPEx 於未揭露 vintage 的期間，**沿用與 PBR 逐字相同的 limitation**，不得合成 vintage。
+
+#### 另一項 execution correctness 修正（非策略變更）
+
+sealed panel 的 as-of session **必須**取自 `b0_route.resolve_as_of`（§6.6：嚴格早於 decision date 的
+最後一個已完成 session），**不得**沿用 audit 的「月底當天或之前」慣例 —— 兩者在
+**141 個決策月中有 85 個不同**。builder 於建檔時逐期對 route 重新推導，並有回歸測試釘死。
+
+#### 狀態
+
+```
+M-3 value_per_lineage_2019plus   CLOSED（本裁決）
+OPEN SPEC ITEMS                  0
+parser version                   official_pbr_parser_v1 → v2（同一列同時帶兩個比值）
+canonical valuation panel        pbr_tse + per_tse 同一份，四份 contract（2 era × 2 ratio）
+```
+
+- **未變更：** PEG 定義與定義域、B-09 Value、§4.1 complete-case、D-1 判準、任何策略語義
+- **仍待：** L2 sealed-input materializer（141 期）、新的 B0 Baseline Seal。**本裁決不開 L2**
+
+---
+
 ### C-13 · O-C 由 open item 轉為凍結政策
 - **來源：** 本文件 v1.0 §12 O-C，列為待決（是否另尋來源）
 - **變更：** §2.4 凍結為「不建推導模型、不猜除權日、維持 `NOT_RECONSTRUCTIBLE`」
@@ -1634,12 +1726,12 @@ NORMATIVE_MODULES                23 → 24（新增 core/b0_valuation_source.py�
 | ~~**P-2**~~ | ~~兩個 adapter 向同一 core 供料~~ | ✅ **DONE（v1.7）** | —— |
 | ~~**`value_pbr_lineage_2019plus`**~~ | ~~2019+ 的 `pbr_tse` 無 admissible 來源~~ —— **v1.14 之後登記、v1.15 由 R1~R7 關閉**（C-48）。官方 TWSE/TPEx 歷史 PBR 為 admissible continuation，證據為 overlap 期逐筆同值 | ~~SPEC / BLOCKING~~ | ✅ **已關閉**（曾擋住 L2 sealed-input materializer） |
 
-| **`value_per_lineage_2019plus`** | **2019+ 的 `per_tse` 無 admissible 來源** —— 與 C-48 完全相同的缺口、同一個 corpus，於 C-48 之後物化 sealed panel 時撞到。**C-48 未裁決此項**（R1 只談 PBR），依 M-3 登記，**不得以「同理可推」擴張** | **SPEC / BLOCKING** | ⛔ L2 sealed-input materializer 的 valuation leg（PEG 是 Value 的凍結成員，C-17） |
+| ~~**`value_per_lineage_2019plus`**~~ | ~~2019+ 的 `per_tse` 無 admissible 來源~~ —— **v1.15 之後登記、v1.16 由 C-49 關閉**。官方本益比為 admissible continuation，先做 PE-specific reconciliation 才裁，未以「同理可推」擴張 C-48 | ~~SPEC / BLOCKING~~ | ✅ **已關閉** |
 
 **✅ P-1b-U 已於 v1.6 關閉：canonical core 的 UNSPECIFIED 項目為 0。**
 **該計數在 v1.14 之後曾短暫回到 1**（`value_pbr_lineage_2019plus`，materializer 施工時撞到），
-**於 v1.15 由 C-48 裁決關回 0**；**隨即因 `value_per_lineage_2019plus` 再回到 1**
-—— 登記簿確實承接了新發現的未定行為，這正是它存在的理由。**S-1 因此再度為紅，是機制正常運作，不是回歸缺陷。**
+**於 v1.15 由 C-48 裁決關回 0**；**隨即因 `value_per_lineage_2019plus` 再回到 1**，**再於 v1.16 由 C-49 關回 0**。
+登記簿兩次承接了施工時新發現的未定行為，這正是它存在的理由 —— 期間 S-1 為紅是機制正常運作，不是回歸缺陷。
 
 ```python
 >>> from core.b0_open_items import summary
@@ -1730,6 +1822,7 @@ B-20 fixture parity                                ✅ PASS（bit-exact,float_to
 B-20 real-data parity                              BLOCKED by D-1
 S-3b route enforcement                             ✅ SATISFIED (C-44)
 value_pbr 2019+ lineage                            ✅ CLOSED（v1.15,C-48）
+value_per 2019+ lineage                            ✅ CLOSED（v1.16,C-49）
 L2 sealed-input materializer (141 期)              IN PROGRESS — C-48 解除阻擋後才可續
 B0 Baseline Seal (pre-L2)                          FINALIZATION — v1.14 起可達(C-47)
 L2 Run Provenance                                  待使用者明示開封 L2 後才存在

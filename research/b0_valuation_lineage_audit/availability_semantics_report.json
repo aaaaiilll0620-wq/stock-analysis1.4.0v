@@ -72,10 +72,10 @@
   "limitation": "This measures behaviour, not documentation. It can show that a series behaves like an archived per-session record rather than a back-dated recomputation. It cannot show WHICH statement vintage stood behind each 上櫃 denominator before 2025, because the source does not say and no official document was found that says it.",
   "method": "implied BVPS = close / published PBR, with the published two-decimal rounding carried as an interval; a step is recorded only when two intervals cannot intersect",
   "runs": {
-    "tpex_2019plus": {
+    "pbr_tpex_2019plus": {
       "close_from_admissible_corpus_obs": 69947,
       "close_from_payload_obs": 0,
-      "implied_bvps_levels_histogram": {
+      "implied_denominator_levels_histogram": {
         "10": 9,
         "11": 5,
         "12": 8,
@@ -95,12 +95,13 @@
         "8": 9,
         "9": 7
       },
-      "label": "tpex_2019plus",
+      "label": "pbr_tpex_2019plus",
       "multi_level_share": 1.0,
       "observations": 69818,
+      "ratio": "pbr",
       "securities_analysed": 908,
       "securities_with_multiple_levels": 908,
-      "securities_with_one_level_only": 0,
+      "securities_with_one_denominator_level": 0,
       "sessions_harvested": 87,
       "sessions_requested": 87,
       "source": "tpex",
@@ -130,10 +131,10 @@
         "vintage_changed_no_step": 303
       }
     },
-    "tpex_pre2019": {
+    "pbr_tpex_pre2019": {
       "close_from_admissible_corpus_obs": 26419,
       "close_from_payload_obs": 0,
-      "implied_bvps_levels_histogram": {
+      "implied_denominator_levels_histogram": {
         "10": 64,
         "11": 91,
         "12": 194,
@@ -149,12 +150,13 @@
         "8": 38,
         "9": 43
       },
-      "label": "tpex_pre2019",
+      "label": "pbr_tpex_pre2019",
       "multi_level_share": 1.0,
       "observations": 26319,
+      "ratio": "pbr",
       "securities_analysed": 772,
       "securities_with_multiple_levels": 772,
-      "securities_with_one_level_only": 0,
+      "securities_with_one_denominator_level": 0,
       "sessions_harvested": 36,
       "sessions_requested": 36,
       "source": "tpex",
@@ -176,10 +178,10 @@
       "steps_total": 7954,
       "vintage_crosstab": null
     },
-    "twse_2019plus": {
+    "pbr_twse_2019plus": {
       "close_from_admissible_corpus_obs": 0,
       "close_from_payload_obs": 85086,
-      "implied_bvps_levels_histogram": {
+      "implied_denominator_levels_histogram": {
         "10": 14,
         "11": 7,
         "12": 7,
@@ -200,12 +202,13 @@
         "8": 16,
         "9": 10
       },
-      "label": "twse_2019plus",
+      "label": "pbr_twse_2019plus",
       "multi_level_share": 1.0,
       "observations": 84699,
+      "ratio": "pbr",
       "securities_analysed": 1079,
       "securities_with_multiple_levels": 1079,
-      "securities_with_one_level_only": 0,
+      "securities_with_one_denominator_level": 0,
       "sessions_harvested": 87,
       "sessions_requested": 87,
       "source": "twse",
@@ -235,10 +238,10 @@
         "vintage_changed_no_step": 3177
       }
     },
-    "twse_pre2019": {
+    "pbr_twse_pre2019": {
       "close_from_admissible_corpus_obs": 13224,
       "close_from_payload_obs": 19060,
-      "implied_bvps_levels_histogram": {
+      "implied_denominator_levels_histogram": {
         "10": 104,
         "11": 151,
         "12": 203,
@@ -254,12 +257,13 @@
         "8": 35,
         "9": 65
       },
-      "label": "twse_pre2019",
+      "label": "pbr_twse_pre2019",
       "multi_level_share": 1.0,
       "observations": 32102,
+      "ratio": "pbr",
       "securities_analysed": 925,
       "securities_with_multiple_levels": 925,
-      "securities_with_one_level_only": 0,
+      "securities_with_one_denominator_level": 0,
       "sessions_harvested": 36,
       "sessions_requested": 36,
       "source": "twse",
@@ -287,6 +291,229 @@
         "no_change_no_step": 11400,
         "vintage_changed_and_step": 5290,
         "vintage_changed_no_step": 1008
+      }
+    },
+    "pe_tpex_2019plus": {
+      "close_from_admissible_corpus_obs": 50896,
+      "close_from_payload_obs": 0,
+      "implied_denominator_levels_histogram": {
+        "10": 25,
+        "11": 20,
+        "12": 21,
+        "13": 16,
+        "14": 22,
+        "15": 24,
+        "16": 11,
+        "17": 16,
+        "18": 27,
+        "19": 14,
+        "2": 1,
+        "20": 495,
+        "3": 16,
+        "4": 21,
+        "5": 17,
+        "6": 32,
+        "7": 29,
+        "8": 21,
+        "9": 18
+      },
+      "label": "pe_tpex_2019plus",
+      "multi_level_share": 1.0,
+      "observations": 50668,
+      "ratio": "pe",
+      "securities_analysed": 846,
+      "securities_with_multiple_levels": 846,
+      "securities_with_one_denominator_level": 0,
+      "sessions_harvested": 87,
+      "sessions_requested": 87,
+      "source": "tpex",
+      "step_month_histogram": {
+        "01": 10,
+        "02": 475,
+        "03": 4017,
+        "04": 306,
+        "05": 3799,
+        "06": 2,
+        "07": 170,
+        "08": 3743,
+        "09": 23,
+        "10": 193,
+        "11": 3808,
+        "12": 13
+      },
+      "step_recall_on_vintage_change": 0.9917,
+      "step_without_vintage_change_rate": 0.0007,
+      "steps_per_security_year": 2.447,
+      "steps_total": 16559,
+      "vintage_agreement_rate": 0.9966,
+      "vintage_crosstab": {
+        "no_change_but_step": 4,
+        "no_change_no_step": 5353,
+        "vintage_changed_and_step": 2882,
+        "vintage_changed_no_step": 24
+      }
+    },
+    "pe_tpex_pre2019": {
+      "close_from_admissible_corpus_obs": 18815,
+      "close_from_payload_obs": 0,
+      "implied_denominator_levels_histogram": {
+        "1": 1,
+        "10": 17,
+        "11": 43,
+        "12": 76,
+        "13": 229,
+        "14": 52,
+        "15": 5,
+        "16": 1,
+        "2": 2,
+        "3": 11,
+        "4": 31,
+        "5": 42,
+        "6": 29,
+        "7": 32,
+        "8": 37,
+        "9": 34
+      },
+      "label": "pe_tpex_pre2019",
+      "multi_level_share": 0.9984,
+      "observations": 18481,
+      "ratio": "pe",
+      "securities_analysed": 642,
+      "securities_with_multiple_levels": 641,
+      "securities_with_one_denominator_level": 1,
+      "sessions_harvested": 36,
+      "sessions_requested": 36,
+      "source": "tpex",
+      "step_month_histogram": {
+        "02": 28,
+        "03": 411,
+        "04": 1053,
+        "05": 1491,
+        "06": 3,
+        "07": 94,
+        "08": 1469,
+        "09": 27,
+        "10": 34,
+        "11": 986,
+        "12": 485
+      },
+      "steps_per_security_year": 3.157,
+      "steps_total": 6081,
+      "vintage_crosstab": null
+    },
+    "pe_twse_2019plus": {
+      "close_from_admissible_corpus_obs": 0,
+      "close_from_payload_obs": 68991,
+      "implied_denominator_levels_histogram": {
+        "10": 25,
+        "11": 19,
+        "12": 15,
+        "13": 17,
+        "14": 15,
+        "15": 19,
+        "16": 21,
+        "17": 23,
+        "18": 25,
+        "19": 22,
+        "2": 2,
+        "20": 713,
+        "3": 11,
+        "4": 18,
+        "5": 18,
+        "6": 24,
+        "7": 14,
+        "8": 14,
+        "9": 15
+      },
+      "label": "pe_twse_2019plus",
+      "multi_level_share": 1.0,
+      "observations": 68662,
+      "ratio": "pe",
+      "securities_analysed": 1030,
+      "securities_with_multiple_levels": 1030,
+      "securities_with_one_denominator_level": 0,
+      "sessions_harvested": 87,
+      "sessions_requested": 87,
+      "source": "twse",
+      "step_month_histogram": {
+        "01": 12,
+        "02": 844,
+        "03": 5306,
+        "04": 423,
+        "05": 5073,
+        "06": 20,
+        "07": 271,
+        "08": 5096,
+        "09": 15,
+        "10": 275,
+        "11": 5092,
+        "12": 15
+      },
+      "step_recall_on_vintage_change": 0.9851,
+      "step_without_vintage_change_rate": 0.0005,
+      "steps_per_security_year": 2.724,
+      "steps_total": 22442,
+      "vintage_agreement_rate": 0.9946,
+      "vintage_crosstab": {
+        "no_change_but_step": 23,
+        "no_change_no_step": 44851,
+        "vintage_changed_and_step": 22419,
+        "vintage_changed_no_step": 339
+      }
+    },
+    "pe_twse_pre2019": {
+      "close_from_admissible_corpus_obs": 10562,
+      "close_from_payload_obs": 15500,
+      "implied_denominator_levels_histogram": {
+        "10": 40,
+        "11": 50,
+        "12": 127,
+        "13": 398,
+        "14": 4,
+        "15": 2,
+        "2": 2,
+        "3": 15,
+        "4": 28,
+        "5": 36,
+        "6": 31,
+        "7": 31,
+        "8": 34,
+        "9": 45
+      },
+      "label": "pe_twse_pre2019",
+      "multi_level_share": 1.0,
+      "observations": 25765,
+      "ratio": "pe",
+      "securities_analysed": 843,
+      "securities_with_multiple_levels": 843,
+      "securities_with_one_denominator_level": 0,
+      "sessions_harvested": 36,
+      "sessions_requested": 36,
+      "source": "twse",
+      "step_month_histogram": {
+        "01": 7,
+        "02": 146,
+        "03": 1907,
+        "04": 100,
+        "05": 1955,
+        "06": 10,
+        "07": 69,
+        "08": 2008,
+        "09": 16,
+        "10": 84,
+        "11": 2001,
+        "12": 9
+      },
+      "step_recall_on_vintage_change": 0.9745,
+      "step_without_vintage_change_rate": 0.0003,
+      "steps_per_security_year": 3.287,
+      "steps_total": 8312,
+      "vintage_agreement_rate": 0.991,
+      "vintage_crosstab": {
+        "no_change_but_step": 3,
+        "no_change_no_step": 9458,
+        "vintage_changed_and_step": 4888,
+        "vintage_changed_no_step": 128
       }
     }
   }

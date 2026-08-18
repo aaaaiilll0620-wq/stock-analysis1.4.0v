@@ -72,6 +72,12 @@ BURST = int(os.environ.get("B0_AUDIT_BURST", "0"))
 WINDOW = float(os.environ.get("B0_AUDIT_WINDOW", "70"))
 ONLY = os.environ.get("B0_AUDIT_SOURCE", "both").lower()
 WHICH = os.environ.get("B0_AUDIT_SESSIONS", "window").lower()
+# `renormalize` re-derives the normalised records from the RAW payloads already
+# on disk and never opens a socket. It exists because the parser gained a second
+# ratio: re-fetching to pick up a local parsing change would be asking the
+# exchange to re-answer a question it already answered, and would replace bytes
+# whose sha256 is already recorded.
+RENORM = os.environ.get("B0_AUDIT_MODE", "").lower() == "renormalize"
 
 # The frozen window's 2019+ decision months. Overlap sessions are pre-2019
 # month-ends, where the admissible yearly export still carries 股價淨值比-TSE.
@@ -180,6 +186,11 @@ class Transport:
 
 NA_TOKENS = {"", "-", "--", "NA", "N/A", "null", "None"}
 
+# Stamped into every normalised record. A normalisation that starts carrying a
+# second ratio is not the same normalisation, and a panel built from a mixture
+# of the two would be a mixture nobody declared.
+PARSER_VERSION = "official_pbr_parser_v2"
+
 
 def _num(v) -> float | None:
     s = str(v).replace(",", "").strip()
@@ -198,17 +209,19 @@ def parse_twse(body: bytes) -> dict:
     rows = d.get("data") or []
     if not rows:
         return {"state": "NO_DATA", "stat": stat, "rows": 0, "values": {},
-                "raw": {}, "close": {}, "vintage": {}, "fields": fields,
-                "reported_date": d.get("date")}
+                "raw": {}, "close": {}, "vintage": {}, "pe_values": {},
+                "pe_raw": {}, "fields": fields, "reported_date": d.get("date")}
 
     def idx(name, default=None):
         return fields.index(name) if name in fields else default
 
     i_id = idx("證券代號", 0)
     i_pbr = idx("股價淨值比")
+    i_pe = idx("本益比")
     i_close = idx("收盤價")
     i_vint = idx("財報年/季")
     values, raw, close, vintage = {}, {}, {}, {}
+    pe_values, pe_raw = {}, {}
     for r in rows:
         sid = str(r[i_id]).strip()
         if i_pbr is not None:
@@ -216,6 +229,11 @@ def parse_twse(body: bytes) -> dict:
             v = _num(r[i_pbr])
             if v is not None:
                 values[sid] = v
+        if i_pe is not None:
+            pe_raw[sid] = str(r[i_pe]).strip()
+            v = _num(r[i_pe])
+            if v is not None:
+                pe_values[sid] = v
         if i_close is not None:
             c = _num(r[i_close])
             if c is not None:
@@ -223,7 +241,8 @@ def parse_twse(body: bytes) -> dict:
         if i_vint is not None:
             vintage[sid] = str(r[i_vint]).strip()
     return {"state": "OK", "stat": stat, "rows": len(rows), "values": values,
-            "raw": raw, "close": close, "vintage": vintage, "fields": fields,
+            "raw": raw, "close": close, "vintage": vintage,
+            "pe_values": pe_values, "pe_raw": pe_raw, "fields": fields,
             "reported_date": d.get("date")}
 
 
@@ -236,7 +255,8 @@ def parse_tpex(body: bytes) -> dict:
     if not rows:
         return {"state": "NO_DATA", "stat": str(d.get("stat") or ""), "rows": 0,
                 "values": {}, "raw": {}, "close": {}, "vintage": {},
-                "fields": fields, "reported_date": t.get("date") or d.get("date")}
+                "pe_values": {}, "pe_raw": {}, "fields": fields,
+                "reported_date": t.get("date") or d.get("date")}
 
     def idx(*names):
         for n in names:
@@ -247,9 +267,11 @@ def parse_tpex(body: bytes) -> dict:
     i_id = idx("股票代號", "代號", "證券代號")
     i_id = 0 if i_id is None else i_id
     i_pbr = idx("股價淨值比")
+    i_pe = idx("本益比")
     i_close = idx("收盤價", "收盤")
     i_vint = idx("財報年/季", "財報年度/季別")
     values, raw, close, vintage = {}, {}, {}, {}
+    pe_values, pe_raw = {}, {}
     for r in rows:
         sid = str(r[i_id]).strip()
         if i_pbr is not None:
@@ -257,6 +279,11 @@ def parse_tpex(body: bytes) -> dict:
             v = _num(r[i_pbr])
             if v is not None:
                 values[sid] = v
+        if i_pe is not None:
+            pe_raw[sid] = str(r[i_pe]).strip()
+            v = _num(r[i_pe])
+            if v is not None:
+                pe_values[sid] = v
         if i_close is not None:
             c = _num(r[i_close])
             if c is not None:
@@ -265,7 +292,8 @@ def parse_tpex(body: bytes) -> dict:
             vintage[sid] = str(r[i_vint]).strip()
     return {"state": "OK", "stat": str(d.get("stat") or ""), "rows": len(rows),
             "values": values, "raw": raw, "close": close, "vintage": vintage,
-            "fields": fields, "reported_date": t.get("date") or d.get("date")}
+            "pe_values": pe_values, "pe_raw": pe_raw, "fields": fields,
+            "reported_date": t.get("date") or d.get("date")}
 
 
 PARSERS = {"twse": parse_twse, "tpex": parse_tpex}
@@ -280,7 +308,7 @@ def harvest_one(src: str, sess: str, transport: Transport) -> dict:
     """One (source, session). Cached payloads are never re-requested."""
     raw_path = os.path.join(RAW_DIR, "%s_%s.json" % (src, sess))
     norm_path = os.path.join(NORM_DIR, "%s_%s.json" % (src, sess))
-    if os.path.exists(norm_path):
+    if os.path.exists(norm_path) and not RENORM:
         rec = json.load(open(norm_path, encoding="utf-8"))
         rec["from_cache"] = True
         rec["fetched"] = False
@@ -290,6 +318,9 @@ def harvest_one(src: str, sess: str, transport: Transport) -> dict:
     if os.path.exists(raw_path):
         body = open(raw_path, "rb").read()
         detail = ""
+    elif RENORM:
+        return {"source": src, "session": sess, "state": "RAW_NOT_CACHED",
+                "rows": 0, "n_values": 0, "from_cache": False, "fetched": False}
     else:
         body, _state, detail = transport.get(url_for(src, sess))
         fetched = True
@@ -318,6 +349,15 @@ def harvest_one(src: str, sess: str, transport: Transport) -> dict:
         "has_vintage_field": bool(p["vintage"]),
         "values": p["values"], "raw": p["raw"], "close": p["close"],
         "vintage": p["vintage"],
+        # PE travels with PBR because it is the SAME published row. Carrying it
+        # separately would mean two normalisations of one payload, and the two
+        # could disagree about which securities the exchange listed that day.
+        "n_pe_values": len(p.get("pe_values") or {}),
+        "n_pe_explicit_na": sum(1 for v in (p.get("pe_raw") or {}).values()
+                                if v in NA_TOKENS),
+        "pe_values": p.get("pe_values") or {},
+        "pe_raw": p.get("pe_raw") or {},
+        "parser_version": PARSER_VERSION,
     }
     # Only a real answer is memoised. A transport failure leaves no trace, which
     # is what makes a re-run converge instead of freezing a refusal as history.

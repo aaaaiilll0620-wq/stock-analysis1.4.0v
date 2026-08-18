@@ -130,6 +130,53 @@ def test_the_contract_is_frozen_against_mutation():
         c.lineage = "pbr_tej"          # type: ignore[misc]
 
 
+# --- C-49 · the PE series is ruled separately, not by analogy ----------------
+
+def test_pe_has_its_own_lineage_names():
+    """One contract binds one ratio: 'which series is this' is never inferred."""
+    assert known_lineages("per_tse") == ("yearly_export_per_tse",
+                                         "official_exchange_pe")
+    assert set(known_lineages("pbr_tse")) & set(known_lineages("per_tse")) == set()
+
+
+def test_a_pe_contract_cannot_claim_a_pbr_lineage():
+    with pytest.raises(ValuationSourceError, match="frozen lineages for per_tse"):
+        assert_valuation_source_admissible(
+            _admissible(ratio="per_tse", lineage="official_exchange_pbr"))
+
+
+def test_an_unknown_ratio_is_refused():
+    with pytest.raises(ValuationSourceError, match="not a frozen valuation ratio"):
+        assert_valuation_source_admissible(_admissible(ratio="dividend_yield"))
+
+
+def test_per_tej_is_not_a_selectable_lineage():
+    with pytest.raises(ValuationSourceError, match="PER_TEJ"):
+        assert_valuation_source_admissible(
+            _admissible(ratio="per_tse", lineage="per_tej"))
+
+
+def test_the_zero_sentinel_is_declared_as_an_absence():
+    """C-49: 0.0 read as a number makes PEG = 0/g, the cheapest possible rank."""
+    from core.b0_valuation_source import (SENTINEL_ZERO_ERAS,
+                                          SENTINEL_ZERO_IS_UNDEFINED)
+
+    assert SENTINEL_ZERO_IS_UNDEFINED is True
+    assert SENTINEL_ZERO_ERAS == ("<= 2018-12-31",)
+    assert spec("valuation_sentinel_zero_is_undefined") is True
+    assert spec("value_ratios") == ("pbr_tse", "per_tse")
+
+
+def test_the_frozen_peg_domain_rejects_a_zero_pe_anyway():
+    """The panel normalises it; the domain would have rejected it regardless."""
+    from core.b0_features import compute_peg
+
+    assert compute_peg(0.0, 25.0) is None
+    assert compute_peg(None, 25.0) is None
+    assert compute_peg(12.0, 0.0) is None
+    assert compute_peg(12.0, 25.0) is not None
+
+
 # --- the boundary itself ------------------------------------------------------
 
 def test_every_session_resolves_to_exactly_one_lineage():

@@ -489,6 +489,16 @@ def _spec_registry() -> dict[str, Any]:
             vsrc.TPEX_VINTAGE_DISCLOSURE_FIRST_SESSION,
         "value_pbr_tpex_vintage_may_be_inferred":
             vsrc.TPEX_VINTAGE_MAY_BE_INFERRED,
+        # v1.16 · C-49 · the same ruling for `per_tse`, taken on its own evidence
+        # rather than by analogy. PE is not PBR with a different numerator: it has
+        # a domain (C-17: PE > 0), and both sources therefore carry a large
+        # legitimate NA class that B/M does not have. Reconciled separately before
+        # closing — see §11 C-49.
+        "value_ratios": vsrc.RATIOS,
+        "value_per_lineage": vsrc.PER_VALUATION_LINEAGE,
+        "value_per_tej_substitution_allowed": vsrc.TEJ_SUBSTITUTION_ALLOWED,
+        "valuation_sentinel_zero_is_undefined": vsrc.SENTINEL_ZERO_IS_UNDEFINED,
+        "valuation_sentinel_zero_eras": vsrc.SENTINEL_ZERO_ERAS,
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,

@@ -112,7 +112,8 @@ def step_scan(obs):
     return levels, steps
 
 
-def analyse(src: str, sessions: list[str], ext_close: dict, label: str) -> dict:
+def analyse(src: str, sessions: list[str], ext_close: dict, label: str,
+            ratio: str = "pbr") -> dict:
     per_sec: dict[str, list] = {}
     vintage: dict[str, dict[str, str]] = {}
     payload_close_used = 0
@@ -124,7 +125,8 @@ def analyse(src: str, sessions: list[str], ext_close: dict, label: str) -> dict:
             continue
         harvested += 1
         closes = rec.get("close") or {}
-        for sid, pbr in (rec.get("values") or {}).items():
+        field = "values" if ratio == "pbr" else "pe_values"
+        for sid, pbr in (rec.get(field) or {}).items():
             c = closes.get(sid)
             if c is not None:
                 payload_close_used += 1
@@ -175,15 +177,16 @@ def analyse(src: str, sessions: list[str], ext_close: dict, label: str) -> dict:
     out = {
         "label": label,
         "source": src,
+        "ratio": ratio,
         "sessions_requested": len(sessions),
         "sessions_harvested": harvested,
         "close_from_payload_obs": payload_close_used,
         "close_from_admissible_corpus_obs": external_close_used,
         "securities_analysed": n,
         "observations": obs_total,
-        "implied_bvps_levels_histogram": {str(k): v for k, v in
+        "implied_denominator_levels_histogram": {str(k): v for k, v in
                                           sorted(level_hist.items())},
-        "securities_with_one_level_only": single,
+        "securities_with_one_denominator_level": single,
         "securities_with_multiple_levels": multi,
         "multi_level_share": round(multi / n, 4) if n else None,
         "steps_total": steps_total,
@@ -223,15 +226,16 @@ def field_layout_changes(src: str) -> list:
 
 def main() -> None:
     runs = []
-    for era, src in (("2019plus", "twse"), ("pre2019", "twse"),
-                     ("2019plus", "tpex"), ("pre2019", "tpex")):
-        sessions = [s for _, _, s in decision_sessions(*ERAS[era])]
-        ext = load_closes(era)
-        label = "%s_%s" % (src, era)
-        runs.append(analyse(src, sessions, ext, label))
-        print("%-16s sessions=%d/%d closes=%d" % (
-            label, runs[-1]["sessions_harvested"], len(sessions), len(ext)),
-            flush=True)
+    for ratio in ("pbr", "pe"):
+        for era, src in (("2019plus", "twse"), ("pre2019", "twse"),
+                         ("2019plus", "tpex"), ("pre2019", "tpex")):
+            sessions = [s for _, _, s in decision_sessions(*ERAS[era])]
+            ext = load_closes(era)
+            label = "%s_%s_%s" % (ratio, src, era)
+            runs.append(analyse(src, sessions, ext, label, ratio=ratio))
+            print("%-20s sessions=%d/%d closes=%d" % (
+                label, runs[-1]["sessions_harvested"], len(sessions), len(ext)),
+                flush=True)
 
     report = {
         "audit": "official_pbr_availability_semantics",
@@ -278,11 +282,11 @@ def main() -> None:
         fh.write("\n")
 
     for r in runs:
-        print("%-16s n=%s multi=%s steps/sec/yr=%s agree=%s recall=%s" % (
+        print("%-20s n=%s multi=%s steps/sec/yr=%s agree=%s recall=%s" % (
             r["label"], r["securities_analysed"], r["multi_level_share"],
             r["steps_per_security_year"], r.get("vintage_agreement_rate"),
             r.get("step_recall_on_vintage_change")))
-        print("%-16s step months: %s" % ("", r["step_month_histogram"]))
+        print("%-20s step months: %s" % ("", r["step_month_histogram"]))
     print("wrote", os.path.relpath(OUT, REPO))
 
 

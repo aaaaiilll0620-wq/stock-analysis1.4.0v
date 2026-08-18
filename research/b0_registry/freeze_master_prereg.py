@@ -38,6 +38,12 @@ DERIVED_ARTEFACTS = (
     "data/b0/price_2019plus_new.parquet",
     "data/b0/price_presence.parquet",
     "data/b0/s3b_guard_fixture.csv",
+    # Sealed inputs the L2 materializer consumes. Each also carries its own
+    # receipt under research/b0_materializer/; the hash is bound here as well so
+    # that the freeze record alone is enough to say which bytes were frozen.
+    "data/b0/financials_pit.parquet",
+    "data/b0/monthly_revenue_pit.parquet",
+    "data/b0/valuation_panel.parquet",
 )
 
 CA_EXPORT_DIR = os.path.join(
@@ -50,7 +56,7 @@ def main():
     doc = os.path.join(REPO, MASTER_PREREG_DOC)
     record = {
         "document": MASTER_PREREG_DOC,
-        "version": "1.15",
+        "version": "1.16",
         "status": "NORMATIVE_FROZEN",
         "spec_sha256": spec_document_sha256(),
         "spec_bytes": os.path.getsize(doc),

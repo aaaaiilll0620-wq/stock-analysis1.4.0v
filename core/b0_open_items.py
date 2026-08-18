@@ -31,8 +31,8 @@ both have to be ruled on, but they do not have to be ruled on with the same
 urgency, and pretending otherwise makes the list easier to ignore.
 
 The register is currently EMPTY: every behaviour the canonical core reaches is
-now specified (C-16 ~ C-36, and C-48 for the one item that needed a ruling rather
-than a recovered omission). That is the goal state, not the end of the
+now specified (C-16 ~ C-36, plus C-48 and C-49 — the two items that needed a
+ruling rather than a recovered omission). That is the goal state, not the end of the
 mechanism — the module stays because the next undetermined behaviour anybody
 finds has to land here rather than in a default, and `raise_unspecified` on an
 unregistered key deliberately raises KeyError to force that.
@@ -82,45 +82,6 @@ class OpenItem:
 
 OPEN_ITEMS: tuple[OpenItem, ...] = (
 
-    OpenItem(
-        key="value_per_lineage_2019plus",
-        layer="features",
-        materiality="structural",
-        question=(
-            "From which ADMISSIBLE source does `per_tse` come for decision dates "
-            "2019-01-31 onward? This is the SAME gap C-48 ruled on for `pbr_tse`, "
-            "in the same corpus, discovered while materialising the sealed panel: "
-            "本益比-TSE exists only in the yearly-xlsx vintage, whose 2019+ era is "
-            "the D-1 quarantined corpus (aeda65b9…ea49c1), and the vintage that "
-            "replaced it — 股價 2019-2022.zip / 股價2023-20260817.zip — carries "
-            "only 本益比-TEJ (verified: the zip header is 證券代碼, 年月日, 開盤價, "
-            "最高價, 最低價, 收盤價, 成交量, 成交值, 流通在外股數, 本益比-TEJ, "
-            "股價淨值比-TEJ)."
-        ),
-        why_it_matters=(
-            "PEG is a frozen member of the Value concept (FEATURE_GRAPH, C-17: "
-            "PEG = PER_TSE / eps_growth_pct), so `per_tse` is on the Selection "
-            "path for all 87 of the 2019+ decision months exactly as `pbr_tse` "
-            "was. C-48 did NOT decide it: R1 accepts official exchange PBR as the "
-            "continuation of the B-09 exchange-PBR lineage and says nothing about "
-            "PE. Extending it by analogy is precisely the move M-3 forbids — 'the "
-            "same argument obviously applies' is how an unregistered free "
-            "parameter enters, and the analogy is not even exact, because PE has "
-            "a domain condition (undefined on non-positive EPS) that B/M does not "
-            "and the two ratios' NA populations therefore differ."
-        ),
-        demoted_evidence=(
-            "The official exchange payloads already harvested for C-48 carry 本益比 "
-            "alongside 股價淨值比 in the same row — TWSE fields 證券代號/證券名稱/"
-            "收盤價/殖利率(%)/股利年度/本益比/股價淨值比/財報年季, TPEx the same "
-            "less the close — so a ruling in either direction is executable from "
-            "the payloads already on disk under artifacts/valuation_lineage_audit/, "
-            "with no further requests to either exchange. That is availability, "
-            "not a ruling: nothing in the master preregistration says an "
-            "official-exchange PE series may serve as the PER_TSE lineage."
-        ),
-    ),
-
     # --- features -------------------------------------------------------------
     # RESOLVED and removed from this register. Every one was a master OMISSION,
     # not a decision anybody still had to make — which is why closing thirteen of
@@ -163,6 +124,16 @@ OPEN_ITEMS: tuple[OpenItem, ...] = (
     # two recorded limitations and the sealed-source contract live in
     # core/b0_valuation_source.py, where a route can check them rather than read
     # them.
+    #
+    #   value_per_lineage_2019plus      -> C-49  RULED AND CLOSED (2026-08-19)
+    #
+    # The same gap for `per_tse`, found while materialising the panel C-48
+    # unblocked, and ruled on its OWN evidence rather than by analogy — PE has a
+    # domain (C-17: PE > 0) that B/M does not, so the two ratios do not even
+    # share an NA population. Reconciled first: TWSE 26,062 comparisons with one
+    # single-tick difference, TPEx 18,815 with none, and after the yearly
+    # export's 0.0 sentinel is read as the absence it is, the two sources agree
+    # about EVERY missing value on both boards.
 
 )
 

@@ -50,8 +50,11 @@ from typing import Mapping
 
 # Bumped when the parsing or normalisation of an official payload changes in a
 # way that could move a number. It is part of the sealed identity, so a silent
-# parser fix cannot masquerade as the same source.
-VALUATION_PARSER_VERSION = "official_pbr_parser_v1"
+# parser fix cannot masquerade as the same source. v2 (C-49) carries 本益比
+# alongside 股價淨值比: the two ratios are columns of one published row, and a
+# normalisation that reads one of them is not the same normalisation as one that
+# reads both.
+VALUATION_PARSER_VERSION = "official_pbr_parser_v2"
 
 
 class ValuationSourceError(RuntimeError):
@@ -74,7 +77,34 @@ VALUATION_LINEAGE: tuple[tuple[str, str, str], ...] = (
      "股價淨值比 for 上櫃, keyed to the trading session"),
 )
 
+# C-49 · the SAME two eras for the PE series, ruled separately and on its own
+# evidence. The lineage names differ from the PBR ones on purpose: one contract
+# binds one ratio for one era, so "which series is this" is never inferred from
+# the file it happens to sit in.
+PER_VALUATION_LINEAGE: tuple[tuple[str, str, str], ...] = (
+    ("<= 2018-12-31", "yearly_export_per_tse",
+     "本益比-TSE from the admissible yearly export"),
+    (">= 2019-01-01", "official_exchange_pe",
+     "TWSE 本益比 for 上市, TPEx 本益比 for 上櫃, the same published row the PBR "
+     "series comes from"),
+)
+
+RATIOS: tuple[str, ...] = ("pbr_tse", "per_tse")
+
 OFFICIAL_BOARDS: tuple[str, ...] = ("TWSE", "TPEx")
+
+# MEASURED, not assumed: the admissible yearly export writes exactly 0.0 — never
+# a negative, never an empty cell — where a ratio is undefined. 4,927 PE rows and
+# 7 PBR rows across the 2016-2018 overlap window, and every one of them coincides
+# with the exchange printing `-` or `N/A` for the same security and session.
+#
+# It matters because 0.0 is a NUMBER. Read as one it makes PEG = 0/g, the
+# cheapest possible rank, out of a security that has no PE at all. The frozen
+# domains already reject it downstream (C-17 requires PE > 0; §3.2 requires
+# PBR > 0), so normalising it to NA at the source boundary changes no B0
+# behaviour — it just stops the sentinel travelling as data.
+SENTINEL_ZERO_IS_UNDEFINED = True
+SENTINEL_ZERO_ERAS: tuple[str, ...] = ("<= 2018-12-31",)
 
 # R1. Not a preference — the frozen definition B-09 already carries.
 VALUE_DEFINITION = "B/M = 1 / PBR, industry-relative cross-sectional percentile"
@@ -117,7 +147,7 @@ class ValuationSourceContract:
 
     name: str
     era: str                        # one of VALUATION_LINEAGE[i][0]
-    lineage: str                    # one of VALUATION_LINEAGE[i][1]
+    lineage: str                    # the lineage frozen for (ratio, era)
     importer_version: str
     parser_version: str
     content_sha256: str
@@ -132,6 +162,9 @@ class ValuationSourceContract:
     live_fetch: bool
     upstream_sha256: Mapping[str, str]   # raw payload identity, per unit
     board_attribution_source: str = BOARD_ATTRIBUTION_SOURCE
+    # Which frozen ratio this contract binds. Defaulted so that C-48's own
+    # contracts keep their meaning unchanged; a PE contract must say so.
+    ratio: str = "pbr_tse"
 
     def __post_init__(self) -> None:
         for f in ("name", "era", "lineage", "importer_version", "parser_version",
@@ -150,31 +183,47 @@ class ValuationSourceContract:
                 f"whose inputs cannot be named is not a sealed source.")
 
 
-def known_lineages() -> tuple[str, ...]:
-    return tuple(l for _, l, _ in VALUATION_LINEAGE)
+def _lineage_table(ratio: str) -> tuple[tuple[str, str, str], ...]:
+    if ratio == "pbr_tse":
+        return VALUATION_LINEAGE
+    if ratio == "per_tse":
+        return PER_VALUATION_LINEAGE
+    raise ValuationSourceError(
+        f"C-48/C-49: {ratio!r} is not a frozen valuation ratio; known: {RATIOS}")
 
 
-def lineage_for(session: str) -> str:
-    """Which frozen lineage owns a trading session. No third answer exists."""
+def known_lineages(ratio: str = "pbr_tse") -> tuple[str, ...]:
+    return tuple(l for _, l, _ in _lineage_table(ratio))
+
+
+def lineage_for(session: str, ratio: str = "pbr_tse") -> str:
+    """Which frozen lineage owns a (session, ratio). No third answer exists."""
     if not session or len(session) < 10:
         raise ValuationSourceError(
             f"C-48: {session!r} is not a trading session date")
-    return ("official_exchange_pbr" if session >= LINEAGE_BOUNDARY
-            else "yearly_export_pbr_tse")
+    table = _lineage_table(ratio)
+    era = ">= 2019-01-01" if session >= LINEAGE_BOUNDARY else "<= 2018-12-31"
+    return dict((e, l) for e, l, _ in table)[era]
 
 
 def assert_valuation_source_admissible(contract: ValuationSourceContract) -> None:
     """Every way of getting the wrong series in has to fail loudly here."""
-    if contract.lineage not in known_lineages():
+    if contract.ratio not in RATIOS:
+        raise ValuationSourceError(
+            f"C-48/C-49: {contract.name!r} binds ratio {contract.ratio!r}, which "
+            f"is not a frozen valuation ratio; known: {RATIOS}")
+    table = _lineage_table(contract.ratio)
+    if contract.lineage not in known_lineages(contract.ratio):
         raise ValuationSourceError(
             f"C-48: {contract.name!r} declares lineage {contract.lineage!r}, which "
-            f"is not one of the two frozen lineages {known_lineages()}. "
-            f"PBR_TEJ in particular is not an admissible lineage under B-09.")
-    if contract.era not in {e for e, _, _ in VALUATION_LINEAGE}:
+            f"is not one of the two frozen lineages for {contract.ratio} "
+            f"{known_lineages(contract.ratio)}. PBR_TEJ / PER_TEJ in particular "
+            f"are not admissible lineages under B-09.")
+    if contract.era not in {e for e, _, _ in table}:
         raise ValuationSourceError(
             f"C-48: {contract.name!r} declares era {contract.era!r}, which is not "
             f"one of the two frozen eras.")
-    expected = dict((e, l) for e, l, _ in VALUATION_LINEAGE)[contract.era]
+    expected = dict((e, l) for e, l, _ in table)[contract.era]
     if contract.lineage != expected:
         raise ValuationSourceError(
             f"C-48: era {contract.era} is frozen to lineage {expected!r}, but "
