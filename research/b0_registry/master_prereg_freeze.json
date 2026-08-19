@@ -1,9 +1,9 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.29",
+ "version": "1.30",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "c10bafaca92386b040d6ad353595e4ea1b91c49ddf7e8248d775c2e858c3fd4d",
- "spec_bytes": 233492,
+ "spec_sha256": "6c2f44853c4f3491165a6c1660a6fa8b024e2543e33f85e1aca2bbfb926bab3c",
+ "spec_bytes": 236763,
  "normative_modules": {
   "core/b0_master_prereg.py": "15df30a4af69690ff3fb239a05b3d64e63b7a461e1aea97db7d165d238ed80d3",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
@@ -20,7 +20,7 @@
   "core/b0_finalization_items.py": "274271b135943d2be2be7f94f7c31d18ad30bd15a8d3d085720d5bc1832cc6b1",
   "core/b0_l2_run_layout.py": "47587cc6b3ca299c367113385de3a7fc4e5f593592d5f212e800ec824b79336f",
   "core/b0_declaration_conformance.py": "b8dea19303579064ee0c281755166f20c997a80292e98ff9e10337307e131552",
-  "core/b0_state.py": "4c7f86293dcaa9d461b616c62665dccd44007eda321c7e86eb69b4f5f35509a6",
+  "core/b0_state.py": "b23bc5709ea4f30ab561a77e4441bbf10f23d76af69931ad8b8a992fe57b0291",
   "core/b0_features.py": "fd9b69adb5e0270f7e204f6e65bb6758ddb7a8c6d093993dff644e73468bb8ff",
   "core/b0_eligibility.py": "02c9b1af68694a9cd6b73afebb763ccbf6270ef525b353ce570717b0f31d82c6",
   "core/b0_decision.py": "f9bfffbab50add3ee18caed0f6e7c996a02a8ffccb366c1ffb4384f2878c5727",
@@ -103,7 +103,7 @@
    "bytes": 160903
   },
   "data/b0/market_state_manifest.json": {
-   "sha256": "8c7f2bf19f6e3bff73145b26ac6bf138d2d80d30d738813be8c303233aa61ac4",
+   "sha256": "07bf4427de9b3a238c92f3e5ca2b7bf782eb8fc020213f1046e310407f8e9060",
    "bytes": 56261
   },
   "data/b0/benchmark_0050_panel.parquet": {

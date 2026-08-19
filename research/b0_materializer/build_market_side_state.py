@@ -494,13 +494,17 @@ def build_period(p, series, fin_idx, rev_idx, ind_idx, val_by_month,
         unres = ss.unresolved_at(as_of)
         adv = ss.adv20[i]
         if n_in_spell < ADV_SESSIONS or not np.isfinite(adv):
-            adv = None                     # O-G: ADV20 resets at the spell start
-        elif adv <= 0:
-            # Twenty observed sessions with no turnover at all. The core refuses
-            # a non-positive ADV20 outright (`_finite_positive`), and §4.2 is an
-            # absolute NTD floor that 0 fails anyway, so absence is the only
-            # encoding available and it changes no eligibility outcome.
+            # NA is for a dependency that is genuinely unavailable: fewer than
+            # the required observed sessions in this spell (O-G resets ADV20 at
+            # the spell start), or a non-finite input.
             adv = None
+        # B0.5 · R1/R2. An ADV20 of exactly 0 is NOT encoded as absence any more.
+        # Twenty observed zero-volume sessions average to 0.0, which is a
+        # liquidity OBSERVATION. The previous code dropped it, reasoning that
+        # 4.2's floor rejects 0 anyway so the encoding "changes no eligibility
+        # outcome" -- but 4.2 aborts on a MISSING adv20 before it ever reaches
+        # the floor, which is exactly how B04DIAG-d5f34a5164a0e309 stopped on a
+        # name quoted all year at a frozen price with no turnover.
         sig = ss.sigma20[i]
         if n_in_spell < SIGMA_SESSIONS + 1 or not np.isfinite(sig):
             sig = None

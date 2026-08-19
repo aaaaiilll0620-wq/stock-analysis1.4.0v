@@ -122,6 +122,23 @@ def _finite_positive(name: str, stock_id: str, value: float) -> float:
     return v
 
 
+def _finite_non_negative(name: str, stock_id: str, value: float) -> float:
+    """B0.5 · R1/R2 · OBSERVED_ZERO is not NOT_OBSERVED.
+
+    A price of zero is nonsense and stays rejected by `_finite_positive`. A
+    TURNOVER of zero is a fact: twenty fully observed sessions on which nobody
+    traded average to 0.0, and that is a liquidity observation, not a missing
+    one. Requiring adv20 > 0 here is what forced the materializer to encode an
+    observed zero as absence, and 4.2 aborts on absence -- so a name that
+    should have failed the liquidity floor stopped the run instead.
+    """
+    v = float(value)
+    if not math.isfinite(v) or v < 0:
+        raise CoreStateError(
+            f"{name}[{stock_id}] must be finite and >= 0, got {value!r}")
+    return v
+
+
 # --- the two derived market quantities (C-25, C-26) ---------------------------
 # ADV20 and sigma20d are load-bearing in three separate clauses each — the
 # eligibility gate (§4.2), the 1% order cap (§6.4) and the impact term (§7.1) —
@@ -212,7 +229,7 @@ class MarketSnapshot:
         for sid, px in self.marks.items():
             _finite_positive("marks", sid, px)
         for sid, v in self.adv20.items():
-            _finite_positive("adv20", sid, v)
+            _finite_non_negative("adv20", sid, v)
         for sid, s in self.sigma20d.items():
             sv = float(s)
             if not math.isfinite(sv) or sv < 0:
