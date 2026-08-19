@@ -153,6 +153,50 @@ def _market_state_upstream() -> tuple[str, ...]:
          "industry_pit", "price_panel", "bonus_share_panel")}))
 
 
+def _benchmark_upstream() -> tuple:
+    """The 145 raw TWSE monthly responses, from the panel's own receipt."""
+    r = _load(os.path.join(REPO, "research", "b0_benchmark",
+                           "benchmark_0050_panel_receipt.json"),
+              "benchmark panel receipt")
+    return tuple(sorted(r["upstream_raw_sha256"].values()))
+
+
+def build_benchmark_block() -> dict:
+    """B0.2 R8/R10 · everything gate 1 needs, bound into the seal itself.
+
+    A gate-1 computation that has to go looking for a file after the run is a
+    gate-1 computation whose inputs were never sealed. These are the bindings
+    `core.b0_benchmark_gate1` checks for.
+    """
+    panel = _load(os.path.join(REPO, "research", "b0_benchmark",
+                               "benchmark_0050_panel_receipt.json"),
+                  "benchmark panel receipt")
+    unit = _load(os.path.join(REPO, "research", "b0_benchmark",
+                              "benchmark_0050_share_unit_events_receipt.json"),
+                 "benchmark share-unit receipt")
+    return {
+        "security_id": "0050",
+        "identity": "0050 buy-and-hold, dividend-inclusive",
+        "evaluation_only": True,
+        "benchmark_panel_content_sha256": panel["content_sha256"],
+        "benchmark_panel_schema_sha256": panel["schema_sha256"],
+        "benchmark_source_contract": {
+            "authority": panel["source_authority"],
+            "endpoint": panel["source_endpoint"],
+            "traded_value_is_source_field": panel["traded_value_is_source_field"],
+        },
+        "benchmark_derivation_receipt":
+            "research/b0_benchmark/benchmark_0050_panel_receipt.json",
+        "benchmark_upstream_sha256": sorted(panel["upstream_raw_sha256"].values()),
+        "benchmark_date_coverage": panel["coverage"],
+        "benchmark_distributions_sha256": panel["distributions_sha256"],
+        "benchmark_share_unit_events_sha256": unit["content_sha256"],
+        "benchmark_share_unit_events_schema_sha256": unit["schema_sha256"],
+        "benchmark_share_unit_derivation": unit["derivation"],
+        "payment_date_classification": "OPTIONAL_NON_OUTCOME_AUDIT_FIELD",
+    }
+
+
 def build_derived(freeze: dict) -> tuple[DerivedArtifactProvenance, ...]:
     """Each derived artefact with the upstream hashes it was built from."""
     ca = _load(CA_PROVENANCE, "corporate-action provenance")
@@ -191,6 +235,12 @@ def build_derived(freeze: dict) -> tuple[DerivedArtifactProvenance, ...]:
         # Definition A. The manifest is the artefact that says all 141 exist;
         # its upstream is exactly the six sealed panels it was assembled from.
         "data/b0/market_state_manifest.json": _market_state_upstream(),
+        # B0.2 §13.4. Evaluation-only, and their lineage is read from the
+        # benchmark receipts for the same reason as the L2 sealed inputs: a
+        # hash typed twice is a hash that can disagree with itself.
+        "data/b0/benchmark_0050_panel.parquet": _benchmark_upstream(),
+        "data/b0/benchmark_0050_distributions.csv": _benchmark_upstream(),
+        "data/b0/benchmark_0050_share_unit_events.parquet": _benchmark_upstream(),
     }
     out = []
     for path, meta in freeze["derived_artefacts"].items():
@@ -426,6 +476,7 @@ def main() -> None:
                       "route_version": m.execution.route_version,
                       "decision_date": None},
         "output": {"status": m.output.status, "artifacts": {}},
+        "benchmark": build_benchmark_block(),
         "l2_opening_protocol": m.l2_opening_protocol,
         "l2_opened": False,
         "performance_computed": False,

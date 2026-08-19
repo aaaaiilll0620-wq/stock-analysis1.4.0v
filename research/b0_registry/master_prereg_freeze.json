@@ -1,13 +1,13 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.26",
+ "version": "1.27",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "6f452ea23406ac52a5547c32bb1285f4284dd07a83503ee865e88eb9b1145a15",
- "spec_bytes": 218005,
+ "spec_sha256": "76bafdedfa4c55a3ebedc493771be2667eb2978ccc2cb468d901ce0a263614ea",
+ "spec_bytes": 224149,
  "normative_modules": {
-  "core/b0_master_prereg.py": "2677de29a399a18135315fafff26d3e2c55011f7ccec646410dc6dfc71f820b8",
+  "core/b0_master_prereg.py": "0a79fa02bdc014d9d4259274fc51872dba75187a98b46629a25c99219f3b67c4",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
-  "core/b0_corporate_actions.py": "38aa03efd793710625522bb71fad32f85282fdb1a71e2c6188805f5ce73553f6",
+  "core/b0_corporate_actions.py": "f59e4eb854dc386df3bfa3de7f35a9b348cec3cfede83a580b121f0347079f09",
   "core/b0_pit_observability.py": "c060e8135a8c7a386b74113097cfecdfd6ffbf74b406e77e5c1f6eefc899ef1e",
   "core/b0_market_state.py": "1603c00034dfb9976fa5338d2829bf452aadb11e6d3a5f9588232d2e9e88d7d5",
   "core/b0_listing_spell.py": "81d9f0ae02e3b4401c9864ad19526a5425c09ca7b6d647c8a228da93c8253f88",
@@ -17,22 +17,25 @@
   "core/b0_parity.py": "debaa9b09f5d00208e19a5aa31debf5a237e861af0c10ed163cd78c377733eba",
   "core/b0_provenance.py": "65299580e322696107f38fd2583a91cd177887f772e1240cf42577ff7b7fe224",
   "core/b0_open_items.py": "cd3cd2ab0f6aeabedb93247451e5330358f62f34484befdf63506dd7d865f257",
-  "core/b0_finalization_items.py": "d5edff2611407e2cd5e400e142849486a5bea564d2c7eafa7fc940f755993cf3",
+  "core/b0_finalization_items.py": "77131a03f823e8638470ea3674cc5200e0e9dd1ef775b7f01a8cc00e925e4bcb",
   "core/b0_l2_run_layout.py": "47587cc6b3ca299c367113385de3a7fc4e5f593592d5f212e800ec824b79336f",
   "core/b0_declaration_conformance.py": "b8dea19303579064ee0c281755166f20c997a80292e98ff9e10337307e131552",
-  "core/b0_state.py": "c6b759e6a33f01de4fe607251b041e326509f92078d6c3e5e6dd1f25676fb644",
+  "core/b0_state.py": "4c7f86293dcaa9d461b616c62665dccd44007eda321c7e86eb69b4f5f35509a6",
   "core/b0_features.py": "fd9b69adb5e0270f7e204f6e65bb6758ddb7a8c6d093993dff644e73468bb8ff",
   "core/b0_eligibility.py": "02c9b1af68694a9cd6b73afebb763ccbf6270ef525b353ce570717b0f31d82c6",
   "core/b0_decision.py": "f9bfffbab50add3ee18caed0f6e7c996a02a8ffccb366c1ffb4384f2878c5727",
   "core/b0_execution.py": "9819f164565453116d3bf3b60edfd87fe5066a980d4447eb0a18b61f41aede32",
-  "core/b0_route.py": "bc776cd8fc3f3101a76ca1ccad60390e904b4060f5e308c6d4cc2611a2d25279",
+  "core/b0_route.py": "08a24a06b172ef918b957c17ccd6a3ba0448b5da10cebb77ab05e78255334e25",
   "core/b0_adapter_retrospective.py": "a3a2565f8fe3550b61998aa0367df7e0033d18c72cee9efb2a31b38de109c0ad",
   "core/b0_adapter_production.py": "40189b10b5164ecd1e65a0af334cfa9e8fbaa69ef14874d452393fd1f5b51231",
   "core/b0_price_universe.py": "21c65b530f63fab21787237e6dfad6b0cc3f2830a6b8b06495d4076dbfa08ac8",
   "core/b0_valuation_source.py": "4d3ca3da3a5d7c5edad041e66783309453858591ed498158817dfc75a1026367",
   "core/b0_share_unit_adjustment.py": "be781b635505ba1c4f8e52998bdfaaedb196ecce9c1f72791352ef0d12970ad2",
   "core/b0_bonus_share_source.py": "ec82af26214f4e0424fc5df123085f0f5520ab66cd07131d9bf440af0332d937",
-  "core/b0_opening_state.py": "988389eaf66999c8608532fa0e195e67903c0143c1dc6fe567aa579251acf83b"
+  "core/b0_opening_state.py": "988389eaf66999c8608532fa0e195e67903c0143c1dc6fe567aa579251acf83b",
+  "core/b0_1_diagnostic_closure.py": "3f41bde3d78c88ece7a72bd6fa807c2dedc09e7e7c16db03aa3f17eab26caf28",
+  "core/b0_benchmark_gate1.py": "50f4464b5ac129ae6d6a1ae4316c8aefd003d504ead2cfcc581562104626e85f",
+  "core/b0_benchmark_construction.py": "f3f4b7e390212f2dfbef79ebac55bf63020f3ead28f012fa9f71107d5835a746"
  },
  "derived_artefacts": {
   "data/b0/corporate_actions_ledger.csv": {
@@ -102,6 +105,18 @@
   "data/b0/market_state_manifest.json": {
    "sha256": "ec34079daa7cc17adb23c5f394f3756493fee5ff4683275868eb83c9d5febc44",
    "bytes": 56261
+  },
+  "data/b0/benchmark_0050_panel.parquet": {
+   "sha256": "5f183a464142b4eac41d38178708da88f5b78b5339b9d3cef5cf52efda8657f1",
+   "bytes": 124233
+  },
+  "data/b0/benchmark_0050_distributions.csv": {
+   "sha256": "1df8a220c42dd5b974e9c66be646bb50ed99596f412c3cea1b113565fed9115a",
+   "bytes": 2260
+  },
+  "data/b0/benchmark_0050_share_unit_events.parquet": {
+   "sha256": "ddc2e46a5917e700d669dbca5f1d62391529111d5ca76215606e31c0f57c49a2",
+   "bytes": 9343
   }
  },
  "upstream_corporate_action_zips": {
@@ -367,11 +382,14 @@
   "keys": []
  },
  "open_finalization_items": {
-  "total": 0,
-  "keys": [],
+  "total": 1,
+  "keys": [
+   "benchmark_construction_semantics"
+  ],
   "by_stage": {
-   "final_provenance_seal": 0,
-   "L2_opening": 0
+   "final_provenance_seal": 1,
+   "L2_opening": 0,
+   "B0_2_retrospective_replay": 1
   }
  },
  "declaration_conformance": {

@@ -123,113 +123,40 @@ class FinalizationItem:
 #       assert_reopening_admissible refuses an opening that binds the same
 #       baseline the invalid run bound.
 #
-FINALIZATION_ITEMS: tuple[FinalizationItem, ...] = (
-
-    FinalizationItem(
-        key="benchmark_construction_semantics",
-        question=(
-            "How is the frozen 9.3 row (3) benchmark -- 0050 buy-and-hold -- "
-            "actually CONSTRUCTED? Specifically: (a) on which date is the "
-            "position opened; (b) with what initial capital / notional; "
-            "(c) how are shares sized, and is the fee solved inside or outside "
-            "the capital constraint; (d) is the single benchmark purchase "
-            "subject to the 6.4 1% ADV order cap and any other capacity rule, "
-            "or to none; (e) at window end, is the position MARKED at the final "
-            "session price or LIQUIDATED (which would add transaction_tax at "
-            "0.003 plus fee and impact); (f) if 0050 has no observation on a "
-            "required session, is the last observation carried, is the run "
-            "blocked, or is the session dropped -- and is the session grid the "
-            "B0 trading calendar or 0050's own observed sessions?"),
-        why_it_matters=(
-            "V-4 gate 1 is `net cumulative wealth > 0050 buy-and-hold`, a "
-            "STRICT inequality and the single primary hypothesis (V-2, formal "
-            "family size = 1). Every one of the six choices above moves the "
-            "benchmark's terminal wealth: (e) alone is worth roughly 0.3% of "
-            "it via transaction_tax, and 0.3% can decide a strict inequality. "
-            "The master preregistration says only three things about this "
-            "benchmark -- 9.3 names the row and mandates "
-            "`core/b0_cost_model.py` for all four rows with costs computed "
-            "from each row's OWN real trading events, 9.3 forbids forcing B0's "
-            "trading impact onto it, and 2.5 requires it to be "
-            "dividend-inclusive under the SAME dividend handling as the "
-            "strategy. Nothing fixes the date, the notional, the sizing, the "
-            "capacity treatment, the terminal treatment or the missing-session "
-            "rule, and no key in the 217-key frozen registry covers any of "
-            "them. Choosing them at implementation time is exactly the "
-            "numerically-indistinguishable free parameter 1.5 (M-3) forbids -- "
-            "and here it would be a free parameter sitting directly on the "
-            "primary gate."),
-        measured=(
-            "Exhaustive sweep of the frozen master (v1.26, spec_sha256 "
-            "6f452ea2...) for benchmark construction: 9.3 line 1361/1365, 9.4 "
-            "line 1371, 2.5 line 317. That is the complete set. "
-            "`specified_keys()` = 217, of which ZERO name a benchmark "
-            "construction parameter. Of the eleven outcome-relevant semantics "
-            "enumerated by the B0.2 authorization R6, five are uniquely "
-            "determined (dividend inclusion 2.5; dividend cash-not-reinvested "
-            "2.5 `same handling as the strategy`; explicit_fee and "
-            "transaction_tax formulas and constants 7.1/7.1.2; impact computed "
-            "from 0050's OWN sigma20D/ADV20 per 9.3) and six are not (initial "
-            "date; initial capital/notional; share rounding and the fee/cash "
-            "solve; capacity/ADV treatment; terminal valuation vs liquidation; "
-            "missing-session handling). "
-            "NOTE, because it disqualifies the most convenient source: 2.5's "
-            "`same dividend handling as the strategy` means ex-date "
-            "receivable -> cash at payment date with NO reinvestment, so a "
-            "reinvesting total-return series (e.g. the legacy "
-            "`beat_0050/data/benchmark/0050_tr.parquet`) is NOT an admissible "
-            "benchmark input under the frozen semantics."),
-        options=(
-            "RULE each of the six explicitly, deriving from the strategy's own "
-            "frozen clauses where a derivation exists (e.g. open at the period-1 "
-            "execution date at open(t+1) per 6.5, notional = the sealed opening "
-            "cash, terminal = MARK because the strategy's own terminal NAV is a "
-            "mark and not a liquidation) -- and record each derivation, so the "
-            "ruling is auditable rather than asserted.",
-            "RULE that the benchmark is defined by an externally standard "
-            "convention named in full (e.g. a stated total-return convention), "
-            "accepting that this OVERRIDES 2.5's same-handling requirement and "
-            "therefore requires 2.5 to be amended rather than silently read "
-            "around.",
-            "RULE that gate 1 cannot be evaluated under the current frozen "
-            "text and amend 9.4 -- the primary gate -- before any replay. This "
-            "is the option that must be taken if the first two cannot be done "
-            "without looking at strategy performance.",
-        ),
-        blocks=("B0_2_retrospective_replay", "final_provenance_seal"),
-        opened_by=(
-            "B0.2 authorization R6 (benchmark semantics review), 2026-08-19. "
-            "Reached from the B0.1 diagnostic terminal report, which found no "
-            "sealed benchmark artefact in the B0.1 baseline seal's datasets or "
-            "derived lists and no 0050 row in data/b0/price_panel.parquet. "
-            "SEMANTICS RULED 2026-08-19 (M-3 ruling B1-B12, "
-            "EVALUATION_PROTOCOL_COMPLETION) and recorded in "
-            "core/b0_benchmark_construction.py. The item REMAINS OPEN per B10, "
-            "which closes it only once the rules are in the Master/registry AND "
-            "the canonical benchmark materialization is complete. "
-            "MATERIALIZATION IS NOW BLOCKED ON DATA, AND THE RULING'S PREMISE "
-            "FOR THAT STEP DOES NOT HOLD: R5 classified the gap as `not a data "
-            "reconstruction block because admissible raw 0050 exports exist and "
-            "are hash-manifested`, but the only hash-manifested 0050 lineage "
-            "(tej_exports/DataExport0806/`0050 股價、報酬率 2005-20260806`, 10 "
-            "xlsx) carries exactly three columns — date, ADJUSTED price, return "
-            "%% — and is byte-identical to the REINVESTING total-return series "
-            "beat_0050/data/benchmark/0050_tr.parquet (max |diff| = 0.000000 "
-            "over 5,297 overlapping sessions; 2014-08-01 shows 11.3428 against "
-            "a raw close of 66.25). B7 rules exactly that series inadmissible. "
-            "It carries NO open (B1), NO volume (B4 adv20), NO raw close (B4 "
-            "sigma20d) and NO dividend ex-date/DPS/payment-date (B7). "
-            "beat_0050/data/benchmark/0050_raw.parquet has date+close only, no "
-            "receipt and no manifest entry, so it satisfies neither B4 nor B7 "
-            "nor B8's seal bindings. 0050 has 0 rows in "
-            "data/b0/corporate_actions_ledger.csv and 0 rows in "
-            "data/b0/price_panel.parquet. B8 forbids runtime live fetching, so "
-            "no admissible path to these fields exists in the repository as it "
-            "stands: acquiring 0050 open/volume/dividend lineage is a new "
-            "sealed-input acquisition, which is a ruling to make, not an "
-            "implementation detail."),
-    ),
-)
+# RESOLVED and removed from this register:
+#
+#   benchmark_construction_semantics -> M-3 rulings of 2026-08-19/20 (master
+#       prereg v1.27, 13.2/13.3, C-61). OPENED because 9.4 gate 1 is
+#       `net cumulative wealth > 0050 buy-and-hold`, a strict inequality and the
+#       single primary hypothesis, while the master fixed only the benchmark's
+#       IDENTITY. Six outcome-relevant construction choices were undetermined
+#       and none of the 217 frozen keys named one, so each was a free parameter
+#       sitting directly on the primary gate.
+#
+#       RULED, in three passes, and in every pass BEFORE any performance was
+#       observed -- which is what makes the completion admissible at all:
+#         B1-B7   construction protocol frozen (timing, C_ref, share/cash solve,
+#                 no ADV throttle, mark-to-market terminal, fail-loud sessions,
+#                 dividends never reinvested).
+#         R1/R2   dividend payment date is OPTIONAL_NON_OUTCOME_AUDIT_FIELD.
+#                 Under B2 + B7 + 2.5 a fixed amount sitting in `receivable`
+#                 versus `cash` is the same wealth, so an unavailable payment
+#                 date leaves the receivable outstanding rather than licensing
+#                 an inferred date.
+#         R4-R7   the 2025-06-18 1:4 share-unit split is outcome-required. It is
+#                 vacuous only for the 2014 sigma20d/ADV20 lookback; the holder
+#                 ledger applies holder_multiplier = 4.0 exactly once, q -> 4q,
+#                 with raw marks unchanged and no receivable created.
+#
+#       Closed only once BOTH halves of the R11 condition held: the semantics
+#       are frozen AND the canonical lineage is materialized and seal-bindable.
+#       The second half required acquiring new authoritative TWSE raw data,
+#       because the premise that admissible sources already existed was
+#       mechanically falsified -- the only manifested 0050 lineage was the
+#       reinvesting total-return series B7 excludes, carrying no open, no
+#       volume, no raw close and no distribution events.
+#
+FINALIZATION_ITEMS: tuple[FinalizationItem, ...] = ()
 
 
 _BY_KEY: dict[str, FinalizationItem] = {i.key: i for i in FINALIZATION_ITEMS}

@@ -23,7 +23,7 @@
  ],
  "full_decision_input": {
   "canonical_opening_state_sha256": "3290cd81491d58dd692901e81bc89f37645e2546feaacd2125419473cdcd5cb3",
-  "full_decision_input_sha256": "fdee3374f94681911bafb037df159d9970ff7ab8241256bb47c33945fd70d718",
+  "full_decision_input_sha256": "6d95f783872c9b4e9ba0239cdb079ea8bfe9b8c664dd8b52fa2853c54c3df1bd",
   "period_1_as_of": "2014-07-30",
   "period_1_decision_date": "2014-07-31",
   "periods_deferred": 140,

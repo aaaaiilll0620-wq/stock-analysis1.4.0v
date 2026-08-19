@@ -21,39 +21,35 @@ from core import b0_finalization_items as fin
 from core.b0_master_prereg import NORMATIVE_MODULES, specified_keys
 
 
-# --- R6 · the M-3 item is registered, and it blocks the right stages ----------
+# --- the M-3 is CLOSED, and the gates it held are released --------------------
 
-def test_benchmark_semantics_is_an_open_m3_item():
-    assert gate1.GATE1_SEMANTICS_ITEM in fin.open_keys()
-
-
-def test_benchmark_semantics_blocks_the_b0_2_replay_and_the_seal():
-    item = fin.get(gate1.GATE1_SEMANTICS_ITEM) if hasattr(fin, "get") else None
-    blocked = {i.key for i in fin.items_blocking("B0_2_retrospective_replay")}
-    assert gate1.GATE1_SEMANTICS_ITEM in blocked
-    blocked_seal = {i.key for i in fin.items_blocking("final_provenance_seal")}
-    assert gate1.GATE1_SEMANTICS_ITEM in blocked_seal
-    assert item is None or len(item.options) >= 2
+def test_benchmark_semantics_is_closed():
+    """Closed only after BOTH halves of R11: semantics frozen AND lineage
+    materialized and seal-bindable."""
+    assert gate1.GATE1_SEMANTICS_ITEM not in fin.open_keys()
+    assert fin.open_keys() == ()
 
 
-def test_b0_2_replay_stage_is_mechanically_blocked():
+def test_nothing_blocks_the_b0_2_replay_or_the_seal_any_more():
+    fin.assert_not_blocked("B0_2_retrospective_replay")
+    fin.assert_not_blocked("final_provenance_seal")
+    fin.assert_not_blocked("L2_opening")
+
+
+def test_the_blocking_mechanism_itself_was_not_retired(monkeypatch):
+    """Negative control: the item went away, the gate did not."""
+    item = fin.FinalizationItem(
+        key="synthetic", question="q?", why_it_matters="w",
+        measured="m", options=("a", "b"),
+        blocks=("B0_2_retrospective_replay",), opened_by="test")
+    monkeypatch.setattr(fin, "FINALIZATION_ITEMS", (item,))
     with pytest.raises(fin.FinalizationBlocked):
         fin.assert_not_blocked("B0_2_retrospective_replay")
 
 
-def test_final_provenance_seal_is_mechanically_blocked():
-    """R12: B0.2 cannot be sealed while gate 1's semantics are unruled."""
-    with pytest.raises(fin.FinalizationBlocked):
-        fin.assert_not_blocked("final_provenance_seal")
-
-
-def test_l2_opening_is_not_collaterally_blocked():
-    """The benchmark gap is a B0.2 concern; it must not re-block Frozen B0 L2."""
-    fin.assert_not_blocked("L2_opening")
-
-
 def test_no_frozen_key_defines_benchmark_construction():
-    """The measured basis of the M-3 finding, asserted rather than recalled."""
+    """The construction protocol lives in 13.2/13.3 and its normative module,
+    not as loose registry keys."""
     hits = [k for k in specified_keys()
             if any(t in k.lower() for t in ("benchmark", "0050", "notional"))]
     assert hits == []
@@ -65,36 +61,58 @@ def test_gate1_module_is_normative():
     assert "core/b0_benchmark_gate1.py" in NORMATIVE_MODULES
 
 
-def test_gate1_inputs_are_not_currently_sealed():
+def test_gate1_still_refuses_a_seal_that_binds_no_benchmark():
+    """R10: the check is about THIS seal, not about the repo in general."""
     with pytest.raises(gate1.Gate1InputsNotSealed):
-        gate1.assert_gate1_inputs_sealed()
+        gate1.assert_gate1_inputs_sealed({"datasets": [], "derived": []})
 
 
-def test_gate1_refusal_names_every_reason_that_still_stands():
-    """Reasons are independent: closing one does not close the others.
+def test_gate1_passes_against_a_seal_that_binds_the_benchmark():
+    """R10 · reproducible from seal-bound code + datasets, nothing discovered
+    at runtime."""
+    seal = {
+        "derived": [{"name": gate1.BENCHMARK_PANEL}],
+        "benchmark": {k: "bound" for k in gate1.GATE1_REQUIRED_BINDINGS},
+    }
+    status = gate1.assert_gate1_inputs_sealed(seal)
+    assert status["gate1_reproducible_from_sealed_inputs"] is True
 
-    The panel now EXISTS (acquired from TWSE), so that reason has gone away on
-    its own -- which is the point of reporting them separately rather than as a
-    single boolean. What still stands is the unruled M-3 and the absent seal
-    bindings.
-    """
+
+def test_gate1_refusal_still_names_the_reason_when_a_binding_is_dropped():
+    seal = {
+        "derived": [{"name": gate1.BENCHMARK_PANEL}],
+        "benchmark": {k: "bound" for k in gate1.GATE1_REQUIRED_BINDINGS
+                      if k != "benchmark_upstream_sha256"},
+    }
     with pytest.raises(gate1.Gate1InputsNotSealed) as exc:
-        gate1.assert_gate1_inputs_sealed()
-    msg = str(exc.value)
-    assert gate1.GATE1_SEMANTICS_ITEM in msg
-    assert "seal" in msg.lower()
+        gate1.assert_gate1_inputs_sealed(seal)
+    assert "benchmark_upstream_sha256" in str(exc.value)
 
 
 def test_gate1_status_is_measurable_without_asserting():
-    """The panel landed; the M-3 and the seal bindings have not."""
     import os
 
     status = gate1.gate1_input_status()
     panel = os.path.join(gate1.REPO_ROOT, gate1.BENCHMARK_PANEL)
     assert status["panel_present"] is os.path.exists(panel)
-    assert status["semantics_ruled"] is False
-    assert status["gate1_reproducible_from_sealed_inputs"] is False
+    assert status["semantics_ruled"] is True
+    # no seal passed, so the bindings are all still unmeasured
     assert set(status["bindings_missing"]) == set(gate1.GATE1_REQUIRED_BINDINGS)
+
+
+def test_the_real_b0_2_seal_satisfies_gate1():
+    """Bound to the seal actually on disk, once it has been taken."""
+    import json
+    import os
+
+    live = os.path.join(gate1.REPO_ROOT, "artifacts", "baseline_seal",
+                        "b0_baseline_seal.json")
+    if not os.path.exists(live):
+        pytest.skip("no baseline seal in this working tree")
+    seal = json.load(open(live, encoding="utf-8"))
+    if "benchmark" not in seal:
+        pytest.skip("seal predates the B0.2 benchmark bindings")
+    gate1.assert_gate1_inputs_sealed(seal)
 
 
 def test_a_seal_without_benchmark_rows_does_not_satisfy_gate1():

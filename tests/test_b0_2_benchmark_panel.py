@@ -19,7 +19,7 @@ from core import b0_benchmark_construction as bc
 REPO = bc.__file__.rsplit(os.sep + "core", 1)[0]
 PANEL = os.path.join(REPO, "data", "b0", "benchmark_0050_panel.parquet")
 DIST = os.path.join(REPO, "data", "b0", "benchmark_0050_distributions.csv")
-UNIT = os.path.join(REPO, "data", "b0", "benchmark_0050_share_unit_events.csv")
+UNIT = os.path.join(REPO, "data", "b0", "benchmark_0050_share_unit_events.parquet")
 RECEIPT = os.path.join(REPO, "research", "b0_benchmark",
                        "benchmark_0050_panel_receipt.json")
 
@@ -125,7 +125,7 @@ def test_payment_date_cannot_change_benchmark_wealth():
 # --- R5 · share-unit transformation -------------------------------------------
 
 def test_exactly_one_share_unit_event_in_the_horizon():
-    u = pd.read_csv(UNIT)
+    u = pd.read_parquet(UNIT)
     assert len(u) == 1
     r = u.iloc[0]
     assert r.effective_date == "2025-06-18"
@@ -137,7 +137,7 @@ def test_the_split_ratio_is_four_by_twse_own_reference_arithmetic():
     adjusted reference, so the ratio is first-party arithmetic, not an inference
     from the raw price jump. 188.65 / 4 = 47.1625 -> 47.16 at tick; no other
     integer ratio lands there."""
-    u = pd.read_csv(UNIT).iloc[0]
+    u = pd.read_parquet(UNIT).iloc[0]
     df = _panel()
     row = df[df.session == "2025-06-18"].iloc[0]
     assert row.close == pytest.approx(47.57)
@@ -147,11 +147,16 @@ def test_the_split_ratio_is_four_by_twse_own_reference_arithmetic():
         assert abs(u.prev_close / wrong - 47.16) > 1.0
 
 
-def test_no_share_unit_event_affects_the_single_buy_lookback():
-    """sigma20d/ADV20 are needed only at the 2014-08-01 buy, 11 years earlier,
-    so R5's adjustment is vacuous over the window where it is actually used."""
-    u = pd.read_csv(UNIT)
+def test_split_is_vacuous_only_for_the_buy_date_statistics():
+    """R4 is emphatic that the split is NOT economically vacuous.
+
+    It is vacuous for the 2014-08-01 sigma20d/ADV20 lookback, eleven years
+    earlier -- and for nothing else. The holder ledger carries it, which is what
+    the R7 regressions cover.
+    """
+    u = pd.read_parquet(UNIT)
     assert (u.effective_date > "2014-08-01").all()
+    assert bc.SHARE_UNIT_EVENTS_ARE_OUTCOME_REQUIRED is True
 
 
 # --- R8 · seal-bindable receipt ------------------------------------------------

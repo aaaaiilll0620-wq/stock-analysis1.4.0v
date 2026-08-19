@@ -120,14 +120,35 @@ def test_b3_returns_zero_shares_when_nothing_is_affordable():
 
 def test_required_fields_are_derived_and_each_names_its_rule():
     for f in bc.REQUIRED_LINEAGE_FIELDS:
-        assert f.required_by.startswith("B")
+        assert f.required_by[0] in "BR"      # a B-rule or an R-rule, never blank
         assert f.why.strip()
 
 
 def test_b6_sufficient_lineage_passes():
     ok = ["date", "open", "close", "volume", "dividend_ex_date",
-          "dividend_cash_per_share", "dividend_payment_date"]
+          "dividend_cash_per_share", "share_unit_effective_date",
+          "holder_multiplier"]
     bc.assert_benchmark_lineage_sufficient(ok, source="hypothetical panel")
+
+
+def test_r8_payment_date_is_no_longer_required():
+    """R1/R8: wealth-neutral, so it is an audit field, not a gate-1 input."""
+    assert bc.PAYMENT_DATE_IS_OUTCOME_REQUIRED is False
+    assert bc.DIVIDEND_PAYMENT_DATE_CLASSIFICATION == "OPTIONAL_NON_OUTCOME_AUDIT_FIELD"
+    required = {f.field for f in bc.REQUIRED_LINEAGE_FIELDS}
+    assert "dividend_payment_date" not in required
+    assert "dividend_payment_date" in {f.field for f in bc.OPTIONAL_AUDIT_FIELDS}
+
+
+def test_r8_missing_split_lineage_fails_loud():
+    """The dependency that was nearly missed must be the one that shouts."""
+    no_split = ["date", "open", "close", "volume", "dividend_ex_date",
+                "dividend_cash_per_share"]
+    with pytest.raises(bc.BenchmarkLineageInsufficient) as exc:
+        bc.assert_benchmark_lineage_sufficient(no_split, source="no-split lineage")
+    msg = str(exc.value)
+    assert "share_unit_effective_date" in msg
+    assert "holder_multiplier" in msg
 
 
 def test_b6_the_manifested_tej_lineage_is_insufficient():
@@ -154,3 +175,111 @@ def test_b6_refusal_names_no_admissible_workaround():
     msg = str(exc.value)
     assert "NON-EVALUABLE" in msg
     assert "forward fill" in msg
+
+
+# --- R3 · payment-date invariance, on the ledger itself -----------------------
+
+def _bench(shares=30_130):
+    return bc.BenchmarkLedger(shares=shares)
+
+
+@pytest.mark.parametrize("terminal", ["2016-08-01", "2026-03-31"])
+def test_r3_wealth_is_identical_whether_or_not_the_dividend_was_paid(terminal):
+    """Known payment date vs receivable left outstanding -> identical wealth."""
+    close = 47.57
+    paid = _bench()
+    paid = bc.apply_dividend_ex_date(paid, 1.55)
+    paid = bc.apply_dividend_payment(paid, paid.receivable)     # credited
+    unpaid = bc.apply_dividend_ex_date(_bench(), 1.55)          # still a claim
+    assert paid.cash > 0 and paid.receivable == 0
+    assert unpaid.cash == 0 and unpaid.receivable > 0
+    assert paid.wealth(close) == unpaid.wealth(close)
+
+
+def test_r3_partial_and_staggered_crediting_is_also_wealth_neutral():
+    close = 47.57
+    base = bc.apply_dividend_ex_date(_bench(), 1.55)
+    whole = bc.apply_dividend_payment(base, base.receivable)
+    half = bc.apply_dividend_payment(base, base.receivable / 2)
+    assert base.wealth(close) == whole.wealth(close) == half.wealth(close)
+
+
+def test_r3_a_payment_date_after_the_terminal_boundary_changes_nothing():
+    """R3 asks specifically for this case: it never gets credited at all."""
+    close = 47.57
+    never = bc.apply_dividend_ex_date(_bench(), 1.55)
+    assert never.receivable > 0
+    credited = bc.apply_dividend_payment(never, never.receivable)
+    assert never.wealth(close) == credited.wealth(close)
+    assert bc.UNPAID_RECEIVABLE_MAY_REMAIN_OUTSTANDING is True
+
+
+def test_r3_invariance_holds_across_the_full_real_distribution_schedule():
+    """Every acquired ex-date, under three different crediting policies."""
+    amounts = [1.55, 2.00, 0.85, 1.70, 0.70, 2.20, 0.70, 2.30, 0.70, 2.90,
+               0.70, 3.05, 0.35, 3.20, 1.80, 2.60, 1.90, 3.00, 1.00, 2.70,
+               0.36, 1.00, 0.60]
+    close = 47.57
+    always = never = _bench()
+    alternate = _bench()
+    for i, amt in enumerate(amounts):
+        always = bc.apply_dividend_ex_date(always, amt)
+        always = bc.apply_dividend_payment(always, always.receivable)
+        never = bc.apply_dividend_ex_date(never, amt)
+        alternate = bc.apply_dividend_ex_date(alternate, amt)
+        if i % 2 == 0:
+            alternate = bc.apply_dividend_payment(alternate, alternate.receivable)
+    assert always.wealth(close) == pytest.approx(never.wealth(close))
+    assert always.wealth(close) == pytest.approx(alternate.wealth(close))
+
+
+# --- R7 · split regressions ----------------------------------------------------
+
+def test_r7_shares_go_q_to_4q_at_the_boundary():
+    led = bc.apply_share_unit_event(_bench(30_130), "2025-06-18", 4.0)
+    assert led.shares == 4 * 30_130
+
+
+def test_r7_the_split_applies_exactly_once():
+    led = bc.apply_share_unit_event(_bench(), "2025-06-18", 4.0)
+    with pytest.raises(bc.BenchmarkConstructionError) as exc:
+        bc.apply_share_unit_event(led, "2025-06-18", 4.0)
+    assert "already been applied" in str(exc.value)
+
+
+def test_r7_the_split_creates_no_dividend_receivable_and_no_cash():
+    led = bc.apply_share_unit_event(_bench(), "2025-06-18", 4.0)
+    assert led.receivable == 0.0
+    assert led.cash == 0.0
+
+
+def test_r7_a_dividend_creates_no_share_unit_transformation():
+    led = bc.apply_dividend_ex_date(_bench(30_130), 1.55)
+    assert led.shares == 30_130
+    assert led.applied_share_unit_events == ()
+
+
+def test_r7_a_receivable_fixed_before_a_split_is_not_rescaled_by_it():
+    """The claim was struck in money against the pre-split holding; a later
+    unit change does not retroactively enlarge it."""
+    led = bc.apply_dividend_ex_date(_bench(30_130), 1.55)
+    before = led.receivable
+    led = bc.apply_share_unit_event(led, "2025-06-18", 4.0)
+    assert led.receivable == before
+    assert led.shares == 4 * 30_130
+
+
+def test_r7_marks_stay_raw_so_wealth_is_continuous_across_the_split():
+    """q x 188.65 immediately before == 4q x 47.1625 immediately after."""
+    pre = _bench(30_130)
+    post = bc.apply_share_unit_event(pre, "2025-06-18", 4.0)
+    assert pre.wealth(188.65) == pytest.approx(post.wealth(188.65 / 4.0))
+
+
+def test_r6_multiplier_is_derived_from_twse_fields_only():
+    assert bc.derive_holder_multiplier(188.65, 47.57, 0.41) == 4.0
+
+
+def test_r6_refuses_a_non_integer_multiplier():
+    with pytest.raises(bc.BenchmarkConstructionError):
+        bc.derive_holder_multiplier(188.65, 47.57, 20.0)

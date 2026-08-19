@@ -50,6 +50,12 @@ DERIVED_ARTEFACTS = (
     # Definition A: the artefact that states all 141 market-side states
     # exist, and carries each one's hash.
     "data/b0/market_state_manifest.json",
+    # B0.2 §13.4. Evaluation-only benchmark lineage: never an input to the
+    # strategy route, but bound here because gate 1 must be reproducible from
+    # the seal alone.
+    "data/b0/benchmark_0050_panel.parquet",
+    "data/b0/benchmark_0050_distributions.csv",
+    "data/b0/benchmark_0050_share_unit_events.parquet",
 )
 
 CA_EXPORT_DIR = os.path.join(
@@ -62,7 +68,7 @@ def main():
     doc = os.path.join(REPO, MASTER_PREREG_DOC)
     record = {
         "document": MASTER_PREREG_DOC,
-        "version": "1.26",
+        "version": "1.27",
         "status": "NORMATIVE_FROZEN",
         "spec_sha256": spec_document_sha256(),
         "spec_bytes": os.path.getsize(doc),
