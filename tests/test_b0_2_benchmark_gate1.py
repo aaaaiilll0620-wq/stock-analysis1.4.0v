@@ -70,18 +70,28 @@ def test_gate1_inputs_are_not_currently_sealed():
         gate1.assert_gate1_inputs_sealed()
 
 
-def test_gate1_refusal_names_both_independent_reasons():
-    """Closing one of the two does not close the other, so both are reported."""
+def test_gate1_refusal_names_every_reason_that_still_stands():
+    """Reasons are independent: closing one does not close the others.
+
+    The panel now EXISTS (acquired from TWSE), so that reason has gone away on
+    its own -- which is the point of reporting them separately rather than as a
+    single boolean. What still stands is the unruled M-3 and the absent seal
+    bindings.
+    """
     with pytest.raises(gate1.Gate1InputsNotSealed) as exc:
         gate1.assert_gate1_inputs_sealed()
     msg = str(exc.value)
     assert gate1.GATE1_SEMANTICS_ITEM in msg
-    assert gate1.BENCHMARK_PANEL in msg
+    assert "seal" in msg.lower()
 
 
 def test_gate1_status_is_measurable_without_asserting():
+    """The panel landed; the M-3 and the seal bindings have not."""
+    import os
+
     status = gate1.gate1_input_status()
-    assert status["panel_present"] is False
+    panel = os.path.join(gate1.REPO_ROOT, gate1.BENCHMARK_PANEL)
+    assert status["panel_present"] is os.path.exists(panel)
     assert status["semantics_ruled"] is False
     assert status["gate1_reproducible_from_sealed_inputs"] is False
     assert set(status["bindings_missing"]) == set(gate1.GATE1_REQUIRED_BINDINGS)
