@@ -58,12 +58,20 @@ INELIGIBLE_KINDS: tuple[str, ...] = (
     "employee_bonus",
     "treasury_cancellation",
     "other_share_change",
+    # B0.3 · R2/R5. Issuer-side capital formation: the surviving/issuing company
+    # created shares, no existing position was multiplied. Same disposition as
+    # convertible_bond_conversion, and for the same reason.
+    "issuer_side_merger_share_issuance",
+    "issuer_side_share_conversion_issuance",
 )
 
 # R5 · identity changes. A successor security uses its OWN canonical history and
 # its own listing spell; no synthetic A->B series is ever spliced.
 IDENTITY_CHANGE_KINDS: tuple[str, ...] = (
-    "merger", "share_conversion", "transfer_in",
+    # B0.3 · R3. Only the DISAPPEARING security's leg is an identity change; the
+    # survivor's issuance is not, and used to be listed here as "merger" /
+    # "share_conversion" precisely because the two legs were conflated.
+    "holder_side_security_conversion", "transfer_in",
 )
 
 # R6 · who reads which series. Stated as data so that a new consumer is a visible

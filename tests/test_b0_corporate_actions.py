@@ -44,14 +44,14 @@ def test_three_states_exist_and_are_distinct():
 
 def test_a_two_state_collapse_is_rejected():
     with pytest.raises(CorporateActionError):
-        CorporateActionEvent("1101", "merger", "2020-01-01", "FAIL")
+        CorporateActionEvent("1101", "holder_side_security_conversion", "2020-01-01", "FAIL")
 
 
 def test_not_reconstructible_requires_a_reason():
     """Without one, a known gap and an unnoticed event look identical."""
     with pytest.raises(CorporateActionError, match="reason"):
-        CorporateActionEvent("1101", "merger", "2020-01-01", NOT_RECONSTRUCTIBLE)
-    CorporateActionEvent("1101", "merger", "2020-01-01", NOT_RECONSTRUCTIBLE, "why")
+        CorporateActionEvent("1101", "holder_side_security_conversion", "2020-01-01", NOT_RECONSTRUCTIBLE)
+    CorporateActionEvent("1101", "holder_side_security_conversion", "2020-01-01", NOT_RECONSTRUCTIBLE, "why")
 
 
 # --- W-3: every holder-affecting kind has a handler --------------------------
@@ -213,11 +213,14 @@ def test_reconstructible_events_never_abort():
 
 # --- identity changes: unobservable on the holder side -----------------------
 
-@pytest.mark.parametrize("kind", ["merger", "share_conversion"])
+@pytest.mark.parametrize("kind", ["holder_side_security_conversion"])
 def test_identity_changes_are_never_silently_reconstructible(kind):
     e = classify(kind, {"stock_id": "3710", "effective_date": "2017-12-29"})
     assert e.reconstructibility == NOT_RECONSTRUCTIBLE
-    assert "counterparty" in e.reason
+    # B0.3: the reason now names what is missing and what may not be used to
+    # invent it, rather than describing the issuer-side row it used to conflate.
+    assert "conversion terms" in e.reason
+    assert "inferring" in e.reason
 
 
 def test_the_holder_side_detector_lives_outside_this_module():

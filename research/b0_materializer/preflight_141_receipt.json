@@ -23,7 +23,7 @@
  ],
  "full_decision_input": {
   "canonical_opening_state_sha256": "3290cd81491d58dd692901e81bc89f37645e2546feaacd2125419473cdcd5cb3",
-  "full_decision_input_sha256": "6d95f783872c9b4e9ba0239cdb079ea8bfe9b8c664dd8b52fa2853c54c3df1bd",
+  "full_decision_input_sha256": "f0c581b0dd1a45dc8223b2a1722bae2a03a74305418a65080f2db3c8f5424cd1",
   "period_1_as_of": "2014-07-30",
   "period_1_decision_date": "2014-07-31",
   "periods_deferred": 140,
@@ -34,7 +34,7 @@
  "is_blocker": false,
  "is_not_evaluable": false,
  "market_side": {
-  "composed_market_state_sha256": "66640a7852aec84ada1e2ca5475998a05e41c0ae022fb60ac08a967e838ae1a4",
+  "composed_market_state_sha256": "c4171045a6d7841e3fb74bacb4a36a765092fd36ef9d491a5763d51b6ae90431",
   "manifest": "data/b0/market_state_manifest.json",
   "periods_built": 141,
   "periods_required": 141,

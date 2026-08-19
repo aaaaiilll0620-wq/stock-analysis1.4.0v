@@ -1,13 +1,13 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.27",
+ "version": "1.28",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "76bafdedfa4c55a3ebedc493771be2667eb2978ccc2cb468d901ce0a263614ea",
- "spec_bytes": 224149,
+ "spec_sha256": "66b34e3610b9dbe033cf27b020aa55a2f747e6d2cc950e00bd0a95fd8770595f",
+ "spec_bytes": 228460,
  "normative_modules": {
-  "core/b0_master_prereg.py": "0a79fa02bdc014d9d4259274fc51872dba75187a98b46629a25c99219f3b67c4",
+  "core/b0_master_prereg.py": "15df30a4af69690ff3fb239a05b3d64e63b7a461e1aea97db7d165d238ed80d3",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
-  "core/b0_corporate_actions.py": "f59e4eb854dc386df3bfa3de7f35a9b348cec3cfede83a580b121f0347079f09",
+  "core/b0_corporate_actions.py": "6179d19c40ed05387f8831a043f054a91c5bff7046b56b265a339689cf31025d",
   "core/b0_pit_observability.py": "c060e8135a8c7a386b74113097cfecdfd6ffbf74b406e77e5c1f6eefc899ef1e",
   "core/b0_market_state.py": "1603c00034dfb9976fa5338d2829bf452aadb11e6d3a5f9588232d2e9e88d7d5",
   "core/b0_listing_spell.py": "81d9f0ae02e3b4401c9864ad19526a5425c09ca7b6d647c8a228da93c8253f88",
@@ -17,7 +17,7 @@
   "core/b0_parity.py": "debaa9b09f5d00208e19a5aa31debf5a237e861af0c10ed163cd78c377733eba",
   "core/b0_provenance.py": "65299580e322696107f38fd2583a91cd177887f772e1240cf42577ff7b7fe224",
   "core/b0_open_items.py": "cd3cd2ab0f6aeabedb93247451e5330358f62f34484befdf63506dd7d865f257",
-  "core/b0_finalization_items.py": "77131a03f823e8638470ea3674cc5200e0e9dd1ef775b7f01a8cc00e925e4bcb",
+  "core/b0_finalization_items.py": "274271b135943d2be2be7f94f7c31d18ad30bd15a8d3d085720d5bc1832cc6b1",
   "core/b0_l2_run_layout.py": "47587cc6b3ca299c367113385de3a7fc4e5f593592d5f212e800ec824b79336f",
   "core/b0_declaration_conformance.py": "b8dea19303579064ee0c281755166f20c997a80292e98ff9e10337307e131552",
   "core/b0_state.py": "4c7f86293dcaa9d461b616c62665dccd44007eda321c7e86eb69b4f5f35509a6",
@@ -30,7 +30,7 @@
   "core/b0_adapter_production.py": "40189b10b5164ecd1e65a0af334cfa9e8fbaa69ef14874d452393fd1f5b51231",
   "core/b0_price_universe.py": "21c65b530f63fab21787237e6dfad6b0cc3f2830a6b8b06495d4076dbfa08ac8",
   "core/b0_valuation_source.py": "4d3ca3da3a5d7c5edad041e66783309453858591ed498158817dfc75a1026367",
-  "core/b0_share_unit_adjustment.py": "be781b635505ba1c4f8e52998bdfaaedb196ecce9c1f72791352ef0d12970ad2",
+  "core/b0_share_unit_adjustment.py": "190cc78c64c1a24edb08d3f353e38f1a174b02af278f238183779fb47320a6b8",
   "core/b0_bonus_share_source.py": "ec82af26214f4e0424fc5df123085f0f5520ab66cd07131d9bf440af0332d937",
   "core/b0_opening_state.py": "988389eaf66999c8608532fa0e195e67903c0143c1dc6fe567aa579251acf83b",
   "core/b0_1_diagnostic_closure.py": "3f41bde3d78c88ece7a72bd6fa807c2dedc09e7e7c16db03aa3f17eab26caf28",
@@ -39,8 +39,8 @@
  },
  "derived_artefacts": {
   "data/b0/corporate_actions_ledger.csv": {
-   "sha256": "f426dbc659c68bd7f1cce0db0cff3254b1d517025cf1cff2f2cd89f9d4c1f06c",
-   "bytes": 5267513
+   "sha256": "3c6f056b7c0dabcc7dc48abf83c1a710df92da9e6de0f253222fc2ce3ab2cfa2",
+   "bytes": 6500584
   },
   "data/b0/stock_dividend_pit.csv": {
    "sha256": "783d7cc2785f9faeff637529e66138e69c70f9c3a1a4df1001a1b19b7a50a0ec",
@@ -103,7 +103,7 @@
    "bytes": 160903
   },
   "data/b0/market_state_manifest.json": {
-   "sha256": "ec34079daa7cc17adb23c5f394f3756493fee5ff4683275868eb83c9d5febc44",
+   "sha256": "f98ff956cd357ecbb73f86c2c58ce524a3cb7f4115f506be352d81783fa206b6",
    "bytes": 56261
   },
   "data/b0/benchmark_0050_panel.parquet": {
@@ -382,14 +382,13 @@
   "keys": []
  },
  "open_finalization_items": {
-  "total": 1,
-  "keys": [
-   "benchmark_construction_semantics"
-  ],
+  "total": 0,
+  "keys": [],
   "by_stage": {
-   "final_provenance_seal": 1,
+   "final_provenance_seal": 0,
    "L2_opening": 0,
-   "B0_2_retrospective_replay": 1
+   "B0_2_retrospective_replay": 0,
+   "B0_3_data_repair": 0
   }
  },
  "declaration_conformance": {

@@ -77,27 +77,45 @@ def test_no_event_specific_repair_dispatch_exists_in_the_ca_core():
         assert not re.search(pat, code), pat
 
 
-def test_merger_handling_is_a_single_rule_not_a_table_of_events():
-    """Every merger goes through one handler with no per-event branching."""
+def test_issuer_side_handling_is_a_single_rule_not_a_table_of_events():
+    """Every tr_fg1 row goes through one handler with no per-event branching."""
     import inspect
-    src = inspect.getsource(ca.handle_merger)
-    assert "_identity_change_unobservable" in src
+    src = inspect.getsource(ca.handle_issuer_side_merger_share_issuance)
+    assert "_issuer_side_share_issuance" in src
     assert not re.search(r"\d{4}-\d{2}-\d{2}", src)
+    assert "4123" not in src
 
 
 # --- R5 · unresolved remains unresolved ---------------------------------------
 
 def test_nothing_was_made_reconstructible_without_evidence():
+    """The B0.3 audit found no acquirable data; the repair was semantic."""
     s = json.load(open(SOURCES, encoding="utf-8"))
     assert s["events_newly_reconstructible"] == 0
-    assert s["events_remaining_not_reconstructible"] == 220
 
 
-def test_every_merger_in_the_ledger_is_still_not_reconstructible():
+def test_every_tr_fg1_row_is_now_issuer_side_not_applicable():
+    """B0.3: the 220 rows were reclassified by SOURCE FIELD, not by kind name."""
     rows = [r for r in csv.DictReader(open(LEDGER, encoding="utf-8"))
-            if r["kind"] == "merger"]
+            if r["source_field"] == "合併(仟股)"]
     assert len(rows) == 220
-    assert {r["reconstructibility"] for r in rows} == {"NOT_RECONSTRUCTIBLE"}
+    assert {r["kind"] for r in rows} == {"issuer_side_merger_share_issuance"}
+    assert {r["reconstructibility"] for r in rows} == {"NOT_APPLICABLE"}
+
+
+def test_every_con3_row_is_now_issuer_side_not_applicable():
+    rows = [r for r in csv.DictReader(open(LEDGER, encoding="utf-8"))
+            if r["source_field"] == "股份轉換(仟股"]
+    assert len(rows) == 33
+    assert {r["kind"] for r in rows} == {"issuer_side_share_conversion_issuance"}
+    assert {r["reconstructibility"] for r in rows} == {"NOT_APPLICABLE"}
+
+
+def test_no_holder_side_conversion_row_was_synthesised():
+    """R6/R7: none may be invented without authoritative counterparty terms."""
+    rows = [r for r in csv.DictReader(open(LEDGER, encoding="utf-8"))
+            if r["kind"] == "holder_side_security_conversion"]
+    assert rows == []
 
 
 def test_no_third_party_source_determines_holder_economics():
@@ -122,11 +140,20 @@ def test_source_selection_declares_independence_from_outcomes():
 
 # --- R7 · B0.2 CA semantics untouched -----------------------------------------
 
-def test_frozen_merger_requirements_are_unchanged():
-    assert ca.REQUIRED_FIELDS["merger"] == (
+def test_the_holder_side_leg_keeps_the_frozen_requirements():
+    """R3: the requirements did not relax, they moved to the leg that owns them."""
+    assert ca.REQUIRED_FIELDS["holder_side_security_conversion"] == (
         "successor_security_id", "stock_ratio", "credit_tradable_date")
-    assert "merger" in ca.IDENTITY_CHANGING_KINDS
-    assert "merger" in ca.holder_affecting_kinds()
+    assert ca.IDENTITY_CHANGING_KINDS == ("holder_side_security_conversion",)
+    assert "holder_side_security_conversion" in ca.holder_affecting_kinds()
+
+
+def test_issuer_side_issuance_is_not_holder_affecting():
+    """R2: this is the whole repair."""
+    for k in ("issuer_side_merger_share_issuance",
+              "issuer_side_share_conversion_issuance"):
+        assert k not in ca.holder_affecting_kinds()
+        assert k not in ca.IDENTITY_CHANGING_KINDS
 
 
 def test_exposure_semantics_are_untouched():
@@ -141,12 +168,12 @@ def test_exposure_semantics_are_untouched():
     assert st.active_exposure_projection("2014-11-28") == (sp,)
 
 
-def test_a_genuinely_exposed_unresolved_merger_still_aborts():
-    """R10: fail-loud is preserved, not quietly relaxed by the repair."""
+def test_a_genuinely_exposed_unresolved_conversion_still_aborts():
+    """R9/R10: fail-loud is preserved, not quietly relaxed by the repair."""
     from core.b0_state import HoldingSpell, PortfolioState
 
-    ev = ca.CorporateActionEvent("4123", "merger", "2014-11-14",
-                                 ca.NOT_RECONSTRUCTIBLE, "unit test")
+    ev = ca.CorporateActionEvent("4123", "holder_side_security_conversion",
+                                 "2014-11-14", ca.NOT_RECONSTRUCTIBLE, "unit test")
     st = PortfolioState(as_of="2014-11-28", cash=0.0, shares={"4123": 1044},
                         pending_exit={},
                         holding_spells=(HoldingSpell("4123", "2014-08-01"),))
@@ -154,11 +181,11 @@ def test_a_genuinely_exposed_unresolved_merger_still_aborts():
     assert [e.stock_id for e in hit] == ["4123"]
 
 
-def test_an_unexposed_unresolved_merger_does_not_abort():
+def test_an_unexposed_unresolved_conversion_does_not_abort():
     from core.b0_state import HoldingSpell, PortfolioState
 
-    ev = ca.CorporateActionEvent("4123", "merger", "2014-11-14",
-                                 ca.NOT_RECONSTRUCTIBLE, "unit test")
+    ev = ca.CorporateActionEvent("4123", "holder_side_security_conversion",
+                                 "2014-11-14", ca.NOT_RECONSTRUCTIBLE, "unit test")
     st = PortfolioState(as_of="2014-11-28", cash=0.0, shares={"2330": 100},
                         pending_exit={},
                         holding_spells=(HoldingSpell("2330", "2014-08-01"),))
@@ -167,19 +194,123 @@ def test_an_unexposed_unresolved_merger_does_not_abort():
 
 # --- R12 · the semantics question is registered, not decided ------------------
 
-def test_the_semantics_question_is_an_open_m3_and_blocks_the_repair():
-    assert "merger_holder_side_leg_semantics" in fin.open_keys()
-    blocked = {i.key for i in fin.items_blocking("B0_3_data_repair")}
-    assert "merger_holder_side_leg_semantics" in blocked
-    with pytest.raises(fin.FinalizationBlocked):
-        fin.assert_not_blocked("B0_3_data_repair")
+def test_the_semantics_question_was_ruled_and_the_repair_is_unblocked():
+    """It was filed rather than taken, then ruled, then implemented."""
+    assert "merger_holder_side_leg_semantics" not in fin.open_keys()
+    fin.assert_not_blocked("B0_3_data_repair")
+    src = open(fin.__file__, encoding="utf-8").read()
+    assert "merger_holder_side_leg_semantics -> M-3 ruling" in src
 
 
-def test_the_m3_names_the_share_conversion_blast_radius():
-    """33 share_conversion events carry the identical frozen requirement."""
+def test_the_ruling_reached_the_share_conversion_population_too():
+    """The 33 con3 events were re-audited from source lineage, not by name."""
     a = _audit()
     assert a["share_conversion_same_signature"] == 33
-    item = [i for i in fin.FINALIZATION_ITEMS
-            if i.key == "merger_holder_side_leg_semantics"][0]
-    assert "share_conversion" in item.measured
-    assert len(item.options) >= 3
+    rows = [r for r in csv.DictReader(open(LEDGER, encoding="utf-8"))
+            if r["source_field"] == "股份轉換(仟股"]
+    assert len(rows) == 33
+
+
+# --- R8 · survivor holdings regression (must not mention any security id) -----
+
+def _state(sid, shares, as_of="2020-02-28", start="2020-01-02"):
+    from core.b0_state import HoldingSpell, PortfolioState
+    return PortfolioState(as_of=as_of, cash=0.0, shares={sid: shares},
+                          pending_exit={},
+                          holding_spells=(HoldingSpell(sid, start),))
+
+
+def test_r8_holding_the_survivor_is_untouched_by_its_own_merger_issuance():
+    """B0 holds S; tr_fg1 says S issued shares because D merged into S.
+    Expected: shares unchanged, no claim, no conversion, no abort."""
+    survivor = "S0001"
+    ev = ca.classify("issuer_side_merger_share_issuance",
+                     {"stock_id": survivor, "effective_date": "2020-01-06"})
+    assert ev.reconstructibility == ca.NOT_APPLICABLE
+
+    st = _state(survivor, 1000)
+    # not holder-affecting, so it is not even in the engine's event population
+    assert "issuer_side_merger_share_issuance" not in ca.holder_affecting_kinds()
+    # and it can never raise an exposure abort
+    assert ca.exposed_unreconstructible_events([ev], st, as_of="2020-02-28") == []
+
+    result = ca.transition_portfolio(st, [ev], as_of="2020-02-28",
+                                     sessions=("2020-01-06", "2020-02-28"),
+                                     period="2020-02")
+    assert dict(result.state.shares) == {survivor: 1000}
+    assert result.state.security_receivables == ()
+    assert result.state.cash_receivables == ()
+    assert result.state.stock_dividend_receivable == {}
+
+
+def test_r8_same_for_issuer_side_share_conversion_issuance():
+    issuer = "S0002"
+    ev = ca.classify("issuer_side_share_conversion_issuance",
+                     {"stock_id": issuer, "effective_date": "2020-01-06"})
+    assert ev.reconstructibility == ca.NOT_APPLICABLE
+    st = _state(issuer, 500)
+    result = ca.transition_portfolio(st, [ev], as_of="2020-02-28",
+                                     sessions=("2020-01-06", "2020-02-28"),
+                                     period="2020-02")
+    assert dict(result.state.shares) == {issuer: 500}
+
+
+# --- R9 · disappearing holder regression --------------------------------------
+
+def test_r9_disappearing_holder_with_authoritative_terms_converts_once():
+    from fractions import Fraction
+    disappearing, successor = "D0001", "S0003"
+    ev = ca.classify("holder_side_security_conversion", {
+        "stock_id": disappearing, "effective_date": "2020-01-06",
+        "successor_security_id": successor, "stock_ratio": Fraction(1, 2),
+        "credit_tradable_date": "2020-01-09"})
+    assert ev.reconstructibility == ca.RECONSTRUCTIBLE
+
+    st = _state(disappearing, 1000)
+    result = ca.transition_portfolio(
+        st, [ev], as_of="2020-02-28",
+        sessions=("2020-01-06", "2020-01-09", "2020-02-28"), period="2020-02")
+    assert dict(result.state.shares).get(disappearing, 0) == 0
+    assert result.state.applied_ca_event_ids
+    # applying the same event again is refused, so the conversion is once-only
+    before = dict(result.state.shares)
+    again = ca.transition_portfolio(
+        result.state, [ev], as_of="2020-02-28",
+        sessions=("2020-01-06", "2020-01-09", "2020-02-28"), period="2020-02")
+    assert dict(again.state.shares) == before
+
+
+def test_r9_disappearing_holder_without_terms_stays_unresolved_and_aborts():
+    disappearing = "D0002"
+    ev = ca.classify("holder_side_security_conversion",
+                     {"stock_id": disappearing, "effective_date": "2020-01-06"})
+    assert ev.reconstructibility == ca.NOT_RECONSTRUCTIBLE
+    st = _state(disappearing, 1000)
+    hit = ca.exposed_unreconstructible_events([ev], st, as_of="2020-02-28")
+    assert [e.stock_id for e in hit] == [disappearing]
+    with pytest.raises(ca.CorporateActionReconstructionBlock):
+        ca.transition_portfolio(st, [ev], as_of="2020-02-28",
+                                sessions=("2020-01-06", "2020-02-28"),
+                                period="2020-02")
+
+
+# --- R10 · dilution economics are not synthesised ------------------------------
+
+def test_r10_no_synthetic_dilution_adjustment_is_created():
+    """Reclassifying issuer-side issuance must not invent a portfolio haircut."""
+    from core import b0_share_unit_adjustment as sua
+    for k in ("issuer_side_merger_share_issuance",
+              "issuer_side_share_conversion_issuance"):
+        assert sua.assert_kind_classified(k) == "ineligible"
+        assert k not in sua.ELIGIBLE_KINDS
+    assert sua.assert_kind_classified("holder_side_security_conversion") == \
+        "identity_change"
+
+
+def test_r4_reclassification_is_keyed_on_source_field_not_kind_name():
+    """The ledger carries provenance so a future audit need not trust the name."""
+    rows = list(csv.DictReader(open(LEDGER, encoding="utf-8")))
+    assert "source_field" in rows[0]
+    by_field = {r["source_field"] for r in rows
+                if r["kind"] == "issuer_side_merger_share_issuance"}
+    assert by_field == {"合併(仟股)"}

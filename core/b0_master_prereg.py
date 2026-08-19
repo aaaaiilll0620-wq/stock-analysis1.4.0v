@@ -252,8 +252,10 @@ def assert_decision_inputs_are_prior_session(decision_date: str,
 # if reduction` scatter this clause forbids has already happened.
 CORPORATE_ACTION_ENGINE_MODULE = "core.b0_corporate_actions"
 CORPORATE_ACTION_PRIVATE_SYMBOLS: tuple[str, ...] = (
-    "handle_stock_dividend", "handle_capital_reduction", "handle_merger",
-    "handle_share_conversion", "handle_par_value_change",
+    "handle_stock_dividend", "handle_capital_reduction",
+    "handle_issuer_side_merger_share_issuance",
+    "handle_issuer_side_share_conversion_issuance",
+    "handle_holder_side_security_conversion", "handle_par_value_change",
     "handle_cash_capital_increase", "HANDLER_FUNCS",
 )
 

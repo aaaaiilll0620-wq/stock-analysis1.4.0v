@@ -106,10 +106,34 @@ EVENT_KINDS: tuple[EventKind, ...] = (
               "receivable shares credited at 上市日/發放日"),
     EventKind("capital_reduction", "減資(仟股)", True, True, False,
               "shares cancelled; may return cash per share"),
-    EventKind("merger", "合併(仟股)", True, False, True,
-              "recorded on the surviving/issuing entity only"),
-    EventKind("share_conversion", "股份轉換(仟股", True, False, True,
-              "holding-company swap, recorded on the new entity only"),
+    # B0.3 · R1/R2/R5. These two were the conflation. The source export is a
+    # PER-SECURITY share-formation table -- one row per 證券代碼 + 年月日, carrying
+    # that security's own 總股數(仟股) and the deltas that compose it -- so
+    # 合併(仟股) (tr_fg1) and 股份轉換(仟股 (con3) are shares THIS security
+    # ISSUED because another company disappeared into it. For a holder of the
+    # surviving/issuing security that is capital formation, not a conversion:
+    # the share count is untouched and the dilution is already in the price,
+    # exactly as for 証券轉換_可轉債 and 現金增資 below.
+    #
+    # Modelling them as holder-side identity changes is what made every one of
+    # them demand a successor security and a ratio the issuer-side row never
+    # had, and what aborted the B0.2 replay on a security B0 held as SURVIVOR.
+    EventKind("issuer_side_merger_share_issuance", "合併(仟股)", False, False, False,
+              "shares issued by the surviving company because another company "
+              "merged into it; a holder of the survivor is diluted, not converted"),
+    EventKind("issuer_side_share_conversion_issuance", "股份轉換(仟股", False, False,
+              False,
+              "shares issued by this company for a share conversion; issuer-side "
+              "capital formation unless provenance proves the row is the "
+              "disappearing-security leg"),
+    # R3. The holder-side leg is a DIFFERENT event on a DIFFERENT security -- the
+    # one that disappears. It is declared here so the model can express it and so
+    # a genuinely exposed holder still fails loud; the corpus carries no such
+    # rows today, and none may be synthesised (R6/R7).
+    EventKind("holder_side_security_conversion", "<disappearing-security lineage>",
+              True, True, True,
+              "the disappearing security converts into a successor; requires the "
+              "conversion terms and is NOT_RECONSTRUCTIBLE without them"),
     EventKind("par_value_change", "變更股票面額股數(仟股)", True, False, False,
               "share count scales by old_par/new_par; no P&L"),
     EventKind("cash_capital_increase", "現金增資(仟股)", False, False, False,
@@ -434,12 +458,56 @@ def _identity_change_unobservable(kind: str, rec: Mapping[str, object]) -> Corpo
         "cannot be rebuilt")
 
 
-def handle_merger(rec: Mapping[str, object]) -> CorporateActionEvent:
-    return _identity_change_unobservable("merger", rec)
+def _issuer_side_share_issuance(kind: str, rec: Mapping[str, object],
+                                note: str) -> CorporateActionEvent:
+    """B0.3 · R2/R5. Issuer-side capital formation. Our shares do not move.
+
+    Deliberately the same shape as the convertible-bond and cash-increase
+    handlers, because it is the same economics: the issuer's total share count
+    changed, ours did not, and the dilution is in the price.
+    """
+    sid = str(rec.get("stock_id", ""))
+    eff = _d(rec.get("effective_date")) or _d(rec.get("ex_right_date")) or ""
+    return CorporateActionEvent(sid, kind, eff, NOT_APPLICABLE, note)
 
 
-def handle_share_conversion(rec: Mapping[str, object]) -> CorporateActionEvent:
-    return _identity_change_unobservable("share_conversion", rec)
+def handle_issuer_side_merger_share_issuance(
+        rec: Mapping[str, object]) -> CorporateActionEvent:
+    return _issuer_side_share_issuance(
+        "issuer_side_merger_share_issuance", rec,
+        "issuer-side only: shares issued by the surviving company on a merger; "
+        "the holder of the survivor is diluted, not converted")
+
+
+def handle_issuer_side_share_conversion_issuance(
+        rec: Mapping[str, object]) -> CorporateActionEvent:
+    return _issuer_side_share_issuance(
+        "issuer_side_share_conversion_issuance", rec,
+        "issuer-side only: shares issued by this company for a share conversion")
+
+
+def handle_holder_side_security_conversion(
+        rec: Mapping[str, object]) -> CorporateActionEvent:
+    """R3/R7. Terms or nothing -- and nothing means fail loud, not a guess."""
+    sid = str(rec.get("stock_id", ""))
+    eff = _d(rec.get("effective_date")) or _d(rec.get("ex_right_date")) or ""
+    successor = str(rec.get("successor_security_id", "") or "").strip()
+    ratio = rec.get("stock_ratio")
+    credit = _d(rec.get("credit_tradable_date"))
+    if successor and ratio and credit:
+        return CorporateActionEvent(
+            sid, "holder_side_security_conversion", eff, RECONSTRUCTIBLE,
+            successor_security_id=successor, stock_ratio=ratio,
+            credit_tradable_date=credit,
+            cash_per_share=rec.get("cash_per_share") or None)
+    return CorporateActionEvent(
+        sid, "holder_side_security_conversion", eff, NOT_RECONSTRUCTIBLE,
+        "the disappearing security's conversion terms are not authoritatively "
+        "determined; R7 forbids inferring them from issued-share counts, prices, "
+        "market capitalisation, NAV continuity or holdings")
+
+
+
 
 
 PAR_RECONCILE_TOL = 0.001        # share counts are reported in whole 仟股
@@ -494,8 +562,10 @@ def handle_cash_capital_increase(rec: Mapping[str, object]) -> CorporateActionEv
 HANDLER_FUNCS = {
     "stock_dividend": handle_stock_dividend,
     "capital_reduction": handle_capital_reduction,
-    "merger": handle_merger,
-    "share_conversion": handle_share_conversion,
+    "issuer_side_merger_share_issuance": handle_issuer_side_merger_share_issuance,
+    "issuer_side_share_conversion_issuance":
+        handle_issuer_side_share_conversion_issuance,
+    "holder_side_security_conversion": handle_holder_side_security_conversion,
     "par_value_change": handle_par_value_change,
     "cash_capital_increase": handle_cash_capital_increase,
 }
@@ -579,7 +649,7 @@ class CorporateActionReconstructionBlock(CorporateActionError):
         self.detail = dict(detail)
 
 
-IDENTITY_CHANGING_KINDS: tuple[str, ...] = ("merger", "share_conversion")
+IDENTITY_CHANGING_KINDS: tuple[str, ...] = ("holder_side_security_conversion",)
 SAME_SECURITY_SHARE_KINDS: tuple[str, ...] = (
     "stock_dividend", "capital_reduction", "par_value_change")
 
@@ -623,8 +693,9 @@ class CorporateActionTransitionResult:
 REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
     "stock_dividend": ("stock_ratio", "credit_tradable_date"),
     "capital_reduction": ("share_multiplier",),
-    "merger": ("successor_security_id", "stock_ratio", "credit_tradable_date"),
-    "share_conversion": ("successor_security_id", "stock_ratio",
+    "holder_side_security_conversion": ("successor_security_id", "stock_ratio",
+                                       "credit_tradable_date"),
+    "_retired_share_conversion": ("successor_security_id", "stock_ratio",
                          "credit_tradable_date"),
     "par_value_change": ("share_multiplier",),
 }
@@ -650,8 +721,9 @@ def is_exposed(state, event: "CorporateActionEvent", *, as_of: str) -> bool:
 REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
     "stock_dividend": ("stock_ratio", "credit_tradable_date"),
     "capital_reduction": ("share_multiplier",),
-    "merger": ("successor_security_id", "stock_ratio", "credit_tradable_date"),
-    "share_conversion": ("successor_security_id", "stock_ratio",
+    "holder_side_security_conversion": ("successor_security_id", "stock_ratio",
+                                       "credit_tradable_date"),
+    "_retired_share_conversion": ("successor_security_id", "stock_ratio",
                          "credit_tradable_date"),
     "par_value_change": ("share_multiplier",),
 }

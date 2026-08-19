@@ -48,8 +48,11 @@ _D8 = re.compile(r"^\d{8}$")
 # were seen and judged NOT_APPLICABLE.
 KIND_BY_COLUMN = {
     "減資(仟股)": "capital_reduction",
-    "合併(仟股)": "merger",
-    "股份轉換(仟股": "share_conversion",
+    # B0.3 R2/R4: keyed on the SOURCE COLUMN, which is the immutable provenance.
+    # This export is a per-security share-formation table, so 合併(仟股) on a row
+    # is that security's OWN issuance -- issuer-side, never the holder leg.
+    "合併(仟股)": "issuer_side_merger_share_issuance",
+    "股份轉換(仟股": "issuer_side_share_conversion_issuance",
     "變更股票面額股數(仟股)": "par_value_change",
     "現金增資(仟股)": "cash_capital_increase",
     "証券轉換_可轉債(仟股)": "convertible_bond_conversion",
@@ -192,15 +195,21 @@ def main():
     reasons = Counter(e.reason for e in in_win if e.reconstructibility == NOT_RECONSTRUCTIBLE)
 
     os.makedirs(OUT_DIR, exist_ok=True)
-    cols = ["stock_id", "kind", "ex_or_effective_date", "reconstructibility", "reason",
+    cols = ["stock_id", "kind", "source_field", "ex_or_effective_date", "reconstructibility", "reason",
             "credit_tradable_date", "new_shares_thousands", "share_multiplier",
             "cash_per_share", "cash_payment_date", "zero_day_receivable"]
     with open(OUT_LEDGER, "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols)
         w.writeheader()
+        # B0.3 R4: the source column travels with the event, so a later audit
+        # can be run on PROVENANCE rather than on the canonical kind name --
+        # which is precisely the shortcut that produced the conflation.
+        from core.b0_corporate_actions import EVENT_KIND_BY_KEY
         for e in sorted(events, key=lambda x: (x.ex_or_effective_date, x.stock_id, x.kind)):
-            w.writerow({c: getattr(e, c if c != "ex_or_effective_date"
-                                   else "ex_or_effective_date") for c in cols})
+            row = {c: getattr(e, c) for c in cols if c != "source_field"}
+            ek = EVENT_KIND_BY_KEY.get(e.kind)
+            row["source_field"] = ek.source_column if ek else ""
+            w.writerow(row)
 
     # The V-1b blocking requirement reads the stock-dividend view specifically.
     sd_cols = ["stock_id", "ex_right_date", "distribution_ratio_or_new_shares",

@@ -127,8 +127,8 @@ def test_identity_change_ends_the_old_identity_and_never_splices(kind):
     assert dict(r2.state.shares) == {"9999": 1500}
 
 
-def test_merger_cash_only():
-    ev = _ev("merger", "2020-01-06", successor_security_id="9999",
+def test_holder_side_conversion_cash_only():
+    ev = _ev("holder_side_security_conversion", "2020-01-06", successor_security_id="9999",
              stock_ratio=Fraction(0), credit_tradable_date="2020-01-09",
              cash_per_share=15.0, cash_payment_date="2020-01-15")
     r = _run(_p(), [ev], "2020-01-06")
@@ -138,8 +138,8 @@ def test_merger_cash_only():
     assert r.state.cash == 10_000.0
 
 
-def test_merger_mixed_consideration():
-    ev = _ev("merger", "2020-01-06", successor_security_id="9999",
+def test_holder_side_conversion_mixed_consideration():
+    ev = _ev("holder_side_security_conversion", "2020-01-06", successor_security_id="9999",
              stock_ratio=Fraction(1, 2), credit_tradable_date="2020-01-09",
              cash_per_share=5.0, cash_payment_date="2020-01-15")
     r = _run(_p(), [ev], "2020-01-06")
@@ -226,7 +226,7 @@ def test_an_event_is_applied_exactly_once():
 def test_same_day_non_commuting_events_without_a_sequence_block():
     a = _ev("stock_dividend", "2020-01-06", stock_ratio=Fraction(1, 10),
             credit_tradable_date="2020-01-09")
-    b = _ev("merger", "2020-01-06", successor_security_id="9999",
+    b = _ev("holder_side_security_conversion", "2020-01-06", successor_security_id="9999",
             stock_ratio=Fraction(1), credit_tradable_date="2020-01-09")
     with pytest.raises(CorporateActionReconstructionBlock, match="causal sequence"):
         _run(_p(), [a, b], "2020-01-06")
@@ -355,7 +355,7 @@ def test_every_transition_writes_a_complete_audit_row():
 def test_an_unmarkable_successor_receivable_fails_closed():
     from core.b0_state import MarketSnapshot, SourceAttestation, mark_portfolio
 
-    ev = _ev("merger", "2020-01-06", successor_security_id="9999",
+    ev = _ev("holder_side_security_conversion", "2020-01-06", successor_security_id="9999",
              stock_ratio=Fraction(1), credit_tradable_date="2020-01-09")
     st = _run(_p(), [ev], "2020-01-06").state
     att = SourceAttestation("t", "x" * 64, True, True, (), True)
