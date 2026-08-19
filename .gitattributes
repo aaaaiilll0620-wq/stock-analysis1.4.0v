@@ -41,6 +41,7 @@
 # style change -- it would silently invalidate the pins on the next clone and
 # make the record unverifiable. Preservation outranks the LF house style here.
 research/b0_1_diagnostic/terminal_provenance/**  -text
+research/b0_2_diagnostic/terminal_provenance/**  -text
 
 # --- Windows script hosts require CRLF at execution time ---------------------
 # Still deterministic: the repository stores LF, and the working-tree ending is

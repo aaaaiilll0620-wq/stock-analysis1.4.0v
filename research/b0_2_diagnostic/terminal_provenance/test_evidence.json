@@ -1,0 +1,14 @@
+{
+ "command": "python -m pytest -q",
+ "commit_sha": "992ed1c1068ae174845906014f9528cbac42eef0",
+ "errors": 0,
+ "failed": 0,
+ "interpreter": "C:/Users/aaaai/AppData/Local/Microsoft/WindowsApps/python.exe (3.12.10, pytest 9.1.1)",
+ "log": "pytest_992ed1c1.log",
+ "log_sha256": "66eef4d05e2c9eb136ecfa94ea16a10aec8e4470115311a7d4220f17f90d89f5",
+ "passed": 2363,
+ "record": "B0_2_DIAGNOSTIC_TEST_EVIDENCE",
+ "skipped": 3,
+ "summary": "2363 passed, 3 skipped, 2 warnings in 63.77s (0:01:03)",
+ "tree_state_at_run": "clean except the untracked B0.2 harness"
+}
