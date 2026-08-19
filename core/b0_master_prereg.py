@@ -442,6 +442,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_share_unit_adjustment as sua
     from core import b0_bonus_share_source as bsrc
     from core import b0_opening_state as opn
+    from core import b0_corporate_actions as ca
     from core import b0_valuation_source as vsrc
     prereg_modules = NORMATIVE_MODULES
     from core import b0_pit_observability as pit
@@ -548,6 +549,27 @@ def _spec_registry() -> dict[str, Any]:
         "opening_state_economic_fields": opn.PORTFOLIO_ECONOMIC_FIELDS,
         "opening_state_permitted_date_fields":
             opn.PERMITTED_DATE_METADATA_FIELDS,
+        # v1.20 - C-54 - the corporate-action STATE TRANSITION. The v1.19
+        # baseline declared five holder-affecting kinds and shipped only
+        # their classifiers; a classification is not a transition, and the
+        # gap was a silent NAV error waiting for the first sealed run.
+        "ca_transition_authority": "core.b0_corporate_actions",
+        "ca_holder_affecting_kinds": ca.holder_affecting_kinds(),
+        "ca_identity_changing_kinds": ca.IDENTITY_CHANGING_KINDS,
+        "ca_same_security_share_kinds": ca.SAME_SECURITY_SHARE_KINDS,
+        "ca_required_transition_fields": {
+            k: v for k, v in sorted(ca.REQUIRED_FIELDS.items())},
+        "ca_state_dimensions": (
+            "tradable_positions", "available_cash",
+            "security_receivables", "cash_receivables",
+            "pending_exits", "applied_corporate_action_event_ids"),
+        "ca_owned_tradable_spendable_distinct": True,
+        "ca_valuation_basis": "RAW_OBSERVED",
+        "ca_fractional_entitlement_policy": "retain_as_non_tradable_claim",
+        "ca_rounding_at_transition_allowed": False,
+        "ca_nearest_date_event_ordering_allowed": False,
+        "ca_invariants": tuple("I-CA-%02d" % i for i in range(1, 16)),
+        "ca_failure_classes": ("F-CA-A", "F-CA-B", "F-CA-C"),
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,

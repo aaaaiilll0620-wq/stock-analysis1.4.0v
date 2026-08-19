@@ -23,7 +23,7 @@
  ],
  "full_decision_input": {
   "canonical_opening_state_sha256": "3290cd81491d58dd692901e81bc89f37645e2546feaacd2125419473cdcd5cb3",
-  "full_decision_input_sha256": "4b808ebd9df63da071666d5195ed22a0a336ecabe88773b48e21a459c82dadb4",
+  "full_decision_input_sha256": "e8253fc095e150765cc9e693b2257507e744774feb6cf7817a7be722b0bd669c",
   "period_1_as_of": "2014-07-30",
   "period_1_decision_date": "2014-07-31",
   "periods_deferred": 140,
@@ -48,7 +48,7 @@
   ]
  },
  "performance_computed": false,
- "provenance_note": "the period-1 full-input hash moved from e8c3157a to 4b808ebd solely because the source attestation binds the frozen spec hash, which changed with Master v1.19. No economic quantity moved: the 141 market-side state hashes and their composed hash bbe3d06d are unchanged, and the opening state's economic fields are pinned identical by the C-53 invariant.",
+ "provenance_note": "the period-1 full-input hash tracks the frozen spec hash through its source attestation; it moved with Master v1.20. The 141 market-side state hashes and their composed hash bbe3d06d are unchanged, because the market-side payload carries no provenance metadata.",
  "sealed_inputs": {
   "bonus_share_panel": "3b311238f121247572d84e5d1eb915d5b3538972509581fcedaffdfaa17155bb",
   "financials_pit": "1d0c39d1b3eedd601df03fa0210c2a80e9f1253e7e39a0bb8c37db118733b8d6",

@@ -237,6 +237,78 @@ class MarketSnapshot:
             ) from None
 
 
+# --- §6.1.4 · dated claims ------------------------------------------------------
+# The distinction the whole corporate-action transition turns on:
+#
+#     owned  !=  tradable  !=  spendable
+#
+# A stock-dividend entitlement is owned from the ex-right session and tradable
+# only from the credit date. A capital-reduction refund is owned from the
+# effective date and spendable only from the payment date. Collapsing either
+# pair lets execution sell shares nobody holds yet or spend cash nobody has
+# received, and both look like ordinary fills in a receipt.
+
+@dataclass(frozen=True)
+class SecurityReceivable:
+    """§6.1.4: a security claim that is owned but not yet tradable.
+
+    `shares` is a Fraction, not an int. §6.1.9 forbids rounding at the transition
+    stage, because a rounded entitlement is an entitlement that silently ceased
+    to exist; the integral part becomes tradable at release and any remainder
+    stays a claim until official settlement semantics can be reconstructed.
+    """
+    security_id: str
+    shares: object                     # fractions.Fraction, kept exact
+    credit_tradable_date: str
+    event_id: str
+    source_security_id: str = ""       # set when identity changed (merger etc.)
+
+    def __post_init__(self) -> None:
+        from fractions import Fraction
+
+        if not str(self.security_id).strip():
+            raise CoreStateError("SecurityReceivable.security_id is required")
+        if not isinstance(self.shares, Fraction):
+            raise CoreStateError(
+                f"§6.1.9: SecurityReceivable.shares must be an exact Fraction, "
+                f"got {type(self.shares).__name__}. A float entitlement is a "
+                f"rounding decision taken where none is authorised.")
+        if self.shares <= 0:
+            raise CoreStateError(
+                f"SecurityReceivable[{self.security_id}] = {self.shares} must be "
+                f"a positive claim")
+        if not str(self.credit_tradable_date).strip():
+            raise CoreStateError(
+                f"§6.1.5: SecurityReceivable[{self.security_id}] has no "
+                f"credit_tradable_date; when it becomes tradable is not "
+                f"inferable from when it was created.")
+        if not str(self.event_id).strip():
+            raise CoreStateError(
+                "I-CA-03: a security receivable must name the event that created "
+                "it, or the shares are untraceable")
+
+
+@dataclass(frozen=True)
+class CashReceivable:
+    """§6.1.4: a fixed cash claim, owned but not yet spendable."""
+    amount: float
+    cash_available_date: str
+    event_id: str
+    source_security_id: str = ""
+
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.amount) or self.amount <= 0:
+            raise CoreStateError(
+                f"CashReceivable amount {self.amount!r} must be finite and > 0")
+        if not str(self.cash_available_date).strip():
+            raise CoreStateError(
+                "§6.1.5: a cash receivable has no cash_available_date; when it "
+                "becomes spendable is not inferable from when it was created.")
+        if not str(self.event_id).strip():
+            raise CoreStateError(
+                "I-CA-04: a cash receivable must name the event that created it")
+
+
 # --- portfolio state ----------------------------------------------------------
 
 @dataclass(frozen=True)
@@ -246,6 +318,12 @@ class PortfolioState:
     `pending_exit` names positions whose exit is incomplete (§6.4). They are a
     subset of `shares`, not a separate pool: the shares are still held, still
     counted in port_value, and their unrealised proceeds are not available cash.
+
+    §6.1.4 adds the three fields a corporate-action transition needs and that a
+    plain share ledger cannot express: dated security claims, dated cash claims,
+    and the exactly-once ledger of events already applied. `cash` remains
+    AVAILABLE cash — the quantity execution may spend — and `shares` remains
+    TRADABLE shares.
     """
     as_of: str
     cash: float
@@ -253,6 +331,16 @@ class PortfolioState:
     pending_exit: Mapping[str, int] = field(default_factory=dict)
     cash_dividend_receivable: float = 0.0          # V-1a, credited at payment_date
     stock_dividend_receivable: Mapping[str, int] = field(default_factory=dict)
+    # §6.1.4
+    security_receivables: tuple = ()               # tuple[SecurityReceivable, ...]
+    cash_receivables: tuple = ()                   # tuple[CashReceivable, ...]
+    applied_ca_event_ids: frozenset = frozenset()  # I-CA-01, exactly-once ledger
+    # §6.1.10. A full-exit obligation that survived an event which left the
+    # position non-tradable (a merger successor, an uncredited stock dividend).
+    # It cannot live in `pending_exit`, which is defined over shares actually
+    # held; dropping it instead would let a corporate action quietly resurrect a
+    # position B0 had already decided to exit.
+    pending_exit_on_receivable: frozenset = frozenset()
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.cash):
@@ -282,14 +370,48 @@ class PortfolioState:
                 raise CoreStateError(
                     f"stock_dividend_receivable[{sid}] = {n!r} must be a positive "
                     f"share count")
+        for r in self.security_receivables:
+            if not isinstance(r, SecurityReceivable):
+                raise CoreStateError(
+                    f"§6.1.4: security_receivables must hold SecurityReceivable, "
+                    f"got {type(r).__name__}")
+        for r in self.cash_receivables:
+            if not isinstance(r, CashReceivable):
+                raise CoreStateError(
+                    f"§6.1.4: cash_receivables must hold CashReceivable, got "
+                    f"{type(r).__name__}")
 
     @property
     def held_securities(self) -> tuple[str, ...]:
-        return tuple(sorted(set(self.shares) | set(self.stock_dividend_receivable)))
+        """Every security B0 has an economic claim on, tradable or not.
+
+        I-CA-08 marks over this set, so a successor security received in a merger
+        is inside it from the moment the claim exists — otherwise the interval
+        between the merger and the credit date would silently drop out of NAV.
+        """
+        return tuple(sorted(
+            set(self.shares) | set(self.stock_dividend_receivable)
+            | {r.security_id for r in self.security_receivables}))
 
     def tradable_shares(self, stock_id: str) -> int:
         """V-1b: receivable shares are NOT sellable before they are credited."""
         return int(self.shares.get(stock_id, 0))
+
+    def spendable_cash(self) -> float:
+        """§6.1.4: cash receivables are owned; they are not spendable."""
+        return float(self.cash)
+
+    @property
+    def entitlement_securities(self) -> tuple[str, ...]:
+        """Securities on which a holder-affecting event would touch us (§6.1.12)."""
+        return tuple(sorted(
+            set(self.shares) | set(self.stock_dividend_receivable)
+            | {r.security_id for r in self.security_receivables}
+            | {r.source_security_id for r in self.security_receivables
+               if r.source_security_id}
+            | {r.source_security_id for r in self.cash_receivables
+               if r.source_security_id}
+            | set(self.pending_exit)))
 
 
 # --- portfolio mark (§6.2) ----------------------------------------------------
@@ -347,6 +469,18 @@ def mark_portfolio(portfolio: PortfolioState,
         # V-1b: not yet tradable, but NAV must include it. Excluding it would
         # understate NAV for the whole interval between ex-right and credit.
         receivable += n * snapshot.mark_price(sid)
+    # §6.1.8 / I-CA-08. Same rule, applied to the dated claims a corporate-action
+    # transition creates. `mark_price` fails loud on an unmarkable security, so a
+    # successor received in a merger that has no canonical mark aborts here
+    # rather than being valued at zero.
+    for r in sorted(portfolio.security_receivables,
+                    key=lambda x: (x.security_id, x.credit_tradable_date)):
+        receivable += float(r.shares) * snapshot.mark_price(r.security_id)
+    for r in sorted(portfolio.cash_receivables,
+                    key=lambda x: (x.cash_available_date, x.event_id)):
+        # Face value: a fixed cash claim is not re-priced, and discounting it
+        # would be a valuation model this specification does not carry.
+        receivable += float(r.amount)
 
     stale = tuple(sorted(s for s in held
                          if getattr(by_id.get(s), "stale_mark", False)))

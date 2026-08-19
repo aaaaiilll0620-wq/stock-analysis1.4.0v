@@ -63,6 +63,7 @@ from core import b0_execution as execution
 from core import b0_features as features
 from core.b0_canonical_hash import canonical_sha256, canonicalise
 from core.b0_corporate_actions import (
+    assert_transition_applied,
     CorporateActionEvent,
     Exposure,
     assert_exposure_reconstructible,
@@ -358,6 +359,12 @@ def run_decision(inp: CanonicalDecisionInput, *,
     # --- corporate_action_transition (O-A: mandatory, both guards) --------------
     stages.append("corporate_action_transition")
     assert_exposure_reconstructible(inp.corporate_action_events, inp.exposures)
+    # §6.1.2: the stage is the TRANSITION, not the guards around it. The engine
+    # runs before the input is built, so what is checked here is that it ran —
+    # a classification-only pipeline reaches this line with an untransformed
+    # portfolio and stops, which is the defect this clause exists to catch.
+    assert_transition_applied(inp.portfolio, inp.corporate_action_events,
+                              as_of=inp.as_of)
     # O-F: scoped to EXPOSURE. An unexplained gap in a name B0 does not hold is
     # a diagnostic about an incomplete status source; the same gap in a HELD
     # name is a NAV that cannot be computed, and it aborts here.

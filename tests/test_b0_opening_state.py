@@ -177,7 +177,17 @@ def test_the_lineage_ledger_records_supersession_truthfully():
         entries = [json.loads(l) for l in fh if l.strip()]
     assert entries, "the ledger must not be empty once a seal has been taken"
     assert [e["seq"] for e in entries] == list(range(1, len(entries) + 1))
-    assert sum(1 for e in entries if e["state"] == "CURRENT") == 1
+    # At most one CURRENT. Zero is the correct state between a supersession
+    # (§6.1.19) and the next seal being taken — a chain that always claimed a
+    # current seal would be asserting authority that does not exist yet.
+    assert sum(1 for e in entries if e["state"] == "CURRENT") <= 1
+    for e in entries:
+        if e.get("authorization_status", "").startswith("SUPERSEDED"):
+            assert e["superseded_reason"], (
+                "a withdrawn authorization must say why")
+            assert e["l2_opening_consumed"] is False, (
+                "§6.1.19: a defect-driven supersession does not consume the "
+                "unused L2 opening")
     for e in entries:
         assert e["l2_opened"] is False
         assert "historical_hash_recorded" in e

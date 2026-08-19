@@ -180,6 +180,14 @@ class CorporateActionEvent:
     cash_payment_date: str | None = None
     zero_day_receivable: bool = False
     diagnostics: Mapping[str, object] = field(default_factory=dict)
+    # §6.1.5 · the dates and identities a state transition needs. Defaulted so
+    # that the classification-only call sites that predate §6.1 keep working;
+    # `assert_transition_fields_present` is what makes them mandatory at the
+    # moment a transition is actually attempted on an exposed holding.
+    event_id: str = ""
+    knowledge_ts: str | None = None
+    successor_security_id: str | None = None
+    stock_ratio: object | None = None           # Fraction: new shares per old
 
     def __post_init__(self) -> None:
         if self.reconstructibility not in RECONSTRUCTIBILITY_STATES:
@@ -193,6 +201,22 @@ class CorporateActionEvent:
                 f"reason — an unexplained gap is indistinguishable from an "
                 f"unnoticed event"
             )
+
+    @property
+    def cash_available_date(self) -> str | None:
+        """§6.1.5 name for the date a cash claim becomes spendable."""
+        return self.cash_payment_date
+
+    def canonical_event_id(self) -> str:
+        """Deterministic and stable (I-CA-01/I-CA-12).
+
+        Derived from the event's own identifying facts rather than from a row
+        number or an insertion order, so the same event in a rebuilt corpus is
+        the same event and cannot be applied twice under two names.
+        """
+        if self.event_id:
+            return self.event_id
+        return "%s|%s|%s" % (self.stock_id, self.kind, self.ex_or_effective_date)
 
 
 # --- exposure gate ------------------------------------------------------------
@@ -465,3 +489,784 @@ def assert_no_threshold_policy() -> None:
             "A missing-rate threshold or interpolation would silently rebuild the "
             "very quantity that is missing."
         )
+
+
+# =============================================================================
+# §6.1 · CORPORATE ACTION STATE TRANSITION
+# =============================================================================
+# What was missing, and why its absence was not visible: every handler above
+# returns a CorporateActionEvent — a CLASSIFICATION. Classifying an event is not
+# applying it. A portfolio that went ex-rights yesterday and is marked today on
+# pre-ex share counts produces a NAV that is wrong by exactly the entitlement,
+# and nothing downstream can tell, because the number is well-formed.
+#
+# §6.1.2: this module is the sole dispatch authority. Everything below consumes
+# a PortfolioState and returns a validated transformed PortfolioState, and no
+# other module may branch on `kind`.
+#
+# The three quantities the transition keeps apart (§6.1.4):
+#
+#     owned      an economic claim exists            -> counts in NAV
+#     tradable   execution may sell it               -> counts in `shares`
+#     spendable  execution may fund a buy with it    -> counts in `cash`
+#
+# A stock dividend is owned at the ex-right session and tradable at the credit
+# date. A capital-reduction refund is owned at the effective date and spendable
+# at the payment date. Collapsing either pair lets execution sell shares that do
+# not exist yet or spend money that has not arrived.
+
+from fractions import Fraction                                    # noqa: E402
+
+
+class CorporateActionTransitionError(CorporateActionError):
+    """F-CA-C: an implementation/invariant failure during a transition."""
+
+
+class CorporateActionReconstructionBlock(CorporateActionError):
+    """F-CA-B: a NOT_RECONSTRUCTIBLE event on a holding B0 is exposed to.
+
+    Distinct from `CorporateActionTransitionError` on purpose: one says the data
+    cannot support the transition, the other says the code did the wrong thing.
+    §6.1.14 gives them different formal outcomes and only one of them is ever a
+    legitimate L2 result.
+    """
+
+    def __init__(self, message: str, *, detail: Mapping[str, object]):
+        super().__init__(message)
+        self.detail = dict(detail)
+
+
+IDENTITY_CHANGING_KINDS: tuple[str, ...] = ("merger", "share_conversion")
+SAME_SECURITY_SHARE_KINDS: tuple[str, ...] = (
+    "stock_dividend", "capital_reduction", "par_value_change")
+
+
+@dataclass(frozen=True)
+class TransitionRecord:
+    """§6.1.17 · one immutable audit row per holder-affecting transition."""
+    period: str
+    event_id: str
+    event_kind: str
+    security_id: str
+    successor_security_id: str | None
+    knowledge_ts: str | None
+    effective_date: str
+    credit_tradable_date: str | None
+    cash_available_date: str | None
+    pre_tradable_shares: int
+    post_tradable_shares: int
+    created_security_receivables: tuple
+    released_security_receivables: tuple
+    created_cash_receivables: tuple
+    released_cash: float
+    pending_exit_before: int
+    pending_exit_after: int
+    reconstructibility: str
+    blocking_reason: str | None
+    pre_state_hash: str
+    post_state_hash: str
+    event_source_hash: str
+
+
+@dataclass(frozen=True)
+class CorporateActionTransitionResult:
+    """The validated transformed state, plus everything needed to audit it."""
+    state: object                                  # PortfolioState
+    ledger: tuple                                  # tuple[TransitionRecord, ...]
+    applied_event_ids: tuple
+    skipped_unexposed: tuple                       # NOT_RECONSTRUCTIBLE, no exposure
+
+
+REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
+    "stock_dividend": ("stock_ratio", "credit_tradable_date"),
+    "capital_reduction": ("share_multiplier",),
+    "merger": ("successor_security_id", "stock_ratio", "credit_tradable_date"),
+    "share_conversion": ("successor_security_id", "stock_ratio",
+                         "credit_tradable_date"),
+    "par_value_change": ("share_multiplier",),
+}
+
+
+def assert_transition_fields_present(event: "CorporateActionEvent") -> None:
+    """§6.1.7: a transition may not proceed on a partially specified event.
+
+    Checked at transition time rather than at classification time, because an
+    event nobody is exposed to never needs these fields (§6.1.12).
+    """
+    missing = [f for f in REQUIRED_FIELDS.get(event.kind, ())
+               if getattr(event, f, None) in (None, "")]
+    if event.kind == "capital_reduction" and event.cash_per_share:
+        if not event.cash_available_date:
+            missing.append("cash_available_date")
+    if missing:
+        raise CorporateActionReconstructionBlock(
+            "§6.1.7: %s/%s on %s cannot be transitioned: missing %s"
+            % (event.stock_id, event.kind, event.ex_or_effective_date, missing),
+            detail={"security_id": event.stock_id, "event_kind": event.kind,
+                    "event_id": event.canonical_event_id(),
+                    "effective_date": event.ex_or_effective_date,
+                    "missing_fields": missing})
+
+
+def assert_no_look_ahead(event: "CorporateActionEvent", cutoff: str) -> None:
+    """I-CA-06: a transition may not use information that was not knowable."""
+    if event.knowledge_ts and str(event.knowledge_ts) > str(cutoff):
+        raise CorporateActionTransitionError(
+            "I-CA-06: %s/%s became knowable at %s, after the evaluation cutoff "
+            "%s. Applying it now is look-ahead."
+            % (event.stock_id, event.kind, event.knowledge_ts, cutoff))
+
+
+def is_exposed(state, event: "CorporateActionEvent") -> bool:
+    """§6.1.12: affected economic exposure, not mere existence of the event."""
+    return event.stock_id in set(state.entitlement_securities)
+
+
+def _state_hash(state) -> str:
+    """I-CA-12: byte-equivalent states hash identically."""
+    from core.b0_canonical_hash import canonical_sha256
+
+    return canonical_sha256({
+        "as_of": state.as_of,
+        "cash": state.cash,
+        "shares": dict(sorted(state.shares.items())),
+        "pending_exit": dict(sorted(state.pending_exit.items())),
+        "cash_dividend_receivable": state.cash_dividend_receivable,
+        "stock_dividend_receivable": dict(
+            sorted(state.stock_dividend_receivable.items())),
+        "security_receivables": sorted(
+            [[r.security_id, str(r.shares), r.credit_tradable_date, r.event_id,
+              r.source_security_id] for r in state.security_receivables]),
+        "cash_receivables": sorted(
+            [[r.amount, r.cash_available_date, r.event_id, r.source_security_id]
+             for r in state.cash_receivables]),
+        "applied_ca_event_ids": sorted(state.applied_ca_event_ids),
+        "pending_exit_on_receivable": sorted(state.pending_exit_on_receivable),
+    })
+
+
+def _event_hash(event: "CorporateActionEvent") -> str:
+    from core.b0_canonical_hash import canonical_sha256
+
+    return canonical_sha256([
+        event.stock_id, event.kind, event.ex_or_effective_date,
+        event.reconstructibility, event.credit_tradable_date,
+        str(event.stock_ratio) if event.stock_ratio is not None else None,
+        event.share_multiplier, event.cash_per_share, event.cash_payment_date,
+        event.successor_security_id, event.knowledge_ts,
+    ])
+
+
+def _first_session_on_or_after(date: str, sessions: Sequence[str]) -> str:
+    """§6.1.6: a claim matures on the first eligible portfolio-state timestamp."""
+    for s in sessions:
+        if str(s) >= str(date):
+            return str(s)
+    raise CorporateActionReconstructionBlock(
+        "§6.1.6: no portfolio-state timestamp on or after %s; the release point "
+        "is outside the canonical calendar" % date,
+        detail={"date": date})
+
+
+REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
+    "stock_dividend": ("stock_ratio", "credit_tradable_date"),
+    "capital_reduction": ("share_multiplier",),
+    "merger": ("successor_security_id", "stock_ratio", "credit_tradable_date"),
+    "share_conversion": ("successor_security_id", "stock_ratio",
+                         "credit_tradable_date"),
+    "par_value_change": ("share_multiplier",),
+}
+
+
+def assert_transition_fields_present(event: "CorporateActionEvent") -> None:
+    """§6.1.7: a transition may not proceed on a partially specified event.
+
+    Checked at transition time rather than at classification time, because an
+    event nobody is exposed to never needs these fields (§6.1.12).
+    """
+    missing = [f for f in REQUIRED_FIELDS.get(event.kind, ())
+               if getattr(event, f, None) in (None, "")]
+    if event.kind == "capital_reduction" and event.cash_per_share:
+        if not event.cash_available_date:
+            missing.append("cash_available_date")
+    if missing:
+        raise CorporateActionReconstructionBlock(
+            "§6.1.7: %s/%s on %s cannot be transitioned: missing %s"
+            % (event.stock_id, event.kind, event.ex_or_effective_date, missing),
+            detail={"security_id": event.stock_id, "event_kind": event.kind,
+                    "event_id": event.canonical_event_id(),
+                    "effective_date": event.ex_or_effective_date,
+                    "missing_fields": missing})
+
+
+def assert_no_look_ahead(event: "CorporateActionEvent", cutoff: str) -> None:
+    """I-CA-06: a transition may not use information that was not knowable."""
+    if event.knowledge_ts and str(event.knowledge_ts) > str(cutoff):
+        raise CorporateActionTransitionError(
+            "I-CA-06: %s/%s became knowable at %s, after the evaluation cutoff "
+            "%s. Applying it now is look-ahead."
+            % (event.stock_id, event.kind, event.knowledge_ts, cutoff))
+
+
+def is_exposed(state, event: "CorporateActionEvent") -> bool:
+    """§6.1.12: affected economic exposure, not mere existence of the event."""
+    return event.stock_id in set(state.entitlement_securities)
+
+
+def _state_hash(state) -> str:
+    """I-CA-12: byte-equivalent states hash identically."""
+    from core.b0_canonical_hash import canonical_sha256
+
+    return canonical_sha256({
+        "as_of": state.as_of,
+        "cash": state.cash,
+        "shares": dict(sorted(state.shares.items())),
+        "pending_exit": dict(sorted(state.pending_exit.items())),
+        "cash_dividend_receivable": state.cash_dividend_receivable,
+        "stock_dividend_receivable": dict(
+            sorted(state.stock_dividend_receivable.items())),
+        "security_receivables": sorted(
+            [[r.security_id, str(r.shares), r.credit_tradable_date, r.event_id,
+              r.source_security_id] for r in state.security_receivables]),
+        "cash_receivables": sorted(
+            [[r.amount, r.cash_available_date, r.event_id, r.source_security_id]
+             for r in state.cash_receivables]),
+        "applied_ca_event_ids": sorted(state.applied_ca_event_ids),
+        "pending_exit_on_receivable": sorted(state.pending_exit_on_receivable),
+    })
+
+
+def _event_hash(event: "CorporateActionEvent") -> str:
+    from core.b0_canonical_hash import canonical_sha256
+
+    return canonical_sha256([
+        event.stock_id, event.kind, event.ex_or_effective_date,
+        event.reconstructibility, event.credit_tradable_date,
+        str(event.stock_ratio) if event.stock_ratio is not None else None,
+        event.share_multiplier, event.cash_per_share, event.cash_payment_date,
+        event.successor_security_id, event.knowledge_ts,
+    ])
+
+
+def _first_session_on_or_after(date: str, sessions: Sequence[str]) -> str:
+    """§6.1.6: a claim matures on the first eligible portfolio-state timestamp."""
+    for s in sessions:
+        if str(s) >= str(date):
+            return str(s)
+    raise CorporateActionReconstructionBlock(
+        "§6.1.6: no portfolio-state timestamp on or after %s; the release point "
+        "is outside the canonical calendar" % date,
+        detail={"date": date})
+
+
+# --- §6.1.6 step 1/3 - releasing matured claims --------------------------------
+
+def _release_matured(state, as_of: str):
+    """Security claims that became tradable and cash claims that became spendable.
+
+    §6.1.9: only the INTEGRAL part of a claim can become a tradable share. Any
+    remainder stays a claim rather than being rounded away - a rounded
+    entitlement is an entitlement that silently ceased to exist.
+    """
+    from core.b0_state import PortfolioState, SecurityReceivable
+
+    shares = dict(state.shares)
+    pending = dict(state.pending_exit)
+    on_recv = set(state.pending_exit_on_receivable)
+    kept_sec, released_sec = [], []
+    for r in state.security_receivables:
+        if str(r.credit_tradable_date) > str(as_of):
+            kept_sec.append(r)
+            continue
+        whole = int(r.shares)
+        rest = r.shares - whole
+        if whole:
+            shares[r.security_id] = shares.get(r.security_id, 0) + whole
+            released_sec.append((r.security_id, whole, r.event_id))
+            # §6.1.10: an exit obligation carried on the claim becomes a real
+            # pending exit the moment the shares exist.
+            if r.security_id in on_recv:
+                pending[r.security_id] = shares[r.security_id]
+        if rest > 0:
+            # The remainder is still owned. It is not tradable and it is not
+            # discarded; it stays until official settlement semantics exist.
+            kept_sec.append(SecurityReceivable(
+                security_id=r.security_id, shares=rest,
+                credit_tradable_date=r.credit_tradable_date,
+                event_id=r.event_id, source_security_id=r.source_security_id))
+        elif whole and r.security_id in on_recv:
+            on_recv.discard(r.security_id)
+
+    cash = float(state.cash)
+    kept_cash, released_cash = [], 0.0
+    for r in state.cash_receivables:
+        if str(r.cash_available_date) > str(as_of):
+            kept_cash.append(r)
+        else:
+            cash += float(r.amount)
+            released_cash += float(r.amount)
+
+    new = PortfolioState(
+        as_of=state.as_of, cash=cash, shares=shares, pending_exit=pending,
+        cash_dividend_receivable=state.cash_dividend_receivable,
+        stock_dividend_receivable=dict(state.stock_dividend_receivable),
+        security_receivables=tuple(kept_sec), cash_receivables=tuple(kept_cash),
+        applied_ca_event_ids=frozenset(state.applied_ca_event_ids),
+        pending_exit_on_receivable=frozenset(on_recv))
+    return new, tuple(released_sec), released_cash
+
+
+# --- §6.1.7 - the transition table ---------------------------------------------
+
+def _apply_one(state, event: "CorporateActionEvent", as_of: str,
+               sessions: Sequence[str]):
+    """One holder-affecting event -> transformed state + audit fields.
+
+    Atomic (I-CA-13): the new state is constructed in full and validated by
+    PortfolioState.__post_init__ before it is returned. Nothing is mutated in
+    place, so a raise leaves the caller holding the pre-state.
+    """
+    from core.b0_state import CashReceivable, PortfolioState, SecurityReceivable
+
+    kind = event.kind
+    sid = event.stock_id
+    eid = event.canonical_event_id()
+    pre_shares = int(state.shares.get(sid, 0))
+    pre_pending = int(state.pending_exit.get(sid, 0))
+
+    shares = dict(state.shares)
+    pending = dict(state.pending_exit)
+    on_recv = set(state.pending_exit_on_receivable)
+    sec_recv = list(state.security_receivables)
+    cash_recv = list(state.cash_receivables)
+    created_sec, created_cash = [], []
+
+    # Entitlement-bearing shares: what an event acts on. Uncredited claims on the
+    # SAME security are entitlement-bearing too, which is what makes a chained
+    # event apply to the whole holding rather than to the credited part of it.
+    same_claims = sum((r.shares for r in sec_recv if r.security_id == sid),
+                      Fraction(0))
+    entitlement = Fraction(pre_shares) + same_claims
+    full_exit = pre_shares > 0 and pre_pending == pre_shares
+
+    if kind == "stock_dividend":
+        ratio = Fraction(event.stock_ratio)
+        new_claim = entitlement * ratio
+        if new_claim > 0:
+            credit = _first_session_on_or_after(
+                event.credit_tradable_date, sessions)
+            sec_recv.append(SecurityReceivable(
+                security_id=sid, shares=new_claim, credit_tradable_date=credit,
+                event_id=eid))
+            created_sec.append((sid, str(new_claim), credit))
+            # §6.1.10: a position already under a full-exit obligation does not
+            # get a new permanent holding out of a stock dividend.
+            if full_exit:
+                on_recv.add(sid)
+
+    elif kind in ("capital_reduction", "par_value_change"):
+        m = Fraction(str(event.share_multiplier))
+        post = int(Fraction(pre_shares) * m)
+        frac = Fraction(pre_shares) * m - post
+        shares.pop(sid, None)
+        if post > 0:
+            shares[sid] = post
+        # uncredited claims on the same security scale by the same multiplier
+        sec_recv = [SecurityReceivable(
+                        security_id=r.security_id, shares=r.shares * m,
+                        credit_tradable_date=r.credit_tradable_date,
+                        event_id=r.event_id,
+                        source_security_id=r.source_security_id)
+                    if r.security_id == sid else r
+                    for r in sec_recv]
+        if frac > 0:
+            sec_recv.append(SecurityReceivable(
+                security_id=sid, shares=frac,
+                credit_tradable_date=str(as_of), event_id=eid))
+            created_sec.append((sid, str(frac), str(as_of)))
+        if kind == "capital_reduction" and event.cash_per_share:
+            amount = float(entitlement) * float(event.cash_per_share)
+            if amount > 0:
+                avail = _first_session_on_or_after(
+                    event.cash_available_date, sessions)
+                cash_recv.append(CashReceivable(
+                    amount=amount, cash_available_date=avail, event_id=eid,
+                    source_security_id=sid))
+                created_cash.append((amount, avail))
+        # §6.1.10: the exit obligation scales with the surviving shares.
+        pending.pop(sid, None)
+        if pre_pending and post > 0:
+            pending[sid] = post if full_exit else min(
+                post, max(1, int(Fraction(pre_pending) * m)))
+
+    elif kind in IDENTITY_CHANGING_KINDS:
+        successor = str(event.successor_security_id)
+        ratio = Fraction(event.stock_ratio)
+        # I-CA-07: the old identity ends here. No splice, no alias.
+        shares.pop(sid, None)
+        pending.pop(sid, None)
+        on_recv.discard(sid)
+        sec_recv = [r for r in sec_recv if r.security_id != sid]
+        new_claim = entitlement * ratio
+        if new_claim > 0:
+            credit = _first_session_on_or_after(
+                event.credit_tradable_date, sessions)
+            sec_recv.append(SecurityReceivable(
+                security_id=successor, shares=new_claim,
+                credit_tradable_date=credit, event_id=eid,
+                source_security_id=sid))
+            created_sec.append((successor, str(new_claim), credit))
+            if full_exit:
+                on_recv.add(successor)
+        if event.cash_per_share:
+            amount = float(entitlement) * float(event.cash_per_share)
+            if amount > 0:
+                avail = _first_session_on_or_after(
+                    event.cash_available_date or event.ex_or_effective_date,
+                    sessions)
+                cash_recv.append(CashReceivable(
+                    amount=amount, cash_available_date=avail, event_id=eid,
+                    source_security_id=sid))
+                created_cash.append((amount, avail))
+    else:
+        raise CorporateActionTransitionError(
+            "§6.1.2: %r reached the transition engine but is not a "
+            "holder-affecting kind" % kind)
+
+    new = PortfolioState(
+        as_of=state.as_of, cash=state.cash, shares=shares, pending_exit=pending,
+        cash_dividend_receivable=state.cash_dividend_receivable,
+        stock_dividend_receivable=dict(state.stock_dividend_receivable),
+        security_receivables=tuple(sec_recv), cash_receivables=tuple(cash_recv),
+        applied_ca_event_ids=frozenset(state.applied_ca_event_ids) | {eid},
+        pending_exit_on_receivable=frozenset(on_recv))
+    target = event.successor_security_id or sid
+    return new, {
+        "pre_tradable_shares": pre_shares,
+        "post_tradable_shares": int(new.shares.get(target, 0)),
+        "created_security_receivables": tuple(created_sec),
+        "created_cash_receivables": tuple(created_cash),
+        "pending_exit_before": pre_pending,
+        "pending_exit_after": int(new.pending_exit.get(target, 0)),
+    }
+
+
+# --- §6.1.13 - the mandatory invariants ----------------------------------------
+
+def assert_transition_invariants(pre, post, events, *, as_of: str,
+                                 applied: Sequence[str]) -> None:
+    """I-CA-01 .. I-CA-15, all of them, before mark_portfolio may run.
+
+    They are checked on the RESULT rather than asserted by construction: a
+    transition that produced an impossible state has to be caught by something
+    that did not also produce it.
+    """
+    from core.b0_state import CashReceivable, SecurityReceivable
+
+    # I-CA-01 exactly once
+    if len(set(applied)) != len(applied):
+        raise CorporateActionTransitionError(
+            "I-CA-01: an event was applied more than once: %s" % sorted(applied))
+    already = set(pre.applied_ca_event_ids) & set(applied)
+    if already:
+        raise CorporateActionTransitionError(
+            "I-CA-01: %s were already in the applied ledger" % sorted(already))
+
+    # I-CA-02 no stale exposure
+    for ev in events:
+        if ev.kind in IDENTITY_CHANGING_KINDS and ev.stock_id in post.shares:
+            raise CorporateActionTransitionError(
+                "I-CA-02/I-CA-07: %s still holds tradable shares of %s after a "
+                "%s" % (post.as_of, ev.stock_id, ev.kind))
+
+    # I-CA-03 no free shares / I-CA-04 no free cash
+    known = set(pre.applied_ca_event_ids) | set(applied)
+    for r in post.security_receivables:
+        if r.event_id not in known and r not in pre.security_receivables:
+            raise CorporateActionTransitionError(
+                "I-CA-03: security receivable %s traces to no applied event"
+                % (r.security_id,))
+    for r in post.cash_receivables:
+        if r.event_id not in known and r not in pre.cash_receivables:
+            raise CorporateActionTransitionError(
+                "I-CA-04: cash receivable of %s traces to no applied event"
+                % (r.amount,))
+
+    # I-CA-05 receivable separation
+    for r in post.security_receivables:
+        if str(r.credit_tradable_date) <= str(as_of):
+            if r.shares >= 1:
+                raise CorporateActionTransitionError(
+                    "I-CA-05: %s carries a matured whole-share claim that was "
+                    "not released into tradable shares" % r.security_id)
+    for r in post.cash_receivables:
+        if str(r.cash_available_date) <= str(as_of):
+            raise CorporateActionTransitionError(
+                "I-CA-05: a matured cash receivable was not released into "
+                "available cash")
+
+    # I-CA-06 no look-ahead
+    for ev in events:
+        assert_no_look_ahead(ev, as_of)
+
+    # I-CA-09 execution eligibility: a claim is never a tradable share
+    claim_ids = {r.security_id for r in post.security_receivables}
+    for sid in claim_ids:
+        held = int(post.shares.get(sid, 0))
+        claimed = sum((r.shares for r in post.security_receivables
+                       if r.security_id == sid), Fraction(0))
+        if claimed <= 0:
+            raise CorporateActionTransitionError(
+                "I-CA-09: non-positive claim recorded for %s" % sid)
+        del held
+
+    # I-CA-10 pending-exit continuity
+    for ev in events:
+        if ev.stock_id in pre.pending_exit and ev.kind in IDENTITY_CHANGING_KINDS:
+            successor = ev.successor_security_id
+            carried = (successor in post.pending_exit
+                       or successor in post.pending_exit_on_receivable)
+            if not carried:
+                raise CorporateActionTransitionError(
+                    "I-CA-10: the exit obligation on %s vanished across a %s"
+                    % (ev.stock_id, ev.kind))
+
+    # I-CA-14 flag conformance
+    for ev in events:
+        spec_kind = EVENT_KIND_BY_KEY[ev.kind]
+        if spec_kind.changes_our_shares:
+            moved = (dict(post.shares) != dict(pre.shares)
+                     or post.security_receivables != pre.security_receivables)
+            if not moved:
+                raise CorporateActionTransitionError(
+                    "I-CA-14: %s declares changes_our_shares=True but the "
+                    "transition of %s produced no share-state effect. A handler "
+                    "that can no-op is a silent NAV error."
+                    % (ev.kind, ev.stock_id))
+        if spec_kind.changes_our_cash and ev.cash_per_share:
+            moved = (post.cash != pre.cash
+                     or post.cash_receivables != pre.cash_receivables)
+            if not moved:
+                raise CorporateActionTransitionError(
+                    "I-CA-14: %s on %s declares cash consideration but produced "
+                    "no cash effect" % (ev.kind, ev.stock_id))
+
+    # structural: the state validated itself on construction (I-CA-13 atomicity)
+    if not isinstance(post.applied_ca_event_ids, frozenset):
+        raise CorporateActionTransitionError(
+            "I-CA-01: the applied-event ledger must be an immutable set")
+
+
+def assert_no_adjusted_price_double_count(valuation_basis: str) -> None:
+    """I-CA-15: shares were adjusted explicitly, so prices must not be again."""
+    if valuation_basis != "RAW_OBSERVED":
+        raise CorporateActionTransitionError(
+            "I-CA-15: portfolio state has been explicitly transitioned for "
+            "corporate actions, so valuation must use raw observed prices; "
+            "%r would compensate for the same event twice." % valuation_basis)
+
+
+# --- §6.1.11 - ordering of multiple same-day events ----------------------------
+
+def _order_same_day(events: Sequence["CorporateActionEvent"]):
+    """Deterministic causal order, or NOT_RECONSTRUCTIBLE.
+
+    §6.1.11 forbids deciding economic causality by alphabetical kind, event id or
+    row order. Where a source states a sequence it is used; where the events
+    commute the order cannot matter; otherwise the ambiguity is real and is
+    reported as such.
+    """
+    by_day = {}
+    for ev in events:
+        by_day.setdefault((ev.stock_id, ev.ex_or_effective_date), []).append(ev)
+    ordered = []
+    for key in sorted(by_day):
+        group = by_day[key]
+        if len(group) == 1:
+            ordered.extend(group)
+            continue
+        seqs = [ev.diagnostics.get("event_sequence") for ev in group]
+        if all(s is not None for s in seqs) and len(set(seqs)) == len(seqs):
+            ordered.extend(sorted(group,
+                                  key=lambda e: e.diagnostics["event_sequence"]))
+            continue
+        kinds = {ev.kind for ev in group}
+        # Two same-security share multipliers commute; anything involving an
+        # identity change or a cash leg does not.
+        commutes = kinds <= {"par_value_change", "capital_reduction"} and not any(
+            ev.cash_per_share for ev in group)
+        if commutes:
+            ordered.extend(sorted(group, key=lambda e: e.kind))
+            continue
+        raise CorporateActionReconstructionBlock(
+            "§6.1.11: %s has %d non-commuting holder-affecting events on %s with "
+            "no source-provided causal sequence" % (key[0], len(group), key[1]),
+            detail={"security_id": key[0], "effective_date": key[1],
+                    "event_kinds": sorted(kinds),
+                    "missing_fields": ["event_sequence"]})
+    return tuple(ordered)
+
+
+# --- §6.1.6 - the canonical intra-period transition ----------------------------
+
+def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
+                         as_of: str, sessions: Sequence[str],
+                         period: str = "") -> "CorporateActionTransitionResult":
+    """PortfolioState[t-1] + today's events -> validated PortfolioState[t].
+
+    The order in §6.1.6 is not a style choice. Releasing matured claims first is
+    what lets a stock dividend credited today be sold today; applying events
+    before the mark is what stops a post-ex holding being valued on pre-ex share
+    counts; validating before returning is what makes a wrong transition an abort
+    rather than a number.
+    """
+    from core.b0_state import PortfolioState
+
+    pre = state
+    pre_hash = _state_hash(pre)
+
+    # 1. release claims created in earlier periods that matured on or before today
+    work, released_sec, released_cash = _release_matured(pre, as_of)
+
+    # 2. apply today's effective holder-affecting events
+    todays = [e for e in events
+              if e.kind in holder_affecting_kinds()
+              and str(e.ex_or_effective_date) <= str(as_of)
+              and e.canonical_event_id() not in pre.applied_ca_event_ids]
+    ledger, applied, skipped = [], [], []
+    for ev in _order_same_day(todays):
+        exposed = is_exposed(work, ev)
+        if ev.reconstructibility == NOT_RECONSTRUCTIBLE:
+            # §6.1.12: existence is not the blocking condition; exposure is.
+            if not exposed:
+                skipped.append(ev.canonical_event_id())
+                continue
+            raise CorporateActionReconstructionBlock(
+                "§6.1.12: %s/%s on %s is NOT_RECONSTRUCTIBLE and B0 is exposed "
+                "(%s)" % (ev.stock_id, ev.kind, ev.ex_or_effective_date, ev.reason),
+                detail={"security_id": ev.stock_id, "event_kind": ev.kind,
+                        "event_id": ev.canonical_event_id(),
+                        "effective_date": ev.ex_or_effective_date,
+                        "exposure": {
+                            "tradable_shares": int(work.shares.get(ev.stock_id, 0)),
+                            "pending_exit": int(
+                                work.pending_exit.get(ev.stock_id, 0)),
+                            "claims": [str(r.shares) for r in
+                                       work.security_receivables
+                                       if r.security_id == ev.stock_id]},
+                        "missing_fields": [ev.reason],
+                        "pre_state_hash": pre_hash,
+                        "last_valid_state_hash": _state_hash(work)})
+        if not exposed:
+            skipped.append(ev.canonical_event_id())
+            continue
+        assert_no_look_ahead(ev, as_of)
+        assert_transition_fields_present(ev)
+        before = work
+        work, audit = _apply_one(work, ev, as_of, sessions)
+        applied.append(ev.canonical_event_id())
+        ledger.append(TransitionRecord(
+            period=period or as_of,
+            event_id=ev.canonical_event_id(), event_kind=ev.kind,
+            security_id=ev.stock_id,
+            successor_security_id=ev.successor_security_id,
+            knowledge_ts=ev.knowledge_ts,
+            effective_date=ev.ex_or_effective_date,
+            credit_tradable_date=ev.credit_tradable_date,
+            cash_available_date=ev.cash_available_date,
+            created_security_receivables=audit["created_security_receivables"],
+            released_security_receivables=(),
+            created_cash_receivables=audit["created_cash_receivables"],
+            released_cash=0.0,
+            pre_tradable_shares=audit["pre_tradable_shares"],
+            post_tradable_shares=audit["post_tradable_shares"],
+            pending_exit_before=audit["pending_exit_before"],
+            pending_exit_after=audit["pending_exit_after"],
+            reconstructibility=ev.reconstructibility,
+            blocking_reason=None,
+            pre_state_hash=_state_hash(before),
+            post_state_hash=_state_hash(work),
+            event_source_hash=_event_hash(ev)))
+
+    # 3. release claims this step created that mature today (zero-day, §6.1.7A)
+    work, zero_day_sec, zero_day_cash = _release_matured(work, as_of)
+
+    # 5. invariants, on the result
+    assert_transition_invariants(pre, work, [e for e in _order_same_day(todays)
+                                             if e.canonical_event_id() in applied],
+                                 as_of=as_of, applied=applied)
+
+    if ledger:
+        first = ledger[0]
+        ledger[0] = TransitionRecord(
+            **{**first.__dict__,
+               "released_security_receivables": released_sec + zero_day_sec,
+               "released_cash": released_cash + zero_day_cash})
+    elif released_sec or released_cash:
+        ledger.append(TransitionRecord(
+            period=period or as_of, event_id="", event_kind="release_only",
+            security_id="", successor_security_id=None, knowledge_ts=None,
+            effective_date=as_of, credit_tradable_date=None,
+            cash_available_date=None, pre_tradable_shares=0,
+            post_tradable_shares=0,
+            created_security_receivables=(), released_security_receivables=(
+                released_sec + zero_day_sec),
+            created_cash_receivables=(), released_cash=(
+                released_cash + zero_day_cash),
+            pending_exit_before=0, pending_exit_after=0,
+            reconstructibility=NOT_APPLICABLE, blocking_reason=None,
+            pre_state_hash=pre_hash, post_state_hash=_state_hash(work),
+            event_source_hash=""))
+
+    return CorporateActionTransitionResult(
+        state=work, ledger=tuple(ledger), applied_event_ids=tuple(applied),
+        skipped_unexposed=tuple(skipped))
+
+
+def redate(state, as_of: str):
+    """Carry a validated state to the next decision point.
+
+    Only the timestamp moves. It is separate from `transition_portfolio` because
+    moving a date and changing an economic quantity are different acts, and C-53
+    forbids the second one being smuggled inside the first.
+    """
+    from core.b0_state import PortfolioState
+
+    return PortfolioState(
+        as_of=str(as_of), cash=state.cash, shares=dict(state.shares),
+        pending_exit=dict(state.pending_exit),
+        cash_dividend_receivable=state.cash_dividend_receivable,
+        stock_dividend_receivable=dict(state.stock_dividend_receivable),
+        security_receivables=tuple(state.security_receivables),
+        cash_receivables=tuple(state.cash_receivables),
+        applied_ca_event_ids=frozenset(state.applied_ca_event_ids),
+        pending_exit_on_receivable=frozenset(state.pending_exit_on_receivable))
+
+
+def assert_transition_applied(state, events, *, as_of: str) -> None:
+    """§6.1.2 / I-CA-02: the state reaching the mark must already be transformed.
+
+    This is what makes `corporate_action_transition` a stage rather than a label.
+    A caller that skipped the engine arrives here holding a portfolio whose
+    entitlement-bearing securities have effective events not in the applied
+    ledger, and the run stops before any NAV exists.
+    """
+    exposed = set(state.entitlement_securities)
+    outstanding = []
+    for ev in events:
+        if ev.kind not in holder_affecting_kinds():
+            continue
+        if str(ev.ex_or_effective_date) > str(as_of):
+            continue
+        if ev.stock_id not in exposed:
+            continue
+        if ev.canonical_event_id() in state.applied_ca_event_ids:
+            continue
+        outstanding.append("%s/%s@%s" % (ev.stock_id, ev.kind,
+                                         ev.ex_or_effective_date))
+    if outstanding:
+        raise CorporateActionTransitionError(
+            "§6.1.1: %d holder-affecting event(s) are effective on or before %s "
+            "on securities B0 is exposed to, and were never applied: %s. Marking "
+            "now would value a post-event holding on pre-event share counts."
+            % (len(outstanding), as_of, outstanding[:5]))

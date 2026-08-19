@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.19（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**）
+**版本:** 1.20（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**；**v1.20 = §6.1 全面改寫並新增 §6.1.1~§6.1.19 與 Annex CA-A：corporate action state transition 由「分類」升格為「狀態轉換」，凍結 owned / tradable / spendable 三分、五種 holder-affecting 事件的轉換表、receivable 到期語義、pending-exit 繼承、I-CA-01~I-CA-15 不變量與 F-CA-A/B/C 失敗分類法；`core.b0_corporate_actions` 取得 PortfolioState 轉換能力，`core.b0_state` 新增有到期日的 claim。舊 Baseline Seal 5fef4104 與 bound commit a0241f3d 標記 SUPERSEDED：C-54**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -602,7 +602,7 @@ order_delta_i      = target_shares_i − current_shares_i
 
 ## §6 Execution（規範性）
 
-### 6.1 **M-1 · Canonical pipeline order（本次凍結新增）**
+### 6.1.0 M-1 · Canonical pipeline order（v1.0 凍結，v1.20 移入 §6.1 之下）
 
 ```
 pit_raw_state
@@ -647,6 +647,355 @@ portfolio state → corporate_action_engine → validated transformed state → 
 只有 `core.b0_corporate_actions` 可以 dispatch on event kind；其餘 stage 一律消費**已轉換且已驗證**的 state。機械強制：`assert_no_scattered_dispatch()`，並對實際 `core/b0_*.py` 模組做 AST 檢查。
 
 **日內更細的事件順序若日後需要，由 execution spec 另定 —— 但不得等到回測時才決定（§1.5）。**
+
+---
+
+### 6.1 Corporate Action State Transition
+
+> **Status: NORMATIVE / FROZEN AFTER SEAL.**
+> 本節定義 canonical portfolio pipeline 中 holder-affecting corporate actions 的
+> **唯一合法狀態轉換語義**。一旦進入 Baseline Seal，不得於 sealed run、L2 opening、
+> execution、valuation 或 result interpretation 階段修改、補充、例外化，
+> 或以 runner-local logic 替代。
+
+#### §6.1.1 Governing principle
+
+Corporate action **不得**只被視為分類資訊、價格調整資訊或 execution-time 特例。
+
+任何會改變投資組合所擁有之 tradable shares、non-tradable security entitlement、
+available cash、cash entitlement、security identity、pending exit obligation 之
+corporate action，**MUST** 在 portfolio valuation、decision 與 execution 之前完成
+state transition。
+
+Canonical causal chain：
+
+```
+PortfolioState[t-1]
+    ↓ release matured pre-existing receivables
+    ↓ corporate_action_engine
+validated transformed PortfolioState[t]
+    ↓ mark_portfolio → decision → execution
+post-execution PortfolioState[t]
+```
+
+**禁止**：old PortfolioState → mark / decision / execution → 事後才發現 corporate action。
+亦禁止以除權、減資、換股或合併前之持股數量，去 mark 已發生 corporate action 後的價格。
+此行為屬 **silent NAV error**，不得產生任何可解讀之 performance result。
+
+#### §6.1.2 Sole authority and architecture
+
+dispatch authority 唯一屬於 `core.b0_corporate_actions`。任何 runner / execution /
+valuation / portfolio / backtest loop / special-case patch **MUST NOT** dispatch on kind。
+`assert_no_scattered_dispatch` 維持為 blocking invariant。
+
+模組必須具備**兩個**概念層次：
+
+```
+normalize / classify   raw event      → CorporateActionEvent
+state transition       PortfolioState + CorporateActionEvent
+                                      → CorporateActionTransitionResult
+                                      → transformed PortfolioState
+```
+
+**只有 `classify()` / `handle_*()` 而只回傳 `CorporateActionEvent`、未改變 portfolio
+state，不構成符合本節的 engine implementation。** 任何
+`changes_our_shares == True` 或 `changes_our_cash == True` 的 EventKind，
+若其 handler 最終可走到 no-op state transition，即為 **conformance failure**（I-CA-14）。
+
+#### §6.1.3 Holder-affecting event scope
+
+凍結五種：`stock_dividend`、`capital_reduction`、`merger`、`share_conversion`、
+`par_value_change`。五種皆 `changes_our_shares = True`；
+`capital_reduction` / `merger` / `share_conversion` 的 `changes_our_cash` 由 event terms 決定。
+本節**不**重新裁定 ordinary cash dividend 或其他已凍結語義；未列於上述五種之事件
+不得因本節而新增 state semantics。
+
+#### §6.1.4 Canonical PortfolioState
+
+MUST 能表示六者：`tradable_positions`、`available_cash`、`security_receivables`、
+`cash_receivables`、`pending_exits`、`applied_corporate_action_event_ids`。
+
+**Critical distinction —— 三者不得混為一談：**
+
+```
+owned      經濟上擁有          → 計入 NAV
+tradable   execution 可賣出    → 計入 shares
+spendable  execution 可用以買進 → 計入 cash
+```
+
+配股 receivable 可以是 `owned=True, tradable=False`；減資退款可以是
+`owned=True, spendable=False`。在轉為 tradable / spendable 之前：
+security receivable **MUST NOT** 被 execution 賣出、cash receivable **MUST NOT**
+被 execution 使用；兩者若可合法 mark，**MUST** 納入 NAV。
+
+#### §6.1.5 Canonical dates and PIT semantics
+
+每個影響 PortfolioState 的 normalized event MUST 能提供或明確推導：
+`knowledge_ts`、`effective_date`、`credit_tradable_date`（若有 security entitlement）、
+`cash_available_date`（若有 cash entitlement）。
+
+- `knowledge_ts` 晚於當期 cutoff 者不得用於 retroactive transition（I-CA-06）。
+- `effective_date` 為 economic claim 改變之日。
+- `credit_tradable_date` 為 security receivable 首次成為 executable tradable position 之日。
+  **股票權利在 ex-right date 出現，不代表立即成為 tradable shares。**
+- `cash_available_date` 為 cash receivable 首次可供 execution 使用之日。
+- `zero_day_receivable = True` 僅當 canonical source 明確證明
+  `effective_date == credit_tradable_date` 且該 security 於 canonical execution point
+  已可合法交易。**不得因缺 credit date 而自行推定 zero-day。**
+
+#### §6.1.6 Intra-period transition order
+
+每一 canonical period 於 mark / decision / execution 之前 MUST 依序：
+
+```
+1 release 先前 periods 建立、今日成熟之 receivables
+2 apply 今日 effective 的 holder-affecting events
+3 release 本步建立且 zero_day 之 claims
+4 transform / reconcile pending_exits
+5 run reconstructibility 與 state invariants
+6 produce validated transformed state
+7 mark_portfolio → 8 decision → 9 execution
+```
+
+日期落於非 canonical trading session 者，release point 為
+**first eligible portfolio-state timestamp on or after the stated date**。
+
+#### §6.1.7 Transition table
+
+**A. stock_dividend** — 設 `Q` = 轉換前 entitlement-bearing shares、`r` = 每股新股數。
+於 `effective_date`：tradable 維持 `Q`，另建立 `Q × r` 之 **non-tradable security receivable**。
+新配股**不得**於 ex-right date 自動塞入 tradable position；直至 `credit_tradable_date`
+才 `security_receivable → tradable_positions`。`zero_day_receivable == True` 時
+仍須依序 ledger（create receivable → same-day release），**不得略過 receivable state**。
+`zero_day == False` 且 credit-tradable 語義不可重建 → 有 exposure 時 W-1 block。
+
+**B. capital_reduction** — 設 `Q`、`m` = 每股存續股數、`c` = 每股退款。
+於 `effective_date`：`post shares = Q × m`，原股數立即停止作為 exposure。
+若有退款：`cash_receivable += Q × c`，**立即屬於 NAV economic claim，但 available_cash 不得增加**；
+僅於 `cash_available_date` 才轉入 available cash。
+**禁止：減資 effective date → 立即把未收到的退款拿去買股票。**
+宣告 `changes_our_cash=True` 但金額或到期日不可 PIT 重建者，有 exposure 時 MUST block。
+
+**C. merger** — identity transition。設 `Q`、`S_old`、`S_new`、`r`、`c`（optional）。
+`tradable_position[S_old] = 0`，建立 `security_receivable[S_new] += Q × r`，
+若適用另建 `cash_receivable += Q × c`。
+`S_old` 與 `S_new` **MUST** 視為不同 identity：禁止 price-series splice、
+禁止以 adjustment factor 假裝延續 —— 與 C-50/R5 一致：
+**價格序列不得因換股而人工續接；portfolio claim 必須透過 state transition 轉移。**
+successor 僅於 `credit_tradable_date` 後成為 tradable，cash 僅於 `cash_available_date` 後可用。
+
+**D. share_conversion** — 與 merger 相同的 identity-transition 架構。
+必要條款至少：old identity、successor identity、conversion ratio、`effective_date`、
+`credit_tradable_date`、`knowledge_ts`。任一不可唯一重建且有 exposure → MUST block。
+**不得**以 price adjustment 或 security-id alias 取代 state transition。
+
+**E. par_value_change** — identity 未變者：`share multiplier = P_old / P_new`，
+`Q_new = Q × P_old / P_new`，於 effective date 更新。
+**不得因「總經濟價值應差不多」而留下原股數不動。**
+若同時伴隨 identity change，MUST 改走 share_conversion semantics。
+`old par` / `new par` / `effective date` 任一不可重建且有 exposure → MUST block。
+
+#### §6.1.8 Receivable valuation
+
+engine 顯式處理股數後，valuation **MUST** 使用 canonical raw / unadjusted price；
+不得同時調整股數又使用 corporate-action-adjusted price（**double adjustment**，I-CA-15）。
+
+security receivable 的合法 valuation 僅允許：(1) 該 receivable security 自身之
+canonical PIT market mark；(2) 交易所／發行人官方公布且 PIT-known 之 corporate-action
+reference mark。**不得**使用 future price、backfilled successor price、model-imputed price、
+old-security splice、post-hoc optimization。
+successor receivable 若無合法 mark 亦無 official PIT-known reference value，
+則為 **UNMARKABLE**，有 exposure 時 MUST fail closed。
+cash receivable 以 **face value** 計入 NAV，但在 `cash_available_date` 前不得進入 available cash。
+
+#### §6.1.9 Fractional entitlement and rounding
+
+所有 corporate-action arithmetic **MUST** 使用 deterministic high-precision arithmetic。
+state transition 階段**禁止** `round()` / `int()` / lot rounding / nearest-share approximation
+導致權利憑空消失。`economic units` 與 `executable units` 必須分開。
+
+小於 canonical executable unit 之 fractional entitlement **MUST 保留為 non-tradable
+entitlement**，直到官方 settlement semantics 可重建。若官方規則要求 cash-in-lieu，
+則 `fractional security claim → cash receivable`。
+若 fractional settlement 會影響 exposed holding 之 NAV / cash / exit 而 settlement semantics
+無法 reconstruct → **W-1 BLOCK**。不得以 floor-and-discard / ceil / round-to-nearest 讓 run 繼續。
+
+#### §6.1.10 Pending-exit semantics
+
+corporate action **MUST NOT** 使既存退出意圖因 identity 或 share count 改變而消失，
+亦不得把 pre-event absolute order quantity 原封不動送進 execution。
+
+> pending exit 表示 **portfolio target obligation**，而非受 corporate action 凍結前的
+> stale share order。
+
+transition 後 execution quantity MUST 重新由 transformed state 推導。
+same-security share transformation（`capital_reduction` / `par_value_change`）之
+pending exit MUST 依相同 multiplier 轉換。
+stock dividend 下若 position 已存在 full-exit obligation，新 receivable MUST 繼承該義務；
+尚不可交易時 exit remains pending，於首次 tradable canonical execution opportunity 執行 ——
+**不得因 credit delay 而使原本 zero-target position 重新成為永久持倉。**
+merger / share_conversion 下 pending exit MUST 跟隨 economic claim 移轉至 successor。
+任何引用 pre-event identity 或 pre-event quantity 之 live/stale order MUST 被 invalidated 後重建。
+**禁止 synthetic fill。**
+
+#### §6.1.11 Multiple / chained corporate actions
+
+每個 event MUST 有 deterministic stable `event_id`；PortfolioState MUST 保存
+`applied_ca_event_ids`。同一事件 **MUST apply exactly once**，不得因 rerun / reload /
+valuation retry 而重複套用（I-CA-01）。
+
+同一 security 同一天存在多個 non-commutative holder-affecting actions 時，
+僅以下兩種情形可繼續：(A) source 明確提供 causal `event_sequence`；
+(B) engine 可證明 transitions commute。否則 **NOT_RECONSTRUCTIBLE**，有 exposure 時 W-1 block。
+**不得**以 alphabetical kind、event_id 或 database row order 決定經濟因果順序。
+chained identity change（`A → B → C`）必須逐次 security-receivable transition，
+**禁止 A 直接 splice 到 C**。
+
+#### §6.1.12 Reconstructibility and W-1 exposure gate
+
+`NOT_RECONSTRUCTIBLE` event **不自動**使整個 141-period run 失效。真正的 blocking condition 為：
+
+```
+NOT_RECONSTRUCTIBLE  AND  portfolio has affected economic exposure
+```
+
+affected economic exposure 包含 tradable position、security receivable、
+entitlement-bearing claim、unresolved pending-exit claim。
+
+- `NOT_RECONSTRUCTIBLE + zero exposure` → log as irrelevant → continue
+- `NOT_RECONSTRUCTIBLE + nonzero exposure` → **fail closed**
+
+**不得**：偷偷排除該股票、提前賣掉以避開事件、忽略事件、以 adjusted price 補洞、
+把 holding 設為 zero、跳過該 period、carry old shares forward。
+上述任何一項均會改寫 sealed strategy history。
+
+#### §6.1.13 Mandatory invariants
+
+每次 transition 後、`mark_portfolio` 前 MUST 全數驗證：
+
+| # | 不變量 |
+|---|---|
+| I-CA-01 | Exactly once —— `event_id` 不得重複 apply |
+| I-CA-02 | No stale exposure —— 事件生效後不得留下未轉換之 pre-event shares |
+| I-CA-03 | No free shares —— 新增股數必須可追溯到 event_id / ratio / pre-event entitlement |
+| I-CA-04 | No free cash —— 新增 cash / cash receivable 同上 |
+| I-CA-05 | Receivable separation —— `security_receivable != tradable_position`、`cash_receivable != available_cash` |
+| I-CA-06 | No look-ahead —— 不得依賴 `knowledge_ts` 晚於當期 cutoff 之資料 |
+| I-CA-07 | Identity integrity —— merger / share_conversion 不得延續 old identity 或 old price series |
+| I-CA-08 | Mark completeness —— 每一非零 tradable asset / security receivable / cash receivable 必須能合法 mark，否則不得計算 NAV |
+| I-CA-09 | Execution eligibility —— non-tradable entitlement 不得形成 sell fill；non-available cash 不得形成 buy funding |
+| I-CA-10 | Pending-exit continuity —— corporate action 不得無故刪除既存退出義務 |
+| I-CA-11 | No scattered dispatch —— 只有 `core.b0_corporate_actions` 可依 EventKind 決定 transition |
+| I-CA-12 | Determinism —— 相同 pre-state / events / cutoff / calendar 必須產生 byte-equivalent state hash |
+| I-CA-13 | Atomicity —— 一個事件 either fully validates and commits, or commits nothing |
+| I-CA-14 | Flag conformance —— 宣告 `changes_our_shares` / `changes_our_cash` 者，exposed transition 必須產生可驗證之對應效果，不得 no-op |
+| I-CA-15 | No adjusted-price double counting —— 已顯式轉換股數/現金者，valuation 不得再用會重複補償該事件的 adjusted price |
+
+#### §6.1.14 Failure semantics
+
+三種**完全不同**的 failure：
+
+**F-CA-A — PRE-OPEN BASELINE DEFECT.** 例如：mandatory state-transition engine 不存在、
+handler 只有 classification 而無 PortfolioState transition、`changes_our_shares` handler 可 no-op、
+canonical architecture 與 Master 不一致、mandatory conformance test failure。
+分類為 **M-3 / §1.5 baseline implementation defect**。處置：
+**MUST NOT** establish L2 opening record、**MUST NOT** set `l2_opened = true`、
+**MUST NOT** run decision、**MUST NOT** compute performance、
+**MUST NOT** 分類為 `NOT EVALUABLE — DATA RECONSTRUCTION BLOCK`。
+必須 stop → revise Master / implementation → new Baseline Seal → fresh authorization。
+
+**F-CA-B — LEGITIMATE RUNTIME DATA RECONSTRUCTION BLOCK.** 前提：baseline implementation
+conforming、L2 legitimately opened、canonical decision path 產生了實際 exposure；
+之後遇到 `NOT_RECONSTRUCTIBLE + affected exposure > 0`。正式結果為
+**`NOT EVALUABLE — CORPORATE ACTION RECONSTRUCTION BLOCK`**，且 MUST 記錄至少：
+`run_id`、period、`security_id`、`event_id`、`event_kind`、`effective_date`、
+exposure quantity/type、missing/ambiguous required fields、source lineage、
+`pre_state_hash`、`last_valid_state_hash`。
+**不得** retry、替換資料源、改 handler、改 universe 或跳過事件後繼續同一次 sealed run。
+
+**F-CA-C — IMPLEMENTATION / INVARIANT FAILURE AFTER OPEN.** 進入 valid run 後出現
+impossible state、double application、negative unexplained shares、untraceable cash、
+handler no-op、identity splice、non-deterministic transition、atomicity failure 等，
+**不得**標為 data reconstruction block，而應標為
+**`RUN INVALID — IMPLEMENTATION CONFORMANCE FAILURE`**。該 run MUST NOT 產生可解讀之
+performance、MUST NOT 被 tune、MUST NOT 作為 L2 evidence；Baseline Seal 視為未能證明
+implementation conformance。重新開封須先 fix → 必要時新 Master revision → new commit →
+new Baseline Seal → fresh explicit authorization。**本條不自行授予 retry 權。**
+
+#### §6.1.15 Valuation at terminal boundary
+
+window 結束時若存在合法且 reconstructible 之 security / cash receivable，
+**不得**為了讓回測「結清」而使用 window 之後的資料提前 settlement。
+Terminal NAV MUST 包含 tradable positions + markable security receivables +
+cash receivables at face value + available cash。
+terminal receivable 若無法在 terminal cutoff 下合法 mark →
+`NOT EVALUABLE — CORPORATE ACTION RECONSTRUCTION BLOCK`。**不得**以 window 之後價格補值。
+
+#### §6.1.16 Taxes, fees, withholding
+
+本節不建立新的 corporate-action 稅負模型；cash consideration 之 tax / withholding / fees
+由既有 frozen canonical cost/tax semantics 處理，engine **不得**自行新增 ad-hoc tax approximation。
+若 mandatory withholding 會 materially 改變 available cash，而既有 frozen semantics 無法表示
+且 PIT data 亦不足 → 該 event 對 exposed holdings 成為 `NOT_RECONSTRUCTIBLE`。
+
+#### §6.1.17 Required audit ledger
+
+每次 holder-affecting transition MUST 產生 immutable audit record，欄位至少：
+period、event_id、event_kind、security_id、successor_security_id、
+knowledge_ts、effective_date、credit_tradable_date、cash_available_date、
+pre/post tradable shares、created/released security receivables、
+created cash receivables、released cash、pending-exit before/after、
+reconstructibility status、blocking reason、`pre_state_hash`、`post_state_hash`、
+`event_source_hash`。
+相同 baseline/input MUST 重現完全相同的 transition ledger 與 `post_state_hash`。
+**此 ledger 為 L2 provenance 的一部分，不得只留 log text。**
+
+#### §6.1.18 Implementation conformance requirements
+
+Master v1.20 僅在下列全部 PASS 後才能重新建立 Baseline Seal。
+`core.b0_corporate_actions` MUST accept `PortfolioState`、apply 全部五種 holder-affecting
+EventKinds、return transformed `PortfolioState` / `TransitionResult`。
+
+必須具備 deterministic tests：stock dividend normal credit、stock dividend zero-day credit、
+capital reduction shares-only、capital reduction + cash refund、merger share-only、
+merger cash-only、merger mixed consideration、share conversion、par value increase/decrease、
+pending full exit across each share-changing event、same-day receivable maturity、
+multiple ordered events、unheld NOT_RECONSTRUCTIBLE event、held NOT_RECONSTRUCTIBLE event、
+fractional entitlement、duplicate event_id、handler atomic rollback、
+successor security unmarkable、late/non-PIT event information。
+並須驗證 **I-CA-01 … I-CA-15 全部 PASS**。
+
+#### §6.1.19 Seal and L2 reauthorization
+
+Master v1.20 與 conforming implementation 完成後，舊的
+`Master v1.19` / `bound commit a0241f3d` / `Baseline Seal 5fef4104`
+**不再具備下一次 L2 opening 的授權效力**，MUST 保留作 provenance 並標記 **SUPERSEDED**，
+不得刪除、覆寫或假裝未存在。
+
+新程序必須重新完成：Master v1.20 freeze → implementation conformance →
+all baseline verification → 0 OPEN SPEC ITEMS → 0 OPEN FINALIZATION ITEMS →
+clean worktree → new bound commit → new spec hash → new Baseline Seal →
+141/141 market-side state reproducibility → corporate-action conformance preflight →
+**explicit fresh L2 opening authorization**。
+
+在新的 opening record 真正建立以前 `l2_opened` **MUST remain false**。
+**不得因修復 corporate-action engine 而視為已消耗原先未使用之 L2 opening。**
+
+#### Annex CA-A — Normative transition matrix
+
+| Event | effective-date state | 非交易 claim | 何時可交易/可用 | identity | 無法 reconstruct 且有 exposure |
+|---|---|---|---|---|---|
+| `stock_dividend` | 原股保持 `Q` | `Q × r` security receivable | `credit_tradable_date` | same | W-1 block |
+| `capital_reduction` | `Q → Q × m` | cash receivable `Q × c`（若適用） | `cash_available_date` | same | W-1 block |
+| `merger` | old shares → 0 | successor security 與／或 cash receivable | 各自 release date | **changes** | W-1 block |
+| `share_conversion` | old shares → 0 | successor security 與／或 cash receivable | 各自 release date | **changes** | W-1 block |
+| `par_value_change` | `Q → Q × P_old/P_new` | 通常無（僅小數餘額） | 即時（餘額保留為 claim） | same | W-1 block |
+
+> 使用者原文之 Annex 表格在 `par_value_change` 一列於傳輸中截斷；此處的該列內容
+> 依 §6.1.7E 正文（`Q × P_old/P_new`、identity 不變、不可重建且有 exposure 時 W-1 block）
+> 補完，未新增正文以外的語義。
+
+---
 
 ### 6.2 Portfolio mark（G7）
 
