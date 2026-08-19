@@ -42,13 +42,12 @@ SEALED_INPUTS = {
 }
 
 PROVENANCE_NOTE = (
-    "v1.22 M-3 l2_reopening_after_run_invalid closure (R1-R5). This ruling "
+    "v1.23 M-3 condition-2 definition closure (C-57, R1-R6). This ruling "
     "changed NO sealed input content: the composed 141-state hash is unchanged "
-    "at 66640a78, verified by a clean single-writer rebuild whose 141 parquet "
-    "hashes reproduced the previous ones exactly. The period-1 full-input hash "
-    "DID move, because that input binds the Master spec identity and the Master "
-    "moved 1.21 -> 1.22; no market-side or portfolio content changed. Any new "
-    "authorization must bind the values in this receipt."
+    "at 66640a78. The period-1 full-input hash moved again because that input "
+    "binds the Master spec identity and the Master moved 1.22 -> 1.23; no "
+    "market-side or portfolio content changed. Any new authorization must bind "
+    "the values in this receipt."
 )
 
 

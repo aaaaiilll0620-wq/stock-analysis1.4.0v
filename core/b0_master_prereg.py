@@ -570,6 +570,157 @@ NON_CONSUMPTION_CONDITIONS: tuple[str, ...] = (
     "fresh_explicit_authorization_required",
 )
 
+# R1 (v1.23) - condition 2 said "no portfolio / NAV / performance INFORMATION
+# produced or viewed" and never defined `information`, which left two readings
+# that disagree about the run in hand: the file `nav_series.json` exists and
+# holds 141 rows, and every one of those rows is the sealed opening cash with no
+# position. Ruled in favour of the strategy-dependent reading, with the carve-out
+# stated rather than implied.
+CONDITION_2_DEFINITION = (
+    "No strategy-dependent portfolio, NAV, return, performance metric, "
+    "benchmark comparison, or other strategy-outcome information was produced "
+    "or viewed. A deterministic restatement of the sealed opening economic "
+    "state, produced before any effective strategy decision, is not "
+    "strategy-outcome information.")
+
+# R2. An opening-state restatement is admissible ONLY if every recorded row is
+# economically identical to the sealed opening state. Date progression alone
+# does not make a record strategy-dependent.
+OPENING_STATE_RESTATEMENT_REQUIREMENTS: tuple[str, ...] = (
+    "same_cash",
+    "zero_positions",
+    "no_pending_strategy_generated_holdings",
+    "no_target_portfolio",
+    "no_executed_portfolio",
+    "no_strategy_generated_return",
+    "no_benchmark_relative_quantity",
+    "no_performance_metric",
+)
+
+# R3. Any of these makes condition 2 FALSE. This is NOT "a constant NAV means
+# non-consumption": a NAV that is constant at some value the strategy traded its
+# way to is strategy-dependent, which is why the test is equality with the
+# SEALED OPENING cash rather than mere constancy.
+CONDITION_2_NEGATIVE_BOUNDARY: tuple[str, ...] = (
+    "any non-empty strategy portfolio",
+    "any NAV change caused by B0 decisions or execution",
+    "any strategy return",
+    "any target or execution result",
+    "any performance metric",
+    "any benchmark comparison",
+    "any other quantity that could only be known after an effective B0 decision",
+)
+
+# Row keys that can only exist once an effective B0 decision has been taken.
+# Presence alone is disqualifying; the value is not consulted, because a field
+# named `sharpe` set to null is still a record shaped by having looked.
+STRATEGY_OUTCOME_ROW_KEYS: tuple[str, ...] = (
+    "target", "target_portfolio", "executed", "executed_portfolio", "receipt",
+    "trades", "fills", "turnover", "selection", "selection_score", "top20",
+    "ret", "return", "returns", "period_return", "cumulative_return",
+    "cagr", "sharpe", "mdd", "max_drawdown", "benchmark", "excess_return",
+    "alpha", "information_ratio", "win_rate", "ic",
+)
+
+DEFAULT_L2_RUN_DIR = os.path.join(REPO_ROOT, "artifacts", "l2_run")
+
+
+class ConditionTwoContradicted(MasterPreregViolation):
+    """The immutable run artefacts disagree with the attestation."""
+
+
+def verify_opening_state_restatement(
+        run_dir: str = DEFAULT_L2_RUN_DIR,
+        opening_cash: float | None = None) -> dict:
+    """R5: condition 2, checked against the run's own immutable artefacts.
+
+    An attestation boolean is a claim by whoever wrote it. This reads the rows
+    back and refuses to agree unless every one of them is economically the sealed
+    opening state. Raises `ConditionTwoContradicted` on the first row that is
+    not; returns the evidence it actually measured when they all are.
+    """
+    if opening_cash is None:
+        opening_cash = float(spec("C_ref"))
+
+    nav_path = os.path.join(run_dir, "nav_series.json")
+    prog_path = os.path.join(run_dir, "period_progress.jsonl")
+    final_path = os.path.join(run_dir, "final_result.json")
+    if not os.path.exists(nav_path) and not os.path.exists(prog_path):
+        raise ConditionTwoContradicted(
+            f"R5: {run_dir} holds no nav_series.json or period_progress.jsonl, "
+            f"so condition 2 cannot be verified. Absence of evidence is not "
+            f"evidence: the observation counts until the artefacts are present.")
+
+    rows: list[tuple[str, int, dict]] = []
+    if os.path.exists(nav_path):
+        with open(nav_path, encoding="utf-8") as fh:
+            for i, row in enumerate(json.load(fh)):
+                rows.append(("nav_series.json", i, row))
+    if os.path.exists(prog_path):
+        with open(prog_path, encoding="utf-8") as fh:
+            for i, line in enumerate(fh):
+                if line.strip():
+                    rows.append(("period_progress.jsonl", i, json.loads(line)))
+
+    values, positions = set(), set()
+    for source, i, row in rows:
+        for key in row:
+            if key.lower() in STRATEGY_OUTCOME_ROW_KEYS:
+                raise ConditionTwoContradicted(
+                    f"R3: {source} row {i} carries {key!r}, a quantity that can "
+                    f"only be known after an effective B0 decision.")
+        for field in ("port_value", "cash_after", "nav"):
+            if field in row and row[field] is not None:
+                values.add(float(row[field]))
+                if float(row[field]) != opening_cash:
+                    raise ConditionTwoContradicted(
+                        f"R3: {source} row {i} has {field}={row[field]!r} "
+                        f"against a sealed opening cash of {opening_cash!r}. A "
+                        f"NAV that moved is strategy-outcome information - "
+                        f"constancy at some other value would be too.")
+        for field in ("positions", "holdings", "shares", "pending_exit",
+                      "security_receivables", "stock_dividend_receivable"):
+            if field not in row:
+                continue
+            held = row[field]
+            count = held if isinstance(held, (int, float)) else len(held or ())
+            positions.add(count)
+            if count:
+                raise ConditionTwoContradicted(
+                    f"R3: {source} row {i} holds {field}={held!r}. A non-empty "
+                    f"strategy portfolio makes condition 2 false.")
+
+    evidence = {
+        "run_dir": os.path.relpath(run_dir, REPO_ROOT).replace("\\", "/"),
+        "rows_checked": len(rows),
+        "sealed_opening_cash": opening_cash,
+        "distinct_value_fields_observed": sorted(values),
+        "distinct_position_counts_observed": sorted(positions),
+        "strategy_outcome_keys_found": [],
+        "requirements_verified": list(OPENING_STATE_RESTATEMENT_REQUIREMENTS),
+    }
+
+    if os.path.exists(final_path):
+        with open(final_path, encoding="utf-8") as fh:
+            final = json.load(fh)
+        if final.get("performance_computed") is not False:
+            raise ConditionTwoContradicted(
+                f"R3: {final_path} records performance_computed="
+                f"{final.get('performance_computed')!r}.")
+        ev = final.get("evidence", {})
+        for field in ("receipts_total", "positions_held_any_period",
+                      "corporate_action_transitions_applied"):
+            if field in ev and ev[field]:
+                raise ConditionTwoContradicted(
+                    f"R3: {final_path} records {field}={ev[field]!r}.")
+        evidence["final_result_performance_computed"] = False
+        evidence["final_result_receipts_total"] = ev.get("receipts_total")
+        evidence["final_result_positions_held_any_period"] = ev.get(
+            "positions_held_any_period")
+
+    return evidence
+
+
 # All seven are required. They are split by WHICH MECHANISM CAN ACTUALLY CHECK
 # THEM: 1-5 are facts about a run that already ended and are attested from its
 # immutable artefacts; 6-7 are preconditions on the NEXT opening, and a boolean
@@ -578,7 +729,9 @@ NON_CONSUMPTION_CONDITIONS: tuple[str, ...] = (
 # check, so 6-7 are enforced at the call site instead of self-attested.
 NON_CONSUMPTION_ENFORCEMENT: Mapping[str, str] = {
     "zero_effective_decision_observations": "attested",
-    "no_portfolio_nav_or_performance_produced_or_viewed": "attested",
+    # R5: the boolean summarises; `verify_opening_state_restatement` decides.
+    "no_portfolio_nav_or_performance_produced_or_viewed":
+        "attested_and_verified",
     "defect_is_implementation_or_input_conformance": "attested",
     "repair_independent_of_observed_performance": "attested",
     "invalid_run_immutable": "attested",
@@ -588,7 +741,12 @@ NON_CONSUMPTION_ENFORCEMENT: Mapping[str, str] = {
 
 ATTESTED_CONDITIONS: tuple[str, ...] = tuple(
     c for c in NON_CONSUMPTION_CONDITIONS
-    if NON_CONSUMPTION_ENFORCEMENT[c] == "attested")
+    if NON_CONSUMPTION_ENFORCEMENT[c] in ("attested", "attested_and_verified"))
+
+# The one condition that is not taken on trust when the artefacts are readable.
+ARTEFACT_VERIFIED_CONDITIONS: tuple[str, ...] = tuple(
+    c for c in NON_CONSUMPTION_CONDITIONS
+    if NON_CONSUMPTION_ENFORCEMENT[c] == "attested_and_verified")
 
 
 @dataclass(frozen=True)
@@ -626,8 +784,19 @@ class NonConsumptionAttestation:
                     f"R2: a non-consumption attestation requires {f}.")
 
 
-def assert_non_consumption_admissible(att: NonConsumptionAttestation) -> None:
-    """Conditions 1-5, named individually so a failure says which one."""
+def assert_non_consumption_admissible(
+        att: NonConsumptionAttestation,
+        *,
+        run_dir: str = DEFAULT_L2_RUN_DIR,
+        require_artefacts: bool = False) -> dict | None:
+    """Conditions 1-5, named individually so a failure says which one.
+
+    R5: condition 2 is not taken on trust. When the run's immutable artefacts
+    are readable they are read, and a contradiction raises rather than being
+    outvoted by the boolean. `require_artefacts=True` (the reopening gate) also
+    refuses when they are missing: at the moment of asking to re-open the
+    window, "I cannot check" is not the same as "it checks out".
+    """
     for cond in ATTESTED_CONDITIONS:
         if not getattr(att, cond):
             raise MasterPreregViolation(
@@ -636,9 +805,15 @@ def assert_non_consumption_admissible(att: NonConsumptionAttestation) -> None:
                 f"conditions are required; any one of them failing means the "
                 f"observation was spent.")
     for cond, site in NON_CONSUMPTION_ENFORCEMENT.items():
-        if site not in ("attested", "assert_reopening_admissible"):
+        if site not in ("attested", "attested_and_verified",
+                        "assert_reopening_admissible"):
             raise UnspecifiedBehaviour(
                 f"R2: condition {cond!r} has no enforcement site.")
+    readable = any(os.path.exists(os.path.join(run_dir, f))
+                   for f in ("nav_series.json", "period_progress.jsonl"))
+    if not readable and not require_artefacts:
+        return None
+    return verify_opening_state_restatement(run_dir)
 
 
 DEFAULT_NONCONSUMPTION_PATH = os.path.join(
@@ -660,7 +835,8 @@ def read_non_consumption(path: str = DEFAULT_NONCONSUMPTION_PATH) -> list[dict]:
 
 def effective_observation_count(
         registry_path: str = DEFAULT_REGISTRY_PATH,
-        attestation_path: str = DEFAULT_NONCONSUMPTION_PATH) -> int:
+        attestation_path: str = DEFAULT_NONCONSUMPTION_PATH,
+        run_dir: str = DEFAULT_L2_RUN_DIR) -> int:
     """B-18 4.3: how many times the sealed window has actually been observed.
 
     An attestation excuses a row only if the ROW own outcome is in scope, so a
@@ -669,7 +845,7 @@ def effective_observation_count(
     excused = set()
     for a in read_non_consumption(attestation_path):
         att = NonConsumptionAttestation(**a)
-        assert_non_consumption_admissible(att)
+        assert_non_consumption_admissible(att, run_dir=run_dir)
         excused.add(att.opened_at)
     count = 0
     for row in read_registry(registry_path):
@@ -720,7 +896,9 @@ def assert_reopening_admissible(
         *,
         previous_baseline_seal_sha256: str,
         new_baseline_seal_sha256: str,
-        authorization_reference: str) -> None:
+        authorization_reference: str,
+        attestation: "NonConsumptionAttestation | None" = None,
+        run_dir: str = DEFAULT_L2_RUN_DIR) -> None:
     """R2 conditions 6 and 7, enforced rather than attested.
 
     A boolean saying "a new seal was taken" is worth nothing next to comparing
@@ -741,6 +919,21 @@ def assert_reopening_admissible(
             "R2 condition 6: re-opening requires a NEW Baseline Seal. The "
             "proposed opening binds the same baseline the invalid run bound, "
             "which means nothing was actually repaired and re-sealed.")
+    # R5: if the previous run is being carried as non-consuming, the artefacts
+    # that justify that must be present AND must agree, here, at the gate.
+    if previous.outcome in NON_CONSUMING_OUTCOMES:
+        claims = ([attestation] if attestation is not None
+                  else [NonConsumptionAttestation(**a)
+                        for a in read_non_consumption()
+                        if a["opened_at"] == previous.opened_at])
+        if not claims:
+            raise MasterPreregViolation(
+                f"R2: {previous.outcome} is only non-consuming under an "
+                f"attestation, and none is recorded for {previous.opened_at}. "
+                f"Without one the observation was spent.")
+        for claim in claims:
+            assert_non_consumption_admissible(claim, run_dir=run_dir,
+                                              require_artefacts=True)
 
 
 # --- M-3 · no specification-by-code ------------------------------------------
@@ -916,6 +1109,13 @@ def _spec_registry() -> dict[str, Any]:
         "l2_non_consumption_conditions": NON_CONSUMPTION_CONDITIONS,
         "l2_non_consumption_enforcement": tuple(
             sorted(NON_CONSUMPTION_ENFORCEMENT.items())),
+        # v1.23 - C-57. Condition 2 now has a definition and a verifier.
+        "l2_condition_2_definition": CONDITION_2_DEFINITION,
+        "l2_opening_state_restatement_requirements":
+            OPENING_STATE_RESTATEMENT_REQUIREMENTS,
+        "l2_condition_2_negative_boundary": CONDITION_2_NEGATIVE_BOUNDARY,
+        "l2_strategy_outcome_row_keys": STRATEGY_OUTCOME_ROW_KEYS,
+        "l2_artefact_verified_conditions": ARTEFACT_VERIFIED_CONDITIONS,
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,
