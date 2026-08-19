@@ -309,6 +309,81 @@ class CashReceivable:
                 "I-CA-04: a cash receivable must name the event that created it")
 
 
+@dataclass(frozen=True)
+class HoldingSpell:
+    """B0.1 · one continuous interval of UNDERLYING share exposure.
+
+    The official Frozen B0 L2 run aborted because the engine asked "is this
+    security in the portfolio now?" and then applied an event from 2012 to a
+    position opened in 2014. Exposure has a time dimension and the state did not
+    carry it, so the question could not be asked correctly.
+
+    The interval rule is asymmetric, and the asymmetry is derived rather than
+    chosen. The frozen intraday order applies corporate actions BEFORE the same
+    day's execution (`INTRADAY_SEQUENCE`, §6.1.6 step 2 before step 9), and
+    §6.1.7 A defines `Q` as the entitlement-bearing shares held BEFORE the
+    conversion. So:
+
+        bought on the event date  -> the shares did not exist when Q was taken
+        sold on the event date    -> the shares still existed when Q was taken
+
+    which is exactly `start < event_date <= end`.
+
+    The driver is UNDERLYING shares, never claims. A stock-dividend receivable
+    that outlives the sale of the shares that earned it stays alive under its own
+    frozen lifecycle, but it does not keep this spell open: a holder of a claim
+    is not a shareholder of record for the NEXT event.
+    """
+    stock_id: str
+    start: str
+    end: str = ""              # "" means still open
+
+    def __post_init__(self) -> None:
+        if not str(self.stock_id).strip():
+            raise CoreStateError("a holding spell must name its security")
+        if not str(self.start).strip():
+            raise CoreStateError(
+                f"holding spell for {self.stock_id} has no start; exposure "
+                f"without a start date is the defect this type exists to remove")
+        if self.end and str(self.end) < str(self.start):
+            raise CoreStateError(
+                f"holding spell for {self.stock_id} ends {self.end} before it "
+                f"starts {self.start}")
+
+    @property
+    def open(self) -> bool:
+        return not str(self.end).strip()
+
+    def covers(self, date: str) -> bool:
+        """`start < date <= end`. See the class docstring for the derivation."""
+        date = str(date)
+        if not (str(self.start) < date):
+            return False
+        return self.open or date <= str(self.end)
+
+
+def record_underlying_exposure(spells, shares: Mapping[str, int],
+                               as_of: str) -> tuple:
+    """Advance the spell ledger to the end-of-day share ledger of `as_of`.
+
+    Called once per period on the state that leaves execution, which is what
+    `INTRADAY_SEQUENCE` calls `end_of_day_state`. Opening and closing on the
+    execution date is what makes the same-day rule above come out right.
+    """
+    held = {sid for sid, n in dict(shares).items() if n > 0}
+    out, seen_open = [], set()
+    for sp in spells:
+        if sp.open and sp.stock_id not in held:
+            out.append(HoldingSpell(sp.stock_id, sp.start, str(as_of)))
+        else:
+            out.append(sp)
+            if sp.open:
+                seen_open.add(sp.stock_id)
+    for sid in sorted(held - seen_open):
+        out.append(HoldingSpell(sid, str(as_of)))
+    return tuple(sorted(out, key=lambda x: (x.stock_id, x.start)))
+
+
 # --- portfolio state ----------------------------------------------------------
 
 @dataclass(frozen=True)
@@ -341,6 +416,11 @@ class PortfolioState:
     # held; dropping it instead would let a corporate action quietly resurrect a
     # position B0 had already decided to exit.
     pending_exit_on_receivable: frozenset = frozenset()
+    # B0.1 · R1. The canonical, state-owned exposure ledger. Driven by
+    # UNDERLYING shares only: a claim that outlives its underlying position does
+    # not keep a spell open, because the holder of a claim is not a shareholder
+    # of record for the next event.
+    holding_spells: tuple = ()          # tuple[HoldingSpell, ...]
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.cash):
@@ -400,6 +480,35 @@ class PortfolioState:
     def spendable_cash(self) -> float:
         """§6.1.4: cash receivables are owned; they are not spendable."""
         return float(self.cash)
+
+    def is_exposed_at(self, stock_id: str, date: str) -> bool:
+        """Was B0 a shareholder of record on `date`? Ledger primitive."""
+        return any(sp.covers(date) for sp in self.holding_spells
+                   if sp.stock_id == stock_id)
+
+    def exposure_applies(self, stock_id: str, event_date: str,
+                         as_of: str) -> bool:
+        """B0.1 · THE canonical exposure predicate.
+
+        ONE spell must cover BOTH the event boundary and the moment of
+        application. Testing the boundary alone is not enough: an event that was
+        never applied while its spell was open would otherwise be applied to a
+        LATER, unrelated position in the same security — the exit-then-re-entry
+        case. The economic claim belongs to the exposure that earned it, and
+        that exposure has to still be the one B0 holds.
+        """
+        return any(sp.covers(event_date) and sp.covers(as_of)
+                   for sp in self.holding_spells if sp.stock_id == stock_id)
+
+    def exposure_spells(self) -> tuple:
+        return tuple(self.holding_spells)
+
+    def with_underlying_exposure_recorded(self, as_of: str = "") -> "PortfolioState":
+        """The end-of-day state, with its spell ledger advanced."""
+        from dataclasses import replace
+
+        return replace(self, holding_spells=record_underlying_exposure(
+            self.holding_spells, self.shares, as_of or self.as_of))
 
     @property
     def entitlement_securities(self) -> tuple[str, ...]:

@@ -87,11 +87,37 @@ def test_an_exposed_unreconstructible_action_aborts_the_whole_route():
         stock_id="1101", kind="merger", ex_or_effective_date="2020-06-15",
         reconstructibility=NOT_RECONSTRUCTIBLE,
         reason="counterparty not in corpus")
+    # B0.1/R2: exposure is the portfolio's own spell ledger. The declared
+    # `exposures` tuple is kept only as a redundant conformance assertion, so it
+    # must AGREE with the ledger rather than define it.
+    import dataclasses
+
+    from core.b0_state import HoldingSpell
+
+    held = dataclasses.replace(
+        portfolio(), holding_spells=(HoldingSpell("1101", "2020-06-01"),))
     exposure = Exposure(stock_id="1101", held_from="2020-06-01",
                         held_until=AS_OF)
     with pytest.raises(CorporateActionError, match="W-1/W-3"):
         run_decision(canonical_input(corporate_action_events=(event,),
+                                     portfolio=held,
                                      exposures=(exposure,)),
+                     for_sealed_run=False)
+
+
+def test_a_caller_declared_exposure_that_disagrees_with_the_ledger_fails_loud():
+    """B0.1/R2: the retrospective adapter declared the LISTING SPELL as the
+    holding interval. Keeping the field as a checked redundancy turns that class
+    of mistake into a red light instead of an economic input."""
+    import dataclasses
+
+    from core.b0_state import HoldingSpell
+
+    held = dataclasses.replace(
+        portfolio(), holding_spells=(HoldingSpell("1101", "2020-06-01"),))
+    lying = Exposure(stock_id="1101", held_from="1999-01-01", held_until=AS_OF)
+    with pytest.raises(CorporateActionError, match="disagrees with the canonical"):
+        run_decision(canonical_input(portfolio=held, exposures=(lying,)),
                      for_sealed_run=False)
 
 

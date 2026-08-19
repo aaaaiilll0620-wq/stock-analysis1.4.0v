@@ -153,14 +153,23 @@ def test_the_invalid_run_is_still_recorded(tmp_path):
     assert rows[0]["outcome"] == L2_RUN_INVALID_CONFORMANCE
 
 
-def test_the_repository_records_zero_effective_observations():
-    """The claim about THIS project, bound to the files it actually has."""
+def test_the_first_invalid_run_still_consumes_nothing():
+    """The attestation is about run L2-2520c80aa980d681 and only that run.
+
+    Migrated: the repository-level count is no longer 0, because the OFFICIAL
+    L2 run L2-af1b4d90c29b3b5f later consumed the once-only observation. What
+    this test owns is the narrower claim it always meant — that the FIRST,
+    invalid run is excused — so it asserts the excused identity rather than a
+    repository total that a later governed event legitimately moved.
+    """
+    from core.b0_master_prereg import effective_observations
+
     ledger = read_non_consumption()
     assert len(ledger) == 1
     att = NonConsumptionAttestation(**ledger[0])
     assert att.run_id == "L2-2520c80aa980d681"
     assert_non_consumption_admissible(att)
-    assert effective_observation_count() == 0
+    assert att.run_id not in effective_observations()
 
 
 # --- R3 · the two repair kinds are not interchangeable ------------------------

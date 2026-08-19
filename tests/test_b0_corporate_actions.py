@@ -161,27 +161,54 @@ _GAP = CorporateActionEvent("2317", "stock_dividend", "2020-07-15",
 _OK = CorporateActionEvent("2330", "stock_dividend", "2020-07-15", RECONSTRUCTIBLE)
 
 
+def _state(*spells, as_of="2020-07-15", shares=None):
+    """B0.1: exposure now comes from the portfolio's own spell ledger.
+
+    Each migrated case keeps its original economic proposition; only the way the
+    interval is expressed has changed, from a caller-declared `Exposure` to the
+    canonical `HoldingSpell` the state owns.
+    """
+    from core.b0_state import HoldingSpell, PortfolioState
+
+    return PortfolioState(
+        as_of=as_of, cash=1.0, shares=dict(shares or {}),
+        holding_spells=tuple(HoldingSpell(*sp) for sp in spells))
+
+
 def test_an_event_we_never_held_does_not_abort():
-    assert_exposure_reconstructible([_GAP], [Exposure("2330", "2020-01-01", "2021-01-01")])
-    assert exposed_unreconstructible_events([_GAP], []) == []
+    # held a different security across the same dates
+    assert_exposure_reconstructible(
+        [_GAP], _state(("2330", "2020-01-01", "2021-01-01")), as_of="2020-07-15")
+    assert exposed_unreconstructible_events([_GAP], _state(),
+                                            as_of="2020-07-15") == []
 
 
 def test_holding_through_an_unreconstructible_event_aborts():
     with pytest.raises(CorporateActionError, match="2317"):
         assert_exposure_reconstructible(
-            [_GAP], [Exposure("2317", "2020-01-01", "2021-01-01")])
+            [_GAP], _state(("2317", "2020-01-01", "2021-01-01")),
+            as_of="2020-07-15")
 
 
 def test_exposure_is_date_bounded_not_merely_by_ticker():
-    held_before = [Exposure("2317", "2019-01-01", "2020-07-14")]
-    assert_exposure_reconstructible([_GAP], held_before)
-    held_through = [Exposure("2317", "2019-01-01", "2020-07-15")]
+    """The proposition that survived B0.1 unchanged, and the one the official
+    L2 run proved was not being enforced on every path."""
+    held_before = _state(("2317", "2019-01-01", "2020-07-14"))
+    assert_exposure_reconstructible([_GAP], held_before, as_of="2020-07-15")
+    held_through = _state(("2317", "2019-01-01", "2020-07-15"))
     with pytest.raises(CorporateActionError):
-        assert_exposure_reconstructible([_GAP], held_through)
+        assert_exposure_reconstructible([_GAP], held_through, as_of="2020-07-15")
+
+
+def test_exposure_beginning_on_the_event_date_does_not_abort():
+    """B0.1 same-day rule: bought on the ex-date, so `Q` never included us."""
+    bought_that_day = _state(("2317", "2020-07-15", ""))
+    assert_exposure_reconstructible([_GAP], bought_that_day, as_of="2020-07-15")
 
 
 def test_reconstructible_events_never_abort():
-    assert_exposure_reconstructible([_OK], [Exposure("2330", "2020-01-01", "2021-01-01")])
+    assert_exposure_reconstructible(
+        [_OK], _state(("2330", "2020-01-01", "2021-01-01")), as_of="2020-07-15")
 
 
 # --- identity changes: unobservable on the holder side -----------------------

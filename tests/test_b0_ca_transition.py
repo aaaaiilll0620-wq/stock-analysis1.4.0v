@@ -23,14 +23,27 @@ from core.b0_corporate_actions import (
     redate,
     transition_portfolio,
 )
-from core.b0_state import CoreStateError, PortfolioState, SecurityReceivable
+from core.b0_state import (
+    CoreStateError, HoldingSpell, PortfolioState, SecurityReceivable,
+)
 
 S = tuple("2020-%02d-%02d" % (m, d) for m in (1, 2, 3) for d in range(1, 29))
+
+
+# B0.1: every scenario in this file is "B0 already holds the security when the
+# event happens", so the fixture opens a spell before the window rather than
+# leaving exposure undeclared. It is derived from `shares`, not blanket-added:
+# a test that holds nothing gets no spell, which is what keeps
+# `test_an_unheld_not_reconstructible_event_is_irrelevant` honest.
+HELD_FROM = "2019-01-02"
 
 
 def _p(**over):
     base = dict(as_of="2020-01-05", cash=10_000.0, shares={"1101": 1000})
     base.update(over)
+    if "holding_spells" not in base:
+        base["holding_spells"] = tuple(
+            HoldingSpell(sid, HELD_FROM) for sid in sorted(base["shares"]))
     return PortfolioState(**base)
 
 

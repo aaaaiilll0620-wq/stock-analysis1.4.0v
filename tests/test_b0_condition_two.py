@@ -257,12 +257,23 @@ def test_the_preserved_invalid_run_satisfies_condition_2():
 
 
 @pytest.mark.skipif(not os.path.exists(REAL_RUN), reason="run artefacts absent")
-def test_the_repository_still_records_one_attempt_and_zero_observations():
-    from core.b0_master_prereg import read_registry
+def test_the_governed_observation_is_attributable_to_exactly_one_named_run():
+    """Migrated to the post-L2 governance truth, not relaxed.
 
-    assert len(read_registry()) == 1
-    assert len(read_non_consumption()) == 1
-    assert effective_observation_count() == 0
+    `== 1` on its own is satisfied by any run whatsoever, so the invariant that
+    carries the meaning is the IDENTITY: the single effective observation of the
+    Frozen B0 window belongs to the official run and to nothing else. The first,
+    invalid run is excused by its attestation and must not appear.
+    """
+    from core.b0_l2_run_layout import attempted_opening_count
+    from core.b0_master_prereg import effective_observations, read_registry
+
+    assert len(read_registry()) == 2          # both attempts are on record
+    assert len(read_non_consumption()) == 1   # one of them is excused
+    assert attempted_opening_count() == 2
+    assert effective_observation_count() == 1
+    assert set(effective_observations()) == {"L2-af1b4d90c29b3b5f"}
+    assert "L2-2520c80aa980d681" not in effective_observations()
 
 
 @pytest.mark.skipif(not os.path.exists(REAL_RUN), reason="run artefacts absent")

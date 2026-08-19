@@ -66,6 +66,7 @@ from core.b0_corporate_actions import (
     assert_transition_applied,
     CorporateActionEvent,
     Exposure,
+    assert_caller_exposures_conform,
     assert_exposure_reconstructible,
 )
 from core.b0_listing_spell import (
@@ -358,7 +359,13 @@ def run_decision(inp: CanonicalDecisionInput, *,
 
     # --- corporate_action_transition (O-A: mandatory, both guards) --------------
     stages.append("corporate_action_transition")
-    assert_exposure_reconstructible(inp.corporate_action_events, inp.exposures)
+    # B0.1 · R2. Economic truth is the canonical portfolio's own spell ledger.
+    # `inp.exposures` is retained only as a redundant conformance assertion: a
+    # caller that assembles exposure itself is a caller that can assemble it
+    # wrongly, which is exactly what happened.
+    assert_caller_exposures_conform(inp.exposures, inp.portfolio)
+    assert_exposure_reconstructible(inp.corporate_action_events, inp.portfolio,
+                                    as_of=inp.as_of)
     # §6.1.2: the stage is the TRANSITION, not the guards around it. The engine
     # runs before the input is built, so what is checked here is that it ran —
     # a classification-only pipeline reaches this line with an untransformed

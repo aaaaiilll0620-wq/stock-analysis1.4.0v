@@ -42,12 +42,13 @@ SEALED_INPUTS = {
 }
 
 PROVENANCE_NOTE = (
-    "v1.25 L2 opener/runner protocol conformance repair (C-59, R1-R10). This "
-    "ruling changed NO sealed input content: the composed 141-state hash is "
-    "unchanged at 66640a78. The period-1 full-input hash moved again because "
-    "that input binds the Master spec identity and the Master moved 1.24 -> "
-    "1.25; no market-side or portfolio content changed. Any new authorization "
-    "must bind the values in this receipt."
+    "v1.26 Frozen B0.1 corporate-action implementation conformance repair "
+    "(C-60). The composed 141-state hash is unchanged at 66640a78: market-side "
+    "state is portfolio-free, so the canonical exposure ledger cannot touch it. "
+    "The period-1 full-input hash DID move, because PortfolioState gained the "
+    "holding-spell ledger the repair requires and the Master moved 1.25 -> "
+    "1.26. No factor, weight, threshold, universe rule, cost, PIT rule or "
+    "corporate-action data policy changed."
 )
 
 

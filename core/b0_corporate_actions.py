@@ -234,31 +234,56 @@ class Exposure:
 
 def exposed_unreconstructible_events(
     events: Iterable[CorporateActionEvent],
-    exposures: Iterable[Exposure],
+    state,
+    *,
+    as_of: str,
 ) -> list[CorporateActionEvent]:
     """Events B0 was actually exposed to and cannot reconstruct.
 
-    An event the portfolio never held is not a defect in the run — this is what
-    makes the per-event rule affordable without a missing-rate threshold.
+    B0.1 · R2/R3: the exposure comes from the canonical state, not from an
+    `Exposure` the caller assembled. The retrospective adapter built those from
+    the LISTING SPELL, which made B0 look exposed to a security's entire history
+    from the day it listed — so even this gate, which had the right interval
+    semantics all along, was being fed the wrong interval.
     """
-    by_id: dict[str, list[Exposure]] = {}
-    for e in exposures:
-        by_id.setdefault(e.stock_id, []).append(e)
     hit = []
     for ev in events:
         if ev.reconstructibility != NOT_RECONSTRUCTIBLE:
             continue
-        if any(x.covers(ev.ex_or_effective_date) for x in by_id.get(ev.stock_id, ())):
+        if state.exposure_applies(ev.stock_id, str(ev.ex_or_effective_date),
+                                  str(as_of)):
             hit.append(ev)
     return hit
 
 
+def assert_caller_exposures_conform(exposures, state) -> None:
+    """B0.1 · R2. A caller may still declare exposure; it may not DEFINE it.
+
+    The retrospective adapter declared `held_from = <listing spell start>`, so
+    B0 looked exposed to every corporate action a security ever had. Keeping the
+    field as a checked redundancy — rather than deleting it — turns that class of
+    mistake into a fail-loud mismatch instead of a silent economic input.
+    """
+    declared = {(x.stock_id, str(x.held_from)) for x in (exposures or ())}
+    canonical = {(sp.stock_id, str(sp.start)) for sp in state.exposure_spells()}
+    if declared and declared != canonical:
+        only_caller = sorted(declared - canonical)[:5]
+        only_state = sorted(canonical - declared)[:5]
+        raise CorporateActionError(
+            f"B0.1/R2: caller-declared exposure disagrees with the canonical "
+            f"holding-spell ledger. caller-only={only_caller} "
+            f"state-only={only_state}. Exposure is a property of what B0 held, "
+            f"not of what the caller believes it held.")
+
+
 def assert_exposure_reconstructible(
     events: Iterable[CorporateActionEvent],
-    exposures: Iterable[Exposure],
+    state,
+    *,
+    as_of: str,
 ) -> None:
     """Abort before any NAV is produced for a position we cannot account for."""
-    hit = exposed_unreconstructible_events(events, exposures)
+    hit = exposed_unreconstructible_events(events, state, as_of=as_of)
     if hit:
         detail = "; ".join(
             f"{e.stock_id} {e.kind} {e.ex_or_effective_date} ({e.reason})" for e in hit[:10])
@@ -587,85 +612,21 @@ REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
 }
 
 
-def assert_transition_fields_present(event: "CorporateActionEvent") -> None:
-    """§6.1.7: a transition may not proceed on a partially specified event.
+def is_exposed(state, event: "CorporateActionEvent", *, as_of: str) -> bool:
+    """B0.1 · §6.1.12 exposure, delegated to THE canonical predicate.
 
-    Checked at transition time rather than at classification time, because an
-    event nobody is exposed to never needs these fields (§6.1.12).
+    Membership was never the question. `event.stock_id in entitlement_securities`
+    answers "does B0 hold this security NOW", and the official Frozen B0 L2 run
+    aborted because that returned True for a 2012 event against a position opened
+    in 2014. The question §2.5 W-1 actually asks is whether B0's holding interval
+    covers the event boundary, and R1 adds the state that can answer it.
+
+    Claims are deliberately NOT part of this. A stock-dividend receivable that
+    outlived the sale of its underlying position keeps its own frozen lifecycle,
+    but its holder is not a shareholder of record for the NEXT event.
     """
-    missing = [f for f in REQUIRED_FIELDS.get(event.kind, ())
-               if getattr(event, f, None) in (None, "")]
-    if event.kind == "capital_reduction" and event.cash_per_share:
-        if not event.cash_available_date:
-            missing.append("cash_available_date")
-    if missing:
-        raise CorporateActionReconstructionBlock(
-            "§6.1.7: %s/%s on %s cannot be transitioned: missing %s"
-            % (event.stock_id, event.kind, event.ex_or_effective_date, missing),
-            detail={"security_id": event.stock_id, "event_kind": event.kind,
-                    "event_id": event.canonical_event_id(),
-                    "effective_date": event.ex_or_effective_date,
-                    "missing_fields": missing})
-
-
-def assert_no_look_ahead(event: "CorporateActionEvent", cutoff: str) -> None:
-    """I-CA-06: a transition may not use information that was not knowable."""
-    if event.knowledge_ts and str(event.knowledge_ts) > str(cutoff):
-        raise CorporateActionTransitionError(
-            "I-CA-06: %s/%s became knowable at %s, after the evaluation cutoff "
-            "%s. Applying it now is look-ahead."
-            % (event.stock_id, event.kind, event.knowledge_ts, cutoff))
-
-
-def is_exposed(state, event: "CorporateActionEvent") -> bool:
-    """§6.1.12: affected economic exposure, not mere existence of the event."""
-    return event.stock_id in set(state.entitlement_securities)
-
-
-def _state_hash(state) -> str:
-    """I-CA-12: byte-equivalent states hash identically."""
-    from core.b0_canonical_hash import canonical_sha256
-
-    return canonical_sha256({
-        "as_of": state.as_of,
-        "cash": state.cash,
-        "shares": dict(sorted(state.shares.items())),
-        "pending_exit": dict(sorted(state.pending_exit.items())),
-        "cash_dividend_receivable": state.cash_dividend_receivable,
-        "stock_dividend_receivable": dict(
-            sorted(state.stock_dividend_receivable.items())),
-        "security_receivables": sorted(
-            [[r.security_id, str(r.shares), r.credit_tradable_date, r.event_id,
-              r.source_security_id] for r in state.security_receivables]),
-        "cash_receivables": sorted(
-            [[r.amount, r.cash_available_date, r.event_id, r.source_security_id]
-             for r in state.cash_receivables]),
-        "applied_ca_event_ids": sorted(state.applied_ca_event_ids),
-        "pending_exit_on_receivable": sorted(state.pending_exit_on_receivable),
-    })
-
-
-def _event_hash(event: "CorporateActionEvent") -> str:
-    from core.b0_canonical_hash import canonical_sha256
-
-    return canonical_sha256([
-        event.stock_id, event.kind, event.ex_or_effective_date,
-        event.reconstructibility, event.credit_tradable_date,
-        str(event.stock_ratio) if event.stock_ratio is not None else None,
-        event.share_multiplier, event.cash_per_share, event.cash_payment_date,
-        event.successor_security_id, event.knowledge_ts,
-    ])
-
-
-def _first_session_on_or_after(date: str, sessions: Sequence[str]) -> str:
-    """§6.1.6: a claim matures on the first eligible portfolio-state timestamp."""
-    for s in sessions:
-        if str(s) >= str(date):
-            return str(s)
-    raise CorporateActionReconstructionBlock(
-        "§6.1.6: no portfolio-state timestamp on or after %s; the release point "
-        "is outside the canonical calendar" % date,
-        detail={"date": date})
+    return state.exposure_applies(event.stock_id,
+                                  str(event.ex_or_effective_date), str(as_of))
 
 
 REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
@@ -708,9 +669,6 @@ def assert_no_look_ahead(event: "CorporateActionEvent", cutoff: str) -> None:
             % (event.stock_id, event.kind, event.knowledge_ts, cutoff))
 
 
-def is_exposed(state, event: "CorporateActionEvent") -> bool:
-    """§6.1.12: affected economic exposure, not mere existence of the event."""
-    return event.stock_id in set(state.entitlement_securities)
 
 
 def _state_hash(state) -> str:
@@ -812,7 +770,11 @@ def _release_matured(state, as_of: str):
         stock_dividend_receivable=dict(state.stock_dividend_receivable),
         security_receivables=tuple(kept_sec), cash_receivables=tuple(kept_cash),
         applied_ca_event_ids=frozenset(state.applied_ca_event_ids),
-        pending_exit_on_receivable=frozenset(on_recv))
+        pending_exit_on_receivable=frozenset(on_recv),
+        # B0.1: a corporate action never opens or closes a holding spell.
+        # Spells are driven by actual acquisition and exit; carrying the
+        # ledger unchanged is what stops a transition fabricating exposure.
+        holding_spells=tuple(state.holding_spells))
     return new, tuple(released_sec), released_cash
 
 
@@ -939,7 +901,11 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
         stock_dividend_receivable=dict(state.stock_dividend_receivable),
         security_receivables=tuple(sec_recv), cash_receivables=tuple(cash_recv),
         applied_ca_event_ids=frozenset(state.applied_ca_event_ids) | {eid},
-        pending_exit_on_receivable=frozenset(on_recv))
+        pending_exit_on_receivable=frozenset(on_recv),
+        # B0.1: a corporate action never opens or closes a holding spell.
+        # Spells are driven by actual acquisition and exit; carrying the
+        # ledger unchanged is what stops a transition fabricating exposure.
+        holding_spells=tuple(state.holding_spells))
     target = event.successor_security_id or sid
     return new, {
         "pre_tradable_shares": pre_shares,
@@ -1129,13 +1095,24 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
     work, released_sec, released_cash = _release_matured(pre, as_of)
 
     # 2. apply today's effective holder-affecting events
-    todays = [e for e in events
-              if e.kind in holder_affecting_kinds()
-              and str(e.ex_or_effective_date) <= str(as_of)
-              and e.canonical_event_id() not in pre.applied_ca_event_ids]
+    # B0.1 · R2/R3. An event is this period's business only if ONE holding
+    # spell covers both its boundary and today. Everything else is historical to
+    # some other exposure, or to no exposure of B0's at all: it is not applied,
+    # it creates no claim, and it cannot block.
+    candidates = [e for e in events
+                  if e.kind in holder_affecting_kinds()
+                  and str(e.ex_or_effective_date) <= str(as_of)
+                  and e.canonical_event_id() not in pre.applied_ca_event_ids]
+    out_of_spell = [e.canonical_event_id() for e in candidates
+                    if not pre.exposure_applies(
+                        e.stock_id, str(e.ex_or_effective_date), str(as_of))]
+    todays = [e for e in candidates
+              if pre.exposure_applies(e.stock_id,
+                                      str(e.ex_or_effective_date), str(as_of))]
     ledger, applied, skipped = [], [], []
+    skipped.extend(out_of_spell)
     for ev in _order_same_day(todays):
-        exposed = is_exposed(work, ev)
+        exposed = is_exposed(work, ev, as_of=as_of)
         if ev.reconstructibility == NOT_RECONSTRUCTIBLE:
             # §6.1.12: existence is not the blocking condition; exposure is.
             if not exposed:
@@ -1230,17 +1207,13 @@ def redate(state, as_of: str):
     moving a date and changing an economic quantity are different acts, and C-53
     forbids the second one being smuggled inside the first.
     """
-    from core.b0_state import PortfolioState
+    import dataclasses
 
-    return PortfolioState(
-        as_of=str(as_of), cash=state.cash, shares=dict(state.shares),
-        pending_exit=dict(state.pending_exit),
-        cash_dividend_receivable=state.cash_dividend_receivable,
-        stock_dividend_receivable=dict(state.stock_dividend_receivable),
-        security_receivables=tuple(state.security_receivables),
-        cash_receivables=tuple(state.cash_receivables),
-        applied_ca_event_ids=frozenset(state.applied_ca_event_ids),
-        pending_exit_on_receivable=frozenset(state.pending_exit_on_receivable))
+    # B0.1: `replace` rather than a hand-listed constructor. The explicit list
+    # silently dropped `holding_spells` the moment that field was added, and
+    # dropping the exposure ledger IS changing an economic quantity - exactly
+    # what this function's own docstring forbids.
+    return dataclasses.replace(state, as_of=str(as_of))
 
 
 def assert_transition_applied(state, events, *, as_of: str) -> None:
@@ -1251,14 +1224,16 @@ def assert_transition_applied(state, events, *, as_of: str) -> None:
     entitlement-bearing securities have effective events not in the applied
     ledger, and the run stops before any NAV exists.
     """
-    exposed = set(state.entitlement_securities)
     outstanding = []
     for ev in events:
         if ev.kind not in holder_affecting_kinds():
             continue
         if str(ev.ex_or_effective_date) > str(as_of):
             continue
-        if ev.stock_id not in exposed:
+        # B0.1 · R3: the same canonical predicate. A membership test here would
+        # reintroduce the defect one layer below the one that was fixed.
+        if not state.exposure_applies(ev.stock_id,
+                                      str(ev.ex_or_effective_date), str(as_of)):
             continue
         if ev.canonical_event_id() in state.applied_ca_event_ids:
             continue

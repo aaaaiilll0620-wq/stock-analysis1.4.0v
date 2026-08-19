@@ -882,17 +882,34 @@ def effective_observation_count(
     An attestation excuses a row only if the ROW own outcome is in scope, so a
     mis-filed attestation cannot retire a SUPPORTED result.
     """
+    return len(effective_observations(registry_path, attestation_path, run_dir))
+
+
+def effective_observations(
+        registry_path: str = DEFAULT_REGISTRY_PATH,
+        attestation_path: str = DEFAULT_NONCONSUMPTION_PATH,
+        run_dir: str | None = None) -> tuple[str, ...]:
+    """WHICH runs consumed an observation, not merely how many.
+
+    A count alone cannot be checked against reality: `== 1` is satisfied by any
+    run at all. The identity set makes the governed statement testable - the one
+    effective observation of the Frozen B0 window is a NAMED run.
+    """
     excused = set()
     for a in read_non_consumption(attestation_path):
         att = NonConsumptionAttestation(**a)
         assert_non_consumption_admissible(att, run_dir=run_dir)
         excused.add(att.opened_at)
-    count = 0
+    out = []
     for row in read_registry(registry_path):
         if row["opened_at"] in excused and row["outcome"] in NON_CONSUMING_OUTCOMES:
             continue
-        count += 1
-    return count
+        try:
+            run_id = json.loads(row.get("detail") or "{}").get("run_id", "")
+        except ValueError:
+            run_id = ""
+        out.append(run_id or row["opened_at"])
+    return tuple(out)
 
 
 def assert_rerun_admissible(
@@ -1171,6 +1188,14 @@ def _spec_registry() -> dict[str, Any]:
         "l2_execution_claim_artefact": layout.EXECUTION_CLAIM,
         "l2_terminal_result_artefact": layout.TERMINAL_RESULT,
         "l2_attempted_opening_source": "immutable_opening_events_not_terminal_rows",
+        # v1.26 - B0.1 / C-60. Corporate-action exposure has a time dimension.
+        "ca_exposure_predicate":
+            "PortfolioState.exposure_applies(stock_id, event_date, as_of)",
+        "ca_exposure_interval_rule": "H.start < E.effective_date <= H.end",
+        "ca_exposure_spell_driver": "underlying_tradable_shares",
+        "ca_claim_only_state_is_exposure": False,
+        "ca_caller_declared_exposure_is_authoritative": False,
+        "ca_same_spell_must_cover_event_and_application": True,
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,

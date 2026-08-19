@@ -185,7 +185,14 @@ def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
             as_of=as_of, stock_id=sid, price_observed_through=through,
             expected_sessions=expected,
             known_status=str(priced.iloc[0].known_status) if len(priced) else "listed"))
-        exposures.append(Exposure(stock_id=sid, held_from=start, held_until=as_of))
+        # B0.1/R2: exposure is the portfolio's own spell ledger, never the
+        # LISTING spell. Declaring `held_from = <listing start>` is precisely
+        # what made B0 look exposed to a security's entire history, and it is
+        # what ended the official Frozen B0 L2 run in period 2.
+        for sp in portfolio.holding_spells:
+            if sp.stock_id == sid:
+                exposures.append(Exposure(stock_id=sid, held_from=sp.start,
+                                          held_until=sp.end or as_of))
         ca_events.extend(e for e in events_by_sid.get(sid, ())
                          if e.ex_or_effective_date <= as_of)
 
@@ -341,7 +348,12 @@ def main() -> int:
                 security_receivables=tr.state.security_receivables,
                 cash_receivables=tr.state.cash_receivables,
                 applied_ca_event_ids=tr.state.applied_ca_event_ids,
-                pending_exit_on_receivable=tr.state.pending_exit_on_receivable)
+                pending_exit_on_receivable=tr.state.pending_exit_on_receivable,
+                holding_spells=tr.state.holding_spells)
+            # B0.1/R1: the end-of-day state, which is where a spell opens on an
+            # actual acquisition and closes on an actual final exit.
+            portfolio = portfolio.with_underlying_exposure_recorded(
+                period["execution_date"])
             nav_series.append({"period": period["decision_month"], "as_of": as_of,
                                "port_value": result.port_value,
                                "cash_after": s.cash_after,
