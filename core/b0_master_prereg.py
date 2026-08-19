@@ -58,6 +58,7 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     "core/b0_provenance.py",
     "core/b0_open_items.py",
     "core/b0_finalization_items.py",
+    "core/b0_l2_run_layout.py",
     "core/b0_declaration_conformance.py",
     "core/b0_state.py",
     "core/b0_features.py",
@@ -622,16 +623,14 @@ STRATEGY_OUTCOME_ROW_KEYS: tuple[str, ...] = (
     "alpha", "information_ratio", "win_rate", "ic",
 )
 
-DEFAULT_L2_RUN_DIR = os.path.join(REPO_ROOT, "artifacts", "l2_run")
-
-
 class ConditionTwoContradicted(MasterPreregViolation):
     """The immutable run artefacts disagree with the attestation."""
 
 
 def verify_opening_state_restatement(
-        run_dir: str = DEFAULT_L2_RUN_DIR,
-        opening_cash: float | None = None) -> dict:
+        run_dir: str | None = None,
+        opening_cash: float | None = None,
+        run_id: str | None = None) -> dict:
     """R5: condition 2, checked against the run's own immutable artefacts.
 
     An attestation boolean is a claim by whoever wrote it. This reads the rows
@@ -641,6 +640,15 @@ def verify_opening_state_restatement(
     """
     if opening_cash is None:
         opening_cash = float(spec("C_ref"))
+    if run_dir is None:
+        if run_id is None:
+            raise UnspecifiedBehaviour(
+                "C-58/R4: condition 2 must be verified against a NAMED run. "
+                "There is no default run and no `latest`: resolving identity "
+                "through a mutable pointer is how one run's evidence gets read "
+                "out from under another.")
+        from core.b0_l2_run_layout import resolve_run_dir
+        run_dir = resolve_run_dir(run_id)
 
     nav_path = os.path.join(run_dir, "nav_series.json")
     prog_path = os.path.join(run_dir, "period_progress.jsonl")
@@ -690,8 +698,22 @@ def verify_opening_state_restatement(
                     f"R3: {source} row {i} holds {field}={held!r}. A non-empty "
                     f"strategy portfolio makes condition 2 false.")
 
+    from core.b0_l2_run_layout import sha256_of
+
+    artefacts = {}
+    for name in ("opening_record.json", "period_progress.jsonl",
+                 "nav_series.json", "final_result.json"):
+        path = os.path.join(run_dir, name)
+        if os.path.exists(path):
+            sha, size = sha256_of(path)
+            artefacts[name] = {
+                "path": os.path.relpath(path, REPO_ROOT).replace("\\", "/"),
+                "sha256": sha, "bytes": size}
+
     evidence = {
+        "run_id": run_id,
         "run_dir": os.path.relpath(run_dir, REPO_ROOT).replace("\\", "/"),
+        "artefacts": artefacts,
         "rows_checked": len(rows),
         "sealed_opening_cash": opening_cash,
         "distinct_value_fields_observed": sorted(values),
@@ -787,7 +809,7 @@ class NonConsumptionAttestation:
 def assert_non_consumption_admissible(
         att: NonConsumptionAttestation,
         *,
-        run_dir: str = DEFAULT_L2_RUN_DIR,
+        run_dir: str | None = None,
         require_artefacts: bool = False) -> dict | None:
     """Conditions 1-5, named individually so a failure says which one.
 
@@ -809,11 +831,16 @@ def assert_non_consumption_admissible(
                         "assert_reopening_admissible"):
             raise UnspecifiedBehaviour(
                 f"R2: condition {cond!r} has no enforcement site.")
-    readable = any(os.path.exists(os.path.join(run_dir, f))
+    # C-58/R4: the run under adjudication is the one the attestation names.
+    resolved = run_dir
+    if resolved is None:
+        from core.b0_l2_run_layout import run_dir as layout_run_dir
+        resolved = layout_run_dir(att.run_id)
+    readable = any(os.path.exists(os.path.join(resolved, f))
                    for f in ("nav_series.json", "period_progress.jsonl"))
     if not readable and not require_artefacts:
         return None
-    return verify_opening_state_restatement(run_dir)
+    return verify_opening_state_restatement(resolved, run_id=att.run_id)
 
 
 DEFAULT_NONCONSUMPTION_PATH = os.path.join(
@@ -836,7 +863,7 @@ def read_non_consumption(path: str = DEFAULT_NONCONSUMPTION_PATH) -> list[dict]:
 def effective_observation_count(
         registry_path: str = DEFAULT_REGISTRY_PATH,
         attestation_path: str = DEFAULT_NONCONSUMPTION_PATH,
-        run_dir: str = DEFAULT_L2_RUN_DIR) -> int:
+        run_dir: str | None = None) -> int:
     """B-18 4.3: how many times the sealed window has actually been observed.
 
     An attestation excuses a row only if the ROW own outcome is in scope, so a
@@ -898,7 +925,7 @@ def assert_reopening_admissible(
         new_baseline_seal_sha256: str,
         authorization_reference: str,
         attestation: "NonConsumptionAttestation | None" = None,
-        run_dir: str = DEFAULT_L2_RUN_DIR) -> None:
+        run_dir: str | None = None) -> None:
     """R2 conditions 6 and 7, enforced rather than attested.
 
     A boolean saying "a new seal was taken" is worth nothing next to comparing
@@ -957,6 +984,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_provenance as prov
     from core import b0_share_unit_adjustment as sua
     from core import b0_bonus_share_source as bsrc
+    from core import b0_l2_run_layout as layout
     from core import b0_opening_state as opn
     from core import b0_corporate_actions as ca
     from core import b0_valuation_source as vsrc
@@ -1116,6 +1144,13 @@ def _spec_registry() -> dict[str, Any]:
         "l2_condition_2_negative_boundary": CONDITION_2_NEGATIVE_BOUNDARY,
         "l2_strategy_outcome_row_keys": STRATEGY_OUTCOME_ROW_KEYS,
         "l2_artefact_verified_conditions": ARTEFACT_VERIFIED_CONDITIONS,
+        # v1.24 - C-58. One run, one immutable directory.
+        "l2_run_artefacts": layout.RUN_ARTEFACTS,
+        "l2_legacy_run_id": layout.LEGACY_RUN_ID,
+        "l2_legacy_run_artefact_sha256": tuple(
+            sorted(layout.LEGACY_RUN_ARTEFACT_SHA256.items())),
+        "l2_canonical_run_identity": layout.CANONICAL_RUN_IDENTITY,
+        "l2_latest_pointer_is_canonical": layout.LATEST_POINTER_IS_CANONICAL,
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,

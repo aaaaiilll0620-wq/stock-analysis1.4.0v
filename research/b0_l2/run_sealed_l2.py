@@ -40,6 +40,9 @@ from core.b0_corporate_actions import (                          # noqa: E402
 )
 from core.b0_features import SecurityPitInputs                   # noqa: E402
 from core.b0_listing_spell import ListingSpell                   # noqa: E402
+from core.b0_l2_run_layout import (                              # noqa: E402
+    assert_legacy_run_unmutated, resolve_run_dir,
+)
 from core.b0_master_prereg import (                             # noqa: E402
     append_provenance_record, write_provenance_json,
 )
@@ -52,11 +55,21 @@ from build_period1_full_input import (                           # noqa: E402
 )
 
 DATA = os.path.join(REPO, "data", "b0")
-OUT = os.path.join(REPO, "artifacts", "l2_run")
 MANIFEST = os.path.join(DATA, "market_state_manifest.json")
 
 
-def _jsonl(name, row):
+def out_dir(run_id):
+    """C-58/R2: every output of this run, and nothing else, lives here.
+
+    There is no module-level `OUT` any more. A global output directory is what
+    made a second run overwrite the first one's provenance, and a default that
+    resolves to `artifacts/l2_run` would put that back the moment somebody
+    forgot to pass a run_id.
+    """
+    return resolve_run_dir(run_id)
+
+
+def _jsonl(run_id, name, row):
     """R5: one primitive, in a normative module, writing binary LF bytes.
 
     `newline="\n"` here was correct but local — the registry writer in
@@ -64,7 +77,7 @@ def _jsonl(name, row):
     therefore hashed differently on Windows. A provenance byte rule that each
     caller re-implements is a rule that one caller will get wrong.
     """
-    append_provenance_record(os.path.join(OUT, name),
+    append_provenance_record(os.path.join(out_dir(run_id), name),
                              json.loads(json.dumps(row, default=str)))
 
 
@@ -184,9 +197,22 @@ def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
 
 
 def main() -> int:
-    opening = json.load(open(os.path.join(OUT, "opening_record.json"),
+    run_id = (sys.argv[1] if len(sys.argv) > 1
+              else os.environ.get("B0_L2_RUN_ID", "")).strip()
+    if not run_id:
+        raise SystemExit(
+            "abort: this runner requires an explicit run_id "
+            "(argv[1] or B0_L2_RUN_ID). C-58/R4: there is no `latest` run, "
+            "because a mutable pointer is how one run's provenance gets "
+            "written over another's.")
+    out = out_dir(run_id)
+    opening = json.load(open(os.path.join(out, "opening_record.json"),
                              encoding="utf-8"))
-    run_id = opening["run_id"]
+    if opening["run_id"] != run_id:
+        raise SystemExit(
+            "abort: %s holds an opening record for %r, not %r"
+            % (out, opening["run_id"], run_id))
+    assert_legacy_run_unmutated()
     manifest = json.load(open(MANIFEST, encoding="utf-8"))
     sessions = tuple(r["session"] for r in csv.DictReader(
         open(os.path.join(DATA, "trading_calendar.csv"), encoding="utf-8")))
@@ -236,7 +262,7 @@ def main() -> int:
                                          sessions=sessions,
                                          period=period["decision_month"])
             for rec in tr.ledger:
-                _jsonl("ca_transition_ledger.jsonl",
+                _jsonl(run_id, "ca_transition_ledger.jsonl",
                        {"run_id": run_id, **rec.__dict__})
             rows = pd.read_parquet(period["artefact"])
             inp = build_input(period, rows, tr.state, sessions, events_by_sid,
@@ -256,7 +282,7 @@ def main() -> int:
                                "port_value": result.port_value,
                                "cash_after": s.cash_after,
                                "positions": len(s.shares_after)})
-            _jsonl("period_progress.jsonl", {
+            _jsonl(run_id, "period_progress.jsonl", {
                 "run_id": run_id, "seq": i, "period": period["decision_month"],
                 "as_of": as_of, "port_value": result.port_value,
                 "state_hash": result.state_hash,
@@ -265,14 +291,14 @@ def main() -> int:
                 "post_state_hash": ca._state_hash(portfolio)})
             done = i
         except ca.CorporateActionReconstructionBlock as exc:
-            _jsonl("failure_record.jsonl", {
+            _jsonl(run_id, "failure_record.jsonl", {
                 "run_id": run_id, "classification": "F-CA-B",
                 "formal_result": "NOT EVALUABLE — CORPORATE ACTION RECONSTRUCTION BLOCK",
                 "period": period["decision_month"], "seq": i, **exc.detail})
             print("BLOCK F-CA-B at %s: %s" % (period["decision_month"], exc))
             return 2
         except Exception as exc:                     # noqa: BLE001
-            _jsonl("failure_record.jsonl", {
+            _jsonl(run_id, "failure_record.jsonl", {
                 "run_id": run_id, "classification": "F-CA-C-or-core",
                 "period": period["decision_month"], "seq": i,
                 "error_type": type(exc).__name__, "error": str(exc),
@@ -284,7 +310,7 @@ def main() -> int:
             print("  %d/141  %s  port_value=%.2f" % (i, period["decision_month"],
                                                      result.port_value), flush=True)
 
-    write_provenance_json(os.path.join(OUT, "nav_series.json"), nav_series)
+    write_provenance_json(os.path.join(out, "nav_series.json"), nav_series)
     print("completed %d/141 periods" % done)
     return 0
 

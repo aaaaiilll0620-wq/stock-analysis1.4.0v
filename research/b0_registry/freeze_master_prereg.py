@@ -62,7 +62,7 @@ def main():
     doc = os.path.join(REPO, MASTER_PREREG_DOC)
     record = {
         "document": MASTER_PREREG_DOC,
-        "version": "1.23",
+        "version": "1.24",
         "status": "NORMATIVE_FROZEN",
         "spec_sha256": spec_document_sha256(),
         "spec_bytes": os.path.getsize(doc),
