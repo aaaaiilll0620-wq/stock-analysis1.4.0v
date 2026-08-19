@@ -75,6 +75,7 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     "core/b0_opening_state.py",
     "core/b0_1_diagnostic_closure.py",
     "core/b0_benchmark_gate1.py",
+    "core/b0_benchmark_construction.py",
 )
 
 

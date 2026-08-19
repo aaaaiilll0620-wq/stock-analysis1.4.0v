@@ -17,10 +17,11 @@ WHAT THIS MODULE DELIBERATELY DOES NOT DO
 -----------------------------------------
 It contains no benchmark semantics. Not a date, not a notional, not a sizing
 rule, not a capacity rule, not a terminal-treatment rule, not a missing-session
-rule. Those are exactly the six things the frozen master does not determine, and
-they are registered as the M-3 item `benchmark_construction_semantics`; writing
-any of them here would be the implementer picking a free parameter that sits
-directly on the primary gate. This module only asks whether the inputs a gate-1
+rule. Those were the six things the frozen master did not determine; the M-3
+ruling settled them and `core.b0_benchmark_construction` is their single record.
+Per B9 this module may enforce COMPLETENESS but must not invent semantics
+independently of the Master, so every rule it needs is imported from there and
+none is restated here. This module only asks whether the inputs a gate-1
 computation would need are PRESENT and SEAL-BOUND, which is a provenance
 question and answerable without deciding a single economic convention.
 
@@ -71,6 +72,23 @@ def _seal_binds_benchmark(seal: dict) -> dict:
         (present if declared.get(key) else missing).append(key)
     return {"benchmark_rows_in_manifest": benchmark_rows,
             "bindings_present": present, "bindings_missing": missing}
+
+
+def benchmark_lineage_status(available_fields=None) -> dict:
+    """B6/B9 · does any candidate source carry what B1-B7 require?
+
+    Delegated wholesale to `b0_benchmark_construction`, which derives the field
+    list from the frozen rules. Restating it here would create a second answer
+    to a question that must have one.
+    """
+    from core.b0_benchmark_construction import (
+        REQUIRED_LINEAGE_FIELDS, lineage_field_status,
+    )
+
+    status = lineage_field_status(available_fields or ())
+    return {"required_fields": [f.field for f in REQUIRED_LINEAGE_FIELDS],
+            "by_field": status,
+            "missing": sorted(k for k, v in status.items() if not v["present"])}
 
 
 def gate1_input_status(seal: dict | None = None) -> dict:
