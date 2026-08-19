@@ -1,0 +1,110 @@
+{
+ "authorization": "USER FORMAL AUTHORIZATION 2026-08-19 · B0.1 RETROSPECTIVE DIAGNOSTIC REPLAY · Master v1.26 §12.8 · evidence_class=RETROSPECTIVE_SUPPORTING_ONLY",
+ "b0_1_baseline_seal": "4d17505d3800b04c2f7cb867492038bd2d260b50b3b8fb9f99413a6da812c037",
+ "b0_1_unmodified_during_replay": true,
+ "commit_sha": "e708fdb7cb03718dc4179243ff2c7c502c72ea36",
+ "confirmatory_l2": false,
+ "detail": {
+  "blocker_kind": "implementation_conformance_or_invariant",
+  "classification": "F-CA-C-or-core",
+  "error": "B0.1/R2: caller-declared exposure disagrees with the canonical holding-spell ledger. caller-only=[] state-only=[('3032', '2014-08-01'), ('3218', '2014-08-01'), ('3268', '2014-08-01'), ('3653', '2014-08-01'), ('4161', '2014-08-01')]. Exposure is a property of what B0 held, not of what the caller believes it held.",
+  "error_type": "CorporateActionError",
+  "period": "2014-09",
+  "seq": 3
+ },
+ "diagnostic_terminal_status": "DIAGNOSTIC_RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE",
+ "evidence_class": "RETROSPECTIVE_SUPPORTING_ONLY",
+ "frozen_b0_l2_snapshot_after": {
+  "attempted_openings": 2,
+  "effective_observation_count": 1,
+  "l2_artefact_files": {
+   "artifacts/l2_run/final_result.json": {
+    "bytes": 2666,
+    "sha256": "2e7f11fd322357e03a240cd1740120b3d3a808a92f60083966c9176c1618948e"
+   },
+   "artifacts/l2_run/nav_series.json": {
+    "bytes": 17768,
+    "sha256": "8df673360d40a915e301e4c904eb5547e809a4d6c13b4f40c57c5d1e7b170639"
+   },
+   "artifacts/l2_run/opening_claims/865b2028efcb270835977d828b9ac19aefd10cb4778a287128d427b570e94f9b.json": {
+    "bytes": 788,
+    "sha256": "5d816b01558a9f73b16ce33b36efc4fedcf5432a11af2cb335ba59ced3296990"
+   },
+   "artifacts/l2_run/opening_record.json": {
+    "bytes": 1011,
+    "sha256": "af0fcf7d82ca2d24977fc67855394c1c7ac23628665850678b69843eefb81cef"
+   },
+   "artifacts/l2_run/period_progress.jsonl": {
+    "bytes": 44730,
+    "sha256": "ec1a8a3e71fbe6b2f27a73deab44a30ac46bdf339fde4fe3d3071ac7d1b56713"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/execution_claim.json": {
+    "bytes": 645,
+    "sha256": "be62f5c134b27883888a7aed063a7ec9b327be898198a641afcff1141bb2cbf7"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/failure_record.jsonl": {
+    "bytes": 623,
+    "sha256": "6436bfb6fe8076b7428ca639e86efab9dcc7cf09f364398d974ee7e3e46d9a43"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/final_result.json": {
+    "bytes": 1219,
+    "sha256": "aa3df8c9544fac53e3e53ac8820850555e09b2e34ab05f2c8cfb53e1ccc7e9b3"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/opening_record.json": {
+    "bytes": 896,
+    "sha256": "282fd9599ee35edfc74054fb82ff4d4d51fac15198fc9067327559dfab11a7b0"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/period_progress.jsonl": {
+    "bytes": 317,
+    "sha256": "3ccad807bceb75030ab7f45b3aae2ba19599b4a2e251316d5bd70792b461a77c"
+   }
+  },
+  "l2_artefact_tree_sha256": "414a4364106b804dd994b6c8db163c408bf1025f760f96a241f8ddc0a8574524",
+  "legacy_pinned_artefacts": {
+   "final_result.json": {
+    "bytes": 2666,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/final_result.json",
+    "present": true,
+    "sha256": "2e7f11fd322357e03a240cd1740120b3d3a808a92f60083966c9176c1618948e"
+   },
+   "nav_series.json": {
+    "bytes": 17768,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/nav_series.json",
+    "present": true,
+    "sha256": "8df673360d40a915e301e4c904eb5547e809a4d6c13b4f40c57c5d1e7b170639"
+   },
+   "opening_record.json": {
+    "bytes": 1011,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/opening_record.json",
+    "present": true,
+    "sha256": "af0fcf7d82ca2d24977fc67855394c1c7ac23628665850678b69843eefb81cef"
+   },
+   "period_progress.jsonl": {
+    "bytes": 44730,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/period_progress.jsonl",
+    "present": true,
+    "sha256": "ec1a8a3e71fbe6b2f27a73deab44a30ac46bdf339fde4fe3d3071ac7d1b56713"
+   }
+  },
+  "registry_rows": 2,
+  "registry_sha256": "4a13671cdbe35add8191bf82acc27d52d05a8ce64e00b85c8b13cbb8b72b8361"
+ },
+ "frozen_b0_l2_untouched": true,
+ "harness_sha256": "baed30dc8c0799c2766286746acb73cde7457f3de301f8b00584bb312dda09d0",
+ "market_state_composed_sha256": "66640a7852aec84ada1e2ca5475998a05e41c0ae022fb60ac08a967e838ae1a4",
+ "parent_frozen_b0_l2_run": "L2-af1b4d90c29b3b5f",
+ "performance_computed": false,
+ "period1_full_input_sha256": "fdee3374f94681911bafb037df159d9970ff7ab8241256bb47c33945fd70d718",
+ "periods_executed": 2,
+ "periods_required": 141,
+ "record": "B0_1_DIAGNOSTIC_TERMINAL_RESULT",
+ "replaces_frozen_b0_l2": false,
+ "run_id": "B01DIAG-0121b3261805b826",
+ "run_kind": "B0_1_RETROSPECTIVE_DIAGNOSTIC",
+ "spec_sha256": "6f452ea23406ac52a5547c32bb1285f4284dd07a83503ee865e88eb9b1145a15",
+ "terminated_at_utc": "2026-08-19T12:42:14.403907+00:00"
+}

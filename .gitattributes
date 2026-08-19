@@ -35,6 +35,13 @@
 *.pdf      -text
 *.pyc      -text
 
+# --- Immutable evidence: byte-exact, never line-ending converted -------------
+# Preserved provenance of a terminated governance run. Its bytes are PINNED by
+# sha256 in core/b0_1_diagnostic_closure.py, so eol normalization would not be a
+# style change -- it would silently invalidate the pins on the next clone and
+# make the record unverifiable. Preservation outranks the LF house style here.
+research/b0_1_diagnostic/terminal_provenance/**  -text
+
 # --- Windows script hosts require CRLF at execution time ---------------------
 # Still deterministic: the repository stores LF, and the working-tree ending is
 # fixed by this file rather than by platform configuration.

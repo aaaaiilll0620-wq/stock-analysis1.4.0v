@@ -1,0 +1,28 @@
+{
+ "command": "python -m pytest -q",
+ "commit_sha": "e708fdb7cb03718dc4179243ff2c7c502c72ea36",
+ "confirmatory_rerun": {
+  "errors": 0,
+  "failed": 0,
+  "log": "pytest_e708fdb7.log",
+  "log_sha256": "b135dd91136bd22285785415675fc67b15e503cbc5d35eea666f8aaf8ff1e57d",
+  "note": "re-run after the untracked diagnostic harness dir was created. The only delta is tests/test_repo_tree_cleanliness.py:48, which SKIPS itself when the tree is not clean at test start; it PASSED in the canonical clean-tree run above.",
+  "passed": 2283,
+  "skipped": 3,
+  "summary": "2283 passed, 3 skipped, 2 warnings in 62.58s"
+ },
+ "errors": 0,
+ "failed": 0,
+ "interpreter": "C:/Users/aaaai/AppData/Local/Microsoft/WindowsApps/python.exe (3.12.10, pytest 9.1.1)",
+ "log": "pytest_clean_tree_e708fdb7.log",
+ "log_sha256": "58c274c17505ef346498ce275c90ee238e5997305296e7385e21ca84d8d48ec4",
+ "passed": 2284,
+ "record": "B0_1_DIAGNOSTIC_TEST_EVIDENCE",
+ "skipped": 2,
+ "skips": [
+  "tests/test_build_v2_candidate.py:933 symlink privilege (WinError 1314) - environmental",
+  "tests/test_build_v2_candidate.py:1006 symlink privilege (WinError 1314) - environmental"
+ ],
+ "summary": "2284 passed, 2 skipped, 2 warnings in 128.47s",
+ "tree_state_at_run": "clean (git status --porcelain empty)"
+}
