@@ -1,0 +1,13 @@
+{
+ "command": "python -m pytest -q",
+ "commit_sha": "7c4e099f717c27459af499498510c8d3d4316b83",
+ "errors": 0,
+ "failed": 0,
+ "interpreter": "win python 3.12.10 / pytest 9.1.1",
+ "log": "pytest_7c4e099f.log",
+ "log_sha256": "771f4232038d9949c7cb4fe476de07c35637688234730dee5e49a99f81ba3311",
+ "passed": 2420,
+ "record": "B0_5_DIAGNOSTIC_TEST_EVIDENCE",
+ "skipped": 3,
+ "summary": "2420 passed, 3 skipped, 2 warnings in 70.98s (0:01:10)"
+}

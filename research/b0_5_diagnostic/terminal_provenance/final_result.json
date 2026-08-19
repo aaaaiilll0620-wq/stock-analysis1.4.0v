@@ -1,0 +1,294 @@
+{
+ "authorization": "USER FORMAL AUTHORIZATION 2026-08-20 · FROZEN B0.5 RETROSPECTIVE DIAGNOSTIC REPLAY · evidence_class=RETROSPECTIVE_SUPPORTING_ONLY · Master v1.30 §16 · replaces no prior run",
+ "b0_5_baseline_seal": "ab8a9a652074340b97269bde7f2894f46803f21a3e33a31b2532d8b283a4b9e1",
+ "b0_5_unmodified_during_replay": true,
+ "commit_sha": "7c4e099f717c27459af499498510c8d3d4316b83",
+ "confirmatory_l2": false,
+ "detail": {
+  "blocker_kind": "implementation_conformance_or_invariant",
+  "classification": "F-CA-C-or-core",
+  "error": "O-B: status 'suspended' must carry the date it became known; an undated status cannot be shown to be PIT-available",
+  "error_type": "PriceObservabilityError",
+  "period": "2018-04",
+  "seq": 46
+ },
+ "diagnostic_terminal_status": "DIAGNOSTIC_RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE",
+ "evidence_class": "RETROSPECTIVE_SUPPORTING_ONLY",
+ "gates_evaluated": false,
+ "harness_sha256": "de2268808b358868d5d24b1154b2ce670145f86818a4096a7b0213a8265332fc",
+ "historical_lineage_untouched": true,
+ "lineage_snapshot_after": {
+  "attempted_openings": 2,
+  "b0_1_diagnostic": {
+   "artefacts": {
+    "ca_transition_ledger.jsonl": {
+     "live": {
+      "bytes": 2725,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "5b79345fc26a2b86a675a9b39eabf81f30bdb581aa7a305731c4876bbb90f0e2"
+     },
+     "pinned_bytes": 2725,
+     "pinned_sha256": "5b79345fc26a2b86a675a9b39eabf81f30bdb581aa7a305731c4876bbb90f0e2",
+     "versioned": {
+      "bytes": 2725,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "5b79345fc26a2b86a675a9b39eabf81f30bdb581aa7a305731c4876bbb90f0e2"
+     }
+    },
+    "failure_record.jsonl": {
+     "live": {
+      "bytes": 1437,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "37c4950c4fd2348e3cd03cde68612fc2cb82efea7a37089fd433e9edbc71e0b4"
+     },
+     "pinned_bytes": 1437,
+     "pinned_sha256": "37c4950c4fd2348e3cd03cde68612fc2cb82efea7a37089fd433e9edbc71e0b4",
+     "versioned": {
+      "bytes": 1437,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "37c4950c4fd2348e3cd03cde68612fc2cb82efea7a37089fd433e9edbc71e0b4"
+     }
+    },
+    "final_result.json": {
+     "live": {
+      "bytes": 4810,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "81ef1052c1e8490aa58b0323669757680809156cd5cbbd2a5caf1ce669b38750"
+     },
+     "pinned_bytes": 4810,
+     "pinned_sha256": "81ef1052c1e8490aa58b0323669757680809156cd5cbbd2a5caf1ce669b38750",
+     "versioned": {
+      "bytes": 4810,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "81ef1052c1e8490aa58b0323669757680809156cd5cbbd2a5caf1ce669b38750"
+     }
+    },
+    "opening_state.jsonl": {
+     "live": {
+      "bytes": 171,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "60357f6c436fe67464c6d3f4f3732ce7fc9aee061936e7a8b8bd5125acaa5ab1"
+     },
+     "pinned_bytes": 171,
+     "pinned_sha256": "60357f6c436fe67464c6d3f4f3732ce7fc9aee061936e7a8b8bd5125acaa5ab1",
+     "versioned": {
+      "bytes": 171,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "60357f6c436fe67464c6d3f4f3732ce7fc9aee061936e7a8b8bd5125acaa5ab1"
+     }
+    },
+    "period_progress.jsonl": {
+     "live": {
+      "bytes": 718,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "d86d10d42a0bd90c536e525d7e65b5ccbf565785a4041d5f8f4bc9fd896ac167"
+     },
+     "pinned_bytes": 718,
+     "pinned_sha256": "d86d10d42a0bd90c536e525d7e65b5ccbf565785a4041d5f8f4bc9fd896ac167",
+     "versioned": {
+      "bytes": 718,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "d86d10d42a0bd90c536e525d7e65b5ccbf565785a4041d5f8f4bc9fd896ac167"
+     }
+    },
+    "pytest_clean_tree_e708fdb7.log": {
+     "live": {
+      "bytes": 2651,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "58c274c17505ef346498ce275c90ee238e5997305296e7385e21ca84d8d48ec4"
+     },
+     "pinned_bytes": 2651,
+     "pinned_sha256": "58c274c17505ef346498ce275c90ee238e5997305296e7385e21ca84d8d48ec4",
+     "versioned": {
+      "bytes": 2651,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "58c274c17505ef346498ce275c90ee238e5997305296e7385e21ca84d8d48ec4"
+     }
+    },
+    "pytest_e708fdb7.log": {
+     "live": {
+      "bytes": 3438,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "b135dd91136bd22285785415675fc67b15e503cbc5d35eea666f8aaf8ff1e57d"
+     },
+     "pinned_bytes": 3438,
+     "pinned_sha256": "b135dd91136bd22285785415675fc67b15e503cbc5d35eea666f8aaf8ff1e57d",
+     "versioned": {
+      "bytes": 3438,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "b135dd91136bd22285785415675fc67b15e503cbc5d35eea666f8aaf8ff1e57d"
+     }
+    },
+    "research/b0_1_diagnostic/run_b0_1_diagnostic.py": {
+     "live": {
+      "present": false
+     },
+     "pinned_bytes": 25736,
+     "pinned_sha256": "baed30dc8c0799c2766286746acb73cde7457f3de301f8b00584bb312dda09d0",
+     "versioned": {
+      "bytes": 25736,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "baed30dc8c0799c2766286746acb73cde7457f3de301f8b00584bb312dda09d0"
+     }
+    },
+    "run_claim.json": {
+     "live": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     },
+     "pinned_bytes": 10454,
+     "pinned_sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f",
+     "versioned": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     }
+    },
+    "run_provenance.json": {
+     "live": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     },
+     "pinned_bytes": 10454,
+     "pinned_sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f",
+     "versioned": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     }
+    },
+    "test_evidence.json": {
+     "live": {
+      "bytes": 1267,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "1f3bd6184a06ff9630a3c65d9b92b17e4a705ac0c4f2f9126d78058d27c1bb59"
+     },
+     "pinned_bytes": 1267,
+     "pinned_sha256": "1f3bd6184a06ff9630a3c65d9b92b17e4a705ac0c4f2f9126d78058d27c1bb59",
+     "versioned": {
+      "bytes": 1267,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "1f3bd6184a06ff9630a3c65d9b92b17e4a705ac0c4f2f9126d78058d27c1bb59"
+     }
+    }
+   },
+   "composed": "8f2f7b6a727af15e787dc6339da9d6e0716e10d3733ecebf8e94748f540b0094"
+  },
+  "effective_observation_count": 1,
+  "l2_artefact_files": {
+   "artifacts/l2_run/final_result.json": {
+    "bytes": 2666,
+    "sha256": "2e7f11fd322357e03a240cd1740120b3d3a808a92f60083966c9176c1618948e"
+   },
+   "artifacts/l2_run/nav_series.json": {
+    "bytes": 17768,
+    "sha256": "8df673360d40a915e301e4c904eb5547e809a4d6c13b4f40c57c5d1e7b170639"
+   },
+   "artifacts/l2_run/opening_claims/865b2028efcb270835977d828b9ac19aefd10cb4778a287128d427b570e94f9b.json": {
+    "bytes": 788,
+    "sha256": "5d816b01558a9f73b16ce33b36efc4fedcf5432a11af2cb335ba59ced3296990"
+   },
+   "artifacts/l2_run/opening_record.json": {
+    "bytes": 1011,
+    "sha256": "af0fcf7d82ca2d24977fc67855394c1c7ac23628665850678b69843eefb81cef"
+   },
+   "artifacts/l2_run/period_progress.jsonl": {
+    "bytes": 44730,
+    "sha256": "ec1a8a3e71fbe6b2f27a73deab44a30ac46bdf339fde4fe3d3071ac7d1b56713"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/execution_claim.json": {
+    "bytes": 645,
+    "sha256": "be62f5c134b27883888a7aed063a7ec9b327be898198a641afcff1141bb2cbf7"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/failure_record.jsonl": {
+    "bytes": 623,
+    "sha256": "6436bfb6fe8076b7428ca639e86efab9dcc7cf09f364398d974ee7e3e46d9a43"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/final_result.json": {
+    "bytes": 1219,
+    "sha256": "aa3df8c9544fac53e3e53ac8820850555e09b2e34ab05f2c8cfb53e1ccc7e9b3"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/opening_record.json": {
+    "bytes": 896,
+    "sha256": "282fd9599ee35edfc74054fb82ff4d4d51fac15198fc9067327559dfab11a7b0"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/period_progress.jsonl": {
+    "bytes": 317,
+    "sha256": "3ccad807bceb75030ab7f45b3aae2ba19599b4a2e251316d5bd70792b461a77c"
+   }
+  },
+  "l2_artefact_tree_sha256": "414a4364106b804dd994b6c8db163c408bf1025f760f96a241f8ddc0a8574524",
+  "legacy_pinned_artefacts": {
+   "final_result.json": {
+    "bytes": 2666,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/final_result.json",
+    "present": true,
+    "sha256": "2e7f11fd322357e03a240cd1740120b3d3a808a92f60083966c9176c1618948e"
+   },
+   "nav_series.json": {
+    "bytes": 17768,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/nav_series.json",
+    "present": true,
+    "sha256": "8df673360d40a915e301e4c904eb5547e809a4d6c13b4f40c57c5d1e7b170639"
+   },
+   "opening_record.json": {
+    "bytes": 1011,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/opening_record.json",
+    "present": true,
+    "sha256": "af0fcf7d82ca2d24977fc67855394c1c7ac23628665850678b69843eefb81cef"
+   },
+   "period_progress.jsonl": {
+    "bytes": 44730,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/period_progress.jsonl",
+    "present": true,
+    "sha256": "ec1a8a3e71fbe6b2f27a73deab44a30ac46bdf339fde4fe3d3071ac7d1b56713"
+   }
+  },
+  "registry_rows": 2,
+  "registry_sha256": "4a13671cdbe35add8191bf82acc27d52d05a8ce64e00b85c8b13cbb8b72b8361"
+ },
+ "market_state_composed_sha256": "f7b4cc4ddbb70a64d4c34c5f164cdca9aa9ac29da04297acf1f005f0aea060b8",
+ "parent_b0_1_diagnostic_run": "B01DIAG-0121b3261805b826",
+ "parent_b0_2_diagnostic_run": "B02DIAG-bc7ce018a97cfa0f",
+ "parent_b0_4_diagnostic_run": "B04DIAG-d5f34a5164a0e309",
+ "parent_frozen_b0_l2_run": "L2-af1b4d90c29b3b5f",
+ "performance_computed": false,
+ "performance_displayed": false,
+ "period1_full_input_sha256": "23f07b4d4ce5c47506d74073bf8ad6483437481136c15ac63e7419fcc13ca253",
+ "periods_executed": 45,
+ "periods_required": 141,
+ "record": "B0_5_DIAGNOSTIC_TERMINAL_RESULT",
+ "replaces_frozen_b0_1_diagnostic": false,
+ "replaces_frozen_b0_l2": false,
+ "run_id": "B05DIAG-9943d2f7b4adb670",
+ "run_kind": "B0_5_RETROSPECTIVE_DIAGNOSTIC",
+ "spec_sha256": "6c2f44853c4f3491165a6c1660a6fa8b024e2543e33f85e1aca2bbfb926bab3c",
+ "terminated_at_utc": "2026-08-19T20:56:41.833759+00:00"
+}
