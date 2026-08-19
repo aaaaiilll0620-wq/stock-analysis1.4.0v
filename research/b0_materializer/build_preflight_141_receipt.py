@@ -42,12 +42,12 @@ SEALED_INPUTS = {
 }
 
 PROVENANCE_NOTE = (
-    "v1.24 L2 run-scoped immutable provenance (C-58, R1-R6). This ruling "
-    "changed NO sealed input content: the composed 141-state hash is unchanged "
-    "at 66640a78. The period-1 full-input hash moved again because that input "
-    "binds the Master spec identity and the Master moved 1.23 -> 1.24; no "
-    "market-side or portfolio content changed. Any new authorization must bind "
-    "the values in this receipt."
+    "v1.25 L2 opener/runner protocol conformance repair (C-59, R1-R10). This "
+    "ruling changed NO sealed input content: the composed 141-state hash is "
+    "unchanged at 66640a78. The period-1 full-input hash moved again because "
+    "that input binds the Master spec identity and the Master moved 1.24 -> "
+    "1.25; no market-side or portfolio content changed. Any new authorization "
+    "must bind the values in this receipt."
 )
 
 

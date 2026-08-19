@@ -22,8 +22,10 @@ from __future__ import annotations
 import csv
 import json
 import os
+import subprocess
 import sys
 import traceback
+from datetime import datetime, timezone
 from fractions import Fraction
 
 import pandas as pd
@@ -41,10 +43,12 @@ from core.b0_corporate_actions import (                          # noqa: E402
 from core.b0_features import SecurityPitInputs                   # noqa: E402
 from core.b0_listing_spell import ListingSpell                   # noqa: E402
 from core.b0_l2_run_layout import (                              # noqa: E402
-    assert_legacy_run_unmutated, resolve_run_dir,
+    ExecutionClaimExists, assert_runner_admissible, create_execution_claim,
+    resolve_run_dir, run_state,
 )
 from core.b0_master_prereg import (                             # noqa: E402
-    append_provenance_record, write_provenance_json,
+    L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE, L2Opening,
+    append_provenance_record, record_opening, write_provenance_json,
 )
 from core.b0_pit_observability import PitPriceObservation        # noqa: E402
 from core.b0_route import ROUTE_KIND_RETROSPECTIVE, run_decision # noqa: E402
@@ -196,6 +200,46 @@ def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
         untradable=frozenset(untradable), listing_spells=tuple(spells))
 
 
+def _terminate(run_id, admission, outcome, periods_done, detail):
+    """R7 · the immutable terminal result, and the registry row beside it.
+
+    Both were previously written by hand after the fact, which is why
+    `record_opening` had no caller and `attempted_openings` could never move.
+    An outcome of None means the run reached the end of the window and the
+    formal verdict is the evaluation step's to write.
+    """
+    out = resolve_run_dir(run_id)
+    record = {
+        "record": "B0_L2_TERMINAL_RESULT",
+        "run_id": run_id,
+        "terminated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "baseline_seal_sha256": admission["baseline_seal_sha256"],
+        "opening_record_sha256": admission["opening_record_sha256"],
+        "spec_sha256": admission["spec_sha256"],
+        "commit_sha": admission["commit_sha"],
+        "market_state_composed_sha256": admission["market_state_composed_sha256"],
+        "period1_full_input_sha256": admission["period1_full_input_sha256"],
+        "authorization": admission["authorization"],
+        "periods_executed": periods_done,
+        "periods_required": 141,
+        "formal_outcome": outcome,
+        "performance_computed": False,
+        "detail": detail,
+    }
+    write_provenance_json(os.path.join(out, "final_result.json"), record)
+    if outcome is not None:
+        record_opening(L2Opening(
+            opened_at=admission["opened_at"],
+            spec_sha256=admission["spec_sha256"],
+            code_commit=admission["commit_sha"],
+            data_manifest_sha256=admission["market_state_composed_sha256"],
+            outcome=outcome,
+            detail=json.dumps({"run_id": run_id,
+                               "baseline_seal": admission["baseline_seal_sha256"]},
+                              ensure_ascii=False)))
+    print("terminal state: %s" % run_state(run_id))
+
+
 def main() -> int:
     run_id = (sys.argv[1] if len(sys.argv) > 1
               else os.environ.get("B0_L2_RUN_ID", "")).strip()
@@ -205,14 +249,34 @@ def main() -> int:
             "(argv[1] or B0_L2_RUN_ID). C-58/R4: there is no `latest` run, "
             "because a mutable pointer is how one run's provenance gets "
             "written over another's.")
-    out = out_dir(run_id)
+    # R5 · admission. Every identity the opening bound must still hold, and it
+    # must hold BEFORE the first execution write - not as a note afterwards.
+    head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
+                          text=True, cwd=REPO).stdout.strip()
+    dirty = bool(subprocess.run(["git", "status", "--porcelain"],
+                                capture_output=True, text=True,
+                                cwd=REPO).stdout.strip())
+    admission = assert_runner_admissible(run_id, head=head, dirty=dirty)
+    out = admission["run_dir"]
     opening = json.load(open(os.path.join(out, "opening_record.json"),
                              encoding="utf-8"))
-    if opening["run_id"] != run_id:
-        raise SystemExit(
-            "abort: %s holds an opening record for %r, not %r"
-            % (out, opening["run_id"], run_id))
-    assert_legacy_run_unmutated()
+
+    # R6 · the right to execute, taken once, before any period output.
+    try:
+        create_execution_claim(run_id, {
+            "run_id": run_id,
+            "claimed_at": datetime.now(timezone.utc).isoformat(),
+            "baseline_seal_sha256": admission["baseline_seal_sha256"],
+            "opening_record_sha256": admission["opening_record_sha256"],
+            "spec_sha256": admission["spec_sha256"],
+            "commit_sha": admission["commit_sha"],
+            "market_state_composed_sha256":
+                admission["market_state_composed_sha256"],
+            "period1_full_input_sha256": admission["period1_full_input_sha256"],
+            "periods_to_execute": 141,
+        })
+    except ExecutionClaimExists as exc:
+        raise SystemExit("abort: %s" % exc)
     manifest = json.load(open(MANIFEST, encoding="utf-8"))
     sessions = tuple(r["session"] for r in csv.DictReader(
         open(os.path.join(DATA, "trading_calendar.csv"), encoding="utf-8")))
@@ -296,6 +360,10 @@ def main() -> int:
                 "formal_result": "NOT EVALUABLE — CORPORATE ACTION RECONSTRUCTION BLOCK",
                 "period": period["decision_month"], "seq": i, **exc.detail})
             print("BLOCK F-CA-B at %s: %s" % (period["decision_month"], exc))
+            _terminate(run_id, admission, L2_NOT_EVALUABLE_CA_BLOCK, done, {
+                "classification": "F-CA-B",
+                "period": period["decision_month"], "seq": i,
+                "reason": str(exc)})
             return 2
         except Exception as exc:                     # noqa: BLE001
             _jsonl(run_id, "failure_record.jsonl", {
@@ -305,6 +373,10 @@ def main() -> int:
                 "traceback": traceback.format_exc()[-4000:]})
             print("FAILURE at %s: %s: %s" % (period["decision_month"],
                                              type(exc).__name__, exc))
+            _terminate(run_id, admission, L2_RUN_INVALID_CONFORMANCE, done, {
+                "classification": "F-CA-C-or-core",
+                "period": period["decision_month"], "seq": i,
+                "error_type": type(exc).__name__, "error": str(exc)})
             return 3
         if i % 20 == 0:
             print("  %d/141  %s  port_value=%.2f" % (i, period["decision_month"],
@@ -312,6 +384,11 @@ def main() -> int:
 
     write_provenance_json(os.path.join(out, "nav_series.json"), nav_series)
     print("completed %d/141 periods" % done)
+    # The formal outcome of a completed run is decided by the V-4 gate, not by
+    # the runner, so the terminal record says the run finished and leaves the
+    # verdict to be written by the evaluation step.
+    _terminate(run_id, admission, None, done,
+               {"periods_executed": done, "nav_rows": len(nav_series)})
     return 0
 
 

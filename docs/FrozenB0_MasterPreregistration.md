@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.24（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**；**v1.20 = §6.1 全面改寫並新增 §6.1.1~§6.1.19 與 Annex CA-A：corporate action state transition 由「分類」升格為「狀態轉換」，凍結 owned / tradable / spendable 三分、五種 holder-affecting 事件的轉換表、receivable 到期語義、pending-exit 繼承、I-CA-01~I-CA-15 不變量與 F-CA-A/B/C 失敗分類法；`core.b0_corporate_actions` 取得 PortfolioState 轉換能力，`core.b0_state` 新增有到期日的 claim。舊 Baseline Seal 5fef4104 與 bound commit a0241f3d 標記 SUPERSEDED：C-54**；**v1.21 = sealed-input sufficiency closure：新增 §4.1a（輸入充分性與序列形狀）、擴充 M-2 L2 outcome 詞彙為 §6.1.14 已定義的兩個 exact names、monthly_revenue 13→18、財報與月營收改為 calendar-indexed 且缺期為顯式 None、新增 transitive dependency closure invariant。首次 sealed L2 run L2-2520c80aa980d681 以 RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE 記錄，provenance 永久保留；once-only observation 是否消耗依 M-3 `l2_reopening_after_run_invalid` 待裁，L2_opening 阻擋中：C-55**；**v1.22 = M-3 `l2_reopening_after_run_invalid` 裁決落地（R1~R5）：`RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE` 在**七項條件全部成立**時**不消耗** once-only effective observation（narrow rule，非「crash 一律不算」）；invalid run 永久保留於 provenance，不刪除、不覆蓋、不改標籤；M-2 新增 `ImplementationConformanceRepair` 與 DataRepair 並立，`assert_rerun_admissible` 依 outcome 分派 repair kind 而非誤分類；新增 `assert_reopening_admissible` 強制「新 Baseline Seal」與「具名新授權」；L2 provenance 位元組改由單一 primitive 以二進位 LF 寫出，修正 `record_opening` 依平台換行的缺陷；effective L2 observation count = 0，M-3 register 回到空：C-56**；**v1.23 = M-3 condition 2 語義裁決落地（R1~R6）：condition 2 的 `information` 未定義而留下兩種讀法，裁為 **strategy-dependent outcome information**；sealed opening economic state 的 deterministic restatement 不構成 strategy-outcome information；新增 R2 admissibility 八項、R3 negative boundary 七項、`verify_opening_state_restatement()` 對不可變 run artefact 的可執行驗證，condition 2 由 `attested` 升為 `attested_and_verified`，reopening gate 在 artefact 缺席或牴觸時一律失敗；四組 negative control 落地。既有 invalid run 之 `final_result.json` 與 `nav_series.json` 位元組完全未動：C-57**；**v1.24 = L2 run-scoped immutable provenance（R1~R6）：runner 原本只有一個全域輸出目錄，第二個 run 會 append 進第一個 run 的 `period_progress.jsonl` 並覆寫其 NAV 與 final result，**與第一個 run 成功或失敗無關**；新增 normative module `core/b0_l2_run_layout.py`（第 28 個），未來所有 run 一律寫入 `artifacts/l2_run/runs/<run_id>/`，目錄以 exclusive create 宣告、碰撞即在寫入任何位元組之前失敗；首次 invalid run 原地保留且四個 artefact 的 sha256 pin 進規範模組；所有 verifier / attestation / effective-observation / reopening gate 改以 run_id 綁定，`latest` 明文宣告為 non-canonical；新增跨 run 隔離測試，並同時對「invalid 前一個 run」與「一般已完成前一個 run」施測：C-58**）
+**版本:** 1.25（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**；**v1.20 = §6.1 全面改寫並新增 §6.1.1~§6.1.19 與 Annex CA-A：corporate action state transition 由「分類」升格為「狀態轉換」，凍結 owned / tradable / spendable 三分、五種 holder-affecting 事件的轉換表、receivable 到期語義、pending-exit 繼承、I-CA-01~I-CA-15 不變量與 F-CA-A/B/C 失敗分類法；`core.b0_corporate_actions` 取得 PortfolioState 轉換能力，`core.b0_state` 新增有到期日的 claim。舊 Baseline Seal 5fef4104 與 bound commit a0241f3d 標記 SUPERSEDED：C-54**；**v1.21 = sealed-input sufficiency closure：新增 §4.1a（輸入充分性與序列形狀）、擴充 M-2 L2 outcome 詞彙為 §6.1.14 已定義的兩個 exact names、monthly_revenue 13→18、財報與月營收改為 calendar-indexed 且缺期為顯式 None、新增 transitive dependency closure invariant。首次 sealed L2 run L2-2520c80aa980d681 以 RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE 記錄，provenance 永久保留；once-only observation 是否消耗依 M-3 `l2_reopening_after_run_invalid` 待裁，L2_opening 阻擋中：C-55**；**v1.22 = M-3 `l2_reopening_after_run_invalid` 裁決落地（R1~R5）：`RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE` 在**七項條件全部成立**時**不消耗** once-only effective observation（narrow rule，非「crash 一律不算」）；invalid run 永久保留於 provenance，不刪除、不覆蓋、不改標籤；M-2 新增 `ImplementationConformanceRepair` 與 DataRepair 並立，`assert_rerun_admissible` 依 outcome 分派 repair kind 而非誤分類；新增 `assert_reopening_admissible` 強制「新 Baseline Seal」與「具名新授權」；L2 provenance 位元組改由單一 primitive 以二進位 LF 寫出，修正 `record_opening` 依平台換行的缺陷；effective L2 observation count = 0，M-3 register 回到空：C-56**；**v1.23 = M-3 condition 2 語義裁決落地（R1~R6）：condition 2 的 `information` 未定義而留下兩種讀法，裁為 **strategy-dependent outcome information**；sealed opening economic state 的 deterministic restatement 不構成 strategy-outcome information；新增 R2 admissibility 八項、R3 negative boundary 七項、`verify_opening_state_restatement()` 對不可變 run artefact 的可執行驗證，condition 2 由 `attested` 升為 `attested_and_verified`，reopening gate 在 artefact 缺席或牴觸時一律失敗；四組 negative control 落地。既有 invalid run 之 `final_result.json` 與 `nav_series.json` 位元組完全未動：C-57**；**v1.24 = L2 run-scoped immutable provenance（R1~R6）：runner 原本只有一個全域輸出目錄，第二個 run 會 append 進第一個 run 的 `period_progress.jsonl` 並覆寫其 NAV 與 final result，**與第一個 run 成功或失敗無關**；新增 normative module `core/b0_l2_run_layout.py`（第 28 個），未來所有 run 一律寫入 `artifacts/l2_run/runs/<run_id>/`，目錄以 exclusive create 宣告、碰撞即在寫入任何位元組之前失敗；首次 invalid run 原地保留且四個 artefact 的 sha256 pin 進規範模組；所有 verifier / attestation / effective-observation / reopening gate 改以 run_id 綁定，`latest` 明文宣告為 non-canonical；新增跨 run 隔離測試，並同時對「invalid 前一個 run」與「一般已完成前一個 run」施測：C-58**；**v1.25 = L2 opener/runner protocol conformance repair（R1~R10）：正式 opening boundary 改為 `artifacts/l2_run/opening_claims/<baseline_seal>.json` 的排他建立（O_EXCL），非 run 目錄建立、亦非終局 registry 插入；`attempted_openings` 改由不可變 opening event 導出（legacy pinned + claims，依 run_id 去重），不再由終局 registry 列計算；新增 `execution_claim.json` 使同一 run 只能執行一次；runner 在第一個 period 寫入前驗證九項 opening provenance；run state 由不可變事件導出（OPENED / EXECUTION_CLAIMED / TERMINAL），無 mutable state 欄位；generic provenance writer 結構性地不可能成為第二個 run 目錄建立者；execution claim 存在但無 terminal result 之狀態顯式偵測並依 M-3 abort，不自創 rerun 規則：C-59**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -2935,3 +2935,154 @@ run_id 碰撞 → 在任何 artefact 變動之前失敗
   execution、成本、universe 規則、PIT 或 corporate-action 語義。
   141-state composed hash 不因本次裁決改變。
   `attempted_openings` 與 `effective_observation_count` 皆不變。
+
+
+---
+
+### 9.6d L2 opening / execution protocol（v1.25，規範性）
+
+> **Status: NORMATIVE.** 由 pre-authorization read-only review 導出。
+> 該次 review 的 STOP 是正確的且無成本：**未建立任何 opening**，
+> `attempted_openings` 不變、`effective_observation_count` 維持 0、
+> once-only opening opportunity 未被消耗、performance exposure 為零。
+
+> **C-58 修好了儲存模型，沒有修好交接。** run 各自有目錄之後，
+> opener → runner 這道交接**本身仍然不是一個受檢查的協定**：
+> 目錄可以存在而什麼都沒有正式開過；`attempted_openings` 由**終局** registry 列計算，
+> 所以一次 process 中途死掉的 opening **對它自己剛花掉的預算是隱形的**；
+> runner 用同一個 run_id 再跑一次會從 period 1 重來、append 第二段 progress、覆寫 NAV。
+
+#### §9.6d-R1 · 正式 opening 是一個事件
+
+```
+artifacts/l2_run/opening_claims/<baseline_seal_sha256>.json
+```
+
+**L2 formal opening boundary = 這個 canonical opening claim 建立成功。**
+不是 run 目錄建立，也不是終局 registry 插入。
+以 `O_CREAT|O_EXCL` 建立 —— **檢查與宣告是同一個 syscall**，
+因此兩個帶不同 run_id 的 opener 併發時，**只有一個能正式開窗**。
+
+claim 至少綁定：
+
+```
+run_id                          baseline_seal_sha256
+opening_record_sha256           spec_sha256
+commit_sha                      141-state composed hash
+period-1 full-input hash        authorization identity
+opened_at
+```
+
+**同一個 Baseline Seal → 至多一個 opening claim。**
+
+#### §9.6d-R2 · opening record 與 pre-opening orphan
+
+opener 仍是 `artifacts/l2_run/runs/<run_id>/` 的**唯一**建立者。
+順序為：**排他建立目錄 → 寫 opening_record → 取其 canonical hash →
+排他建立 opening claim 並把該 hash pin 進去**。
+
+> **有 run 目錄或 opening record、但沒有 canonical opening claim 者 = pre-opening orphan。**
+> 它**不計入** attempted opening，runner **拒絕執行**它。
+
+#### §9.6d-R3 · attempted opening 的計算
+
+**不得**以終局 outcome registry 列定義 attempted openings。
+identity 由**實際發生的不可變 opening 事件**導出：
+
+```
+legacy pinned attempt（首次 invalid run，早於本協定，無 claim 檔）
++ 所有 valid canonical opening claims
+依 run_id 去重
+```
+
+必要行為：
+
+```
+opener 成功建立 canonical opening claim
+runner 從未啟動 / process 死亡
+→ attempted_openings 已經 +1
+```
+
+**不得要求終局結果存在。**
+首次 invalid attempt 以 pinned legacy attempt 保留，**不重寫、不捏造**其歷史 artefact。
+
+#### §9.6d-R4 · 結構性單一建立者
+
+generic provenance writer **不得**具備隱式建立 `runs/<run_id>/` 的能力。
+run-scoped writer **必須**要求目錄已存在。
+
+> 先前「只有 opener 會建立」為真，**只因為 `resolve_run_dir` 剛好先 raise**。
+> 呼叫順序不是結構。現在檢查落在**寫入點本身**，無論從哪條路徑到達都成立。
+
+#### §9.6d-R5 · runner admission
+
+在**任何 execution period 寫入之前**，runner 必須驗證：
+
+```
+run_id                     opening_record hash（與 claim pin 的值相符）
+Baseline Seal identity     spec identity
+bound commit / HEAD        clean repo identity
+141-state composed         period-1 full-input identity
+opening / reopening governance admissibility
+```
+
+missing / malformed / foreign-run / hash-mismatched / seal-mismatched /
+spec-mismatched / commit-mismatched **一律在 period 1 之前失敗**。
+**不得** fallback 到 latest 或其他 run。
+
+#### §9.6d-R6 · 一次性執行
+
+```
+artifacts/l2_run/runs/<run_id>/execution_claim.json
+```
+
+admission 通過之後、**任何 period／execution 輸出之前**，以排他方式建立。
+已存在則：
+
+```
+STOP BEFORE ANY NEW EXECUTION WRITE
+```
+
+同一 run_id **永不**得靜默地從 period 1 重啟、append 第二段 progress、
+覆寫 NAV 或執行兩次。**不引入任何自動 resume / retry 語義。**
+
+> **execution claim 存在而 terminal result 不存在**（process 中斷）：
+> 顯式偵測，並以 **M-3 abort**。
+> 規格**未唯一決定**這種 run 是否消耗 observation、是否可續跑、從哪一期續 ——
+> 在這裡自創 rerun 規則，等於實作者在決定這個窗口可以被看幾次。
+> 機械強制：`UnresolvedExecutionClaim`。
+
+#### §9.6d-R7 · state 由事件導出
+
+**不得**以可變 `state` 欄位作為 canonical execution state。
+
+```
+canonical opening claim 存在   → OPENED
+execution claim 存在           → EXECUTION_CLAIMED
+不可變 terminal result 存在     → TERMINAL
+```
+
+轉移為單調。opening record 裡即使被寫入 `state` 欄位也**不被採用**。
+
+---
+
+### C-59 · L2 opener/runner protocol conformance repair（v1.25）
+
+- **來源：** 授權前 read-only review 在建立任何 opening **之前**發現三個缺陷：
+  runner admission 只比對 `run_id`（seal / commit / spec / opening state 全無驗證）；
+  `record_opening` **在整個 repo 沒有任何非測試呼叫者**，
+  因此 `attempted_openings` 永遠不會因一次 opening 而變動；
+  同一 run_id 重跑會 append + 覆寫 + 從 period 1 重來。
+- **變更：** 見 §9.6d-R1 ~ R7。`core/b0_l2_run_layout.py` 取得
+  opening claim / execution claim / admission / derived state；
+  opener 改以 claim 為 opening boundary；
+  runner 取得 admission、execution claim 與不可變 terminal result（並在終止時寫入 registry 列）；
+  seal 的 `attempted_openings_recorded` 改由事件計算。
+- **理由：** 這是一次 `ImplementationConformanceRepair` ——
+  被 conform 的語義（once-only、immutable provenance、no post-hoc rescue）
+  在缺陷發生**之前**就已凍結，缺的是機制。
+- **相容性：** 未更動 factor 定義、feature 輸入、權重、門檻、eligibility、ranking、
+  universe、portfolio construction、order execution 語義、成本、PIT、
+  corporate actions、benchmark 或 performance gate。
+  141-state composed hash 不變；legacy invalid run 四個 artefact 位元組不變；
+  `attempted_openings = 1`、`effective_observation_count = 0` 不變。

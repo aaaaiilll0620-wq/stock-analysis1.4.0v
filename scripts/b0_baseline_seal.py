@@ -39,6 +39,9 @@ REPO = os.path.dirname(HERE)
 sys.path.insert(0, REPO)
 
 from core.b0_canonical_hash import CANONICAL_HASH_VERSION, canonical_sha256  # noqa: E402
+from core.b0_l2_run_layout import (                                 # noqa: E402
+    attempted_opening_count, opening_claims,
+)
 from core.b0_master_prereg import (                                          # noqa: E402
     NORMATIVE_MODULES, effective_observation_count, normative_module_hashes,
     read_registry, spec, specified_keys,
@@ -238,7 +241,12 @@ def build_l2_opening_protocol() -> dict:
         # many rows are in the registry". One attempt is recorded and it did not
         # consume an observation, which is a distinction the seal must carry
         # rather than leave to be re-derived from prose later.
-        "attempted_openings_recorded": len(read_registry()),
+        # C-59/R3: attempted openings are derived from immutable OPENING
+        # events, not from terminal registry rows. Counting rows meant an
+        # opening whose process died was invisible to the very budget it spent.
+        "attempted_openings_recorded": attempted_opening_count(),
+        "terminal_registry_rows": len(read_registry()),
+        "open_baselines": [c["baseline_seal_sha256"][:16] for c in opening_claims()],
         "effective_observations_to_date": effective_observation_count(),
         "non_consuming_outcomes": list(spec("l2_non_consuming_outcomes")),
         "non_consumption_conditions": list(spec("l2_non_consumption_conditions")),

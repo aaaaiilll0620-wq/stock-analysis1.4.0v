@@ -496,6 +496,17 @@ PROVENANCE_RECORD_ENCODING = "utf-8"
 PROVENANCE_LINE_TERMINATOR = "\n"
 
 
+def _assert_not_creating_run_dir(directory: str) -> None:
+    """C-59/R4: a generic writer may never become a run-directory creator.
+
+    Before this, that was true only because `resolve_run_dir` happened to be
+    called first. Call order is not a structure; this check is at the write, so
+    it holds however the writer is reached.
+    """
+    from core.b0_l2_run_layout import assert_not_creating_run_dir
+    assert_not_creating_run_dir(directory)
+
+
 def canonical_record_bytes(payload: Mapping[str, Any]) -> bytes:
     """The exact bytes one provenance record occupies. Platform-independent."""
     line = json.dumps(dict(payload), ensure_ascii=False, sort_keys=True)
@@ -515,6 +526,7 @@ def append_provenance_record(path: str, payload: Mapping[str, Any]) -> bytes:
     """Append-only, binary, LF. Returns the bytes written so callers can hash."""
     directory = os.path.dirname(path)
     if directory:
+        _assert_not_creating_run_dir(directory)
         os.makedirs(directory, exist_ok=True)
     blob = canonical_record_bytes(payload)
     with open(path, "ab") as fh:            # binary: no newline translation
@@ -526,6 +538,7 @@ def write_provenance_json(path: str, payload: Any, *, indent: int = 1) -> bytes:
     """The document form of the same rule, for opening / run provenance files."""
     directory = os.path.dirname(path)
     if directory:
+        _assert_not_creating_run_dir(directory)
         os.makedirs(directory, exist_ok=True)
     body = json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=indent)
     blob = (body + PROVENANCE_LINE_TERMINATOR).replace(
@@ -1151,6 +1164,13 @@ def _spec_registry() -> dict[str, Any]:
             sorted(layout.LEGACY_RUN_ARTEFACT_SHA256.items())),
         "l2_canonical_run_identity": layout.CANONICAL_RUN_IDENTITY,
         "l2_latest_pointer_is_canonical": layout.LATEST_POINTER_IS_CANONICAL,
+        # v1.25 - C-59. The opening boundary is an event, and state is derived.
+        "l2_opening_claim_fields": layout.OPENING_CLAIM_FIELDS,
+        "l2_run_states": layout.RUN_STATES,
+        "l2_opening_boundary": "canonical_opening_claim_exclusive_create",
+        "l2_execution_claim_artefact": layout.EXECUTION_CLAIM,
+        "l2_terminal_result_artefact": layout.TERMINAL_RESULT,
+        "l2_attempted_opening_source": "immutable_opening_events_not_terminal_rows",
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,

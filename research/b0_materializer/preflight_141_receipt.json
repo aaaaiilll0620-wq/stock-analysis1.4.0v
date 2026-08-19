@@ -23,7 +23,7 @@
  ],
  "full_decision_input": {
   "canonical_opening_state_sha256": "3290cd81491d58dd692901e81bc89f37645e2546feaacd2125419473cdcd5cb3",
-  "full_decision_input_sha256": "96a46cfd2e2ecdf3832d9ef027563456ca53b0aa95b20dbce331de9415327b53",
+  "full_decision_input_sha256": "bd2bc1cf2569cf4ffc644045408deec7f39f404126b5f743b1cb0420419d32af",
   "period_1_as_of": "2014-07-30",
   "period_1_decision_date": "2014-07-31",
   "periods_deferred": 140,
@@ -48,7 +48,7 @@
   ]
  },
  "performance_computed": false,
- "provenance_note": "v1.24 L2 run-scoped immutable provenance (C-58, R1-R6). This ruling changed NO sealed input content: the composed 141-state hash is unchanged at 66640a78. The period-1 full-input hash moved again because that input binds the Master spec identity and the Master moved 1.23 -> 1.24; no market-side or portfolio content changed. Any new authorization must bind the values in this receipt.",
+ "provenance_note": "v1.25 L2 opener/runner protocol conformance repair (C-59, R1-R10). This ruling changed NO sealed input content: the composed 141-state hash is unchanged at 66640a78. The period-1 full-input hash moved again because that input binds the Master spec identity and the Master moved 1.24 -> 1.25; no market-side or portfolio content changed. Any new authorization must bind the values in this receipt.",
  "sealed_inputs": {
   "bonus_share_panel": "3b311238f121247572d84e5d1eb915d5b3538972509581fcedaffdfaa17155bb",
   "financials_pit": "1d0c39d1b3eedd601df03fa0210c2a80e9f1253e7e39a0bb8c37db118733b8d6",
