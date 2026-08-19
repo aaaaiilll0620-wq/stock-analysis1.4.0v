@@ -71,7 +71,8 @@ IDENTITY_CHANGE_KINDS: tuple[str, ...] = (
     # B0.3 · R3. Only the DISAPPEARING security's leg is an identity change; the
     # survivor's issuance is not, and used to be listed here as "merger" /
     # "share_conversion" precisely because the two legs were conflated.
-    "holder_side_security_conversion", "transfer_in",
+    "holder_side_security_conversion", "holder_side_reorganization_exit",
+    "transfer_in",
 )
 
 # R6 · who reads which series. Stated as data so that a new consumer is a visible

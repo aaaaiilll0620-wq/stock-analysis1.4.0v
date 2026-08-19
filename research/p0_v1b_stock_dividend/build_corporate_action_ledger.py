@@ -35,6 +35,14 @@ from core.b0_corporate_actions import (            # noqa: E402
 )
 
 SRC = os.path.join(REPO, "tej_exports", "DataExport0806", "配股相關2004-20260817")
+# B0.4: the second admitted lineage. security_status states, authoritatively,
+# that a listed security ceased trading and why. It is the ONLY source in the
+# corpus that establishes the disappearing side of a reorganization at all.
+STATUS_SRC = os.path.join(REPO, "data", "b0", "security_status.csv")
+REORGANIZATION_EXIT_REASONS = {
+    "合併下市": "MERGER",
+    "併入控股公司下市": "HOLDING_COMPANY_CONVERSION",
+}
 OUT_DIR = os.path.join(REPO, "data", "b0")
 OUT_LEDGER = os.path.join(OUT_DIR, "corporate_actions_ledger.csv")
 OUT_SD = os.path.join(OUT_DIR, "stock_dividend_pit.csv")
@@ -187,6 +195,24 @@ def main():
     print(f"loaded {len(rows):,} rows, {len(hdr)} columns")
 
     events = [classify(kind, rec) for kind, rec in build_records(rows)]
+
+    # B0.4 · holder-side coverage. Materialized for EVERY status-defined
+    # disappearance, with no filter on price-universe membership, window or
+    # holdings -- the coverage invariant is about the corpus, not about what B0
+    # happened to touch.
+    exits = 0
+    with open(STATUS_SRC, encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            if r["status"] != "delisted":
+                continue
+            if r["reason"] not in REORGANIZATION_EXIT_REASONS:
+                continue
+            events.append(classify("holder_side_reorganization_exit", {
+                "stock_id": r["stock_id"],
+                "effective_date": r["effective_from"],
+                "status_reason": r["reason"]}))
+            exits += 1
+    print(f"holder-side reorganization exits materialized: {exits}")
     in_win = [e for e in events
               if e.ex_or_effective_date and WIN_START <= e.ex_or_effective_date <= WIN_END]
     print(f"classified {len(events):,} events, {len(in_win):,} in window")

@@ -134,6 +134,18 @@ EVENT_KINDS: tuple[EventKind, ...] = (
               True, True, True,
               "the disappearing security converts into a successor; requires the "
               "conversion terms and is NOT_RECONSTRUCTIBLE without them"),
+    # B0.4. What the corpus DOES establish about a disappearance, and nothing
+    # more. security_status states that a listed security stopped trading and why;
+    # it does not state what the holder received. Representing that as a
+    # stock-to-stock conversion would be inventing terms, and representing it as
+    # nothing at all is what left 98 boundaries silently uncovered. So this kind
+    # carries identity + boundary + authoritative reason, and its reconstruction
+    # status is NOT_RECONSTRUCTIBLE by construction.
+    EventKind("holder_side_reorganization_exit",
+              "security_status.reason (合併下市 / 併入控股公司下市)",
+              True, True, True,
+              "a listed security ceased trading through a reorganization; the "
+              "holder outcome is not established by this source"),
     EventKind("par_value_change", "變更股票面額股數(仟股)", True, False, False,
               "share count scales by old_par/new_par; no P&L"),
     EventKind("cash_capital_increase", "現金增資(仟股)", False, False, False,
@@ -486,6 +498,37 @@ def handle_issuer_side_share_conversion_issuance(
         "issuer-side only: shares issued by this company for a share conversion")
 
 
+def handle_holder_side_reorganization_exit(
+        rec: Mapping[str, object]) -> CorporateActionEvent:
+    """B0.4 · a KNOWN disappearance with an UNKNOWN holder outcome.
+
+    Deliberately unable to reach RECONSTRUCTIBLE. The successor, ratio, cash
+    consideration and credit date are not merely absent from this record -- they
+    are not established by the source it comes from, and a future repair that
+    obtains them from authoritative disclosures should emit a
+    `holder_side_security_conversion`, not quietly upgrade this one.
+
+    The date carried here is the DISAPPEARANCE / non-trading boundary, which is
+    what the status corpus actually establishes. It is explicitly NOT a claimed
+    holder economic effective, settlement, credit or payment date; those stay
+    null. Its meaning is "once a held position reaches this point, continuing
+    requires a reconstructible holder outcome".
+    """
+    sid = str(rec.get("stock_id", ""))
+    boundary = _d(rec.get("effective_date")) or _d(rec.get("ex_right_date")) or ""
+    reason = str(rec.get("status_reason", "") or "").strip()
+    return CorporateActionEvent(
+        sid, "holder_side_reorganization_exit", boundary, NOT_RECONSTRUCTIBLE,
+        "authoritative status reason %r establishes that this listed security "
+        "ceased trading through a reorganization; it does not establish the "
+        "successor security, conversion ratio, cash consideration or credit "
+        "date, so the holder outcome is not reconstructible from it" % reason,
+        diagnostics={"boundary_kind": "holder_resolution_required_by_boundary",
+                     "status_reason": reason,
+                     "successor_security_id": None, "stock_ratio": None,
+                     "cash_per_share": None, "credit_tradable_date": None})
+
+
 def handle_holder_side_security_conversion(
         rec: Mapping[str, object]) -> CorporateActionEvent:
     """R3/R7. Terms or nothing -- and nothing means fail loud, not a guess."""
@@ -566,6 +609,7 @@ HANDLER_FUNCS = {
     "issuer_side_share_conversion_issuance":
         handle_issuer_side_share_conversion_issuance,
     "holder_side_security_conversion": handle_holder_side_security_conversion,
+    "holder_side_reorganization_exit": handle_holder_side_reorganization_exit,
     "par_value_change": handle_par_value_change,
     "cash_capital_increase": handle_cash_capital_increase,
 }
@@ -649,7 +693,8 @@ class CorporateActionReconstructionBlock(CorporateActionError):
         self.detail = dict(detail)
 
 
-IDENTITY_CHANGING_KINDS: tuple[str, ...] = ("holder_side_security_conversion",)
+IDENTITY_CHANGING_KINDS: tuple[str, ...] = ("holder_side_security_conversion",
+                                           "holder_side_reorganization_exit")
 SAME_SECURITY_SHARE_KINDS: tuple[str, ...] = (
     "stock_dividend", "capital_reduction", "par_value_change")
 

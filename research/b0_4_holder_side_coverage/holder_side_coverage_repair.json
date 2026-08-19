@@ -1,0 +1,24 @@
+{
+ "by_source_reason": {
+  "併入控股公司下市": 85,
+  "合併下市": 73
+ },
+ "coverage_invariant": "PASS",
+ "holder_side_disappearance_events_materialized": 158,
+ "holder_side_security_conversion_rows": 0,
+ "impact_diagnostics_only": {
+  "in_141_period_window": 90,
+  "in_canonical_price_universe": 98,
+  "note": "diagnostics only; the repair population is not filtered by either"
+ },
+ "ledger_rows": 46433,
+ "ledger_sha256": "c838961f93599f9e63c9c98a556f3e721cc5994b53e89d109e17f625a9f7d6f2",
+ "parent": "B0.3",
+ "reconstructible_holder_side": 0,
+ "record": "B0_4_HOLDER_SIDE_COVERAGE_REPAIR",
+ "remaining_unresolved_holder_side": 158,
+ "repair_class": "CA_HOLDER_SIDE_COVERAGE_REPAIR",
+ "successor_ratio_cash_credit_asserted": false,
+ "survivor_pairings_inferred": 0,
+ "uncovered_boundaries": []
+}

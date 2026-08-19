@@ -144,7 +144,9 @@ def test_the_holder_side_leg_keeps_the_frozen_requirements():
     """R3: the requirements did not relax, they moved to the leg that owns them."""
     assert ca.REQUIRED_FIELDS["holder_side_security_conversion"] == (
         "successor_security_id", "stock_ratio", "credit_tradable_date")
-    assert ca.IDENTITY_CHANGING_KINDS == ("holder_side_security_conversion",)
+    # B0.4 added holder_side_reorganization_exit alongside it; both are
+    # holder-side identity changes, and neither is an issuer-side row.
+    assert "holder_side_security_conversion" in ca.IDENTITY_CHANGING_KINDS
     assert "holder_side_security_conversion" in ca.holder_affecting_kinds()
 
 
