@@ -96,7 +96,60 @@ class FinalizationItem:
 # NORMATIVE_MODULE. That is the intended cost: the ruling of 2026-08-18 states
 # explicitly that v1.13 hashes must NOT be preserved by routing around the
 # registration mechanism. v1.13 is kept as historical lineage instead.
-FINALIZATION_ITEMS: tuple[FinalizationItem, ...] = ()
+FINALIZATION_ITEMS: tuple[FinalizationItem, ...] = (
+
+    FinalizationItem(
+        key="l2_reopening_after_run_invalid",
+        opened_by="run L2-2520c80aa980d681 (RUN INVALID - IMPLEMENTATION CONFORMANCE FAILURE)",
+        blocks=("L2_opening",),
+        question=(
+            "After a sealed L2 run terminates in RUN_INVALID_IMPLEMENTATION_"
+            "CONFORMANCE_FAILURE, (a) has the once-only L2 observation been "
+            "consumed, and (b) by what machinery may a corrected, newly-sealed "
+            "L2 be opened again? Section 6.1.14 F-CA-C states the PATH - fix, new "
+            "Master revision if needed, new commit, new Baseline Seal, fresh "
+            "explicit authorization - and says the clause does not itself grant "
+            "retry. It does not say whether the invalid run counts as an "
+            "effective observation, and M-2's assert_rerun_admissible cannot "
+            "express this case at all: it admits a re-run only with a DataRepair, "
+            "whose admissible scopes are DATA repairs, and this defect was a "
+            "producer/input-shape defect with no data to repair."),
+        why_it_matters=(
+            "B-18 section 4.3 counts effective observations because repeated "
+            "looks at one sealed window are a multiple-testing problem. Whether "
+            "this run was such a look is genuinely undetermined: it executed the "
+            "pipeline over all 141 periods, but complete-case rejected 100% of "
+            "the universe in every one of them, so no SelectionScore was ever "
+            "formed over a non-empty set, no portfolio existed, and no "
+            "performance quantity was computed or inspected. Reading it as "
+            "consumed may retire a window on a run that learned nothing about "
+            "the strategy; reading it as not consumed is exactly the "
+            "post-hoc-rescue shape M-2 exists to prevent, and deciding it here "
+            "would be the implementer choosing how many looks are allowed."),
+        measured=(
+            "run L2-2520c80aa980d681: 141/141 periods executed, eligible=0 in "
+            "every period, 0 receipts, 0 positions, 0 corporate-action "
+            "transitions, no NAV/CAGR/Sharpe/MDD/benchmark computed or "
+            "inspected. Root cause: monthly_revenue supplied 13 against a frozen "
+            "requirement of 18 (revenue_accel). Provenance retained immutably at "
+            "artifacts/l2_run/. Separately measured and also corrected under the "
+            "same ruling: 177 of 1,730 securities (10.23%) had non-contiguous "
+            "quarterly series, so eps_growth compared the wrong base period."),
+        options=(
+            "CONSUMED: the run touched the sealed window, so the once-only "
+            "observation is spent; the corrected window may only be evaluated as "
+            "a new version (B1) whose primary evidence is L3.",
+            "NOT CONSUMED: an invalid run formed no strategy-dependent quantity, "
+            "so it was not an effective observation; a fresh opening on the new "
+            "Baseline Seal is admissible under fresh explicit authorization.",
+            "CONSUMED BUT REPLACEABLE: the observation is spent, and section "
+            "6.1.14's re-opening path is what replaces it - requiring a new "
+            "Master revision and seal each time, so the count of effective looks "
+            "is bounded by the count of sealed baselines rather than by reruns.",
+        ),
+    ),
+
+)
 
 
 _BY_KEY: dict[str, FinalizationItem] = {i.key: i for i in FINALIZATION_ITEMS}

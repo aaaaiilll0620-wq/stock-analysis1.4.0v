@@ -264,15 +264,19 @@ def _without_finalization_items(monkeypatch):
     monkeypatch.setattr(fin, "FINALIZATION_ITEMS", ())
 
 
-def test_the_finalization_register_is_empty_after_the_f0_ruling():
+def test_nothing_blocks_the_final_provenance_seal():
     """F-0 was ruled on (F0-R1 ~ F0-R7), so nothing blocks finalization here.
 
-    The register itself stays: the next finalization-blocking gap has to land in
-    it rather than in somebody's judgement about whether a seal is safe.
+    Scoped to the stage rather than to an empty register. The register is doing
+    its job when it holds an item — v1.21 filed one against `L2_opening`, and an
+    emptiness assertion would have made that correct filing look like a
+    regression while saying nothing about whether a seal is safe.
     """
-    from core.b0_finalization_items import summary
+    from core.b0_finalization_items import assert_not_blocked, summary
 
-    assert summary()["total"] == 0
+    assert_not_blocked("final_provenance_seal")
+    assert summary()["by_stage"]["final_provenance_seal"] == 0
+    assert "hash_scope_boundary" not in summary()["keys"]
 
 
 def test_the_finalization_block_still_fires_when_an_item_is_open(monkeypatch):

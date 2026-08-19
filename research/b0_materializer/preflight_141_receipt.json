@@ -23,7 +23,7 @@
  ],
  "full_decision_input": {
   "canonical_opening_state_sha256": "3290cd81491d58dd692901e81bc89f37645e2546feaacd2125419473cdcd5cb3",
-  "full_decision_input_sha256": "e8253fc095e150765cc9e693b2257507e744774feb6cf7817a7be722b0bd669c",
+  "full_decision_input_sha256": "3f2a0b9bf54f87e8221e86ace4367d963ad71c80f0a5afb66bf6a59ef4639d20",
   "period_1_as_of": "2014-07-30",
   "period_1_decision_date": "2014-07-31",
   "periods_deferred": 140,
@@ -34,7 +34,7 @@
  "is_blocker": false,
  "is_not_evaluable": false,
  "market_side": {
-  "composed_market_state_sha256": "bbe3d06d4ee865bc2f057936821323eab6e93f3725d587e87bfd105739017c99",
+  "composed_market_state_sha256": "66640a7852aec84ada1e2ca5475998a05e41c0ae022fb60ac08a967e838ae1a4",
   "manifest": "data/b0/market_state_manifest.json",
   "periods_built": 141,
   "periods_required": 141,
@@ -48,7 +48,7 @@
   ]
  },
  "performance_computed": false,
- "provenance_note": "the period-1 full-input hash tracks the frozen spec hash through its source attestation; it moved with Master v1.20. The 141 market-side state hashes and their composed hash bbe3d06d are unchanged, because the market-side payload carries no provenance metadata.",
+ "provenance_note": "v1.21 sealed-input sufficiency closure. The composed 141-state hash moved bbe3d06d -> 66640a78 because monthly_revenue genuinely gained 5 months of content and the quarterly/monthly series are now calendar-indexed with explicit None for absent periods. This is a CONTENT change to sealed inputs, not a provenance-only change; any new authorization must bind the new value.",
  "sealed_inputs": {
   "bonus_share_panel": "3b311238f121247572d84e5d1eb915d5b3538972509581fcedaffdfaa17155bb",
   "financials_pit": "1d0c39d1b3eedd601df03fa0210c2a80e9f1253e7e39a0bb8c37db118733b8d6",

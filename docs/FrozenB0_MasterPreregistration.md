@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.20（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**；**v1.20 = §6.1 全面改寫並新增 §6.1.1~§6.1.19 與 Annex CA-A：corporate action state transition 由「分類」升格為「狀態轉換」，凍結 owned / tradable / spendable 三分、五種 holder-affecting 事件的轉換表、receivable 到期語義、pending-exit 繼承、I-CA-01~I-CA-15 不變量與 F-CA-A/B/C 失敗分類法；`core.b0_corporate_actions` 取得 PortfolioState 轉換能力，`core.b0_state` 新增有到期日的 claim。舊 Baseline Seal 5fef4104 與 bound commit a0241f3d 標記 SUPERSEDED：C-54**）
+**版本:** 1.21（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**；**v1.20 = §6.1 全面改寫並新增 §6.1.1~§6.1.19 與 Annex CA-A：corporate action state transition 由「分類」升格為「狀態轉換」，凍結 owned / tradable / spendable 三分、五種 holder-affecting 事件的轉換表、receivable 到期語義、pending-exit 繼承、I-CA-01~I-CA-15 不變量與 F-CA-A/B/C 失敗分類法；`core.b0_corporate_actions` 取得 PortfolioState 轉換能力，`core.b0_state` 新增有到期日的 claim。舊 Baseline Seal 5fef4104 與 bound commit a0241f3d 標記 SUPERSEDED：C-54**；**v1.21 = sealed-input sufficiency closure：新增 §4.1a（輸入充分性與序列形狀）、擴充 M-2 L2 outcome 詞彙為 §6.1.14 已定義的兩個 exact names、monthly_revenue 13→18、財報與月營收改為 calendar-indexed 且缺期為顯式 None、新增 transitive dependency closure invariant。首次 sealed L2 run L2-2520c80aa980d681 以 RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE 記錄，provenance 永久保留；once-only observation 是否消耗依 M-3 `l2_reopening_after_run_invalid` 待裁，L2_opening 阻擋中：C-55**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -477,6 +477,74 @@ PEG = PER_TSE / eps_growth（百分點）
 ### 4.1 Complete-case（B-15）
 
 **required features 必須全部 PIT-available。** 任一缺失 → 該股該期整筆排除。**不得插補、不得部分計分。**
+
+### 4.1a Input sufficiency and sequence shape（v1.21，規範性）
+
+> **Status: NORMATIVE.** 本節由首次 sealed L2 run 的失敗導出。
+> 該 run 執行完整 141 期、每一期 complete-case 排除 **100%** 母體，
+> 原因是 `revenue_accel` 需要 18 個月的月營收而 materializer 供給 13，
+> 而**沒有任何機制比對過這兩個數字**。141/141 可重現的 state hash 無法發現它 ——
+> 相同的輸入不論長度是否足夠，都會 hash 成相同的位元組。
+
+#### §4.1a-R1 · 消費者專屬的最小需求
+
+每一個 §4.1 complete-case 成員都有 minimum input lookback。
+canonical producer 供給的序列長度 **MUST ≥** 該成員的 minimum，
+且該需求 **MUST 由凍結成員自身機械推導**，不得在 producer 中以 literal 重述。
+
+```
+monthly_revenue      required 18   supplied 18   margin 0   ← revenue_accel 決定
+month_end_prices     required 14   supplied 14   margin 0   ← momentum_12_1 決定
+quarterly sequences  required  5   supplied  8   margin 3   ← eps_growth 決定
+```
+
+**margin = 0 必須是明文決定，不得是巧合。** 已具名宣告於
+`core.b0_features.INTENTIONAL_ZERO_MARGIN`。
+**不得**為了「感覺安全」而加寬供給 —— 加寬只會把 dependency contract 模糊掉，
+並讓未來公式加深時無法紅燈。
+
+`lookback_L_months = 18` 的意義**明確**為：
+**B0 最深的 monthly dependency horizon，由 `revenue_accel` 決定。**
+它**不是**「所有 monthly array 都必須長 18」。
+
+#### §4.1a-R2 · 序列形狀（calendar-indexed）
+
+凍結成員以**位置**讀取序列（`series[-1]` vs `series[-13]`、`series[-1]` vs `series[-5]`），
+因此輸入 **MUST** 為連續日曆索引序列：
+
+```
+財報季度序列   consecutive fiscal quarters
+月營收序列     consecutive calendar months
+月底價格序列   consecutive calendar months
+缺期           explicit None
+壓縮缺期       FORBIDDEN
+```
+
+壓縮缺期會使比較基期**靜默錯位**：實測 period 1，1,730 檔中 **177 檔（10.23%）**
+最後 8 個已發布季度非日曆連續，其 `series[-5]` 並非四季前，
+`eps_growth`／`PEG` 因此比錯基期、TTM 加總跨了五個日曆季。
+月營收目前實測 0/1,647 受影響 —— 此處為**不變量而非修正**，
+在最便宜的時點凍結，使 `revenue_yoy` 的 `t-12` 永遠真的是去年同月、
+`revenue_accel` 的 recent 3M / prior 3M 永遠是固定日曆月份，
+且未來換資料來源時不會因剛好少一個月而 silent shift。
+
+**修 producer / input shape，不得修改凍結成員的財務定義。**
+
+#### §4.1a-R3 · Dependency closure invariant
+
+`required_feature_keys()` 回傳的**每一個**成員都必須參與遞移 lookback 閉包檢查；
+新增凍結成員 **MUST** 自動納入。
+任何 canonical producer 供給少於其凍結 consumer 需求者，
+**seal MUST fail**。供給不足屬 §6.1.14 **F-CA-A** pre-open baseline defect，
+必須在 Baseline Seal 前擋下，不得於 sealed run 期間發現後修補。
+
+#### §4.1a-R4 · complete-case 可達性
+
+若某一期**無任何**證券通過 §4.1 complete-case，該期不具評估意義。
+此為 conformance failure 而非有效的 run。僅斷言**可達性** ——
+不涉及數量、名單或分數。
+
+---
 
 ### 4.2 Dynamic investability
 
@@ -2458,3 +2526,24 @@ Master prereg FROZEN v1.2（本文件）
 ```
 
 **此後階段由「研究規格設計」切換為「照規格施工 B0 canonical engine」。§1.5 自此生效：施工階段不得創造規格。**
+
+---
+
+### M-2 · L2 outcome vocabulary（v1.21）
+
+> **v1.21 · M-2 outcome vocabulary。** §6.1.14 於 v1.20 以文字定義了兩個正式結果，
+> 但機器詞彙未同步擴充，致首次 sealed L2 run **無法記錄自身的終局結果**。
+> 現將 §6.1.14 已定義的**兩個 exact names 原樣**加入：
+>
+> ```
+> NOT_EVALUABLE_CORPORATE_ACTION_RECONSTRUCTION_BLOCK   §6.1.14 F-CA-B
+> RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE        §6.1.14 F-CA-C
+> ```
+>
+> **不改名、不泛化。** 刻意**不**建立 `RUN_INVALID_*` 家族 ——
+> 一旦建立就必須另裁哪些 defect 算 INVALID、哪些算 NOT_EVALUABLE、
+> 哪些消耗 once-only observation、哪些允許重新 seal／rerun、precedence 如何排序，
+> 而這五個問題目前都不在爭議中，泛化只會無謂擴大 governance surface。
+>
+> 三個原有 outcome 的拼寫完全不變。
+

@@ -57,7 +57,6 @@ WINDOW_START, WINDOW_END = "2014-07-31", "2026-03-31"
 WINDOW_MONTHS = 141
 ADV_SESSIONS = 20
 SIGMA_SESSIONS = 20            # 20 log returns -> 21 closes
-MONTH_ENDS = 14                # 12 formation + 1 skip + 1
 
 
 def _log(msg):
@@ -390,18 +389,37 @@ def build_series(px, cal, factors, unresolved, status_idx, as_ofs=()):
 
 # --- per-period assembly -------------------------------------------------------
 
-QUARTERS = 8            # TTM plus the prior TTM the growth members compare against
-MONTHS_REVENUE = 13     # C-23: the 13-month lookback admits exactly one YoY
+# 4.1a. Depths are DERIVED from the frozen members, never restated here. The
+# first sealed run rejected 100% of the universe in every period because this
+# file said 13 where `revenue_accel` needs 18, and nothing compared the two.
+from core.b0_features import series_requirements       # noqa: E402
+
+_REQ = series_requirements()
+QUARTERS = max(8, _REQ["eps_by_quarter"])   # supplied depth may exceed the need
+MONTHS_REVENUE = _REQ["monthly_revenue"]    # 18, set by revenue_accel
+MONTH_ENDS_REQUIRED = _REQ["month_end_prices"]   # 14, zero margin, intentional
 
 
 def _quarter_series(rows, as_of, field):
-    """The last QUARTERS values of `field` PUBLISHED on or before as_of (§2.2)."""
+    """The last QUARTERS values of `field`, CALENDAR-QUARTER indexed (4.1a-R2).
+
+    Published on or before as_of (2.2), then laid out on consecutive fiscal
+    quarters with an explicit None for any quarter that has no published figure.
+    Compressing the gap out is what makes `series[-5]` stop being four quarters
+    before `series[-1]`: measured at period 1, 177 of 1,730 securities (10.23%)
+    had a non-contiguous last-8, so eps_growth compared the wrong base period and
+    the TTM sums spanned five calendar quarters for every one of them.
+    """
     seen = {}
     for r in rows:
         if r.release_date > as_of:
             continue
-        seen[r.date] = getattr(r, field)      # later release of a period wins
-    return tuple(_f(seen[k]) for k in sorted(seen)[-QUARTERS:])
+        seen[pd.Period(r.date, freq="Q")] = getattr(r, field)
+    if not seen:
+        return ()
+    last = max(seen)
+    span = pd.period_range(end=last, periods=QUARTERS, freq="Q")
+    return tuple(_f(seen.get(q)) for q in span)
 
 
 def _latest_quarter_row(rows, as_of):
@@ -413,10 +431,29 @@ def _latest_quarter_row(rows, as_of):
     return best
 
 
+def _monthly_revenue(rows, as_of):
+    """MONTHS_REVENUE values, CALENDAR-MONTH indexed (4.1a-R2).
+
+    `compute_revenue_yoy` reads `series[-1]` against `series[-13]`, so t-12 is
+    only truly last year's same month if the index is consecutive months. Current
+    measured impact of compressing is 0 of 1,647 securities - this is an
+    invariant, not a correction, and it is cheapest to impose now.
+    """
+    seen = {}
+    for rel, d, rev in rows:
+        if rel <= as_of:
+            seen[pd.Period(d[:7], freq="M")] = rev
+    if not seen:
+        return []
+    last = max(seen)
+    span = pd.period_range(end=last, periods=MONTHS_REVENUE, freq="M")
+    return [_f(seen.get(m)) for m in span]
+
+
 def _month_end_prices(ss, as_of, spell, unresolved):
     """14 month-end ADJUSTED closes, newest last. NA where the unit basis breaks."""
-    months = pd.period_range(end=pd.Period(as_of[:7], freq="M"), periods=MONTH_ENDS,
-                             freq="M")
+    months = pd.period_range(end=pd.Period(as_of[:7], freq="M"),
+                             periods=MONTH_ENDS_REQUIRED, freq="M")
     out = []
     for m in months:
         key = str(m)
@@ -441,7 +478,8 @@ def _month_end_prices(ss, as_of, spell, unresolved):
 def build_period(p, series, fin_idx, rev_idx, ind_idx, val_by_month,
                  status_idx, ca_by_sid, cal):
     as_of, exec_date = p["as_of"], p["execution_date"]
-    window_start = str(pd.Period(as_of[:7], freq="M") - (MONTH_ENDS - 1))
+    window_start = str(pd.Period(as_of[:7], freq="M")
+                       - (MONTH_ENDS_REQUIRED - 1))
     val = val_by_month.get(p["decision_month"], {})
     rows = []
     for sid, ss in series.items():
@@ -472,8 +510,7 @@ def build_period(p, series, fin_idx, rev_idx, ind_idx, val_by_month,
         v = val.get(sid, {})
         frows = fin_idx.get(sid, ())
         latest = _latest_quarter_row(frows, as_of)
-        mrev = [rev for rel, d, rev in rev_idx.get(sid, ())
-                if rel <= as_of][-MONTHS_REVENUE:]
+        mrev = _monthly_revenue(rev_idx.get(sid, ()), as_of)
         rows.append({
             "stock_id": sid,
             "mark": _f(ss.close[i]),

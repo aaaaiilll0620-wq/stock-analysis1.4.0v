@@ -209,9 +209,24 @@ def test_the_real_modules_do_not_scatter_dispatch():
 
 # --- M-2 · L2 termination taxonomy -------------------------------------------
 
-def test_three_outcomes_exist():
-    assert L2_OUTCOMES == (L2_SUPPORTED, L2_NOT_SUPPORTED, L2_NOT_EVALUABLE)
+def test_the_outcome_taxonomy_is_closed_and_unrenamed():
+    """v1.21 added the two names 6.1.14 already defined; nothing was renamed.
+
+    Previously this asserted a count of three. The count was never the
+    property worth pinning - the first sealed L2 run terminated in an outcome
+    the vocabulary could not express, and a count would have forbidden the fix
+    rather than caught the gap. What matters is that the original three keep
+    their exact spellings and the set stays closed.
+    """
+    from core.b0_master_prereg import (
+        L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE)
+
+    assert L2_SUPPORTED == "SUPPORTED"
+    assert L2_NOT_SUPPORTED == "NOT_SUPPORTED"
     assert L2_NOT_EVALUABLE == "NOT_EVALUABLE_DATA_RECONSTRUCTION_BLOCK"
+    assert set(L2_OUTCOMES) == {
+        L2_SUPPORTED, L2_NOT_SUPPORTED, L2_NOT_EVALUABLE,
+        L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE}
 
 
 def test_a_reconstruction_abort_is_not_a_strategy_failure():

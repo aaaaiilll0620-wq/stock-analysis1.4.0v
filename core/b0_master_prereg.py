@@ -280,8 +280,25 @@ def assert_no_scattered_dispatch(module_symbols: Mapping[str, Iterable[str]]) ->
 L2_SUPPORTED = "SUPPORTED"
 L2_NOT_SUPPORTED = "NOT_SUPPORTED"
 L2_NOT_EVALUABLE = "NOT_EVALUABLE_DATA_RECONSTRUCTION_BLOCK"
+# v1.21. The two outcomes Master v1.20 6.1.14 already defines in words. They
+# are added to the MACHINE vocabulary and nothing is renamed or generalised: the
+# first sealed L2 run terminated in F-CA-C and could not record its own result,
+# because the registry could only express three outcomes and none of them was
+# true. A `RUN_INVALID_*` family is deliberately NOT created - it would reopen
+# which defects are INVALID vs NOT_EVALUABLE, which consume the observation, and
+# how they take precedence, none of which is in question here.
+L2_NOT_EVALUABLE_CA_BLOCK = "NOT_EVALUABLE_CORPORATE_ACTION_RECONSTRUCTION_BLOCK"
+L2_RUN_INVALID_CONFORMANCE = "RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE"
 
-L2_OUTCOMES: tuple[str, ...] = (L2_SUPPORTED, L2_NOT_SUPPORTED, L2_NOT_EVALUABLE)
+L2_OUTCOMES: tuple[str, ...] = (
+    L2_SUPPORTED, L2_NOT_SUPPORTED, L2_NOT_EVALUABLE,
+    L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE,
+)
+# 6.1.14 F-CA-C: a run that ended here proved nothing about the strategy and
+# must never be read as evidence about it.
+L2_NON_EVIDENTIAL_OUTCOMES: tuple[str, ...] = (
+    L2_NOT_EVALUABLE, L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE,
+)
 
 # `Validated` belongs to L3 and may never be written at L2 (B-18 §0.1).
 L2_FORBIDDEN_WORDS: tuple[str, ...] = (
@@ -570,6 +587,21 @@ def _spec_registry() -> dict[str, Any]:
         "ca_nearest_date_event_ordering_allowed": False,
         "ca_invariants": tuple("I-CA-%02d" % i for i in range(1, 16)),
         "ca_failure_classes": ("F-CA-A", "F-CA-B", "F-CA-C"),
+        # v1.21 - C-55 - 4.1a input sufficiency. Requirements are DERIVED
+        # from the frozen members, so a producer cannot drift away from the
+        # computation it feeds without turning a test red.
+        "feature_input_requirements": {
+            k: tuple(sorted(v.items()))
+            for k, v in sorted(feat.member_input_requirements().items())},
+        "feature_series_requirements": tuple(
+            sorted(feat.series_requirements().items())),
+        "feature_calendar_indexed_series": feat.CALENDAR_INDEXED_SERIES,
+        "feature_missing_period_encoding": feat.MISSING_PERIOD_ENCODING,
+        "feature_compressing_missing_periods_allowed":
+            feat.COMPRESSING_MISSING_PERIODS_ALLOWED,
+        "feature_intentional_zero_margin": feat.INTENTIONAL_ZERO_MARGIN,
+        "l2_outcomes": L2_OUTCOMES,
+        "l2_non_evidential_outcomes": L2_NON_EVIDENTIAL_OUTCOMES,
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,

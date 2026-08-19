@@ -825,3 +825,75 @@ def assert_feature_inputs_are_pit(decision_date: str,
     """§6.6: every decision input is dated strictly before the decision date."""
     from core.b0_master_prereg import assert_decision_inputs_are_prior_session
     assert_decision_inputs_are_prior_session(decision_date, input_dates)
+
+
+# --- 4.1a - input sufficiency, derived from the frozen members ----------------
+# READ-ONLY introspection. Nothing here defines, changes or reinterprets a
+# financial formula; every number is assembled from the constants the members
+# already froze, so the requirement cannot drift away from the computation.
+#
+# It exists because the first sealed L2 run rejected 100% of the universe in all
+# 141 periods: `revenue_accel` needs 18 months of monthly revenue and the
+# materializer supplied 13. Nothing compared the two, and 141/141 reproducible
+# hashes cannot compare them - identical inputs hash identically whether or not
+# they are long enough.
+
+INPUT_SERIES: tuple[str, ...] = (
+    "net_income_by_quarter", "revenue_by_quarter", "gross_profit_by_quarter",
+    "eps_by_quarter", "monthly_revenue", "month_end_prices",
+)
+
+
+def member_input_requirements() -> dict:
+    """{member: {series: minimum length}}, derived, never restated."""
+    ttm = TTM_QUARTERS
+    eps_q = EPS_GROWTH_QUARTERS_BACK + 1
+    yoy_m = REVENUE_YOY_MONTHS_BACK + 1
+    accel_m = yoy_m + REVENUE_ACCEL_YOYS_REQUIRED - 1
+    mom_m = MOMENTUM_FORMATION_MONTHS + MOMENTUM_SKIP_MONTHS + 1
+    return {
+        "roe": {"net_income_by_quarter": ttm},
+        "net_margin": {"net_income_by_quarter": ttm, "revenue_by_quarter": ttm},
+        "gross_margin": {"gross_profit_by_quarter": ttm, "revenue_by_quarter": ttm},
+        "debt_to_asset": {},
+        "current_ratio": {},
+        "eps_growth": {"eps_by_quarter": eps_q},
+        "PEG": {"eps_by_quarter": eps_q},
+        "revenue_yoy": {"monthly_revenue": yoy_m},
+        "revenue_accel": {"monthly_revenue": accel_m},
+        "momentum_12_1": {"month_end_prices": mom_m},
+        "value_ind_pct_b": {},
+    }
+
+
+def series_requirements() -> dict:
+    """{series: deepest requirement across all frozen members}.
+
+    Consumer-specific by construction. `lookback_L_months = 18` is the deepest
+    MONTHLY dependency horizon - set by `revenue_accel` - and is not a universal
+    length every monthly array must have.
+    """
+    out = {k: 0 for k in INPUT_SERIES}
+    for reqs in member_input_requirements().values():
+        for series, n in reqs.items():
+            out[series] = max(out[series], n)
+    return out
+
+
+# 4.1a-R2. The positional readers above (`series[-1]` vs `series[-13]` / `[-5]`)
+# require a calendar-indexed series: a compressed one silently shifts the
+# comparison base. Declared so a producer can be checked against it.
+CALENDAR_INDEXED_SERIES: tuple[str, ...] = (
+    "net_income_by_quarter", "revenue_by_quarter", "gross_profit_by_quarter",
+    "eps_by_quarter", "monthly_revenue", "month_end_prices",
+)
+MISSING_PERIOD_ENCODING = "explicit_None"
+COMPRESSING_MISSING_PERIODS_ALLOWED = False
+
+# Declared zero-margin supplies. Stating them is the point: a margin of 0 is
+# "exactly sufficient", and it must be a decision somebody made rather than a
+# coincidence a future formula change would silently break. Both entries are
+# ruled: supply is set to the requirement rather than padded, so that a member
+# whose horizon deepens turns the sufficiency test red instead of being absorbed
+# by slack nobody could justify.
+INTENTIONAL_ZERO_MARGIN: tuple[str, ...] = ("month_end_prices", "monthly_revenue")
