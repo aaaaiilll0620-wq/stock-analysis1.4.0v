@@ -1,11 +1,11 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.21",
+ "version": "1.22",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "8818fec6b35842e7af7883b21fb31570d51d812bf103e0b08ff00cecda4da66b",
- "spec_bytes": 181518,
+ "spec_sha256": "ce5ac80dffe9440a0525027f17d7ce1e05321a27d38cf48cf37552e6e85aac60",
+ "spec_bytes": 190543,
  "normative_modules": {
-  "core/b0_master_prereg.py": "a87583ec364765871f4608c728e4ed20d5c6b01ff6c98b26e2ce90a8a4dc5187",
+  "core/b0_master_prereg.py": "f3f12adae087c6eca4f857ce9b6816ae12a496f0214749257621cca5f45b779b",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
   "core/b0_corporate_actions.py": "b2a9d68c70ca61157dbd920fb156ed072319174508db156b2de302cdc14692bc",
   "core/b0_pit_observability.py": "c060e8135a8c7a386b74113097cfecdfd6ffbf74b406e77e5c1f6eefc899ef1e",
@@ -17,7 +17,7 @@
   "core/b0_parity.py": "debaa9b09f5d00208e19a5aa31debf5a237e861af0c10ed163cd78c377733eba",
   "core/b0_provenance.py": "65299580e322696107f38fd2583a91cd177887f772e1240cf42577ff7b7fe224",
   "core/b0_open_items.py": "cd3cd2ab0f6aeabedb93247451e5330358f62f34484befdf63506dd7d865f257",
-  "core/b0_finalization_items.py": "26f66e0689a3cf4929cfdd8f5aecc1d35251938b8cd8a256834b81d63d671367",
+  "core/b0_finalization_items.py": "d5edff2611407e2cd5e400e142849486a5bea564d2c7eafa7fc940f755993cf3",
   "core/b0_declaration_conformance.py": "b8dea19303579064ee0c281755166f20c997a80292e98ff9e10337307e131552",
   "core/b0_state.py": "7519e487d801693ea36cf433a58cfaa6c161c46b228db34172e9d1b65265dc90",
   "core/b0_features.py": "fd9b69adb5e0270f7e204f6e65bb6758ddb7a8c6d093993dff644e73468bb8ff",
@@ -206,8 +206,13 @@
   "implementation_identity",
   "interpolation_allowed",
   "intraday_sequence",
+  "l2_conformance_repair_forbidden_subjects",
+  "l2_non_consuming_outcomes",
+  "l2_non_consumption_conditions",
+  "l2_non_consumption_enforcement",
   "l2_non_evidential_outcomes",
   "l2_outcomes",
+  "l2_repair_kinds",
   "l3_checkpoint_interval_months",
   "l3_first_checkpoint_months",
   "ledger_unit",
@@ -242,6 +247,8 @@
   "price_lookback_reset_at_spell_start",
   "price_lookback_sessions",
   "proportional_scaling_allowed",
+  "provenance_line_terminator",
+  "provenance_record_encoding",
   "reappearance_may_explain_earlier_gap",
   "removed_legacy_risk_legs",
   "revenue_yoy_definition",
@@ -337,13 +344,11 @@
   "keys": []
  },
  "open_finalization_items": {
-  "total": 1,
-  "keys": [
-   "l2_reopening_after_run_invalid"
-  ],
+  "total": 0,
+  "keys": [],
   "by_stage": {
    "final_provenance_seal": 0,
-   "L2_opening": 1
+   "L2_opening": 0
   }
  },
  "declaration_conformance": {

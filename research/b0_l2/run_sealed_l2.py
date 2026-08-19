@@ -40,6 +40,9 @@ from core.b0_corporate_actions import (                          # noqa: E402
 )
 from core.b0_features import SecurityPitInputs                   # noqa: E402
 from core.b0_listing_spell import ListingSpell                   # noqa: E402
+from core.b0_master_prereg import (                             # noqa: E402
+    append_provenance_record, write_provenance_json,
+)
 from core.b0_pit_observability import PitPriceObservation        # noqa: E402
 from core.b0_route import ROUTE_KIND_RETROSPECTIVE, run_decision # noqa: E402
 from core.b0_state import PortfolioState                         # noqa: E402
@@ -54,9 +57,15 @@ MANIFEST = os.path.join(DATA, "market_state_manifest.json")
 
 
 def _jsonl(name, row):
-    with open(os.path.join(OUT, name), "a", encoding="utf-8", newline="\n") as fh:
-        fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True, default=str)
-                 + "\n")
+    """R5: one primitive, in a normative module, writing binary LF bytes.
+
+    `newline="\n"` here was correct but local — the registry writer in
+    `core.b0_master_prereg` did not have it, and the same logical opening record
+    therefore hashed differently on Windows. A provenance byte rule that each
+    caller re-implements is a rule that one caller will get wrong.
+    """
+    append_provenance_record(os.path.join(OUT, name),
+                             json.loads(json.dumps(row, default=str)))
 
 
 def load_events():
@@ -275,9 +284,7 @@ def main() -> int:
             print("  %d/141  %s  port_value=%.2f" % (i, period["decision_month"],
                                                      result.port_value), flush=True)
 
-    with open(os.path.join(OUT, "nav_series.json"), "w", encoding="utf-8",
-              newline="\n") as fh:
-        json.dump(nav_series, fh, ensure_ascii=False, indent=1)
+    write_provenance_json(os.path.join(OUT, "nav_series.json"), nav_series)
     print("completed %d/141 periods" % done)
     return 0
 

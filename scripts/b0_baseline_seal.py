@@ -40,7 +40,8 @@ sys.path.insert(0, REPO)
 
 from core.b0_canonical_hash import CANONICAL_HASH_VERSION, canonical_sha256  # noqa: E402
 from core.b0_master_prereg import (                                          # noqa: E402
-    NORMATIVE_MODULES, normative_module_hashes, spec, specified_keys,
+    NORMATIVE_MODULES, effective_observation_count, normative_module_hashes,
+    read_registry, spec, specified_keys,
 )
 from core.b0_provenance import (                                             # noqa: E402
     CodeProvenance, ConfigProvenance, DatasetProvenance,
@@ -232,6 +233,15 @@ def build_l2_opening_protocol() -> dict:
         "sharpe_metric_name": spec("sharpe_metric_name"),
         "openings_permitted": 1,
         "opening_requires_explicit_user_authorisation": True,
+        # v1.22 R1/R2. `openings_permitted: 1` is a budget, so the baseline has
+        # to say how much of it is spent -- and the answer is not simply "how
+        # many rows are in the registry". One attempt is recorded and it did not
+        # consume an observation, which is a distinction the seal must carry
+        # rather than leave to be re-derived from prose later.
+        "attempted_openings_recorded": len(read_registry()),
+        "effective_observations_to_date": effective_observation_count(),
+        "non_consuming_outcomes": list(spec("l2_non_consuming_outcomes")),
+        "non_consumption_conditions": list(spec("l2_non_consumption_conditions")),
     }
 
 

@@ -324,7 +324,10 @@ def test_a_decided_window_may_never_be_re_run(outcome):
 
 
 def test_re_running_without_a_repair_is_rejected():
-    with pytest.raises(MasterPreregViolation, match="requires a repair"):
+    """v1.22: the message now NAMES the required kind, because R3 made the kinds
+    non-interchangeable. Matching the bare word `repair` would pass whichever
+    kind the message demanded, which is the distinction under test."""
+    with pytest.raises(MasterPreregViolation, match="requires a DataRepair"):
         assert_rerun_admissible(_opening(outcome=L2_NOT_EVALUABLE), None)
 
 

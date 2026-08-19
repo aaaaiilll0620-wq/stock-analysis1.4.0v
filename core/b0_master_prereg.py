@@ -378,6 +378,85 @@ def assert_repair_admissible(repair: DataRepair) -> None:
 
 
 @dataclass(frozen=True)
+class ImplementationConformanceRepair:
+    """M-2/R3 (v1.22): the OTHER admissible repair — implementation, not data.
+
+    Run `L2-2520c80aa980d681` could not be expressed by `DataRepair` at all. Its
+    defect was that the materializer supplied 13 months of monthly revenue
+    against a frozen requirement of 18: the semantics were already frozen and
+    correct, the DATA was already present and correct, and there was nothing to
+    re-import from an independent source. Forcing it into `DataRepair` would have
+    required naming an `independent_source` that does not exist — a fabricated
+    provenance field — and would have recorded an implementation defect as a data
+    defect, which is the substitution §6.1.14 exists to forbid.
+
+    The scope is deliberately narrow: this repair may only make the
+    implementation or its materialized inputs conform to semantics that were
+    ALREADY FROZEN BEFORE the invalid run. A repair that changes what B0 means is
+    not a repair, it is a new version.
+    """
+    description: str
+    frozen_semantics_reference: str    # the clause the implementation violated
+    semantics_frozen_before_run: bool  # must be True
+    changes_strategy_semantics: bool   # must be False
+    performance_consulted: bool        # must be False
+    selected_by_portfolio_exposure: bool   # must be False
+
+    # R3: naming them makes "I did not change the strategy" a checked claim
+    # rather than an assurance in a commit message.
+    FORBIDDEN_SUBJECTS: ClassVar[tuple[str, ...]] = (
+        "factor_definition", "factor_weight", "threshold",
+        "portfolio_construction", "execution", "cost", "universe_rule",
+        "corporate_action_semantics", "performance_driven_data_policy",
+    )
+
+
+def assert_conformance_repair_admissible(
+        repair: ImplementationConformanceRepair) -> None:
+    """R3: conformance only. Anything that moves the specification is refused."""
+    if not repair.description.strip():
+        raise MasterPreregViolation(
+            "M-2/R3: a conformance repair must name what failed to conform.")
+    if not repair.frozen_semantics_reference.strip():
+        raise MasterPreregViolation(
+            "M-2/R3: a conformance repair must cite the frozen clause the "
+            "implementation violated. Without it there is no way to tell "
+            "conformance from a specification change.")
+    if not repair.semantics_frozen_before_run:
+        raise MasterPreregViolation(
+            "M-2/R3: the semantics being conformed to were not frozen before the "
+            "invalid run. Conforming to semantics written afterwards is a "
+            "specification change wearing a repair's name.")
+    if repair.changes_strategy_semantics:
+        raise MasterPreregViolation(
+            "M-2/R3: this repair changes strategy semantics. Admissible subjects "
+            "exclude " + ", ".join(repair.FORBIDDEN_SUBJECTS) + ".")
+    if repair.performance_consulted:
+        raise MasterPreregViolation(
+            "M-2/R3: the repair was chosen after looking at strategy "
+            "performance. That makes the re-run a post-hoc rescue.")
+    if repair.selected_by_portfolio_exposure:
+        raise MasterPreregViolation(
+            "M-2/R3: repairing only what B0 happened to hold selects the fix by "
+            "the portfolio.")
+
+
+REPAIR_KINDS: tuple[type, ...] = (DataRepair, ImplementationConformanceRepair)
+
+
+def assert_any_repair_admissible(repair: object) -> None:
+    """Dispatch by KIND, never by duck-typing — the kinds are not interchangeable."""
+    if isinstance(repair, DataRepair):
+        assert_repair_admissible(repair)
+    elif isinstance(repair, ImplementationConformanceRepair):
+        assert_conformance_repair_admissible(repair)
+    else:
+        raise UnspecifiedBehaviour(
+            f"M-2/M-3: {type(repair).__name__} is not a defined repair kind; "
+            f"defined kinds are {tuple(k.__name__ for k in REPAIR_KINDS)}.")
+
+
+@dataclass(frozen=True)
 class L2Opening:
     """One unsealing of the retrospective window. Recorded whatever happens."""
     opened_at: str
@@ -403,16 +482,68 @@ class L2Opening:
 DEFAULT_REGISTRY_PATH = os.path.join(
     REPO_ROOT, "research", "b0_registry", "l2_opening_registry.jsonl")
 
+# --- R5 (v1.22) - deterministic provenance bytes ------------------------------
+# The registry is a RAW-BYTE provenance record and .gitattributes already freezes
+# LF as the repository canonical representation for exactly that reason. But
+# `record_opening` wrote through a text-mode handle, so on Windows the line
+# terminator became CRLF: the same logical record produced different bytes, and
+# therefore a different hash, depending on who ran it. Writing in BINARY mode is
+# the fix rather than passing a newline= keyword, because a keyword argument can
+# be dropped by the next edit while a bytes payload cannot be silently
+# translated.
+PROVENANCE_RECORD_ENCODING = "utf-8"
+PROVENANCE_LINE_TERMINATOR = "\n"
+
+
+def canonical_record_bytes(payload: Mapping[str, Any]) -> bytes:
+    """The exact bytes one provenance record occupies. Platform-independent."""
+    line = json.dumps(dict(payload), ensure_ascii=False, sort_keys=True)
+    blob = (line + PROVENANCE_LINE_TERMINATOR).encode(PROVENANCE_RECORD_ENCODING)
+    # Post-condition, not decoration: one record occupies exactly one line, and
+    # the only line terminator in it is the declared one. `json.dumps` escapes
+    # breaks inside strings today, so this holds - it is here to turn a future
+    # serialiser change into a failure instead of a corrupted append-only file.
+    if blob.count(b"\n") != 1 or not blob.endswith(b"\n") or b"\r" in blob:
+        raise MasterPreregViolation(
+            "provenance: a record must occupy exactly one line terminated by a "
+            "single LF; the append-only file cannot be read back otherwise.")
+    return blob
+
+
+def append_provenance_record(path: str, payload: Mapping[str, Any]) -> bytes:
+    """Append-only, binary, LF. Returns the bytes written so callers can hash."""
+    directory = os.path.dirname(path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+    blob = canonical_record_bytes(payload)
+    with open(path, "ab") as fh:            # binary: no newline translation
+        fh.write(blob)
+    return blob
+
+
+def write_provenance_json(path: str, payload: Any, *, indent: int = 1) -> bytes:
+    """The document form of the same rule, for opening / run provenance files."""
+    directory = os.path.dirname(path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+    body = json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=indent)
+    blob = (body + PROVENANCE_LINE_TERMINATOR).replace(
+        "\r\n", "\n").encode(PROVENANCE_RECORD_ENCODING)
+    with open(path, "wb") as fh:
+        fh.write(blob)
+    return blob
+
 
 def record_opening(entry: L2Opening, path: str = DEFAULT_REGISTRY_PATH) -> None:
     """Append-only. A NOT_EVALUABLE opening is recorded exactly like any other.
 
-    The registry counts effective observations (B-18 §4.3), and a run that
-    touched the sealed window touched it regardless of how it ended.
+    The registry records every unsealing of the window. Whether an entry COUNTS
+    as an effective observation (B-18 4.3) is a separate question answered by
+    `effective_observation_count`, not by whether the row exists: R1/R2 of the
+    ruling of 2026-08-19 defines one narrow non-consuming case, and pretending
+    such a run never happened would be the alternative that destroys provenance.
     """
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8") as fh:
-        fh.write(json.dumps(asdict(entry), ensure_ascii=False, sort_keys=True) + "\n")
+    append_provenance_record(path, asdict(entry))
 
 
 def read_registry(path: str = DEFAULT_REGISTRY_PATH) -> list[dict]:
@@ -422,19 +553,194 @@ def read_registry(path: str = DEFAULT_REGISTRY_PATH) -> list[dict]:
         return [json.loads(line) for line in fh if line.strip()]
 
 
-def assert_rerun_admissible(previous: L2Opening, repair: DataRepair | None) -> None:
-    """Only a NOT_EVALUABLE opening may be re-run on the same window."""
+# --- R1 / R2 (v1.22) - the narrow non-consumption rule ------------------------
+# ONLY this outcome may ever be non-consuming, and only when every condition
+# below holds. The rule is deliberately NOT "a crashed run never counts": a run
+# that produced a single cross-section of scores over a non-empty universe has
+# looked at the window, whatever exception ended it afterwards.
+NON_CONSUMING_OUTCOMES: tuple[str, ...] = (L2_RUN_INVALID_CONFORMANCE,)
+
+NON_CONSUMPTION_CONDITIONS: tuple[str, ...] = (
+    "zero_effective_decision_observations",
+    "no_portfolio_nav_or_performance_produced_or_viewed",
+    "defect_is_implementation_or_input_conformance",
+    "repair_independent_of_observed_performance",
+    "invalid_run_immutable",
+    "new_baseline_seal_taken",
+    "fresh_explicit_authorization_required",
+)
+
+# All seven are required. They are split by WHICH MECHANISM CAN ACTUALLY CHECK
+# THEM: 1-5 are facts about a run that already ended and are attested from its
+# immutable artefacts; 6-7 are preconditions on the NEXT opening, and a boolean
+# written before the new seal exists would be an undertaking dressed up as an
+# observation. Comparing the two seal identities at reopening is the stronger
+# check, so 6-7 are enforced at the call site instead of self-attested.
+NON_CONSUMPTION_ENFORCEMENT: Mapping[str, str] = {
+    "zero_effective_decision_observations": "attested",
+    "no_portfolio_nav_or_performance_produced_or_viewed": "attested",
+    "defect_is_implementation_or_input_conformance": "attested",
+    "repair_independent_of_observed_performance": "attested",
+    "invalid_run_immutable": "attested",
+    "new_baseline_seal_taken": "assert_reopening_admissible",
+    "fresh_explicit_authorization_required": "assert_reopening_admissible",
+}
+
+ATTESTED_CONDITIONS: tuple[str, ...] = tuple(
+    c for c in NON_CONSUMPTION_CONDITIONS
+    if NON_CONSUMPTION_ENFORCEMENT[c] == "attested")
+
+
+@dataclass(frozen=True)
+class NonConsumptionAttestation:
+    """Recorded ALONGSIDE the opening, never inside it.
+
+    The invalid run own record stays byte-identical, including the
+    `l2_opening_consumed: true` the runner wrote conservatively when it
+    terminated. That field was the implementer default; this attestation is the
+    ruling that supersedes it. Editing the artefact instead would have destroyed
+    the evidence that the two ever disagreed.
+    """
+    opened_at: str                 # identifies the opening; does not mutate it
+    run_id: str
+    outcome: str
+    ruling: str                    # which ruling made this determination
+    evidence: str                  # what was measured, not what was hoped
+    # R2 conditions 1-5. Conditions 6-7 are enforced by
+    # `assert_reopening_admissible`, see NON_CONSUMPTION_ENFORCEMENT.
+    zero_effective_decision_observations: bool
+    no_portfolio_nav_or_performance_produced_or_viewed: bool
+    defect_is_implementation_or_input_conformance: bool
+    repair_independent_of_observed_performance: bool
+    invalid_run_immutable: bool
+
+    def __post_init__(self) -> None:
+        if self.outcome not in NON_CONSUMING_OUTCOMES:
+            raise MasterPreregViolation(
+                f"R2: {self.outcome!r} can never be non-consuming. Only "
+                f"{NON_CONSUMING_OUTCOMES} is in scope, and this rule must not "
+                f"be generalised into 'crashed runs never count'.")
+        for f in ("opened_at", "run_id", "ruling", "evidence"):
+            if not str(getattr(self, f)).strip():
+                raise MasterPreregViolation(
+                    f"R2: a non-consumption attestation requires {f}.")
+
+
+def assert_non_consumption_admissible(att: NonConsumptionAttestation) -> None:
+    """Conditions 1-5, named individually so a failure says which one."""
+    for cond in ATTESTED_CONDITIONS:
+        if not getattr(att, cond):
+            raise MasterPreregViolation(
+                f"R2: {att.run_id} is not non-consuming - condition {cond!r} "
+                f"does not hold. All {len(NON_CONSUMPTION_CONDITIONS)} "
+                f"conditions are required; any one of them failing means the "
+                f"observation was spent.")
+    for cond, site in NON_CONSUMPTION_ENFORCEMENT.items():
+        if site not in ("attested", "assert_reopening_admissible"):
+            raise UnspecifiedBehaviour(
+                f"R2: condition {cond!r} has no enforcement site.")
+
+
+DEFAULT_NONCONSUMPTION_PATH = os.path.join(
+    REPO_ROOT, "research", "b0_registry", "l2_nonconsumption_ledger.jsonl")
+
+
+def record_non_consumption(att: NonConsumptionAttestation,
+                           path: str = DEFAULT_NONCONSUMPTION_PATH) -> None:
+    assert_non_consumption_admissible(att)
+    append_provenance_record(path, asdict(att))
+
+
+def read_non_consumption(path: str = DEFAULT_NONCONSUMPTION_PATH) -> list[dict]:
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as fh:
+        return [json.loads(line) for line in fh if line.strip()]
+
+
+def effective_observation_count(
+        registry_path: str = DEFAULT_REGISTRY_PATH,
+        attestation_path: str = DEFAULT_NONCONSUMPTION_PATH) -> int:
+    """B-18 4.3: how many times the sealed window has actually been observed.
+
+    An attestation excuses a row only if the ROW own outcome is in scope, so a
+    mis-filed attestation cannot retire a SUPPORTED result.
+    """
+    excused = set()
+    for a in read_non_consumption(attestation_path):
+        att = NonConsumptionAttestation(**a)
+        assert_non_consumption_admissible(att)
+        excused.add(att.opened_at)
+    count = 0
+    for row in read_registry(registry_path):
+        if row["opened_at"] in excused and row["outcome"] in NON_CONSUMING_OUTCOMES:
+            continue
+        count += 1
+    return count
+
+
+def assert_rerun_admissible(
+        previous: L2Opening,
+        repair: "DataRepair | ImplementationConformanceRepair | None") -> None:
+    """Which repair KIND is admissible is decided by how the run ended.
+
+    R3: the kinds are not interchangeable. Accepting a `DataRepair` for a
+    conformance failure would record an implementation defect as a data defect,
+    and accepting a conformance repair for a reconstruction block would let a
+    missing source be closed by editing code.
+    """
     if previous.outcome in (L2_SUPPORTED, L2_NOT_SUPPORTED):
         raise MasterPreregViolation(
             f"no-post-hoc-rescue: the window already produced "
             f"{previous.outcome}. A changed specification is a new version "
             f"(B1, B2 ...) whose primary evidence must be L3, not this window."
         )
+    if previous.outcome == L2_RUN_INVALID_CONFORMANCE:
+        expected: type = ImplementationConformanceRepair
+        why = ("6.1.14 F-CA-C: the semantics were already frozen and the data "
+               "was already present; what failed was the implementation")
+    else:
+        expected = DataRepair
+        why = ("M-2: a reconstruction block is a DATA gap and is closed by an "
+               "independent source, not by changing code")
     if repair is None:
         raise MasterPreregViolation(
-            "M-2: re-running after a data-reconstruction block requires a repair; "
-            "re-running unchanged would abort identically.")
-    assert_repair_admissible(repair)
+            f"M-2: re-running after {previous.outcome} requires a "
+            f"{expected.__name__}; re-running unchanged would abort identically.")
+    if not isinstance(repair, expected):
+        raise MasterPreregViolation(
+            f"M-2/R3: {previous.outcome} requires a {expected.__name__}, not a "
+            f"{type(repair).__name__} - {why}.")
+    assert_any_repair_admissible(repair)
+
+
+def assert_reopening_admissible(
+        previous: L2Opening,
+        repair: "DataRepair | ImplementationConformanceRepair | None",
+        *,
+        previous_baseline_seal_sha256: str,
+        new_baseline_seal_sha256: str,
+        authorization_reference: str) -> None:
+    """R2 conditions 6 and 7, enforced rather than attested.
+
+    A boolean saying "a new seal was taken" is worth nothing next to comparing
+    the two seal identities, and 6.1.14 says explicitly that the clause does not
+    itself grant a retry - so the authorization must be NAMED at the call site.
+    """
+    assert_rerun_admissible(previous, repair)
+    assert set(NON_CONSUMPTION_CONDITIONS) - set(ATTESTED_CONDITIONS) == {
+        "new_baseline_seal_taken", "fresh_explicit_authorization_required"}
+    for name, value in (("previous_baseline_seal_sha256",
+                         previous_baseline_seal_sha256),
+                        ("new_baseline_seal_sha256", new_baseline_seal_sha256),
+                        ("authorization_reference", authorization_reference)):
+        if not str(value).strip():
+            raise MasterPreregViolation(f"R2: re-opening requires {name}.")
+    if previous_baseline_seal_sha256 == new_baseline_seal_sha256:
+        raise MasterPreregViolation(
+            "R2 condition 6: re-opening requires a NEW Baseline Seal. The "
+            "proposed opening binds the same baseline the invalid run bound, "
+            "which means nothing was actually repaired and re-sealed.")
 
 
 # --- M-3 · no specification-by-code ------------------------------------------
@@ -602,6 +908,19 @@ def _spec_registry() -> dict[str, Any]:
         "feature_intentional_zero_margin": feat.INTENTIONAL_ZERO_MARGIN,
         "l2_outcomes": L2_OUTCOMES,
         "l2_non_evidential_outcomes": L2_NON_EVIDENTIAL_OUTCOMES,
+        # v1.22 - R1/R2/R3/R5. Non-evidential and non-consuming are DIFFERENT
+        # properties: all three non-evidential outcomes prove nothing about the
+        # strategy, but only one of them can leave the once-only observation
+        # unspent, and only under all seven conditions.
+        "l2_non_consuming_outcomes": NON_CONSUMING_OUTCOMES,
+        "l2_non_consumption_conditions": NON_CONSUMPTION_CONDITIONS,
+        "l2_non_consumption_enforcement": tuple(
+            sorted(NON_CONSUMPTION_ENFORCEMENT.items())),
+        "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
+        "l2_conformance_repair_forbidden_subjects":
+            ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,
+        "provenance_record_encoding": PROVENANCE_RECORD_ENCODING,
+        "provenance_line_terminator": PROVENANCE_LINE_TERMINATOR,
         # B-14 cost
         "commission_rate": cost.COMMISSION_RATE,
         "min_fee": cost.MIN_FEE,
