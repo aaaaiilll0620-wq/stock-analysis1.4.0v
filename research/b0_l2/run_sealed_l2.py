@@ -189,10 +189,21 @@ def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
         # LISTING spell. Declaring `held_from = <listing start>` is precisely
         # what made B0 look exposed to a security's entire history, and it is
         # what ended the official Frozen B0 L2 run in period 2.
+        #
+        # B0.2/R2: and it is the CURRENT exposure, not the whole ledger. This
+        # loop walked every spell of a held security, so after an exit and a
+        # re-entry it declared the closed spell too — a declaration no correct
+        # canonical set can contain. The declaration is still assembled here
+        # rather than fetched, because a caller that cannot get this wrong is a
+        # caller whose agreement proves nothing.
         for sp in portfolio.holding_spells:
-            if sp.stock_id == sid:
-                exposures.append(Exposure(stock_id=sid, held_from=sp.start,
-                                          held_until=sp.end or as_of))
+            if sp.stock_id != sid:
+                continue
+            if not (str(sp.start) <= str(as_of)
+                    and (sp.open or str(as_of) <= str(sp.end))):
+                continue
+            exposures.append(Exposure(stock_id=sid, held_from=sp.start,
+                                      held_until=sp.end or as_of))
         ca_events.extend(e for e in events_by_sid.get(sid, ())
                          if e.ex_or_effective_date <= as_of)
 

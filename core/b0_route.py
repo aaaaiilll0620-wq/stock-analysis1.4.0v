@@ -359,11 +359,14 @@ def run_decision(inp: CanonicalDecisionInput, *,
 
     # --- corporate_action_transition (O-A: mandatory, both guards) --------------
     stages.append("corporate_action_transition")
-    # B0.1 · R2. Economic truth is the canonical portfolio's own spell ledger.
-    # `inp.exposures` is retained only as a redundant conformance assertion: a
-    # caller that assembles exposure itself is a caller that can assemble it
-    # wrongly, which is exactly what happened.
-    assert_caller_exposures_conform(inp.exposures, inp.portfolio)
+    # B0.1 · R2, domain corrected by B0.2 · R2. Economic truth is the canonical
+    # portfolio's own spell ledger. `inp.exposures` is retained only as a
+    # redundant conformance assertion: a caller that assembles exposure itself is
+    # a caller that can assemble it wrongly, which is exactly what happened. The
+    # set it must equal is the exposure that is CURRENT at `as_of`, not the
+    # complete historical ledger — the latter can never be equalled once any
+    # position has been fully exited.
+    assert_caller_exposures_conform(inp.exposures, inp.portfolio, as_of=inp.as_of)
     assert_exposure_reconstructible(inp.corporate_action_events, inp.portfolio,
                                     as_of=inp.as_of)
     # §6.1.2: the stage is the TRANSITION, not the guards around it. The engine

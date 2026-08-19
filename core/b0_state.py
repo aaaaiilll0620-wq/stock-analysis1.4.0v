@@ -501,7 +501,39 @@ class PortfolioState:
                    for sp in self.holding_spells if sp.stock_id == stock_id)
 
     def exposure_spells(self) -> tuple:
+        """The COMPLETE historical ledger: open spells and closed ones alike.
+
+        B0.2 · R2 names this explicitly because it was being used for two
+        different questions. It answers exactly one: "every interval of
+        underlying exposure B0 has ever had." Historical corporate-action
+        adjudication needs all of it; a caller describing what B0 holds NOW
+        needs `active_exposure_projection` instead.
+        """
         return tuple(self.holding_spells)
+
+    def active_exposure_projection(self, as_of: str = "") -> tuple:
+        """B0.2 · R2: the spells that are CURRENT at `as_of`.
+
+        The third of the three concepts, and the one that did not exist. B0.1
+        had a complete historical ledger and a historical CA predicate, and then
+        asked a caller's CURRENT declaration to equal the HISTORICAL ledger. The
+        two agree only until the first position is fully exited, at which point
+        every closed spell is a permanent mismatch — which is precisely how the
+        B0.1 diagnostic replay died at period 3 with five securities bought on
+        2014-08-01 and sold before 2014-09.
+
+        "Current" is has-begun-and-has-not-ended. It is deliberately NOT
+        `covers()`: `covers` answers the corporate-action question and is frozen
+        by §12.4 / R3, so reusing it here would tie a projection to an interval
+        rule derived for a different purpose. A spell that opened on `as_of` is
+        current (B0 holds those shares) even though it is not exposed to an event
+        dated `as_of` — those are different questions and now have different
+        predicates.
+        """
+        when = str(as_of or self.as_of)
+        return tuple(sp for sp in self.holding_spells
+                     if str(sp.start) <= when
+                     and (sp.open or when <= str(sp.end)))
 
     def with_underlying_exposure_recorded(self, as_of: str = "") -> "PortfolioState":
         """The end-of-day state, with its spell ledger advanced."""

@@ -256,21 +256,39 @@ def exposed_unreconstructible_events(
     return hit
 
 
-def assert_caller_exposures_conform(exposures, state) -> None:
-    """B0.1 · R2. A caller may still declare exposure; it may not DEFINE it.
+def assert_caller_exposures_conform(exposures, state, as_of: str = "") -> None:
+    """B0.1 · R2, corrected by B0.2 · R2. A caller may declare; it may not DEFINE.
 
     The retrospective adapter declared `held_from = <listing spell start>`, so
     B0 looked exposed to every corporate action a security ever had. Keeping the
     field as a checked redundancy — rather than deleting it — turns that class of
     mistake into a fail-loud mismatch instead of a silent economic input.
+
+    B0.2 · R2 fixes WHICH canonical set it is redundant against. This compared a
+    caller's CURRENT exposure declaration against `exposure_spells()`, the
+    COMPLETE historical ledger. Those sets are equal only while no position has
+    ever been fully exited: the first exit leaves a closed spell in the ledger
+    that no current declaration can legitimately contain, and the assertion then
+    fails forever. It is a domain mismatch between two of the three concepts R2
+    separates, not a disagreement about any economic quantity — no interval rule,
+    no event, no claim and no NAV is involved.
+
+    The comparison is now against `active_exposure_projection(as_of)`. Closed
+    spells stay in the ledger and stay available to `exposure_applies`, which is
+    frozen and untouched; they are simply not a CURRENT exposure for a caller to
+    declare. On exit-then-re-entry the caller declares the re-entry spell only,
+    while the ledger keeps both — so an event belonging to the earlier spell can
+    still never be replayed onto the later position.
     """
+    when = str(as_of or getattr(state, "as_of", "") or "")
     declared = {(x.stock_id, str(x.held_from)) for x in (exposures or ())}
-    canonical = {(sp.stock_id, str(sp.start)) for sp in state.exposure_spells()}
+    canonical = {(sp.stock_id, str(sp.start))
+                 for sp in state.active_exposure_projection(when)}
     if declared and declared != canonical:
         only_caller = sorted(declared - canonical)[:5]
         only_state = sorted(canonical - declared)[:5]
         raise CorporateActionError(
-            f"B0.1/R2: caller-declared exposure disagrees with the canonical "
+            f"B0.2/R2: caller-declared exposure disagrees with the canonical "
             f"holding-spell ledger. caller-only={only_caller} "
             f"state-only={only_state}. Exposure is a property of what B0 held, "
             f"not of what the caller believes it held.")
