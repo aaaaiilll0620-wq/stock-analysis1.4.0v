@@ -1,0 +1,66 @@
+{
+ "determination": "No reachable authoritative source uniquely determines successor_security_id, stock_ratio and credit_tradable_date for the audited merger events. Under R5 they therefore REMAIN NOT_RECONSTRUCTIBLE. No event was excluded, waived, imputed or downgraded.",
+ "events_newly_reconstructible": 0,
+ "events_remaining_not_reconstructible": 220,
+ "inference_sources_refused": [
+  "post-event prices",
+  "share-count changes",
+  "portfolio continuity",
+  "NAV continuity",
+  "subsequent holdings",
+  "strategy results"
+ ],
+ "policy_fixed_before_values_inspected": true,
+ "record": "B0_3_MERGER_SOURCE_AVAILABILITY",
+ "required_holder_fields": [
+  "successor_security_id",
+  "stock_ratio",
+  "credit_tradable_date"
+ ],
+ "required_holder_fields_frozen_by": "core.b0_corporate_actions.REQUIRED_FIELDS['merger']",
+ "selection_independent_of": [
+  "B0 holdings",
+  "rankings",
+  "portfolio consequences",
+  "NAV",
+  "whether an event blocks replay",
+  "subsequent strategy performance"
+ ],
+ "sources_examined": [
+  {
+   "authority": "TWSE openapi",
+   "endpoint": "/company/suspendListingCsvAndHtml (終止上市公司)",
+   "fields": [
+    "DelistingDate",
+    "Company",
+    "Code"
+   ],
+   "note": "delisting date only; carries no reason, no counterparty and no conversion terms. 0 rows even mention 合併.",
+   "priority": 1,
+   "rows": 264,
+   "supplies_credit_tradable_date": false,
+   "supplies_stock_ratio": false,
+   "supplies_successor_security_id": false
+  },
+  {
+   "authority": "TWSE openapi (full index)",
+   "endpoint": "swagger.json, 143 endpoints",
+   "note": "no endpoint exposes merger conversion terms; the only 合併 matches are consolidated-statement director/supervisor remuneration.",
+   "priority": 1
+  },
+  {
+   "authority": "MOPS 公開資訊觀測站 material announcements",
+   "endpoint": "ajax_t05st01",
+   "note": "Chinese prose disclosures. Conversion terms appear narratively, not as structured fields, so no deterministic machine extraction is available for 220 events; R4 forbids inference.",
+   "priority": 2,
+   "supplies_credit_tradable_date": "free text only",
+   "supplies_stock_ratio": "free text only",
+   "supplies_successor_security_id": "free text only"
+  },
+  {
+   "authority": "third-party reconstructed datasets",
+   "note": "admissible as audit comparators only (R3); may not determine canonical holder economics. None was consulted for values.",
+   "priority": "excluded"
+  }
+ ]
+}

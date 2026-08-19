@@ -21,7 +21,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 BLOCKS: tuple[str, ...] = ("final_provenance_seal", "L2_opening",
-                          "B0_2_retrospective_replay")
+                          "B0_2_retrospective_replay",
+                          "B0_3_data_repair")
 
 
 class FinalizationBlocked(RuntimeError):
@@ -156,7 +157,77 @@ class FinalizationItem:
 #       reinvesting total-return series B7 excludes, carrying no open, no
 #       volume, no raw close and no distribution events.
 #
-FINALIZATION_ITEMS: tuple[FinalizationItem, ...] = ()
+FINALIZATION_ITEMS: tuple[FinalizationItem, ...] = (
+
+    FinalizationItem(
+        key="merger_holder_side_leg_semantics",
+        question=(
+            "Does a `合併(仟股)` row on the SURVIVING entity describe a "
+            "holder-affecting IDENTITY CHANGE for a holder of that surviving "
+            "security -- as the frozen model asserts -- or does it describe the "
+            "surviving issuer's own share ISSUANCE, whose only effect on an "
+            "existing holder is dilution already carried in the price? The two "
+            "readings demand different data and produce different verdicts: the "
+            "first needs successor_security_id + stock_ratio + "
+            "credit_tradable_date and is NOT_RECONSTRUCTIBLE without them; the "
+            "second is NOT_APPLICABLE and needs nothing."),
+        why_it_matters=(
+            "This is the single reason the B0.2 diagnostic replay is blocked, "
+            "and it cannot be settled by acquiring data. All 220 merger events "
+            "in the corpus carry the SAME defect signature and NONE of the three "
+            "frozen holder-side fields; no reachable authoritative source "
+            "supplies them (see merger_source_availability.json), so under R5 "
+            "they all remain NOT_RECONSTRUCTIBLE and a faithful DataRepair "
+            "changes nothing. The alternative reading WOULD clear the block -- "
+            "which is precisely why an implementer must not take it. It would "
+            "change `holder_affecting_kinds()`, `IDENTITY_CHANGING_KINDS` and "
+            "the 6.1 transition table, all frozen, so R12 makes it a STOP rather "
+            "than a repair. Deciding it because it unblocks a replay is the "
+            "exact move R5 forbids."),
+        measured=(
+            "Corpus-wide audit over the whole ledger, defect-defined and "
+            "independent of holdings: 46,275 ledger rows, 220 merger events, "
+            "220/220 matching the defect signature verbatim, 0 outside it, 186 "
+            "distinct securities, 2004-03-01 .. 2025-07-24, 53 inside the "
+            "141-period window. Holder-side field presence across all 220 "
+            "in-scope events: NONE of successor_security_id, stock_ratio or "
+            "credit_tradable_date is populated on any of them. 33 "
+            "share_conversion events carry the identical signature and the "
+            "identical frozen requirement, so any ruling here reaches them too. "
+            "The importer maps the TEJ column `合併(仟股)` -- the surviving "
+            "issuer's own share-count delta -- onto a kind the core declares "
+            "holder-affecting and identity-changing; the ledger's own stated "
+            "reason (`recorded only on the surviving/issuing entity`) is what "
+            "raises the question. Both 4123 events (2014-11-14, the B0.2 "
+            "blocker, and 2022-06-30) sit inside this scope and were audited "
+            "through the corpus-wide rule with no event-specific handling."),
+        options=(
+            "RULE that the frozen reading stands: a merger row is a "
+            "holder-affecting identity change. All 220 then remain "
+            "NOT_RECONSTRUCTIBLE, B0.2's fail-loud block is correct and final on "
+            "current data, and the 141-period window is unevaluable until an "
+            "authoritative counterparty/ratio lineage is acquired from outside "
+            "this repository.",
+            "RULE that `合併(仟股)` on the surviving entity is issuer-side only, "
+            "as `convertible_bond_conversion` and `cash_capital_increase` "
+            "already are, making it NOT_APPLICABLE for a holder of the survivor "
+            "-- and state explicitly where the holder-of-the-DISAPPEARING-entity "
+            "leg is then represented, because that leg is genuinely "
+            "holder-affecting and must not vanish with the reclassification.",
+            "RULE a split treatment: issuer-side share issuance is "
+            "NOT_APPLICABLE, while a separately sourced disappearing-entity "
+            "event class carries the holder-side identity change. This requires "
+            "new sealed inputs and a 6.1 amendment, so it is a version boundary, "
+            "not a repair.",
+        ),
+        blocks=("B0_3_data_repair", "final_provenance_seal"),
+        opened_by=(
+            "B0.3 ruling R2/R12, 2026-08-20. The corpus-wide merger audit found "
+            "no data defect that acquisition can fix, and the only repair that "
+            "would clear the B0.2 block is a change to frozen CA semantics, "
+            "which R12 routes to M-3 rather than to an implementer."),
+    ),
+)
 
 
 _BY_KEY: dict[str, FinalizationItem] = {i.key: i for i in FINALIZATION_ITEMS}

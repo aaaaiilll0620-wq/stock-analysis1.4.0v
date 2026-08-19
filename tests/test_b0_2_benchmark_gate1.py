@@ -25,15 +25,22 @@ from core.b0_master_prereg import NORMATIVE_MODULES, specified_keys
 
 def test_benchmark_semantics_is_closed():
     """Closed only after BOTH halves of R11: semantics frozen AND lineage
-    materialized and seal-bindable."""
+    materialized and seal-bindable.
+
+    Scoped to THIS item. The register is a live mechanism and may legitimately
+    hold other items later -- asserting it is empty would make an unrelated
+    filing look like a benchmark regression.
+    """
     assert gate1.GATE1_SEMANTICS_ITEM not in fin.open_keys()
-    assert fin.open_keys() == ()
 
 
-def test_nothing_blocks_the_b0_2_replay_or_the_seal_any_more():
+def test_the_benchmark_item_no_longer_blocks_anything():
+    """Again scoped to this item rather than to the register as a whole."""
+    for stage in fin.BLOCKS:
+        blockers = {i.key for i in fin.items_blocking(stage)}
+        assert gate1.GATE1_SEMANTICS_ITEM not in blockers, stage
+    # the B0.2 replay stage is specifically clear of the benchmark gap
     fin.assert_not_blocked("B0_2_retrospective_replay")
-    fin.assert_not_blocked("final_provenance_seal")
-    fin.assert_not_blocked("L2_opening")
 
 
 def test_the_blocking_mechanism_itself_was_not_retired(monkeypatch):
