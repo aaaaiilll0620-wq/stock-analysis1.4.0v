@@ -97,6 +97,7 @@ class PitPriceObservation:
     expected_sessions: tuple[str, ...]      # calendar sessions known through as_of
     known_status: str = "listed"
     status_available_from: str | None = None    # O-E-1: when it became knowable
+    status_effective_from: str | None = None    # B0.6 R8: DIAGNOSTIC ONLY
     explaining_corporate_action: str | None = None      # kind, effective <= as_of
     corporate_action_available_from: str | None = None
 
@@ -118,9 +119,18 @@ class PitPriceObservation:
                     f"{self.as_of!r}. The trading calendar may only be consumed "
                     f"through as_of.")
         if self.known_status != "listed" and not self.status_available_from:
+            # B0.6 R8: the decision below is unchanged -- same condition, same
+            # exception class. Only the message gained the identifying context,
+            # because the previous text named the status but not the security,
+            # and finding it meant cross-referencing a period's state against
+            # the status corpus by hand.
             raise PriceObservabilityError(
                 f"O-B: status {self.known_status!r} must carry the date it became "
-                f"known; an undated status cannot be shown to be PIT-available")
+                f"known; an undated status cannot be shown to be PIT-available"
+                f" [security_id={self.stock_id!r} status={self.known_status!r} "
+                f"effective_from={self.status_effective_from!r} "
+                f"available_from={self.status_available_from!r} "
+                f"as_of={self.as_of!r}]")
         if self.explaining_corporate_action and not self.corporate_action_available_from:
             raise PriceObservabilityError(
                 "O-E-1: a corporate action offered as an explanation must carry "

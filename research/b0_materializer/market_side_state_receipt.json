@@ -2,7 +2,7 @@
  "artefact": "data/b0/market_state/<decision_month>.parquet",
  "builder": "research/b0_materializer/build_market_side_state.py",
  "clause": "definition A · 141 market-side canonical states, pre-L2",
- "composed_market_state_sha256": "f7b4cc4ddbb70a64d4c34c5f164cdca9aa9ac29da04297acf1f005f0aea060b8",
+ "composed_market_state_sha256": "0b68f44e38716cf5dc0ab29ac8dccb645c203d748102ac27f33831186653e405",
  "decision_layer_invoked": false,
  "manifest": "data/b0/market_state_manifest.json",
  "performance_computed": false,

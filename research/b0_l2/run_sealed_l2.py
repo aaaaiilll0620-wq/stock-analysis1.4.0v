@@ -133,6 +133,14 @@ def load_events():
     return by_sid
 
 
+def _scalar_str(v):
+    """None-safe string for a nullable state column."""
+    if v is None:
+        return None
+    s = str(v).strip()
+    return s or None
+
+
 def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
                 attestation, price_source):
     from core.b0_route import CanonicalDecisionInput
@@ -181,10 +189,19 @@ def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
         expected = tuple(s for s in upto if s >= start)
         priced = rows.loc[rows.stock_id == sid]
         through = as_of if len(priced) else None
+        # B0.6: the canonical state now carries the PIT status dates, so the
+        # observability object can actually be constructed for a non-listed
+        # holding. The caller reads them from the state; it does not go looking
+        # in security_status.csv, which would be an unbound side lookup.
+        _row = priced.iloc[0] if len(priced) else None
         obs.append(PitPriceObservation(
             as_of=as_of, stock_id=sid, price_observed_through=through,
             expected_sessions=expected,
-            known_status=str(priced.iloc[0].known_status) if len(priced) else "listed"))
+            known_status=str(_row.known_status) if _row is not None else "listed",
+            status_available_from=(_scalar_str(_row.status_available_from)
+                                   if _row is not None else None),
+            status_effective_from=(_scalar_str(_row.status_effective_from)
+                                   if _row is not None else None)))
         # B0.1/R2: exposure is the portfolio's own spell ledger, never the
         # LISTING spell. Declaring `held_from = <listing start>` is precisely
         # what made B0 look exposed to a security's entire history, and it is

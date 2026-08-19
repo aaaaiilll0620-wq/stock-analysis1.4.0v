@@ -120,13 +120,28 @@ def status_index(status_rows):
     return by
 
 
-def known_status_at(idx, sid, session):
-    """O-E-1: the status knowable at `session`, from records available by then."""
-    cur = "listed"
+def known_status_tuple_at(idx, sid, session):
+    """B0.6 · O-E-1: the status knowable at `session`, WITH its PIT dates.
+
+    The status string alone was never sufficient: `PitPriceObservation` refuses a
+    non-listed status that does not carry the date it became knowable, because a
+    suspension filed after the close must not explain that day's missing price.
+    Returning only the string is what left the canonical state unable to
+    construct the frozen observability object at all.
+
+    `available_from` is the semantic dependency. `effective_from` is carried for
+    diagnostics only and no rule consults it.
+    """
+    cur = ("listed", None, None)
     for avail, eff, st in idx.get(sid, ()):
         if str(avail) <= str(session) and str(eff) <= str(session):
-            cur = st
+            cur = (st, avail, eff)
     return cur
+
+
+def known_status_at(idx, sid, session):
+    """The status string alone, for callers that genuinely need only that."""
+    return known_status_tuple_at(idx, sid, session)[0]
 
 
 # --- O-G · listing spells, derived once over the whole history ----------------
@@ -510,6 +525,7 @@ def build_period(p, series, fin_idx, rev_idx, ind_idx, val_by_month,
             sig = None
         elif unres is not None and ss.dates[max(0, i - SIGMA_SESSIONS)] < unres:
             sig = None                     # C-50/R8 reaches into the sigma window
+        _status = known_status_tuple_at(status_idx, sid, as_of)
         j = ss.pos.get(exec_date)
         v = val.get(sid, {})
         frows = fin_idx.get(sid, ())
@@ -522,7 +538,9 @@ def build_period(p, series, fin_idx, rev_idx, ind_idx, val_by_month,
             "sigma20d": _f(sig),
             "execution_open": _f(ss.open_[j]) if j is not None else None,
             "spell_start": spell,
-            "known_status": known_status_at(status_idx, sid, as_of),
+            "known_status": _status[0],
+            "status_available_from": _status[1],
+            "status_effective_from": _status[2],
             "month_end_prices": _month_end_prices(ss, as_of, spell, unres),
             "monthly_revenue": [_f(x) for x in mrev],
             "net_income_by_quarter": list(_quarter_series(frows, as_of, "net_income")),
@@ -569,6 +587,21 @@ def market_state_payload(p, rows):
                              if r["execution_open"] is not None},
         "untradable": sorted(r["stock_id"] for r in rows
                              if r["known_status"] != "listed"),
+        # B0.6. `build_input` now feeds the PIT status dates into the decision,
+        # so they are decision inputs and the hashed view must bind them.
+        # Leaving them out would let two states with different status dates hash
+        # identically -- the same sealed-input sufficiency defect (C-55) this
+        # repair exists to close, one field further down.
+        #
+        # Only non-listed rows carry information here: a listed row's dates are
+        # consulted by no rule, and any listed/non-listed flip already moves
+        # `untradable` above.
+        "security_status": [
+            {"stock_id": r["stock_id"], "known_status": r["known_status"],
+             "status_available_from": r["status_available_from"],
+             "status_effective_from": r["status_effective_from"]}
+            for r in sorted(rows, key=lambda x: x["stock_id"])
+            if r["known_status"] != "listed"],
         "listing_spells": [{"stock_id": r["stock_id"], "start": r["spell_start"]}
                            for r in sorted(rows, key=lambda x: x["stock_id"])],
         "pit_inputs": [
@@ -625,7 +658,8 @@ def rows_from_parquet(df):
                 r[k] = [_f(x) for x in list(v)]
         for k in SCALAR_COLUMNS:
             r[k] = _f(r[k])
-        for k in ("spell_start", "known_status", "pit_industry"):
+        for k in ("spell_start", "known_status", "status_available_from",
+                  "status_effective_from", "pit_industry"):
             r[k] = str(r[k])
     return rows
 

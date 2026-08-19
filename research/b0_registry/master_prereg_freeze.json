@@ -1,14 +1,14 @@
 {
  "document": "docs/FrozenB0_MasterPreregistration.md",
- "version": "1.30",
+ "version": "1.31",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "6c2f44853c4f3491165a6c1660a6fa8b024e2543e33f85e1aca2bbfb926bab3c",
- "spec_bytes": 236763,
+ "spec_sha256": "a6a5294d3363a094b9c311063ed63af9aa5a5ac865f43a8230b215524a1b0374",
+ "spec_bytes": 240723,
  "normative_modules": {
   "core/b0_master_prereg.py": "15df30a4af69690ff3fb239a05b3d64e63b7a461e1aea97db7d165d238ed80d3",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
   "core/b0_corporate_actions.py": "c52f46b42b76fddc688118622e7259e4d4744881dd931fc81d4986f9ba9a752e",
-  "core/b0_pit_observability.py": "c060e8135a8c7a386b74113097cfecdfd6ffbf74b406e77e5c1f6eefc899ef1e",
+  "core/b0_pit_observability.py": "4a599370822d8d38b42e3fbc0361b5a9676aa1061a30ec42b3fd08b4923945ab",
   "core/b0_market_state.py": "1603c00034dfb9976fa5338d2829bf452aadb11e6d3a5f9588232d2e9e88d7d5",
   "core/b0_listing_spell.py": "81d9f0ae02e3b4401c9864ad19526a5425c09ca7b6d647c8a228da93c8253f88",
   "core/b0_frozen_spec.py": "2ca59f30fbe9143df5fe9162a6c8020e5b96a6e456df137125c093dfcef777c4",
@@ -103,7 +103,7 @@
    "bytes": 160903
   },
   "data/b0/market_state_manifest.json": {
-   "sha256": "07bf4427de9b3a238c92f3e5ca2b7bf782eb8fc020213f1046e310407f8e9060",
+   "sha256": "e146a3a20f5c12579e4b79e50bd68adbd67a1cad234e30e51b2e19d3aaaefe68",
    "bytes": 56261
   },
   "data/b0/benchmark_0050_panel.parquet": {

@@ -1,0 +1,32 @@
+{
+ "consumers_audited": [
+  "core.b0_pit_observability.PitPriceObservation",
+  "core.b0_pit_observability.classify_price_gap",
+  "core.b0_pit_observability.assert_no_unexplained_gap_in_holdings",
+  "core.b0_state.mark_portfolio",
+  "core.b0_route.run_decision"
+ ],
+ "dependency_tuple_required_by_frozen_consumers": [
+  "known_status",
+  "status_available_from"
+ ],
+ "diagnostic_only_field": "status_effective_from",
+ "effective_from_is_a_semantic_dependency": false,
+ "inferred_dates_created": 0,
+ "record": "B0_6_STATUS_PIT_POPULATION_AUDIT",
+ "sealed_source": {
+  "file": "data/b0/security_status.csv",
+  "rows": 1375,
+  "rows_missing_available_from": 0
+ },
+ "window_141": {
+  "by_status": {
+   "delisted": 209,
+   "suspended": 212
+  },
+  "observations_with_source_available_from": 421,
+  "observations_with_source_available_from_genuinely_missing": 0,
+  "periods_with_non_listed_observations": 119,
+  "total_non_listed_observations": 421
+ }
+}

@@ -1,6 +1,6 @@
 # Frozen B0 — Master Preregistration
 
-**版本:** 1.30（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**；**v1.20 = §6.1 全面改寫並新增 §6.1.1~§6.1.19 與 Annex CA-A：corporate action state transition 由「分類」升格為「狀態轉換」，凍結 owned / tradable / spendable 三分、五種 holder-affecting 事件的轉換表、receivable 到期語義、pending-exit 繼承、I-CA-01~I-CA-15 不變量與 F-CA-A/B/C 失敗分類法；`core.b0_corporate_actions` 取得 PortfolioState 轉換能力，`core.b0_state` 新增有到期日的 claim。舊 Baseline Seal 5fef4104 與 bound commit a0241f3d 標記 SUPERSEDED：C-54**；**v1.21 = sealed-input sufficiency closure：新增 §4.1a（輸入充分性與序列形狀）、擴充 M-2 L2 outcome 詞彙為 §6.1.14 已定義的兩個 exact names、monthly_revenue 13→18、財報與月營收改為 calendar-indexed 且缺期為顯式 None、新增 transitive dependency closure invariant。首次 sealed L2 run L2-2520c80aa980d681 以 RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE 記錄，provenance 永久保留；once-only observation 是否消耗依 M-3 `l2_reopening_after_run_invalid` 待裁，L2_opening 阻擋中：C-55**；**v1.22 = M-3 `l2_reopening_after_run_invalid` 裁決落地（R1~R5）：`RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE` 在**七項條件全部成立**時**不消耗** once-only effective observation（narrow rule，非「crash 一律不算」）；invalid run 永久保留於 provenance，不刪除、不覆蓋、不改標籤；M-2 新增 `ImplementationConformanceRepair` 與 DataRepair 並立，`assert_rerun_admissible` 依 outcome 分派 repair kind 而非誤分類；新增 `assert_reopening_admissible` 強制「新 Baseline Seal」與「具名新授權」；L2 provenance 位元組改由單一 primitive 以二進位 LF 寫出，修正 `record_opening` 依平台換行的缺陷；effective L2 observation count = 0，M-3 register 回到空：C-56**；**v1.23 = M-3 condition 2 語義裁決落地（R1~R6）：condition 2 的 `information` 未定義而留下兩種讀法，裁為 **strategy-dependent outcome information**；sealed opening economic state 的 deterministic restatement 不構成 strategy-outcome information；新增 R2 admissibility 八項、R3 negative boundary 七項、`verify_opening_state_restatement()` 對不可變 run artefact 的可執行驗證，condition 2 由 `attested` 升為 `attested_and_verified`，reopening gate 在 artefact 缺席或牴觸時一律失敗；四組 negative control 落地。既有 invalid run 之 `final_result.json` 與 `nav_series.json` 位元組完全未動：C-57**；**v1.24 = L2 run-scoped immutable provenance（R1~R6）：runner 原本只有一個全域輸出目錄，第二個 run 會 append 進第一個 run 的 `period_progress.jsonl` 並覆寫其 NAV 與 final result，**與第一個 run 成功或失敗無關**；新增 normative module `core/b0_l2_run_layout.py`（第 28 個），未來所有 run 一律寫入 `artifacts/l2_run/runs/<run_id>/`，目錄以 exclusive create 宣告、碰撞即在寫入任何位元組之前失敗；首次 invalid run 原地保留且四個 artefact 的 sha256 pin 進規範模組；所有 verifier / attestation / effective-observation / reopening gate 改以 run_id 綁定，`latest` 明文宣告為 non-canonical；新增跨 run 隔離測試，並同時對「invalid 前一個 run」與「一般已完成前一個 run」施測：C-58**；**v1.25 = L2 opener/runner protocol conformance repair（R1~R10）：正式 opening boundary 改為 `artifacts/l2_run/opening_claims/<baseline_seal>.json` 的排他建立（O_EXCL），非 run 目錄建立、亦非終局 registry 插入；`attempted_openings` 改由不可變 opening event 導出（legacy pinned + claims，依 run_id 去重），不再由終局 registry 列計算；新增 `execution_claim.json` 使同一 run 只能執行一次；runner 在第一個 period 寫入前驗證九項 opening provenance；run state 由不可變事件導出（OPENED / EXECUTION_CLAIMED / TERMINAL），無 mutable state 欄位；generic provenance writer 結構性地不可能成為第二個 run 目錄建立者；execution claim 存在但無 terminal result 之狀態顯式偵測並依 M-3 abort，不自創 rerun 規則：C-59*；**v1.26 = Frozen B0.1 —— corporate-action implementation conformance repair（R1~R10）：parent = Frozen B0，由官方 L2 run `L2-af1b4d90c29b3b5f` 暴露；corporate-action exposure 取得時間維度，`PortfolioState` 新增 canonical holding spell ledger，以 **underlying shares** 驅動（claim-only 狀態不開也不延長 spell）；凍結區間規則 `H.start < E.effective_date <= H.end`（由 INTRADAY_SEQUENCE 與 §6.1.7 A 推導，非自選）；同一 spell 必須同時涵蓋 event boundary 與 application point，避免舊事件重播到 re-entry 部位；三套 exposure 判定（W-1 gate / transition engine / mark gate）收斂為單一 predicate；caller 宣告的 `exposures` 降為冗餘一致性斷言；移除規範 CA 模組中 6 組重複的 top-level 定義（含 `is_exposed`）；strategy semantics changed = false，implementation semantics corrected = true，official Frozen B0 L2 replay permitted = false：C-60**；**v1.27 = Frozen B0.2 —— 兩項 implementation/evaluation conformance repair：(1) active-vs-historical exposure projection 修復（B0.1 以 CURRENT caller 宣告去比對 COMPLETE 歷史 spell ledger，首次完全出場後必然永久不符，B0.1 diagnostic replay 即因此於 period 3 中止）；(2) §9.3 第③列 0050 benchmark 之 construction protocol 由 underdetermined 補齊並凍結，且**在觀察任何績效之前**完成。新增 §13。strategy semantics changed = false：C-61**；**v1.28 = Frozen B0.3 —— CA source-semantic conformance repair：importer 將 issuer-side capital formation 與 holder-side security conversion 混為一談。`合併(仟股)`(tr_fg1) 與 `股份轉換(仟股`(con3) 為**該列證券自身**因他公司併入而發行之股數，對存續公司持有人為稀釋而非轉換。兩腿拆分並依**不可變來源欄位**分類，非依 canonical kind 名稱。新增 §14。strategy semantics changed = false：C-62**；**v1.29 = Frozen B0.4 —— CA holder-side coverage repair：B0.3 coverage audit 判定 158 個 listed 消滅證券於其消滅邊界**無任何** canonical holder-side 事件。新增 `holder_side_reorganization_exit`，僅承載來源實際確立之事實（消滅證券識別、非交易邊界、權威狀態理由），reconstruction_status 恆為 NOT_RECONSTRUCTIBLE。新增 §15。strategy semantics changed = false：C-63**；**v1.30 = Frozen B0.5 —— ADV20 observed-zero conformance repair：`OBSERVED_ZERO ≠ NOT_OBSERVED`。二十個完整觀測到的零成交 session 之均值為 **0.0**，是流動性**觀測值**而非缺值；materializer 原將其編碼為缺席，使 §4.2 在觸及流動性下限之前即中止。公式、回看長度、下限、排序、1% ADV 上限、組合建構均未更動。新增 §16。strategy semantics changed = false：C-64**）
+**版本:** 1.31（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = D-1 由 20260817 重新匯出關閉，C2 與 backstop 判準缺陷修正：C-39。新開 O-F；v1.10 = O-F 狀態來源改用 20260818 重新匯出並完成 PIT audit：C-40；v1.11 = O-F 以 incomplete-source / fail-loud 關閉、O-G listing spell 開立並關閉、暫停交易事件語義分類、S-3b 改為 enforcement 準則並 SATISFIED：C-41 ~ C-44；v1.12 = F-0 hash boundary audit：C-45；v1.13 = F0-R1 ~ F0-R7 正式裁決落地，hash scope 凍結、declaration conformance 機制建立、B-21 manifest 直綁七層、單一 hash primitive，F-0 CLOSED：C-46；**v1.14 = M-3 `pre_l2_seal_semantics` 裁決落地，provenance 分兩階段（B0 Baseline Seal / L2 Run Provenance），seal critical section 綁 repo identity，測試不得弄髒工作區，CRLF→LF 遷移帳本建立：C-47；**v1.15 = M-3 `value_pbr_lineage_2019plus` 裁決落地（R1~R7），官方 TWSE/TPEx 歷史 PBR 為 2019+ admissible lineage continuation，TPEx vintage limitation 與 2025+ coverage regime 具名揭露，新增 normative module `core/b0_valuation_source.py`，OPEN SPEC ITEMS 回到 0：C-48；**v1.16 = M-3 `value_per_lineage_2019plus` 以自身證據裁決落地，官方 TWSE/TPEx 歷史本益比為 2019+ `per_tse` 的 admissible continuation，0.0 sentinel 語義凍結，valuation panel 改綁 `resolve_as_of`，OPEN SPEC ITEMS 再回到 0：C-49；**v1.17 = M-3 `momentum_price_adjustment` 裁決落地（R1~R8），價格調整定為 share-unit 而非 total-return，新增 normative module `core/b0_share_unit_adjustment.py` 為唯一 producer，12 條必要測試落地：C-50**；**v1.18 = M-3 `stock_dividend_holder_multiplier_source` 裁決落地（R1~R6），官方交易所無償配股率為 canonical holder-multiplier 來源，`m = 1 + 每千股無償配股 / 1000`，pre-listing 事件判為 NOT_APPLICABLE 而非缺值，休市日排定除權日以 exact next observed session 正規化（非 ±N 日容忍），新增 normative module `core/b0_bonus_share_source.py` 與 sealed panel `data/b0/bonus_share_panel.parquet`，OPEN SPEC ITEMS 回到 0：C-51**；**v1.19 = 三項 pre-L2 收尾：Baseline Seal 本體改為 content-addressed 不可覆蓋歸檔（C-52）、開倉狀態日期接縫凍結為 period-1 邊界規則並雙綁兩個 hash（C-53）、C-50 補上專屬條文章節（僅文件整併，語義不變）**；**v1.20 = §6.1 全面改寫並新增 §6.1.1~§6.1.19 與 Annex CA-A：corporate action state transition 由「分類」升格為「狀態轉換」，凍結 owned / tradable / spendable 三分、五種 holder-affecting 事件的轉換表、receivable 到期語義、pending-exit 繼承、I-CA-01~I-CA-15 不變量與 F-CA-A/B/C 失敗分類法；`core.b0_corporate_actions` 取得 PortfolioState 轉換能力，`core.b0_state` 新增有到期日的 claim。舊 Baseline Seal 5fef4104 與 bound commit a0241f3d 標記 SUPERSEDED：C-54**；**v1.21 = sealed-input sufficiency closure：新增 §4.1a（輸入充分性與序列形狀）、擴充 M-2 L2 outcome 詞彙為 §6.1.14 已定義的兩個 exact names、monthly_revenue 13→18、財報與月營收改為 calendar-indexed 且缺期為顯式 None、新增 transitive dependency closure invariant。首次 sealed L2 run L2-2520c80aa980d681 以 RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE 記錄，provenance 永久保留；once-only observation 是否消耗依 M-3 `l2_reopening_after_run_invalid` 待裁，L2_opening 阻擋中：C-55**；**v1.22 = M-3 `l2_reopening_after_run_invalid` 裁決落地（R1~R5）：`RUN_INVALID_IMPLEMENTATION_CONFORMANCE_FAILURE` 在**七項條件全部成立**時**不消耗** once-only effective observation（narrow rule，非「crash 一律不算」）；invalid run 永久保留於 provenance，不刪除、不覆蓋、不改標籤；M-2 新增 `ImplementationConformanceRepair` 與 DataRepair 並立，`assert_rerun_admissible` 依 outcome 分派 repair kind 而非誤分類；新增 `assert_reopening_admissible` 強制「新 Baseline Seal」與「具名新授權」；L2 provenance 位元組改由單一 primitive 以二進位 LF 寫出，修正 `record_opening` 依平台換行的缺陷；effective L2 observation count = 0，M-3 register 回到空：C-56**；**v1.23 = M-3 condition 2 語義裁決落地（R1~R6）：condition 2 的 `information` 未定義而留下兩種讀法，裁為 **strategy-dependent outcome information**；sealed opening economic state 的 deterministic restatement 不構成 strategy-outcome information；新增 R2 admissibility 八項、R3 negative boundary 七項、`verify_opening_state_restatement()` 對不可變 run artefact 的可執行驗證，condition 2 由 `attested` 升為 `attested_and_verified`，reopening gate 在 artefact 缺席或牴觸時一律失敗；四組 negative control 落地。既有 invalid run 之 `final_result.json` 與 `nav_series.json` 位元組完全未動：C-57**；**v1.24 = L2 run-scoped immutable provenance（R1~R6）：runner 原本只有一個全域輸出目錄，第二個 run 會 append 進第一個 run 的 `period_progress.jsonl` 並覆寫其 NAV 與 final result，**與第一個 run 成功或失敗無關**；新增 normative module `core/b0_l2_run_layout.py`（第 28 個），未來所有 run 一律寫入 `artifacts/l2_run/runs/<run_id>/`，目錄以 exclusive create 宣告、碰撞即在寫入任何位元組之前失敗；首次 invalid run 原地保留且四個 artefact 的 sha256 pin 進規範模組；所有 verifier / attestation / effective-observation / reopening gate 改以 run_id 綁定，`latest` 明文宣告為 non-canonical；新增跨 run 隔離測試，並同時對「invalid 前一個 run」與「一般已完成前一個 run」施測：C-58**；**v1.25 = L2 opener/runner protocol conformance repair（R1~R10）：正式 opening boundary 改為 `artifacts/l2_run/opening_claims/<baseline_seal>.json` 的排他建立（O_EXCL），非 run 目錄建立、亦非終局 registry 插入；`attempted_openings` 改由不可變 opening event 導出（legacy pinned + claims，依 run_id 去重），不再由終局 registry 列計算；新增 `execution_claim.json` 使同一 run 只能執行一次；runner 在第一個 period 寫入前驗證九項 opening provenance；run state 由不可變事件導出（OPENED / EXECUTION_CLAIMED / TERMINAL），無 mutable state 欄位；generic provenance writer 結構性地不可能成為第二個 run 目錄建立者；execution claim 存在但無 terminal result 之狀態顯式偵測並依 M-3 abort，不自創 rerun 規則：C-59*；**v1.26 = Frozen B0.1 —— corporate-action implementation conformance repair（R1~R10）：parent = Frozen B0，由官方 L2 run `L2-af1b4d90c29b3b5f` 暴露；corporate-action exposure 取得時間維度，`PortfolioState` 新增 canonical holding spell ledger，以 **underlying shares** 驅動（claim-only 狀態不開也不延長 spell）；凍結區間規則 `H.start < E.effective_date <= H.end`（由 INTRADAY_SEQUENCE 與 §6.1.7 A 推導，非自選）；同一 spell 必須同時涵蓋 event boundary 與 application point，避免舊事件重播到 re-entry 部位；三套 exposure 判定（W-1 gate / transition engine / mark gate）收斂為單一 predicate；caller 宣告的 `exposures` 降為冗餘一致性斷言；移除規範 CA 模組中 6 組重複的 top-level 定義（含 `is_exposed`）；strategy semantics changed = false，implementation semantics corrected = true，official Frozen B0 L2 replay permitted = false：C-60**；**v1.27 = Frozen B0.2 —— 兩項 implementation/evaluation conformance repair：(1) active-vs-historical exposure projection 修復（B0.1 以 CURRENT caller 宣告去比對 COMPLETE 歷史 spell ledger，首次完全出場後必然永久不符，B0.1 diagnostic replay 即因此於 period 3 中止）；(2) §9.3 第③列 0050 benchmark 之 construction protocol 由 underdetermined 補齊並凍結，且**在觀察任何績效之前**完成。新增 §13。strategy semantics changed = false：C-61**；**v1.28 = Frozen B0.3 —— CA source-semantic conformance repair：importer 將 issuer-side capital formation 與 holder-side security conversion 混為一談。`合併(仟股)`(tr_fg1) 與 `股份轉換(仟股`(con3) 為**該列證券自身**因他公司併入而發行之股數，對存續公司持有人為稀釋而非轉換。兩腿拆分並依**不可變來源欄位**分類，非依 canonical kind 名稱。新增 §14。strategy semantics changed = false：C-62**；**v1.29 = Frozen B0.4 —— CA holder-side coverage repair：B0.3 coverage audit 判定 158 個 listed 消滅證券於其消滅邊界**無任何** canonical holder-side 事件。新增 `holder_side_reorganization_exit`，僅承載來源實際確立之事實（消滅證券識別、非交易邊界、權威狀態理由），reconstruction_status 恆為 NOT_RECONSTRUCTIBLE。新增 §15。strategy semantics changed = false：C-63**；**v1.30 = Frozen B0.5 —— ADV20 observed-zero conformance repair：`OBSERVED_ZERO ≠ NOT_OBSERVED`。二十個完整觀測到的零成交 session 之均值為 **0.0**，是流動性**觀測值**而非缺值；materializer 原將其編碼為缺席，使 §4.2 在觸及流動性下限之前即中止。公式、回看長度、下限、排序、1% ADV 上限、組合建構均未更動。新增 §16。strategy semantics changed = false：C-64**；**v1.31 = Frozen B0.6 —— status PIT state-sufficiency conformance repair：canonical market-side state 僅帶 `known_status`，未帶 O-E-1 已要求之 `status_available_from`，致使持有非上市中標的時 `PitPriceObservation` 根本無法建構。權威日期一直存在於 sealed corpus，只是未被 materializer 傳遞。新增 §17。strategy semantics changed = false：C-65**）
 **凍結日:** 2026-08-17
 **狀態:** `NORMATIVE — FROZEN`
 
@@ -3587,6 +3587,87 @@ genuinely missing → NA                  458
 
 period-1 full-input hash 隨 spec identity 變動，值見 receipt。
 B0.4 之識別碼原樣保留為歷史 lineage；**B0.4 之終局紀錄不得因本次修正其輸入語義而被改寫。**
+
+
+
+---
+
+## §17 Frozen B0.6 —— Status PIT State-Sufficiency Conformance Repair（v1.31，規範性）
+
+**parent = B0.5。repair class = STATUS_PIT_STATE_SUFFICIENCY_CONFORMANCE_REPAIR。**
+**strategy semantics changed = false。非 B1。**
+
+### §17.1 Dependency closure（先於任何修改，機械列舉）
+
+凍結消費端（`PitPriceObservation`、`classify_price_gap`、
+`assert_no_unexplained_gap_in_holdings`、`mark_portfolio`、`run_decision`）
+所讀取之 status 相關依賴，**完整且僅有**：
+
+```
+known_status
+status_available_from
+```
+
+`effective_from` **不是**語義依賴，任何凍結規則皆不查閱它；
+它僅作為 §17.5 之診斷欄位攜帶。
+
+### §17.2 被修復的缺陷
+
+canonical state 帶 `known_status` 而未帶 `status_available_from`。
+O-E-1 要求非上市中狀態必須攜帶「何時可被知悉」之日期
+（盤後才申報的停牌不得用來解釋當日缺價），因此
+`PitPriceObservation.__post_init__` 對無日期之非上市狀態一律拒絕建構。
+caller 無法提供 state 未攜帶之欄位，故 B0.5 diagnostic run
+`B05DIAG-9943d2f7b4adb670` 於 period 46（2018-04）中止。
+
+**該日期從未缺失。** `data/b0/security_status.csv` 1,375 列中
+`available_from` 為空者 **0** 列。此為 C-55 同類之 sealed-input sufficiency 缺陷。
+
+### §17.3 修復方式（規範性）
+
+由既有 sealed `security_status.csv` 將 PIT status 欄位**傳遞進 canonical state**。
+**不得**以 runtime 對 `security_status.csv` 之 unbound side lookup 解決 ——
+canonical state 本身必須足以建構凍結之 price-observability 物件。
+
+### §17.4 hashed view 必須綁定
+
+既然 `build_input` 將 status 日期餵入決策，**它就是決策輸入**，
+故必須進入 hashed payload：否則兩個 status 日期不同之 state 會 hash 相同 ——
+正是本次修復所要關閉之缺陷再下一層。
+payload 新增 `security_status`（僅非上市中列；上市中列之日期無任何規則查閱，
+且 listed/非 listed 之翻轉已反映於既有之 `untradable`）。
+
+### §17.5 診斷歸屬（僅診斷，不改行為）
+
+原例外訊息只說明狀態而未指出證券，定位 2327 需以人工交叉比對。
+例外現額外攜帶 `security_id / status / effective_from / available_from / as_of`。
+**判定條件、例外類別與分類結果完全不變**，並以測試證明之。
+
+### §17.6 未更動
+
+O-E-1、effective/available 日期語義、`<` 與 `<=` 邊界、gap 分類規則、
+markability 規則、status taxonomy —— 全部未更動。
+本次修復只是**補上凍結規則早已要求的那個日期**。
+factors、eligibility、liquidity、ADV20、ranking、組合建構、execution、
+costs、CA 語義、benchmark、performance gates 亦全部未更動。
+
+### §17.7 母體與 hash
+
+```
+sealed status rows                    1,375   available_from 為空者 0
+141 期窗口內非上市中觀測               421     （suspended 212 / delisted 209）
+  來源 available_from 存在              421
+  來源 available_from 確實缺失            0
+出現非上市中觀測之期數                 119 / 141
+推定/補插之日期                          0
+
+141-state composed  B0.5 f7b4cc4d…  →  B0.6 0b68f44e…
+changed states                        141 / 141
+state schema                          22 → 24 欄
+```
+
+全 141 期皆變動：非上市中列之日期進入 payload，而其餘期別亦因 payload 新增
+`security_status` 鍵（空列）而改變。B0.5 之識別碼原樣保留為歷史 lineage。
 
 
 ### C-60 · Frozen B0.1 CA implementation conformance repair（v1.26）
