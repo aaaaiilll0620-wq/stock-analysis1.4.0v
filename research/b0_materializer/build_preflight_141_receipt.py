@@ -42,13 +42,16 @@ SEALED_INPUTS = {
 }
 
 PROVENANCE_NOTE = (
-    "v1.26 Frozen B0.1 corporate-action implementation conformance repair "
-    "(C-60). The composed 141-state hash is unchanged at 66640a78: market-side "
-    "state is portfolio-free, so the canonical exposure ledger cannot touch it. "
-    "The period-1 full-input hash DID move, because PortfolioState gained the "
-    "holding-spell ledger the repair requires and the Master moved 1.25 -> "
-    "1.26. No factor, weight, threshold, universe rule, cost, PIT rule or "
-    "corporate-action data policy changed."
+    "v1.32 Frozen B0.7 claim-side CA applicability semantic conformance repair "
+    "(C-66). The composed 141-state hash is UNCHANGED at 0b68f44e: B0.7 touched "
+    "no market-side input bytes at all, only the normative applicability code "
+    "and the specification. The period-1 identities DID move, and the whole of "
+    "that movement is the specification binding: substituting the B0.6 "
+    "spec_sha256 back into the attestation reproduces B0.6's "
+    "full_decision_input_sha256 fe171f82 and market_side_only_sha256 ecd9d5e7 "
+    "exactly, so no content moved and no state-hash change was manufactured for "
+    "versioning. No factor, weight, threshold, universe rule, cost, PIT rule, "
+    "holding-spell rule or corporate-action data policy changed."
 )
 
 

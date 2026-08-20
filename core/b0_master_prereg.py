@@ -1198,9 +1198,27 @@ def _spec_registry() -> dict[str, Any]:
             "PortfolioState.exposure_applies(stock_id, event_date, as_of)",
         "ca_exposure_interval_rule": "H.start < E.effective_date <= H.end",
         "ca_exposure_spell_driver": "underlying_tradable_shares",
+        # Still False, and still about the UNDERLYING domain: a claim opens no
+        # holding spell. B0.7 changes nothing here - see the pair of keys below,
+        # which answer the different question the code was conflating with this
+        # one.
         "ca_claim_only_state_is_exposure": False,
         "ca_caller_declared_exposure_is_authoritative": False,
         "ca_same_spell_must_cover_event_and_application": True,
+        # v1.32 - B0.7 / C-66. Applicability has two domains, exposure has one.
+        "ca_applicability_rule":
+            "underlying_exposure_applies OR claim_interest_applies",
+        "ca_claim_only_state_is_ca_applicable": True,
+        "ca_claim_interest_source":
+            "outstanding_same_security_SecurityReceivable",
+        "ca_claim_interest_boundary_rule":
+            "claim.origin_effective_date <= E.effective_date",
+        "ca_claim_bearing_event_kinds": ca.CLAIM_BEARING_EVENT_KINDS,
+        "ca_claim_opens_or_extends_underlying_spell": False,
+        "ca_claim_only_interest_in_mark_domain": True,
+        "ca_event_delivery_scope": "portfolio_economic_interest",
+        "ca_event_delivery_is_global_broadcast": False,
+        "ca_event_delivery_depends_on_market_row": False,
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,

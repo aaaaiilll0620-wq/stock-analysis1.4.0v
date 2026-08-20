@@ -332,10 +332,30 @@ def test_t13_a_claim_only_state_creates_no_underlying_exposure():
 
     ev_b = _ev("AAAA", "2014-09-28", stock_ratio=Fraction(1, 5),
                credit_tradable_date="2014-09-28")
+    # B0.1/R1, unchanged and still the point of T13: the claim is not underlying
+    # exposure, and no spell reopens for it.
     assert not claim_only.exposure_applies("AAAA", "2014-09-28", "2014-09-28")
+    assert not claim_only.underlying_exposure_applies(
+        "AAAA", "2014-09-28", "2014-09-28")
+    assert all(not sp.open for sp in claim_only.holding_spells)
+
+    # B0.7/R3+R5 changes the SECOND half. Event B is a claim-bearing kind, and
+    # §6.1.7 A takes `Q` = entitlement-bearing shares, which `_apply_one` has
+    # always read as `pre_shares + same_claims`. Under B0.1 the event was
+    # skipped outright, so a holder of 100 claimed shares silently forfeited the
+    # dividend those shares earned. It now reaches the claim.
+    assert claim_only.claim_interest_applies("AAAA", "2014-09-28")
     r2 = _run(claim_only, [ev_b], "2014-09-28")
-    assert dict(r2.state.shares) == {}, "event B found no shareholder"
-    assert len(r2.state.security_receivables) == 1, "and did not disturb claim A"
+    assert all(not sp.open for sp in r2.state.holding_spells), (
+        "and STILL no underlying spell: applicability is not exposure")
+    surviving = [r for r in r2.state.security_receivables
+                 if r.event_id == ev_a.canonical_event_id()]
+    assert len(surviving) == 1, "claim A survives event B (R8)"
+    assert surviving[0].shares == Fraction(100), "claim A is not consumed"
+    # Q = 100 claimed shares x 1/5 = 20, credit-tradable the same day, so the
+    # zero-day release makes them real shares. Nothing was fabricated: every one
+    # is traceable to claim A and event B (I-CA-03).
+    assert dict(r2.state.shares) == {"AAAA": 20}
 
 
 def test_t13b_an_unresolved_event_during_a_claim_only_window_does_not_block():

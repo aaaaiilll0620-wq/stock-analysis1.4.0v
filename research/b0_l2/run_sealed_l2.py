@@ -181,7 +181,7 @@ def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
 
     held = list(portfolio.held_securities)
     spell_by = {s.stock_id: s for s in spells}
-    obs, exposures, ca_events = [], [], []
+    obs, exposures = [], []
     upto = [s for s in sessions if s <= as_of]
     for sid in held:
         sp = spell_by.get(sid)
@@ -221,8 +221,13 @@ def build_input(period, rows, portfolio, sessions, events_by_sid, calendar,
                 continue
             exposures.append(Exposure(stock_id=sid, held_from=sp.start,
                                       held_until=sp.end or as_of))
-        ca_events.extend(e for e in events_by_sid.get(sid, ())
-                         if e.ex_or_effective_date <= as_of)
+
+    # B0.7 · R10: the carrier is built by the normative module, over the frozen
+    # economic-interest set. It used to be assembled here from `held_securities`
+    # inside the price-observation loop, which is narrower than the set the
+    # transition engine was already being fed - so the engine and the W-1 gate
+    # were reading two different event universes.
+    ca_events = list(ca.deliver_ca_events(events_by_sid, portfolio, as_of=as_of))
 
     snapshot = MarketSnapshot(as_of=as_of, attestation=attestation, marks=marks,
                               adv20=adv20, sigma20d=sigma20d)

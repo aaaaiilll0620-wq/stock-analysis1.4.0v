@@ -283,6 +283,99 @@ def _conform_unknown_status_is_normal() -> None:
             "F0-R4/O-E: an absent status record did not abort on a price gap")
 
 
+def _c_claim_bearing_event_kinds():
+    from core import b0_corporate_actions as ca
+    return ca.CLAIM_BEARING_EVENT_KINDS
+
+
+def _conform_claim_only_state_is_ca_applicable() -> None:
+    """B0.7 / R3+R4, as behaviour rather than as a sentence.
+
+    Four things have to be true at once, and each of them was false or
+    unenforced somewhere before B0.7:
+
+      1. a claim with no covering spell IS reachable by a claim-bearing event
+      2. it is NOT reachable by a kind whose frozen transition ignores claims
+      3. reaching it opens no underlying holding spell
+      4. an event older than the claim does not reach it
+
+    Drop any one and the declaration above still hashes the same.
+    """
+    from fractions import Fraction
+
+    from core.b0_corporate_actions import (
+        CorporateActionEvent, RECONSTRUCTIBLE, ca_economic_interest_applies,
+        assert_claim_bearing_registry_conforms,
+    )
+    from core.b0_state import HoldingSpell, PortfolioState, SecurityReceivable
+
+    claim = SecurityReceivable(
+        security_id="AAAA", shares=Fraction(1, 5),
+        credit_tradable_date="2018-01-05", event_id="seed|x|2018-01-05",
+        origin_effective_date="2018-01-05")
+    state = PortfolioState(
+        "2019-06-13", 0.0, {}, security_receivables=(claim,),
+        applied_ca_event_ids=frozenset({"seed|x|2018-01-05"}),
+        holding_spells=(HoldingSpell("AAAA", "2017-05-02", "2017-08-01"),))
+
+    def ev(kind, date):
+        return CorporateActionEvent("AAAA", kind, date, RECONSTRUCTIBLE,
+                                    knowledge_ts="2010-01-01")
+
+    if state.underlying_exposure_applies("AAAA", "2019-01-05", "2019-06-13"):
+        raise DeclarationConformanceError(
+            "B0.7/R2: a claim reopened an underlying holding spell")
+    if not ca_economic_interest_applies(state, ev("stock_dividend", "2019-01-05"),
+                                        as_of="2019-06-13"):
+        raise DeclarationConformanceError(
+            "B0.7/R3: a claim-bearing event did not reach an outstanding claim; "
+            "this is the B0.6 failure, undone")
+    if ca_economic_interest_applies(state, ev("cash_capital_increase",
+                                              "2019-01-05"),
+                                    as_of="2019-06-13"):
+        raise DeclarationConformanceError(
+            "B0.7/R4: a kind whose transition ignores claims reached one anyway")
+    if ca_economic_interest_applies(state, ev("stock_dividend", "2017-09-09"),
+                                    as_of="2019-06-13"):
+        raise DeclarationConformanceError(
+            "B0.7/R3: an event older than the claim reached it; retroactive "
+            "application is what B0.1 removed on the underlying side")
+    assert_claim_bearing_registry_conforms()
+
+
+def _conform_ca_event_delivery_scope() -> None:
+    """R10: required deliveries arrive; a market row is not a precondition."""
+    from fractions import Fraction
+
+    from core.b0_corporate_actions import (
+        CorporateActionEvent, NOT_RECONSTRUCTIBLE, deliver_ca_events,
+    )
+    from core.b0_state import HoldingSpell, PortfolioState, SecurityReceivable
+
+    claim = SecurityReceivable(
+        security_id="AAAA", shares=Fraction(1, 5),
+        credit_tradable_date="2018-01-05", event_id="seed|x|2018-01-05",
+        origin_effective_date="2018-01-05")
+    state = PortfolioState(
+        "2019-06-13", 0.0, {}, security_receivables=(claim,),
+        applied_ca_event_ids=frozenset({"seed|x|2018-01-05"}),
+        holding_spells=(HoldingSpell("AAAA", "2017-05-02", "2017-08-01"),))
+    gone = CorporateActionEvent(
+        "AAAA", "holder_side_reorganization_exit", "2019-01-05",
+        NOT_RECONSTRUCTIBLE, "terms not observable", knowledge_ts="2019-01-05")
+    future = CorporateActionEvent(
+        "AAAA", "stock_dividend", "2019-09-09", NOT_RECONSTRUCTIBLE,
+        "terms not observable", knowledge_ts="2019-09-09")
+
+    got = deliver_ca_events({"AAAA": [gone, future]}, state, as_of="2019-06-13")
+    ids = [e.canonical_event_id() for e in got]
+    if ids != [gone.canonical_event_id()]:
+        raise DeclarationConformanceError(
+            f"R10: delivery over the economic-interest set returned {ids}; a "
+            f"PIT-available event on an outstanding claim must arrive and a "
+            f"future one must not")
+
+
 def _conform_permanent_disappearance_not_a_concept() -> None:
     """O-B carries no 'gone forever' observable to be asked about at as_of."""
     from core.b0_pit_observability import PitPriceObservation
@@ -373,6 +466,20 @@ DECLARATION_BINDINGS: tuple[DeclarationBinding, ...] = (
         "permanent_disappearance_is_a_concept", BEHAVIORAL_CONFORMANCE,
         "PitPriceObservation carries no permanence field",
         _conform_permanent_disappearance_not_a_concept),
+    DeclarationBinding(
+        "ca_claim_only_state_is_ca_applicable", BEHAVIORAL_CONFORMANCE,
+        "ca_economic_interest_applies: claim reachable, spell still closed, "
+        "non-claim-bearing kinds and pre-claim events still excluded",
+        _conform_claim_only_state_is_ca_applicable),
+    DeclarationBinding(
+        "ca_event_delivery_scope", BEHAVIORAL_CONFORMANCE,
+        "deliver_ca_events: PIT-available event on a claim arrives without a "
+        "market row; a future event does not",
+        _conform_ca_event_delivery_scope),
+    DeclarationBinding(
+        "ca_claim_bearing_event_kinds", IMPLEMENTATION_DERIVED,
+        "core.b0_corporate_actions.CLAIM_BEARING_EVENT_KINDS",
+        _derived("ca_claim_bearing_event_kinds", _c_claim_bearing_event_kinds)),
 )
 
 # Declarations that decide what the route does. Every one must be bound above.

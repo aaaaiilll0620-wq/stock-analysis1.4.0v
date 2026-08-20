@@ -67,6 +67,7 @@ from core.b0_corporate_actions import (
     CorporateActionEvent,
     Exposure,
     assert_caller_exposures_conform,
+    assert_ca_event_delivery_conforms,
     assert_exposure_reconstructible,
 )
 from core.b0_listing_spell import (
@@ -367,6 +368,11 @@ def run_decision(inp: CanonicalDecisionInput, *,
     # complete historical ledger — the latter can never be equalled once any
     # position has been fully exited.
     assert_caller_exposures_conform(inp.exposures, inp.portfolio, as_of=inp.as_of)
+    # B0.7 · R10. What arrived is checked before it is consumed: the carrier had
+    # no invariant at all, and its two consumers were reading it at two
+    # different scopes.
+    assert_ca_event_delivery_conforms(inp.corporate_action_events, inp.portfolio,
+                                      as_of=inp.as_of)
     assert_exposure_reconstructible(inp.corporate_action_events, inp.portfolio,
                                     as_of=inp.as_of)
     # §6.1.2: the stage is the TRANSITION, not the guards around it. The engine

@@ -7,6 +7,7 @@ READ-ONLY with respect to Frozen A. No performance quantity is computed.
 """
 
 import glob
+import io
 import json
 import os
 import sys
@@ -64,11 +65,34 @@ STATUS_EXPORT_DIR = os.path.join(
     REPO, "tej_exports", "DataExport0806", "暫停交易2004-20260818")
 
 
+def _document_version(doc: str) -> str:
+    """B0.7: read the version FROM the document instead of restating it.
+
+    This was a literal, and it had already gone stale: the document said 1.32
+    while the freeze record still said 1.31, so a seal would have bound a
+    version number that no longer described the specification it hashed. It is
+    exactly the F0-R4 failure mode - a sentence that stays true-looking while
+    the thing under it moves - and a literal is the one form of it no test can
+    catch, because both sides read the same literal.
+    """
+    import re
+
+    with io.open(doc, encoding="utf-8") as fh:
+        head = fh.read(4096)
+    m = re.search(r"\*\*版本:\*\*\s*([0-9]+\.[0-9]+)", head)
+    if not m:
+        raise SystemExit(
+            "abort: no '**版本:** <n.n>' line in the first 4096 bytes of %s; the "
+            "freeze record may not invent a version the document does not state"
+            % MASTER_PREREG_DOC)
+    return m.group(1)
+
+
 def main():
     doc = os.path.join(REPO, MASTER_PREREG_DOC)
     record = {
         "document": MASTER_PREREG_DOC,
-        "version": "1.31",
+        "version": _document_version(doc),
         "status": "NORMATIVE_FROZEN",
         "spec_sha256": spec_document_sha256(),
         "spec_bytes": os.path.getsize(doc),

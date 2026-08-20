@@ -279,6 +279,14 @@ class SecurityReceivable:
     credit_tradable_date: str
     event_id: str
     source_security_id: str = ""       # set when identity changed (merger etc.)
+    # B0.7 / R3. WHEN this claim came into existence, as the effective date of
+    # the event that created it. B0.1 taught this lesson on the underlying side:
+    # exposure has a time dimension, and a state that does not carry it cannot
+    # be asked the question correctly. A claim is now a second applicability
+    # domain (§6.1.12 lists security receivables as affected economic exposure),
+    # so without this field a 2015 event could be applied to a claim created in
+    # 2018 - the retroactive application B0.1 exists to prevent.
+    origin_effective_date: str = ""
 
     def __post_init__(self) -> None:
         from fractions import Fraction
@@ -303,6 +311,14 @@ class SecurityReceivable:
             raise CoreStateError(
                 "I-CA-03: a security receivable must name the event that created "
                 "it, or the shares are untraceable")
+        if not str(self.origin_effective_date).strip():
+            raise CoreStateError(
+                f"B0.7/R3: SecurityReceivable[{self.security_id}] has no "
+                f"origin_effective_date. A claim is an applicability domain for "
+                f"later corporate actions, so a claim that cannot say when it "
+                f"came into existence cannot be asked whether an earlier event "
+                f"reaches it. Defaulting that answer either way is a decision "
+                f"this specification does not authorise.")
 
 
 @dataclass(frozen=True)
@@ -516,6 +532,60 @@ class PortfolioState:
         """
         return any(sp.covers(event_date) and sp.covers(as_of)
                    for sp in self.holding_spells if sp.stock_id == stock_id)
+
+    def underlying_exposure_applies(self, stock_id: str, event_date: str,
+                                    as_of: str) -> bool:
+        """B0.7 / R3 - domain 1, NAMED. Same frozen predicate, no change.
+
+        This is `exposure_applies` under the name R3 gives it. B0.7 adds a
+        SECOND applicability domain, and two domains need two names or the
+        combined rule reads like a redefinition of the first one. It is not:
+        the holding-spell rule, its interval semantics and its same-spell
+        requirement are exactly as B0.1 froze them.
+        """
+        return self.exposure_applies(stock_id, event_date, as_of)
+
+    def claim_interest_applies(self, stock_id: str, event_date: str) -> bool:
+        """B0.7 / R3 - domain 2. An outstanding same-security claim.
+
+        §6.1.12 already lists `security receivable` as affected economic
+        exposure. The code did not: it asked the holding-spell ledger only, and
+        a claim does not open a spell (B0.1/R1, still true). So a portfolio
+        carrying nothing but an uncreditable fractional claim in S was invisible
+        to the corporate-action layer while remaining a marked NAV asset - which
+        is the state-domain split that ended the B0.6 replay.
+
+        THE CLAIM MUST ALREADY HAVE EXISTED AT THE EVENT BOUNDARY. Without that
+        the OR would reintroduce, on the claim side, exactly the retroactive
+        application B0.1 removed on the underlying side: an unapplied 2015 event
+        would reach a claim created in 2018.
+
+        The boundary is inclusive (`origin <= event_date`) rather than strict.
+        Same-day chaining is not this predicate's decision to make: §6.1.11
+        governs multiple same-day actions, and `_apply_one` already reads the
+        then-current claim ledger through `entitlement`. A strict `<` here would
+        silently overrule both.
+
+        No `as_of` argument: the claim is read from the state AT `as_of`, so
+        "still outstanding then" is true by construction rather than by test.
+        """
+        when = str(event_date)
+        return any(str(r.origin_effective_date) <= when
+                   for r in self.security_receivables
+                   if r.security_id == stock_id)
+
+    def claim_only_securities(self, as_of: str = "") -> tuple[str, ...]:
+        """Diagnostics: claims held with no underlying spell covering `as_of`.
+
+        Not used by any gate. It exists because this population was invisible
+        until it was counted, and 30 securities had accumulated in it.
+        """
+        when = str(as_of or self.as_of)
+        claims = {r.security_id for r in self.security_receivables}
+        return tuple(sorted(
+            sid for sid in claims
+            if not any(sp.covers(when) for sp in self.holding_spells
+                       if sp.stock_id == sid)))
 
     def exposure_spells(self) -> tuple:
         """The COMPLETE historical ledger: open spells and closed ones alike.

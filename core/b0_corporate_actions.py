@@ -281,13 +281,16 @@ def exposed_unreconstructible_events(
     the LISTING SPELL, which made B0 look exposed to a security's entire history
     from the day it listed — so even this gate, which had the right interval
     semantics all along, was being fed the wrong interval.
+    B0.7 / R5: and the exposure is now the COMBINED economic interest. An
+    outstanding claim denominated in S remains an economic interest in S when
+    the underlying share count is zero, so a NOT_RECONSTRUCTIBLE holder-side
+    event on S fails loud here rather than surfacing later as a price gap.
     """
     hit = []
     for ev in events:
         if ev.reconstructibility != NOT_RECONSTRUCTIBLE:
             continue
-        if state.exposure_applies(ev.stock_id, str(ev.ex_or_effective_date),
-                                  str(as_of)):
+        if ca_economic_interest_applies(state, ev, as_of=as_of):
             hit.append(ev)
     return hit
 
@@ -328,6 +331,79 @@ def assert_caller_exposures_conform(exposures, state, as_of: str = "") -> None:
             f"holding-spell ledger. caller-only={only_caller} "
             f"state-only={only_state}. Exposure is a property of what B0 held, "
             f"not of what the caller believes it held.")
+
+
+def economic_interest_securities(state) -> tuple[str, ...]:
+    """B0.7 / R10 - the securities a corporate action could reach.
+
+    Delegates to the frozen `entitlement_securities`, which already is exactly
+    the §6.1.12 list: tradable position, security receivable, the source
+    security a claim came from, and unresolved pending exits. It is named here
+    because the two consumers of the event carrier disagreed about scope - the
+    transition engine was fed events for `entitlement_securities` while
+    `build_input` assembled the carrier from `held_securities`, which is
+    narrower. One name, read by both, is what removes the disagreement.
+    """
+    return tuple(state.entitlement_securities)
+
+
+def deliver_ca_events(events_by_sid, state, *, as_of: str):
+    """R10: every PIT-available event on an economic interest, exactly once.
+
+    Delivery is NOT a global broadcast (R9 withdrew that): an event for a
+    security the portfolio has no economic interest in has nothing to reach, and
+    the B0.7 audit showed the previous carrier already delivered without a
+    current market row. What delivery must not depend on is market-row presence,
+    selection universe, eligibility, ranking - and it does not, because this
+    reads the portfolio and the event ledger and nothing else.
+    """
+    seen, out = set(), []
+    for sid in economic_interest_securities(state):
+        for ev in events_by_sid.get(sid, ()):
+            if str(ev.ex_or_effective_date) > str(as_of):
+                continue                       # not PIT-available yet (R5)
+            # A claim names both its own security and the source it came
+            # from, so one event can be reached twice through one portfolio.
+            key = ev.canonical_event_id()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(ev)
+    return tuple(out)
+
+
+def assert_ca_event_delivery_conforms(delivered, state, *, as_of: str) -> None:
+    """R10, as a gate on what actually arrived at the CA consumer.
+
+    Checks the half that is answerable without the source ledger: no duplicate
+    reaches the engine, and nothing arrives before the frozen PIT rule allows.
+    The other half - undelivered = 0 - holds by construction in
+    `deliver_ca_events` and is measured over the whole window by the B0.7
+    delivery audit.
+
+    Delivery scope is a FLOOR, never a ceiling. An earlier draft of this gate
+    also rejected events for securities the portfolio has no interest in, and
+    `test_an_event_we_never_held_does_not_abort` failed within the minute:
+    §6.1.12 says `NOT_RECONSTRUCTIBLE + zero exposure -> log as irrelevant ->
+    continue`, so an event with nothing to reach is a documented no-op and not
+    an error. What must never happen is the opposite - a required event that
+    does not arrive.
+    """
+    ids = [e.canonical_event_id() for e in delivered]
+    dupes = sorted({i for i in ids if ids.count(i) > 1})
+    if dupes:
+        raise CorporateActionTransitionError(
+            f"R10: {len(dupes)} corporate-action event(s) reached the engine "
+            f"more than once: {dupes[:5]}. I-CA-01 makes exactly-once an "
+            f"economic property, so a duplicated delivery is a defect even when "
+            f"`applied_ca_event_ids` happens to absorb it.")
+    early = sorted({e.canonical_event_id() for e in delivered
+                    if str(e.ex_or_effective_date) > str(as_of)})
+    if early:
+        raise CorporateActionTransitionError(
+            f"R10/R5: {len(early)} event(s) not yet PIT-available at {as_of} "
+            f"reached the engine: {early[:5]}. Coverage means every event the "
+            f"frozen PIT rule already allows, never every future event.")
 
 
 def assert_exposure_reconstructible(
@@ -698,6 +774,31 @@ IDENTITY_CHANGING_KINDS: tuple[str, ...] = ("holder_side_security_conversion",
 SAME_SECURITY_SHARE_KINDS: tuple[str, ...] = (
     "stock_dividend", "capital_reduction", "par_value_change")
 
+# B0.7 / R4. The event kinds whose ALREADY-FROZEN transition acts on outstanding
+# same-security claims, and therefore the only kinds that may use the claim
+# applicability domain. This is a reading of §6.1.7, not a new rule:
+#
+#   A. stock_dividend       new claim = Q x r,  Q = entitlement-bearing shares
+#   B. capital_reduction    post = Q x m; cash receivable = Q x c; and the
+#                           outstanding same-security claims scale by m
+#   C/D. merger / share_conversion (IDENTITY_CHANGING_KINDS)
+#                           successor claim = Q x r, old-identity claims removed
+#   E. par_value_change     Q_new = Q x P_old / P_new
+#
+# and §6.1.12 already names `security receivable` as affected economic exposure.
+# In the code every one of those branches reads `entitlement`, which is
+# `pre_shares + same_claims` (see `_apply_one`). Text and code agree on all
+# five, so R4's M-3 escape is not needed - but the agreement is asserted
+# MECHANICALLY rather than asserted here: `assert_claim_bearing_registry_conforms`
+# probes each holder-affecting kind with a claim-only state and derives the set
+# from what the transition actually does.
+#
+# The eight non-holder-affecting kinds are excluded structurally: they never
+# reach `_apply_one` at all. A claim is NOT automatically eligible for every
+# corporate action.
+CLAIM_BEARING_EVENT_KINDS: tuple[str, ...] = (
+    SAME_SECURITY_SHARE_KINDS + IDENTITY_CHANGING_KINDS)
+
 
 @dataclass(frozen=True)
 class TransitionRecord:
@@ -746,6 +847,106 @@ REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
 }
 
 
+def ca_economic_interest_applies(state, event: "CorporateActionEvent", *,
+                                 as_of: str) -> bool:
+    """B0.7 / R3 - THE applicability rule. Two domains, OR-combined.
+
+        ca_economic_interest_applies
+            = underlying_exposure_applies  OR  claim_interest_applies
+
+    B0.1 gave exposure a time dimension and made the holding-spell ledger the
+    single source of it. That was right and is untouched. What it did not carry
+    is that a spell is the lifecycle of UNDERLYING SHARES, while §6.1.12 defines
+    affected economic exposure more widely:
+
+        affected economic exposure 包含 tradable position、security receivable、
+        entitlement-bearing claim、unresolved pending-exit claim
+
+    So a portfolio holding nothing but an uncreditable fractional claim in S is
+    exposed to S by the frozen text and invisible to S's events in the code. The
+    B0.6 replay died of exactly that: 27 such claims had accumulated, each one a
+    marked NAV asset that no corporate action could reach, and the first one
+    whose security disappeared surfaced as an unexplained price gap instead of
+    as the reorganization it was.
+
+    THE CLAIM IS NOT RENAMED INTO UNDERLYING EXPOSURE (R2/R3). No spell opens,
+    reopens or extends; `holding_spells` still means what B0.1/R1 froze. The two
+    domains are asked separately and only the ANSWER is combined.
+
+    Only `CLAIM_BEARING_EVENT_KINDS` may use the second domain, because only
+    those kinds have a frozen transition that acts on same-security claims.
+    """
+    if state.underlying_exposure_applies(
+            event.stock_id, str(event.ex_or_effective_date), str(as_of)):
+        return True
+    if event.kind not in CLAIM_BEARING_EVENT_KINDS:
+        return False
+    return state.claim_interest_applies(event.stock_id,
+                                        str(event.ex_or_effective_date))
+
+
+def assert_claim_bearing_registry_conforms() -> None:
+    """R4, mechanically. Derive the claim-bearing set from the transition itself.
+
+    A hand-kept list of "kinds that consume same_claims" is a sentence that goes
+    stale the first time a branch changes - the exact failure mode F0-R4 exists
+    to close. So the set is DERIVED: probe each holder-affecting kind with a
+    state that has zero shares and one claim, and see whether the transition's
+    output depends on the claim being there.
+    """
+    from fractions import Fraction
+
+    from core.b0_state import PortfolioState, SecurityReceivable
+
+    sessions = tuple("2020-01-%02d" % d for d in range(1, 32))
+    as_of, sid = "2020-01-15", "T001"
+    probe_kwargs = {
+        "stock_dividend": dict(stock_ratio=Fraction(1, 10),
+                               credit_tradable_date="2020-01-20"),
+        "capital_reduction": dict(share_multiplier=0.5, cash_per_share=3.0,
+                                  cash_payment_date="2020-01-25"),
+        "par_value_change": dict(share_multiplier=2.0),
+        "holder_side_security_conversion": dict(
+            successor_security_id="T002", stock_ratio=Fraction(1, 2),
+            credit_tradable_date="2020-01-20"),
+        "holder_side_reorganization_exit": dict(
+            successor_security_id="T002", stock_ratio=Fraction(1, 2),
+            credit_tradable_date="2020-01-20"),
+    }
+
+    def probe(kind, with_claim):
+        claims = ()
+        if with_claim:
+            claims = (SecurityReceivable(
+                security_id=sid, shares=Fraction(7, 4),
+                credit_tradable_date="2030-01-01", event_id="seed|x|2019-01-01",
+                origin_effective_date="2019-01-01"),)
+        state = PortfolioState(as_of=as_of, cash=0.0, shares={},
+                               security_receivables=claims)
+        ev = CorporateActionEvent(sid, kind, as_of, RECONSTRUCTIBLE,
+                                  knowledge_ts=as_of,
+                                  **probe_kwargs.get(kind, {}))
+        post, _ = _apply_one(state, ev, as_of, sessions)
+        return _state_hash(post)
+
+    derived = []
+    for kind in holder_affecting_kinds():
+        if kind not in probe_kwargs:
+            raise CorporateActionError(
+                f"R4: holder-affecting kind {kind!r} has no probe, so whether it "
+                f"consumes same-security claims was never determined. A kind "
+                f"nobody probed is a kind nobody knows the answer for.")
+        if probe(kind, True) != probe(kind, False):
+            derived.append(kind)
+    if tuple(sorted(derived)) != tuple(sorted(CLAIM_BEARING_EVENT_KINDS)):
+        raise CorporateActionError(
+            f"R4: CLAIM_BEARING_EVENT_KINDS declares "
+            f"{tuple(sorted(CLAIM_BEARING_EVENT_KINDS))} but the frozen "
+            f"transitions actually consume same-security claims for "
+            f"{tuple(sorted(derived))}. The declaration and the code disagree "
+            f"about which events reach a claim.")
+
+
 def is_exposed(state, event: "CorporateActionEvent", *, as_of: str) -> bool:
     """B0.1 · §6.1.12 exposure, delegated to THE canonical predicate.
 
@@ -755,12 +956,12 @@ def is_exposed(state, event: "CorporateActionEvent", *, as_of: str) -> bool:
     in 2014. The question §2.5 W-1 actually asks is whether B0's holding interval
     covers the event boundary, and R1 adds the state that can answer it.
 
-    Claims are deliberately NOT part of this. A stock-dividend receivable that
-    outlived the sale of its underlying position keeps its own frozen lifecycle,
-    but its holder is not a shareholder of record for the NEXT event.
+    B0.7 / R3 corrects the second half of that. Claims are still not UNDERLYING
+    exposure - no spell opens for one - but §6.1.12 counts a security receivable
+    as affected economic exposure, and the frozen transitions in §6.1.7 all act
+    on `pre_shares + same_claims`. So this delegates to the combined rule.
     """
-    return state.exposure_applies(event.stock_id,
-                                  str(event.ex_or_effective_date), str(as_of))
+    return ca_economic_interest_applies(state, event, as_of=as_of)
 
 
 REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
@@ -820,7 +1021,8 @@ def _state_hash(state) -> str:
             sorted(state.stock_dividend_receivable.items())),
         "security_receivables": sorted(
             [[r.security_id, str(r.shares), r.credit_tradable_date, r.event_id,
-              r.source_security_id] for r in state.security_receivables]),
+              r.source_security_id, r.origin_effective_date]
+             for r in state.security_receivables]),
         "cash_receivables": sorted(
             [[r.amount, r.cash_available_date, r.event_id, r.source_security_id]
              for r in state.cash_receivables]),
@@ -886,7 +1088,11 @@ def _release_matured(state, as_of: str):
             kept_sec.append(SecurityReceivable(
                 security_id=r.security_id, shares=rest,
                 credit_tradable_date=r.credit_tradable_date,
-                event_id=r.event_id, source_security_id=r.source_security_id))
+                event_id=r.event_id, source_security_id=r.source_security_id,
+                # B0.7/R8: a remainder is the SAME claim, partially released.
+                # Restamping it with today would make it younger than the event
+                # that created it and hide it from that event's own successors.
+                origin_effective_date=r.origin_effective_date))
         elif whole and r.security_id in on_recv:
             on_recv.discard(r.security_id)
 
@@ -954,7 +1160,8 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
                 event.credit_tradable_date, sessions)
             sec_recv.append(SecurityReceivable(
                 security_id=sid, shares=new_claim, credit_tradable_date=credit,
-                event_id=eid))
+                event_id=eid,
+                origin_effective_date=str(event.ex_or_effective_date)))
             created_sec.append((sid, str(new_claim), credit))
             # §6.1.10: a position already under a full-exit obligation does not
             # get a new permanent holding out of a stock dividend.
@@ -973,13 +1180,16 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
                         security_id=r.security_id, shares=r.shares * m,
                         credit_tradable_date=r.credit_tradable_date,
                         event_id=r.event_id,
-                        source_security_id=r.source_security_id)
+                        source_security_id=r.source_security_id,
+                        # scaled, not recreated: same claim, same origin
+                        origin_effective_date=r.origin_effective_date)
                     if r.security_id == sid else r
                     for r in sec_recv]
         if frac > 0:
             sec_recv.append(SecurityReceivable(
                 security_id=sid, shares=frac,
-                credit_tradable_date=str(as_of), event_id=eid))
+                credit_tradable_date=str(as_of), event_id=eid,
+                origin_effective_date=str(event.ex_or_effective_date)))
             created_sec.append((sid, str(frac), str(as_of)))
         if kind == "capital_reduction" and event.cash_per_share:
             amount = float(entitlement) * float(event.cash_per_share)
@@ -1011,7 +1221,8 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
             sec_recv.append(SecurityReceivable(
                 security_id=successor, shares=new_claim,
                 credit_tradable_date=credit, event_id=eid,
-                source_security_id=sid))
+                source_security_id=sid,
+                origin_effective_date=str(event.ex_or_effective_date)))
             created_sec.append((successor, str(new_claim), credit))
             if full_exit:
                 on_recv.add(successor)
@@ -1238,12 +1449,18 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
                   if e.kind in holder_affecting_kinds()
                   and str(e.ex_or_effective_date) <= str(as_of)
                   and e.canonical_event_id() not in pre.applied_ca_event_ids]
+    #
+    # B0.7 · R3/R5: the filter is the COMBINED economic interest, and it is taken
+    # against `work` rather than `pre`. Under B0.1 the two were the same state
+    # for this purpose - a transition never touches `holding_spells`, so the
+    # answer could not differ. It can now: step 1 releases matured claims, so a
+    # claim ledger read from `pre` is the ledger of yesterday. §6.1.6 puts the
+    # release BEFORE the apply, and §6.1.7 takes `Q` at the moment of
+    # application, so the moment of application is the state to ask.
     out_of_spell = [e.canonical_event_id() for e in candidates
-                    if not pre.exposure_applies(
-                        e.stock_id, str(e.ex_or_effective_date), str(as_of))]
+                    if not ca_economic_interest_applies(work, e, as_of=as_of)]
     todays = [e for e in candidates
-              if pre.exposure_applies(e.stock_id,
-                                      str(e.ex_or_effective_date), str(as_of))]
+              if ca_economic_interest_applies(work, e, as_of=as_of)]
     ledger, applied, skipped = [], [], []
     skipped.extend(out_of_spell)
     for ev in _order_same_day(todays):
@@ -1259,6 +1476,11 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
                 detail={"security_id": ev.stock_id, "event_kind": ev.kind,
                         "event_id": ev.canonical_event_id(),
                         "effective_date": ev.ex_or_effective_date,
+                        # B0.7: the blocker names its own status and moment.
+                        # A record that says only "blocked" leaves the next
+                        # reader to re-derive what this already knew.
+                        "reconstructibility": ev.reconstructibility,
+                        "as_of": str(as_of),
                         "exposure": {
                             "tradable_shares": int(work.shares.get(ev.stock_id, 0)),
                             "pending_exit": int(
@@ -1365,10 +1587,11 @@ def assert_transition_applied(state, events, *, as_of: str) -> None:
             continue
         if str(ev.ex_or_effective_date) > str(as_of):
             continue
-        # B0.1 · R3: the same canonical predicate. A membership test here would
-        # reintroduce the defect one layer below the one that was fixed.
-        if not state.exposure_applies(ev.stock_id,
-                                      str(ev.ex_or_effective_date), str(as_of)):
+        # B0.1 · R3 / B0.7 · R3: the same canonical predicate, all the way down.
+        # A membership test here would reintroduce the defect one layer below
+        # the one that was fixed, and an underlying-only test would reintroduce
+        # B0.7's one layer below that.
+        if not ca_economic_interest_applies(state, ev, as_of=as_of):
             continue
         if ev.canonical_event_id() in state.applied_ca_event_ids:
             continue
