@@ -836,17 +836,6 @@ class CorporateActionTransitionResult:
     skipped_unexposed: tuple                       # NOT_RECONSTRUCTIBLE, no exposure
 
 
-REQUIRED_FIELDS: Mapping[str, tuple[str, ...]] = {
-    "stock_dividend": ("stock_ratio", "credit_tradable_date"),
-    "capital_reduction": ("share_multiplier",),
-    "holder_side_security_conversion": ("successor_security_id", "stock_ratio",
-                                       "credit_tradable_date"),
-    "_retired_share_conversion": ("successor_security_id", "stock_ratio",
-                         "credit_tradable_date"),
-    "par_value_change": ("share_multiplier",),
-}
-
-
 def ca_economic_interest_applies(state, event: "CorporateActionEvent", *,
                                  as_of: str) -> bool:
     """B0.7 / R3 - THE applicability rule. Two domains, OR-combined.

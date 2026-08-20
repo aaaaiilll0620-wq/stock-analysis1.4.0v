@@ -298,13 +298,26 @@ def test_t12b_only_one_exposure_predicate_is_defined():
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                         "core", "b0_corporate_actions.py")
     tree = ast.parse(io.open(path, encoding="utf-8").read())
-    names = [n.name for n in tree.body if isinstance(n, ast.FunctionDef)]
+    names = []
+    for n in tree.body:
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.append(n.name)
+        elif isinstance(n, ast.Assign):
+            names.extend(t.id for t in n.targets if isinstance(t, ast.Name))
+        elif isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name):
+            # B0.8: this branch is why the test was widened. It originally read
+            # FunctionDef only, and `REQUIRED_FIELDS: Mapping[...] = {...}` is an
+            # AnnAssign -- so a byte-identical second copy of the frozen
+            # per-kind field requirements sat below the first one, unseen, for
+            # as long as the test that exists to forbid exactly that.
+            names.append(n.target.id)
     duplicates = sorted({n for n in names if names.count(n) > 1})
     assert not duplicates, (
         "duplicate top-level definitions in the normative CA module: %s. The "
         "later one silently shadows the earlier, so editing the wrong copy "
         "changes nothing." % duplicates)
     assert names.count("is_exposed") == 1
+    assert names.count("REQUIRED_FIELDS") == 1
 
 
 # --- T13 · a claim is not underlying exposure --------------------------------

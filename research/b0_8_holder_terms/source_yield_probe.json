@@ -1,0 +1,81 @@
+{
+ "endpoint": "https://mopsov.twse.com.tw/mops/web/ajax_t05st01",
+ "events_with_any_announcement": 0,
+ "events_with_candidate_terms_announcement": 0,
+ "purpose": "measure what the admissible prose source returns before a corpus-wide fetch; extracts nothing and interprets nothing",
+ "record": "B0_8_SOURCE_YIELD_PROBE",
+ "register_sha256": "783334ba2efa17dff65c6ebf35acee981172b3b8d765799a581df964447f2c1a",
+ "requests_made": 84,
+ "requests_served_from_cache": 0,
+ "results": [
+  {
+   "announcement_rows": 0,
+   "candidate_terms_announcements": 0,
+   "candidates": [],
+   "effective_date": "2004-03-22",
+   "event_id": "2386|holder_side_reorganization_exit|2004-03-22",
+   "http_errors": 0,
+   "months_queried": 14,
+   "security_id": "2386",
+   "status_reason": "合併下市"
+  },
+  {
+   "announcement_rows": 0,
+   "candidate_terms_announcements": 0,
+   "candidates": [],
+   "effective_date": "2008-01-24",
+   "event_id": "2447|holder_side_reorganization_exit|2008-01-24",
+   "http_errors": 0,
+   "months_queried": 14,
+   "security_id": "2447",
+   "status_reason": "合併下市"
+  },
+  {
+   "announcement_rows": 0,
+   "candidate_terms_announcements": 0,
+   "candidates": [],
+   "effective_date": "2013-01-08",
+   "event_id": "6008|holder_side_reorganization_exit|2013-01-08",
+   "http_errors": 0,
+   "months_queried": 14,
+   "security_id": "6008",
+   "status_reason": "併入控股公司下市"
+  },
+  {
+   "announcement_rows": 0,
+   "candidate_terms_announcements": 0,
+   "candidates": [],
+   "effective_date": "2017-12-19",
+   "event_id": "5491|holder_side_reorganization_exit|2017-12-19",
+   "http_errors": 0,
+   "months_queried": 14,
+   "security_id": "5491",
+   "status_reason": "併入控股公司下市"
+  },
+  {
+   "announcement_rows": 0,
+   "candidate_terms_announcements": 0,
+   "candidates": [],
+   "effective_date": "2020-10-29",
+   "event_id": "5349|holder_side_reorganization_exit|2020-10-29",
+   "http_errors": 0,
+   "months_queried": 14,
+   "security_id": "5349",
+   "status_reason": "併入控股公司下市"
+  },
+  {
+   "announcement_rows": 0,
+   "candidate_terms_announcements": 0,
+   "candidates": [],
+   "effective_date": "2025-07-14",
+   "event_id": "2888|holder_side_reorganization_exit|2025-07-14",
+   "http_errors": 0,
+   "months_queried": 14,
+   "security_id": "2888",
+   "status_reason": "合併下市"
+  }
+ ],
+ "sample_size": 6,
+ "sampling": "systematic, every 30-th event in register date order",
+ "source_class": "official_exchange_or_mops"
+}
