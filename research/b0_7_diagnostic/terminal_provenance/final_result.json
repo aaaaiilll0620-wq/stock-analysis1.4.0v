@@ -1,0 +1,370 @@
+{
+ "authorization": "USER FORMAL AUTHORIZATION 2026-08-20 - FROZEN B0.7 RETROSPECTIVE DIAGNOSTIC REPLAY - evidence_class=RETROSPECTIVE_SUPPORTING_ONLY - Master v1.32 - confirmatory_l2=false - replaces_frozen_b0_l2=false - run_kind=B0_7_RETROSPECTIVE_DIAGNOSTIC - performance and gates REQUIRED on 141/141",
+ "b0_7_baseline_seal": "c973cff3dfae700323c092551fd666f0b004def9be19bfd51233df0f797a1798",
+ "b0_7_unmodified_during_replay": true,
+ "commit_sha": "271b1106092f63e52084c6e941989ae3cd5a872a",
+ "confirmatory_l2": false,
+ "detail": {
+  "as_of": "2020-01-30",
+  "blocker_kind": "historical_reconstruction_or_evaluability",
+  "claim_interest_applies": true,
+  "classification": "F-CA-B",
+  "effective_date": "2020-01-14",
+  "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+  "event_kind": "holder_side_reorganization_exit",
+  "exposure": {
+   "claims": [
+    "4999999999997199/25000000000000000",
+    "1095000008783686330995078643/1250000000000000000000000000"
+   ],
+   "pending_exit": 0,
+   "tradable_shares": 0
+  },
+  "holding_spells": [
+   [
+    "2017-03-01",
+    "2017-04-05"
+   ],
+   [
+    "2017-05-02",
+    "2017-08-01"
+   ]
+  ],
+  "last_valid_state_hash": "5627e85125ddbe0abfc608156a7917cd135e1c5652e9e3fa936306e54d176881",
+  "missing_fields": [
+   "authoritative status reason '併入控股公司下市' establishes that this listed security ceased trading through a reorganization; it does not establish the successor security, conversion ratio, cash consideration or credit date, so the holder outcome is not reconstructible from it"
+  ],
+  "period": "2020-01",
+  "pre_state_hash": "5627e85125ddbe0abfc608156a7917cd135e1c5652e9e3fa936306e54d176881",
+  "reason": "§6.1.12: 8913/holder_side_reorganization_exit on 2020-01-14 is NOT_RECONSTRUCTIBLE and B0 is exposed (authoritative status reason '併入控股公司下市' establishes that this listed security ceased trading through a reorganization; it does not establish the successor security, conversion ratio, cash consideration or credit date, so the holder outcome is not reconstructible from it)",
+  "reconstructibility": "NOT_RECONSTRUCTIBLE",
+  "security_id": "8913",
+  "seq": 67,
+  "tradable_shares": 0,
+  "underlying_exposure_applies": false
+ },
+ "diagnostic_terminal_status": "DIAGNOSTIC_NOT_EVALUABLE_CORPORATE_ACTION_RECONSTRUCTION_BLOCK",
+ "evidence_class": "RETROSPECTIVE_SUPPORTING_ONLY",
+ "gates_evaluated": false,
+ "harness_sha256": "387ea7d6ce81c183a0c0792a2f348499e067e3118b3496921d642e052c735293",
+ "historical_lineage_untouched": true,
+ "lineage_snapshot_after": {
+  "attempted_openings": 2,
+  "b0_1_diagnostic": {
+   "artefacts": {
+    "ca_transition_ledger.jsonl": {
+     "live": {
+      "bytes": 2725,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "5b79345fc26a2b86a675a9b39eabf81f30bdb581aa7a305731c4876bbb90f0e2"
+     },
+     "pinned_bytes": 2725,
+     "pinned_sha256": "5b79345fc26a2b86a675a9b39eabf81f30bdb581aa7a305731c4876bbb90f0e2",
+     "versioned": {
+      "bytes": 2725,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "5b79345fc26a2b86a675a9b39eabf81f30bdb581aa7a305731c4876bbb90f0e2"
+     }
+    },
+    "failure_record.jsonl": {
+     "live": {
+      "bytes": 1437,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "37c4950c4fd2348e3cd03cde68612fc2cb82efea7a37089fd433e9edbc71e0b4"
+     },
+     "pinned_bytes": 1437,
+     "pinned_sha256": "37c4950c4fd2348e3cd03cde68612fc2cb82efea7a37089fd433e9edbc71e0b4",
+     "versioned": {
+      "bytes": 1437,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "37c4950c4fd2348e3cd03cde68612fc2cb82efea7a37089fd433e9edbc71e0b4"
+     }
+    },
+    "final_result.json": {
+     "live": {
+      "bytes": 4810,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "81ef1052c1e8490aa58b0323669757680809156cd5cbbd2a5caf1ce669b38750"
+     },
+     "pinned_bytes": 4810,
+     "pinned_sha256": "81ef1052c1e8490aa58b0323669757680809156cd5cbbd2a5caf1ce669b38750",
+     "versioned": {
+      "bytes": 4810,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "81ef1052c1e8490aa58b0323669757680809156cd5cbbd2a5caf1ce669b38750"
+     }
+    },
+    "opening_state.jsonl": {
+     "live": {
+      "bytes": 171,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "60357f6c436fe67464c6d3f4f3732ce7fc9aee061936e7a8b8bd5125acaa5ab1"
+     },
+     "pinned_bytes": 171,
+     "pinned_sha256": "60357f6c436fe67464c6d3f4f3732ce7fc9aee061936e7a8b8bd5125acaa5ab1",
+     "versioned": {
+      "bytes": 171,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "60357f6c436fe67464c6d3f4f3732ce7fc9aee061936e7a8b8bd5125acaa5ab1"
+     }
+    },
+    "period_progress.jsonl": {
+     "live": {
+      "bytes": 718,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "d86d10d42a0bd90c536e525d7e65b5ccbf565785a4041d5f8f4bc9fd896ac167"
+     },
+     "pinned_bytes": 718,
+     "pinned_sha256": "d86d10d42a0bd90c536e525d7e65b5ccbf565785a4041d5f8f4bc9fd896ac167",
+     "versioned": {
+      "bytes": 718,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "d86d10d42a0bd90c536e525d7e65b5ccbf565785a4041d5f8f4bc9fd896ac167"
+     }
+    },
+    "pytest_clean_tree_e708fdb7.log": {
+     "live": {
+      "bytes": 2651,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "58c274c17505ef346498ce275c90ee238e5997305296e7385e21ca84d8d48ec4"
+     },
+     "pinned_bytes": 2651,
+     "pinned_sha256": "58c274c17505ef346498ce275c90ee238e5997305296e7385e21ca84d8d48ec4",
+     "versioned": {
+      "bytes": 2651,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "58c274c17505ef346498ce275c90ee238e5997305296e7385e21ca84d8d48ec4"
+     }
+    },
+    "pytest_e708fdb7.log": {
+     "live": {
+      "bytes": 3438,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "b135dd91136bd22285785415675fc67b15e503cbc5d35eea666f8aaf8ff1e57d"
+     },
+     "pinned_bytes": 3438,
+     "pinned_sha256": "b135dd91136bd22285785415675fc67b15e503cbc5d35eea666f8aaf8ff1e57d",
+     "versioned": {
+      "bytes": 3438,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "b135dd91136bd22285785415675fc67b15e503cbc5d35eea666f8aaf8ff1e57d"
+     }
+    },
+    "research/b0_1_diagnostic/run_b0_1_diagnostic.py": {
+     "live": {
+      "present": false
+     },
+     "pinned_bytes": 25736,
+     "pinned_sha256": "baed30dc8c0799c2766286746acb73cde7457f3de301f8b00584bb312dda09d0",
+     "versioned": {
+      "bytes": 25736,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "baed30dc8c0799c2766286746acb73cde7457f3de301f8b00584bb312dda09d0"
+     }
+    },
+    "run_claim.json": {
+     "live": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     },
+     "pinned_bytes": 10454,
+     "pinned_sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f",
+     "versioned": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     }
+    },
+    "run_provenance.json": {
+     "live": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     },
+     "pinned_bytes": 10454,
+     "pinned_sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f",
+     "versioned": {
+      "bytes": 10454,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "3ad8f047bd2314543e1100ca49e4dd9dac3fba9f014e250c7b66ad30bf1d717f"
+     }
+    },
+    "test_evidence.json": {
+     "live": {
+      "bytes": 1267,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "1f3bd6184a06ff9630a3c65d9b92b17e4a705ac0c4f2f9126d78058d27c1bb59"
+     },
+     "pinned_bytes": 1267,
+     "pinned_sha256": "1f3bd6184a06ff9630a3c65d9b92b17e4a705ac0c4f2f9126d78058d27c1bb59",
+     "versioned": {
+      "bytes": 1267,
+      "matches_pinned": true,
+      "present": true,
+      "sha256": "1f3bd6184a06ff9630a3c65d9b92b17e4a705ac0c4f2f9126d78058d27c1bb59"
+     }
+    }
+   },
+   "composed": "8f2f7b6a727af15e787dc6339da9d6e0716e10d3733ecebf8e94748f540b0094"
+  },
+  "effective_observation_count": 1,
+  "l2_artefact_files": {
+   "artifacts/l2_run/final_result.json": {
+    "bytes": 2666,
+    "sha256": "2e7f11fd322357e03a240cd1740120b3d3a808a92f60083966c9176c1618948e"
+   },
+   "artifacts/l2_run/nav_series.json": {
+    "bytes": 17768,
+    "sha256": "8df673360d40a915e301e4c904eb5547e809a4d6c13b4f40c57c5d1e7b170639"
+   },
+   "artifacts/l2_run/opening_claims/865b2028efcb270835977d828b9ac19aefd10cb4778a287128d427b570e94f9b.json": {
+    "bytes": 788,
+    "sha256": "5d816b01558a9f73b16ce33b36efc4fedcf5432a11af2cb335ba59ced3296990"
+   },
+   "artifacts/l2_run/opening_record.json": {
+    "bytes": 1011,
+    "sha256": "af0fcf7d82ca2d24977fc67855394c1c7ac23628665850678b69843eefb81cef"
+   },
+   "artifacts/l2_run/period_progress.jsonl": {
+    "bytes": 44730,
+    "sha256": "ec1a8a3e71fbe6b2f27a73deab44a30ac46bdf339fde4fe3d3071ac7d1b56713"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/execution_claim.json": {
+    "bytes": 645,
+    "sha256": "be62f5c134b27883888a7aed063a7ec9b327be898198a641afcff1141bb2cbf7"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/failure_record.jsonl": {
+    "bytes": 623,
+    "sha256": "6436bfb6fe8076b7428ca639e86efab9dcc7cf09f364398d974ee7e3e46d9a43"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/final_result.json": {
+    "bytes": 1219,
+    "sha256": "aa3df8c9544fac53e3e53ac8820850555e09b2e34ab05f2c8cfb53e1ccc7e9b3"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/opening_record.json": {
+    "bytes": 896,
+    "sha256": "282fd9599ee35edfc74054fb82ff4d4d51fac15198fc9067327559dfab11a7b0"
+   },
+   "artifacts/l2_run/runs/L2-af1b4d90c29b3b5f/period_progress.jsonl": {
+    "bytes": 317,
+    "sha256": "3ccad807bceb75030ab7f45b3aae2ba19599b4a2e251316d5bd70792b461a77c"
+   }
+  },
+  "l2_artefact_tree_sha256": "414a4364106b804dd994b6c8db163c408bf1025f760f96a241f8ddc0a8574524",
+  "legacy_pinned_artefacts": {
+   "final_result.json": {
+    "bytes": 2666,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/final_result.json",
+    "present": true,
+    "sha256": "2e7f11fd322357e03a240cd1740120b3d3a808a92f60083966c9176c1618948e"
+   },
+   "nav_series.json": {
+    "bytes": 17768,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/nav_series.json",
+    "present": true,
+    "sha256": "8df673360d40a915e301e4c904eb5547e809a4d6c13b4f40c57c5d1e7b170639"
+   },
+   "opening_record.json": {
+    "bytes": 1011,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/opening_record.json",
+    "present": true,
+    "sha256": "af0fcf7d82ca2d24977fc67855394c1c7ac23628665850678b69843eefb81cef"
+   },
+   "period_progress.jsonl": {
+    "bytes": 44730,
+    "matches_pinned": true,
+    "path": "artifacts/l2_run/period_progress.jsonl",
+    "present": true,
+    "sha256": "ec1a8a3e71fbe6b2f27a73deab44a30ac46bdf339fde4fe3d3071ac7d1b56713"
+   }
+  },
+  "prior_diagnostics": {
+   "b0_1": {
+    "expected_periods": 2,
+    "final_result_sha256": "81ef1052c1e8490aa58b0323669757680809156cd5cbbd2a5caf1ce669b38750",
+    "performance_computed": false,
+    "periods_executed": 2,
+    "run_id": "B01DIAG-0121b3261805b826"
+   },
+   "b0_2": {
+    "expected_periods": 4,
+    "final_result_sha256": "484bab954c7f18cad15be058bea15dd3d27ad1605bd6e2eab7d8c651f519a49e",
+    "performance_computed": false,
+    "periods_executed": 4,
+    "run_id": "B02DIAG-bc7ce018a97cfa0f"
+   },
+   "b0_4": {
+    "expected_periods": 4,
+    "final_result_sha256": "375d4696bdaa2c199602bb62587d4cdb83a3b687eac934fb7db84c63820b4c59",
+    "performance_computed": false,
+    "periods_executed": 4,
+    "run_id": "B04DIAG-d5f34a5164a0e309"
+   },
+   "b0_5": {
+    "expected_periods": 45,
+    "final_result_sha256": "11d1b8727f5583d239e85e1409678982663bbfcb24f253fdd668eb1d6d46bebe",
+    "performance_computed": false,
+    "periods_executed": 45,
+    "run_id": "B05DIAG-9943d2f7b4adb670"
+   },
+   "b0_6": {
+    "expected_periods": 66,
+    "final_result_sha256": "b9f1f5dfbc232771c637e59bc485b5899fc64c51fa1c06767de80281bb67ecc5",
+    "performance_computed": false,
+    "periods_executed": 66,
+    "run_id": "B06DIAG-055dbf317d3f67ac"
+   }
+  },
+  "registry_rows": 2,
+  "registry_sha256": "4a13671cdbe35add8191bf82acc27d52d05a8ce64e00b85c8b13cbb8b72b8361"
+ },
+ "market_state_composed_sha256": "0b68f44e38716cf5dc0ab29ac8dccb645c203d748102ac27f33831186653e405",
+ "note": "The pre-seal traversal was a dependency/conformance audit. It observed historical state-transition consequences, including claim-bearing corporate-action applications, so B0.7 is neither historically untouched nor fully blind through that prefix. It computed and inspected no performance quantity and no gate. The evidence class is unchanged in both directions.",
+ "parent_diagnostic_runs": {
+  "b0_1": "B01DIAG-0121b3261805b826",
+  "b0_2": "B02DIAG-bc7ce018a97cfa0f",
+  "b0_4": "B04DIAG-d5f34a5164a0e309",
+  "b0_5": "B05DIAG-9943d2f7b4adb670",
+  "b0_6": "B06DIAG-055dbf317d3f67ac"
+ },
+ "parent_frozen_b0_l2_run": "L2-af1b4d90c29b3b5f",
+ "performance_computed": false,
+ "performance_displayed": false,
+ "period1_full_input_sha256": "7a9c8ad46adb2858ccbec44c7a3e111b8f7a91d852f1845cb1e3f4a33c6de55b",
+ "periods_executed": 66,
+ "periods_required": 141,
+ "preseal_gate_inspection": false,
+ "preseal_path_exposure_through_period": 67,
+ "preseal_performance_inspection": false,
+ "preseal_retrospective_path_exposure": true,
+ "record": "B0_7_DIAGNOSTIC_TERMINAL_RESULT",
+ "replaces_frozen_b0_l2": false,
+ "run_id": "B07DIAG-fb6b6b54381ec4f9",
+ "run_kind": "B0_7_RETROSPECTIVE_DIAGNOSTIC",
+ "spec_sha256": "d9212c8f1a6781709307f7428905287904fd2a6651bd431f43d2e5ac7b66efd3",
+ "terminated_at_utc": "2026-08-20T07:49:07.959865+00:00"
+}
