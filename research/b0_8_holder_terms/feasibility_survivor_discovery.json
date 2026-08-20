@@ -1,0 +1,196 @@
+{
+ "AUTHORITATIVE_SURVIVOR_DISCOVERY_SURFACE": "NOT_FEASIBLE",
+ "authoritative_endpoints_used": [
+  "https://openapi.twse.com.tw/v1/company/suspendListingCsvAndHtml",
+  "https://mopsov.twse.com.tw/mops/web/ajax_autoComplete",
+  "https://mopsov.twse.com.tw/mops/web/ajax_t05st01"
+ ],
+ "ca_ledger_rebuilt": false,
+ "canonical_values_materialized": false,
+ "events_classified": 0,
+ "frozen_query_template": {
+  "E1": "https://mopsov.twse.com.tw/mops/web/ajax_autoComplete",
+  "E2": "https://mopsov.twse.com.tw/mops/web/ajax_t05st01",
+  "allowed_inputs": [
+   "authoritative disappearing-company name",
+   "authoritative disappearance date",
+   "fixed window [eff-365d, eff+30d]",
+   "fixed entity-neutral MOPS surfaces E1/E2"
+  ],
+  "forbidden_inputs": [
+   "survivor_name",
+   "survivor_code",
+   "tej_counterparty_narrative",
+   "portfolio_holdings",
+   "price_or_nav",
+   "later_performance"
+  ],
+  "window_back_days": 365,
+  "window_forward_days": 30
+ },
+ "performance_inspected": false,
+ "record": "B0_8_AUTHORITATIVE_SURVIVOR_DISCOVERY_FEASIBILITY",
+ "register_sha256": "783334ba2efa17dff65c6ebf35acee981172b3b8d765799a581df964447f2c1a",
+ "replay_started": false,
+ "results": [
+  {
+   "authoritative_name": "旺能",
+   "authoritative_name_source": "TWSE openapi /company/suspendListingCsvAndHtml",
+   "candidate_survivors": [],
+   "effective_date": "2013-05-21",
+   "event_id": "3599|holder_side_reorganization_exit|2013-05-21",
+   "linking_documents": [],
+   "partition": "twse_directory",
+   "queries": [
+    {
+     "bytes": 27,
+     "directory_returned_a_company": false,
+     "params": {
+      "TYPEK": "all",
+      "co_id": "",
+      "firstin": "1",
+      "funcName": "t05st01",
+      "inpuType": "keyword",
+      "keyword": "旺能",
+      "searchtype": "",
+      "step": "1"
+     },
+     "raw_sha256": "708a327813a8494287774778a793337bc8ee9291a1d5dcbfbf5b892f36712507",
+     "result_count": 0,
+     "surface": "E1 ajax_autoComplete (entity-neutral directory resolution)",
+     "text_head": ""
+    },
+    {
+     "bytes": 142155,
+     "params": {
+      "TYPEK": "all",
+      "b_date": "21",
+      "e_date": "21",
+      "firstin": "true",
+      "month": "05",
+      "off": "1",
+      "step": "1",
+      "year": "102"
+     },
+     "raw_sha256": "b20896e8a5812bbf7cba03e3e88484e82e6c5f4620e49d3b23302165ee78550e",
+     "result_count": 175,
+     "rows_head": [
+      [
+       "4922",
+       "桑緹亞",
+       "102/05/21",
+       "08:47:07",
+       "公告本公司名稱「旭能光電股份有限公司」更名為 「桑緹亞股份有限公司」"
+      ],
+      [
+       "1783",
+       "和康生",
+       "102/05/21",
+       "08:55:25",
+       "公告本公司取得工業局科技事業意見書"
+      ],
+      [
+       "2206",
+       "三陽工業",
+       "102/05/21",
+       "08:58:29",
+       "102年股東常會重要決議事項"
+      ],
+      [
+       "2348",
+       "海悅",
+       "102/05/21",
+       "09:00:00",
+       "公告本公司名稱由「力廣科技股份有限公司」更名為 「海悅國際開發股份有限公司」"
+      ],
+      [
+       "1339",
+       "昭輝",
+       "102/05/21",
+       "09:02:09",
+       "公告更正本公司衍生性金融商品資訊"
+      ],
+      [
+       "3673",
+       "TPK-KY",
+       "102/05/21",
+       "09:20:54",
+       "本公司澄清102年05月21日經濟日報之新聞內容"
+      ],
+      [
+       "5536",
+       "聖暉*",
+       "102/05/21",
+       "09:38:06",
+       "公告本公司股務代理機構合併事宜"
+      ],
+      [
+       "2540",
+       "愛山林",
+       "102/05/21",
+       "10:11:28",
+       "更正本公司102年4月份自結損益數字"
+      ],
+      [
+       "4133",
+       "亞諾法",
+       "102/05/21",
+       "10:25:16",
+       "公告本公司股務代理機構合併事宜"
+      ],
+      [
+       "1219",
+       "福壽",
+       "102/05/21",
+       "10:45:24",
+       "公告本公司股務代理機構合併事宜"
+      ]
+     ],
+     "surface": "E2 ajax_t05st01 (entity-neutral, ALL companies, single-day: the authoritative disappearance date)",
+     "text_head": "公開資訊觀測站 公司代號 公司名稱 發言日期 發言時間 主旨 &nbsp; &nbsp;4922 &nbsp;桑緹亞 &nbsp;102/05/21 &nbsp;08:47:07 &nbsp;公告本公司名稱「旭能光電股份有限公司」更名為 「桑緹亞股份有限公司」 &nbsp;1783 &nbsp;和康生 &nbsp;102/05/21 &nbsp;08:55:25 &nbsp;公告本公司取得工業局科技事業意見書 &nbsp;2206 &nbsp;三陽工業 &nbsp;102/05/21 &nbsp;08:58:29 &nbsp;102年股東常會重要決議事項 &nbsp;2348 &nbsp;海悅"
+    }
+   ],
+   "security_id": "3599",
+   "survivor_discoverable": false,
+   "survivor_identity_unique": null,
+   "third_party_information_required": false,
+   "window": [
+    "2012-05-21",
+    "2013-06-20"
+   ]
+  },
+  {
+   "authoritative_name": null,
+   "authoritative_name_source": null,
+   "blocked_before_query": "no authoritative disappearing-company NAME is obtainable for this security from any authoritative directory identified so far, so the frozen query template cannot be instantiated at all. The TWSE delisting directory does not carry it and no TPEx equivalent was reachable (openapi enumerated, 225 endpoints, none for terminated companies).",
+   "effective_date": "2018-11-22",
+   "event_id": "3299|holder_side_reorganization_exit|2018-11-22",
+   "partition": "not_in_twse_directory",
+   "queries": [],
+   "security_id": "3299",
+   "survivor_discoverable": false,
+   "survivor_identity_unique": null,
+   "third_party_information_required": false,
+   "window": [
+    "2017-11-22",
+    "2018-12-22"
+   ]
+  }
+ ],
+ "sample_rule": "partition the 158-event register by presence in the TWSE authoritative delisting directory; sort each partition ascending by (effective_date, security_id); select index floor(n/2), the temporal median",
+ "sample_rule_independent_of": [
+  "B0 holdings",
+  "the B0.7 blocker identity",
+  "8913",
+  "known survivor availability",
+  "ease of reconstruction",
+  "eventual performance"
+ ],
+ "states_rebuilt": false,
+ "surface_capability_observed_outside_sample": {
+  "listed_control_resolves": true,
+  "note": "Control queries, NOT sampled events, and deliberately excluded from the verdict. The E1 directory returned '上市金融保險業 2887 台新 新光金' for a name that disappeared in 2025, i.e. it can carry an absorbed name through to the surviving entity's current code, while it returned nothing for a name that disappeared in 2013. A wider stage would be needed to establish whether that is a recency effect and how far back it reaches.",
+  "older_disappeared_name_resolves": false,
+  "recent_disappeared_name_resolves_to_survivor_code": true
+ }
+}
