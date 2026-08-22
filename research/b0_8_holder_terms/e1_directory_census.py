@@ -8,10 +8,18 @@ holder terms, does not query merger announcements, does not classify any event
 RECONSTRUCTIBLE and does not touch the CA ledger or the canonical states.
 
 The other 61 register events are reported separately as
-AUTHORITATIVE_NAME_INPUT_UNAVAILABLE. They are NOT queried and NOT counted as
-E1 failures: the frozen template requires an authoritative name and there is
+E1_AUTHORITATIVE_NAME_INPUT_UNAVAILABLE. They are NOT queried and NOT counted
+as E1 failures: the frozen template requires an authoritative name and there is
 none, so there is no query to fail. Local TEJ narrative is not used to
 manufacture one.
+
+D1 RENAME, AND WHY IT MATTERS. The label was AUTHORITATIVE_NAME_INPUT_
+UNAVAILABLE, which reads as a claim about authoritative sources. It is a claim
+about ONE INPUT to ONE RESOLVER: that E1's frozen query template cannot be
+instantiated because no authoritative NAME is available for that code. E1
+availability and authoritative-source availability are different propositions,
+and the B0.8 code-first router (official_document_router.py) reaches all 61 of
+these events through their security_id without ever needing a name.
 
 WHAT E1_UNIQUE_RESOLUTION MEANS, AND WHAT IT DOES NOT
 
@@ -203,9 +211,17 @@ def main() -> int:
         "positive_negative_form_a_temporal_cutoff": (
             not interleaved if (pos_dates and neg_dates) else None),
         "positive_negative_interleave": interleaved,
-        "authoritative_name_input_unavailable": len(unavailable),
-        "authoritative_name_input_unavailable_ids": sorted(
+        "e1_authoritative_name_input_unavailable": len(unavailable),
+        "e1_authoritative_name_input_unavailable_ids": sorted(
             e["event_id"] for e in unavailable),
+        "e1_availability_is_not_source_availability": (
+            "E1_AUTHORITATIVE_NAME_INPUT_UNAVAILABLE means the E1 name "
+            "resolver has no name to be given for that security_id. It does "
+            "NOT mean no authoritative source exists for the event, and it "
+            "does not bound authoritative-source reconstruction."),
+        "measures_only": "MOPS E1 old-name resolver coverage",
+        "does_not_establish": ("the ceiling of authoritative-source "
+                               "reconstruction"),
         "results": results,
         # C9
         "canonical_values_materialized": False,
@@ -226,8 +242,8 @@ def main() -> int:
     print("earliest positive        : %s" % out["earliest_positive_event"])
     print("latest negative          : %s" % out["latest_negative_event"])
     print("interleaved              : %s" % out["positive_negative_interleave"])
-    print("name-input unavailable   : %d (not queried)"
-          % out["authoritative_name_input_unavailable"])
+    print("E1 name-input unavailable : %d (not queried)"
+          % out["e1_authoritative_name_input_unavailable"])
     print("wrote", os.path.relpath(OUT, REPO))
     return 0
 

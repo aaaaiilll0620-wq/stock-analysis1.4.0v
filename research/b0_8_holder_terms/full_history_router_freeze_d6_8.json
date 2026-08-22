@@ -1,0 +1,65 @@
+{
+ "candidate_corpus": "every distinct authoritative bulletin body in the domain; primary/fallback retained as retrieval provenance only",
+ "d6_6_counts_not_rewritten": {
+  "STATIC_EVENT_DOCUMENT_AMBIGUOUS": 2,
+  "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW": 18,
+  "STATIC_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+  "STATIC_EVENT_DOCUMENT_UNIQUE": 39
+ },
+ "d6_6_preserved_historically": true,
+ "d6_7_parser_reused_for": "event-linkage diagnostics only",
+ "declared_deviations": [
+  {
+   "clause": "Q3/Q4 listing spell",
+   "deviation": "SEARCH_START = archive inception",
+   "direction": "strictly conservative superset",
+   "reason": "13/59 absent from the B0 price panel; 37/46 carry spell_start = 2013-01-02, the panel's own first observation date"
+  },
+  {
+   "clause": "Q5 primary/fallback routing",
+   "deviation": "corpus = all distinct bodies in the domain",
+   "direction": "strictly conservative superset",
+   "reason": "primary-or-fallback routing skips an event's own subject-less 2002-2006 termination bulletin whenever the security has any later subject-bearing notice"
+  },
+  {
+   "clause": "Q7 identity source",
+   "deviation": "TDCC 證券基本資料 (OD-1-1) instead of a TPEx delisted-company directory",
+   "direction": "adds a gate that did not previously exist",
+   "positive_control": "39/39 known-good D6.6 bodies carry the TDCC name verbatim, including twice-renamed 8913",
+   "reason": "E1 flags all 59 authoritative_name_input_unavailable; event_register.company_name is null for all; security_status.csv has no name column"
+  }
+ ],
+ "frozen_before_any_d6_8_outcome_inspected": true,
+ "gates": {
+  "III_linkage": {
+   "L1": "a labelled boundary date in the body equals canonical C",
+   "L2": "within the established entity's corpus, the unique document declaring a termination/reorganization event compatible with the canonical exit reason",
+   "L2_does_not_bypass_gate_II": true,
+   "date_proximity_alone": "never sufficient"
+  },
+  "II_event": "termination/reorganization markers, unchanged",
+  "I_entity_identity": "code-first code match AND the TDCC authoritative security name present in the body; a matching code alone is insufficient because code reuse cannot be excluded"
+ },
+ "parsed_dates_provenance": "ADJUDICATION_ONLY",
+ "population": "59/59, no sampling",
+ "record": "B0_8_D6_8_FULL_HISTORY_ROUTER",
+ "router_sha256": "6874f5d721b6cb10e05362b7b9616e63449c5d334d6025b78bb7f953e6985326",
+ "search_domain": {
+  "end": "C + 40d",
+  "finite_backward_lookback_parameter": null,
+  "start": "2002-01-01",
+  "start_basis": "authoritative TPEx bulletin archive inception",
+  "window_tuning_performed": false
+ },
+ "selection_blind_to": [
+  "B0 exposure",
+  "claim state",
+  "engineering envelope",
+  "8913",
+  "replay usefulness",
+  "reconstructibility",
+  "performance"
+ ],
+ "supersedes_for_discovery_only": "c178946e988e1ead85d6a3c541f1b8a9f3df4dd35cfe839ba09bddf82c249f77",
+ "tdcc_master_sha256": "3d9058871a593fbb7cb6a206385f56f5be509d34583f17c298f5801153d6d705"
+}

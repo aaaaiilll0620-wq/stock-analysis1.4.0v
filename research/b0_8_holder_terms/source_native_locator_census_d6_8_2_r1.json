@@ -1,0 +1,176 @@
+{
+ "acquisition_sizing": {
+  "ACQUIRED_DISTINCT_OFFICIAL_LOCATORS": 58163,
+  "MISSING_DISTINCT_OFFICIAL_LOCATORS": 13798,
+  "TOTAL_DISTINCT_OFFICIAL_LOCATORS": 71961,
+  "missing_by_year": {
+   "2002": 819,
+   "2003": 6295,
+   "2004": 6365,
+   "2005": 319
+  },
+  "naive_row_based_estimate": 13798,
+  "sample_missing": [
+   {
+    "content_file": "MDA0MDAuaHRt",
+    "content_file_decoded": "00400.htm",
+    "date": "2003-01-07",
+    "doc_id": "OTIwMTA2NA==",
+    "doc_id_decoded": "9201064",
+    "document_number": "",
+    "subject": ""
+   },
+   {
+    "content_file": "MDA0MDAuaHRt",
+    "content_file_decoded": "00400.htm",
+    "date": "2004-01-09",
+    "doc_id": "OTMwMTE1Nw==",
+    "doc_id_decoded": "9301157",
+    "document_number": "",
+    "subject": ""
+   },
+   {
+    "content_file": "MDA0MDEuaHRt",
+    "content_file_decoded": "00401.htm",
+    "date": "2004-01-13",
+    "doc_id": "OTMwMTI0OA==",
+    "doc_id_decoded": "9301248",
+    "document_number": "",
+    "subject": ""
+   },
+   {
+    "content_file": "MDA0MDIuaHRt",
+    "content_file_decoded": "00402.htm",
+    "date": "2004-01-13",
+    "doc_id": "OTMwMTI0OQ==",
+    "doc_id_decoded": "9301249",
+    "document_number": "",
+    "subject": ""
+   },
+   {
+    "content_file": "MDA0MDQuaHRt",
+    "content_file_decoded": "00404.htm",
+    "date": "2004-01-13",
+    "doc_id": "OTMwMTI1MA==",
+    "doc_id_decoded": "9301250",
+    "document_number": "",
+    "subject": ""
+   }
+  ]
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "bodies_acquired_here": 0,
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "census_sha256": "07be1bb0bdd861387a9ca96ad740b915497917c33d757dcd504f6e8b729d8282",
+ "defect": "PRE2005_DOCUMENT_IDENTITY_KEYING_COMPLETENESS_DEFECT",
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "identity_frozen_here": false,
+ "index_rows": {
+  "blank_document_number_by_year": {
+   "2002": 819,
+   "2003": 6295,
+   "2004": 6365,
+   "2005": 319
+  },
+  "months_enumerated": 295,
+  "months_missing_from_cache": [
+   "2026-08",
+   "2026-09",
+   "2026-10",
+   "2026-11",
+   "2026-12"
+  ],
+  "rows_without_a_resolvable_locator": 0,
+  "total": 71961,
+  "with_blank_document_number": 13798,
+  "with_document_number": 58163
+ },
+ "locator_audit": {
+  "ONE_TO_ONE_WITH_AUTHORITATIVE_BODIES": false,
+  "collision_count": 0,
+  "collisions": [],
+  "distinct_locator_tuples": 71961,
+  "document_numbers_spanning_many_locators": 43,
+  "document_numbers_spanning_many_locators_examples": {
+   "證櫃債字第0940014352號": [
+    [
+     "MDAxNDM1Mi5odG0=",
+     "OTQwNjExNQ=="
+    ],
+    [
+     "MDAxNDM1Mi5odG0=",
+     "OTQwNjMyMw=="
+    ]
+   ],
+   "證櫃債字第0940014378號": [
+    [
+     "MDAxNDM3OC5odG0=",
+     "OTQwNjA4Mg=="
+    ],
+    [
+     "MDAxNDM3OC5odG0=",
+     "OTQwNjI0Ng=="
+    ]
+   ],
+   "證櫃監字第0940014356號": [
+    [
+     "MDAxNDM1Ni5odG0=",
+     "OTQwNjExNA=="
+    ],
+    [
+     "MDAxNDM1Ni5odG0=",
+     "OTQwNjQwNw=="
+    ]
+   ],
+   "證櫃監字第0940200402號": [
+    [
+     "MDIwMDQwMi5odG0=",
+     "OTQwNjA2MA=="
+    ],
+    [
+     "MDIwMDQwMi5odG0=",
+     "OTQwNjA5Mw=="
+    ]
+   ],
+   "證櫃監字第0940200406號": [
+    [
+     "MDIwMDQwNi5odG0=",
+     "OTQwNjA3Nw=="
+    ],
+    [
+     "MDIwMDQwNi5odG0=",
+     "OTQwNjY3NA=="
+    ]
+   ]
+  },
+  "duplicate_locator_rows": 0,
+  "locator_fields": [
+   "content_file",
+   "doc_id"
+  ],
+  "locators_with_many_document_numbers": 0,
+  "locators_with_many_index_dates": 0,
+  "verdict": "LOCATOR_IDENTITY_AUDIT_FAILED_STOP_BEFORE_ACQUISITION"
+ },
+ "nav_inspected": false,
+ "network_requests": 0,
+ "performance_inspected": false,
+ "populations": {
+  "blank_only_locators": 13798,
+  "locators_seen_both_ways": 0,
+  "locators_seen_with_a_blank_document_number": 13798,
+  "locators_seen_with_a_document_number": 58163,
+  "reading": "blank-docno ROWS are not distinct missing DOCUMENTS; the overlap column is exactly the population that would have been re-fetched had the row count been used to size the acquisition"
+ },
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_2_S3_SOURCE_NATIVE_LOCATOR_CENSUS",
+ "replay_started": false,
+ "states_unchanged": true,
+ "successor_side_acquisition": false,
+ "third_party_mirrors_consulted": false
+}

@@ -1,0 +1,2001 @@
+{
+ "U5_collision_census": {
+  "DISTINCT_DOCUMENTS_WITH_IDENTICAL_TEXT_EXIST": true,
+  "corpus_bodies_grouped": 71960,
+  "distinct_body_texts": 71707,
+  "groups": [
+   {
+    "body_sha256": "0036347e60f96dd1ab132a9a564c4bb2c8c5ba55176bc206368ab4c5c5893135",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃債字第0950021935號"
+    ],
+    "index_dates": [
+     "2006-08-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "01bcb74c6391c05e1569a0cf19d209b6c4e99a1297ccd143128df0b130d63a8c",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃交字第0950015409號"
+    ],
+    "index_dates": [
+     "2006-06-21",
+     "2006-06-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "029c84784d8ab71c435e25efa9e64aa23cbd686b46ac9f56436a4baee138a75f",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃審字第0940032722號"
+    ],
+    "index_dates": [
+     "2005-12-21",
+     "2005-12-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "042810cb215affa94e3c56a9fecd5d9a315e05ad5e8186daffba5461e45295c5",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃債字第0950400133號",
+     "證櫃債字第0950400468號"
+    ],
+    "index_dates": [
+     "2006-03-13",
+     "2006-07-12"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "0642d2f7b1fbcc075558d91e0fa5bf6ef7d13229090d8966463d283549694a58",
+    "content_files_differ": false,
+    "document_numbers": [
+     "(九三)證櫃債字第一三九七一號"
+    ],
+    "index_dates": [
+     "2004-05-17",
+     "2004-05-18"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     "中華民國九十三年五月十七日"
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "0855035b9c56e01b11bc9cde5c842a4fccf6d49f090186bdc4953bbe2a9f1ecc",
+    "content_files_differ": false,
+    "document_numbers": [
+     "(九三)證櫃上字第二○四一八號"
+    ],
+    "index_dates": [
+     "2004-07-16",
+     "2004-07-19"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     "中華民國九十三年七月十六日"
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "086ffc8147628c788bddd5f2a778e6aeec98547d0657004c0a76411ed5989c66",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第1010300990號",
+     "證櫃交字第1010301002號"
+    ],
+    "index_dates": [
+     "2012-04-17",
+     "2012-04-18"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "主旨：檢送台灣高速鐵路股份有限公司股票除權判決及掛失彙總明細表如附件，請　查照。公告事項：依據股務機構富邦綜合證券股份有限公司以網際網路傳輸..."
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "08dc5eb7e3a4262d76c685f368dda0688cddfea445df996effd373b0753cbb80",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃監字第0950201809號"
+    ],
+    "index_dates": [
+     "2006-06-21",
+     "2006-06-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "09238f358ea4c2fb3d3c7308cb7097372389cd4d166ef307c750fbd0969ba720",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃審字第10101000051號",
+     "證櫃審字第10101008991號",
+     "證櫃審字第10201004672號",
+     "證櫃審字第10201005331號",
+     "證櫃審字第10201008071號"
+    ],
+    "index_dates": [
+     "2012-01-05",
+     "2012-08-06",
+     "2013-04-11",
+     "2013-04-30",
+     "2013-06-27"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 5,
+    "subjects": [
+     "主旨：公告本中心對推薦證券商處記缺點累計暨應予處理情形詳如附件。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "09539458898ebb8ef995ee2e831afe0a175afce599ee9a26e8888511eb23d1af",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃審字第11101003971號",
+     "證櫃審字第11301011521號"
+    ],
+    "index_dates": [
+     "2022-03-09",
+     "2024-07-08"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "公告本中心對推薦證券商處記缺點暨應予處理情形詳如附件。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "09f1d9a6592dde5882102a00cb2d6f860c7aa3a628bc2bb7c3a9fafe7bf6b8be",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃債字第0950400425號"
+    ],
+    "index_dates": [
+     "2006-06-21",
+     "2006-06-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "0a7c084286d3d2d4eac9d614d12c58fc4754ed268dafe9499842c6ee8ba6d154",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0950300141號",
+     "證櫃交字第0980304456號"
+    ],
+    "index_dates": [
+     "2006-01-18",
+     "2009-12-24"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "0b29eb73692c542a80e0c4be2eb948cbdb158a871de585a309205821cf8082e6",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0940302366號",
+     "證櫃交字第0960300341號"
+    ],
+    "index_dates": [
+     "2005-11-24",
+     "2007-01-23"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "0ebc0401d10b6bf93be6d497d4412a0cded2d378109b06df36fb6f33302a2b30",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0950300603號",
+     "證櫃交字第0950302409號"
+    ],
+    "index_dates": [
+     "2006-03-08",
+     "2006-08-07"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "10b55a1bf927265e542b0928fd7c5cf6bb3742536b862bc5854de9db768cb554",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0980300029號",
+     "證櫃交字第0990300725號",
+     "證櫃交字第0990301516號",
+     "證櫃交字第0990302668號"
+    ],
+    "index_dates": [
+     "2009-01-08",
+     "2010-01-28",
+     "2010-03-18",
+     "2010-07-05"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 4,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "160df2a8475bb0d9807ec1408d408d1b2aaaa34018c00fff4d3a949b93d8d761",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃監字第0940200402號"
+    ],
+    "index_dates": [
+     "2005-06-03",
+     "2005-06-06"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     "2921"
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "17241935b7882b141b0ab54130a829e29469683d99dcebcfdd9661e4aecbc659",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃監字第0960023941號",
+     "證櫃監字第0960028509號"
+    ],
+    "index_dates": [
+     "2007-08-20",
+     "2007-09-21"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "1914b1c6bc80065537f828c0aed09bf9b9565aa073479c57f732086c1a2fbd6b",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃交字第0940300443號"
+    ],
+    "index_dates": [
+     "2005-06-03",
+     "2005-06-06"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "1a46b85c9f1af8d09276f9b284946539452a90f207253f9b319eacc870fba240",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃交字第0940300444號"
+    ],
+    "index_dates": [
+     "2005-06-03",
+     "2005-06-06"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "1a8eb6508a574a27081d17774932a1bee02c50cce73ab0a5ff65971ba205b457",
+    "content_files_differ": false,
+    "document_numbers": [
+     "(九二)證櫃交字第○九二○三號"
+    ],
+    "index_dates": [
+     "2003-04-14",
+     "2003-04-15"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     "中華民國九十二年四月十四日"
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "檢送新寶科技股份有限"
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "1c039afa53eaf6bacdcde6b4f8b4e259dbd9bf0d0f739d0ca5914d8351299bb3",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃監字第0940027290號",
+     "證櫃監字第0940202245號"
+    ],
+    "index_dates": [
+     "2005-10-25"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "1c9116bb3a9ffe0c68cf2768218a28d4f7f97d4ae4476e6ce4291a013939229b",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0980301701號",
+     "證櫃交字第0980302038號"
+    ],
+    "index_dates": [
+     "2009-07-16",
+     "2009-08-13"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "212babfaa7c60a2b1d6f4d3c016e6167bff8ed28644609dab8d077004e3be928",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃監字第0940200406號"
+    ],
+    "index_dates": [
+     "2005-06-03",
+     "2005-06-06"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "22ab08ec8ae9b3a3cf1c9bea9a4fad91fc717bf69a4746128bc78c87ad7ecfd2",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃監字第1020012124號",
+     "證櫃監字第1020016770號"
+    ],
+    "index_dates": [
+     "2013-05-30",
+     "2013-07-09"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "主旨：轉知會計研究發展基金會(以下簡稱會基會)2013年版國際會計準則第32號「金融工具：表達」、第34號「期中財務報導」及國際財務報導解釋..."
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "22f077f61270d284e80ac5f972ccb64d65a65c56c120d7c38cb3e98e97328451",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0970302987號",
+     "證櫃交字第0970303214號",
+     "證櫃交字第0970303437號",
+     "證櫃交字第0970303740號",
+     "證櫃交字第0970303852號",
+     "證櫃交字第0970303904號",
+     "證櫃交字第0970303984號",
+     "證櫃交字第0980300181號",
+     "證櫃交字第0980300364號",
+     "證櫃交字第0980301013號",
+     "證櫃交字第0980301134號",
+     "證櫃交字第0980302393號",
+     "證櫃交字第0990300987號",
+     "證櫃交字第0990301882號",
+     "證櫃交字第0990302514號"
+    ],
+    "index_dates": [
+     "2008-08-04",
+     "2008-09-01",
+     "2008-09-30",
+     "2008-10-30",
+     "2008-11-17",
+     "2008-11-24",
+     "2008-12-08",
+     "2009-02-05",
+     "2009-03-02",
+     "2009-05-11",
+     "2009-05-21",
+     "2009-09-10",
+     "2010-02-08",
+     "2010-04-08",
+     "2010-06-14"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 15,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "23ae542500177b86e7d8b1bcbb07c7352b75cb9430bdfca98977cfcdf25a3c36",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃審字第0960101467號"
+    ],
+    "index_dates": [
+     "2007-09-20",
+     "2007-09-21"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "23cd5ff7e34f0a2b106c293afbd07e8d7ee0b1b98d266aa7bbf8190a4e06e44a",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃審字第1040000488號",
+     "證櫃審字第1050009383號"
+    ],
+    "index_dates": [
+     "2015-01-12",
+     "2016-04-18"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "主旨：修訂「金融業IFRSs會計項目及代碼」及「金融控股公司IFRSs會計項目及代碼」，請  查照。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "258f82678661f674da5a194f1d0acbd8b77b68fbaa0b1d1a4b1d48f8e7d1f624",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃稽字第1020026516號",
+     "證櫃稽字第1020600107號",
+     "證櫃稽字第1030003496號"
+    ],
+    "index_dates": [
+     "2013-07-24",
+     "2013-10-29",
+     "2014-02-21"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 3,
+    "subjects": [
+     "主旨：公告增訂「證券商內部控制制度標準規範」(如附件)，自即日起實施，請 查照。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "2613b03d3413f0046ab1c1b418a8437fbb1a7153f8f309ed751725940e6451ac",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0980301392號",
+     "證櫃交字第0980304373號"
+    ],
+    "index_dates": [
+     "2009-06-11",
+     "2009-12-21"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "275bafdbc70314fd9a4a6fac9840d1b11d64cdf094082408168872907cb7ae3e",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0990302031號",
+     "證櫃交字第0990302366號"
+    ],
+    "index_dates": [
+     "2010-04-22",
+     "2010-05-27"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "27f158bf39fc1dac69fca38ebf25093b20943d69ff9ed643bbb230f2c010117c",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0960303458號",
+     "證櫃交字第0990301091號"
+    ],
+    "index_dates": [
+     "2007-07-25",
+     "2010-02-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "2805b0c8491d559dff62e6b9daac7bcec88b6113c84a48afc7adce4fb39fa5ea",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃交字第0940033081號"
+    ],
+    "index_dates": [
+     "2005-12-21",
+     "2005-12-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "2add5a3595f5441115587ba123aa47c2efd6a766d39f5606b1c836a7274124e5",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃審字第10901004340號",
+     "證櫃審字第10901017710號"
+    ],
+    "index_dates": [
+     "2020-04-24",
+     "2020-11-27"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "本中心對推薦證券商處記缺點暨應予處理情形詳如附件。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "2d38a9d84bb6466037930ca98274e5c03dfe72c72d6163fc2b97d46c7c5b14c8",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃債字第1060400034號",
+     "證櫃債字第1060400077號",
+     "證櫃債字第1060400138號",
+     "證櫃債字第1060400182號",
+     "證櫃債字第1060400226號"
+    ],
+    "index_dates": [
+     "2017-01-17",
+     "2017-02-15",
+     "2017-03-21",
+     "2017-04-18",
+     "2017-05-16"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 5,
+    "subjects": [
+     "主旨：檢送本中心外國公債交易系統休市通知如說明，請查照。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "2d5e96cd565320abc8f3d57fa058b7acf58e0c3454f6933a20617917cb6e603e",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0970028552號",
+     "證櫃交字第0970303587號"
+    ],
+    "index_dates": [
+     "2008-10-15",
+     "2008-10-30"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "30a4d57ef590fc8968ee652828560a4e906bc1b3b314d26d94bd714daa4f88fe",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0970304098號",
+     "證櫃交字第0980301228號"
+    ],
+    "index_dates": [
+     "2008-12-18",
+     "2009-06-01"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "33d3b75cf82264d0926607b76e1b9461ed99fadeb68f9127721f76c910f2e21e",
+    "content_files_differ": false,
+    "document_numbers": [
+     "(九三)證櫃債字第一三八九六號"
+    ],
+    "index_dates": [
+     "2004-05-17",
+     "2004-05-18"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     "中華民國九十三年五月十七日"
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "33eac64cc9ffdb8fec5467050bf05792854c9a7deafc23b0a91073b69217d642",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交 字第0940300203號",
+     "證櫃交字第0940300229號",
+     "證櫃交字第0940300253號"
+    ],
+    "index_dates": [
+     "2005-05-09",
+     "2005-05-16",
+     "2005-05-19"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 3,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "36196917a79d78352575f8361e2658493753024166e245cb1c6c20bb086573d9",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃債字第0970020251號"
+    ],
+    "index_dates": [
+     "2008-07-31",
+     "2008-08-04"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "36dd51f383e49964a406ec34366fb00af08f6d66318576cc5bbcb3bf89949c29",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃資字第0940500160號"
+    ],
+    "index_dates": [
+     "2005-12-21",
+     "2005-12-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "383383690122cca33612d75e46e3aea9b5acd79f0f373a98222cba699053b0dc",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0970303640號",
+     "證櫃交字第0990302596號"
+    ],
+    "index_dates": [
+     "2008-10-20",
+     "2010-06-24"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "39803a1ecb569a90ea8a551c8197b1a1092f212efc2266d663d7889e4f5d781d",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃監字第0960202794號"
+    ],
+    "index_dates": [
+     "2007-08-24",
+     "2007-08-27"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "3a49a2d6a4ca5e1b315814a1570b3424bca8b4765a35c1a371accb946f28f464",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃資字第0950500170號"
+    ],
+    "index_dates": [
+     "2006-12-12",
+     "2006-12-13"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "3ac353eb3c0d4c452909c6ae12e4de062a571df2cc724271456bbac5e7f610ee",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃監字第0950021987號",
+     "證櫃監字第0950201046號",
+     "證櫃監字第0960022724號",
+     "證櫃監字第0980016289號"
+    ],
+    "index_dates": [
+     "2006-04-13",
+     "2006-08-18",
+     "2007-08-03",
+     "2009-07-21"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 4,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "3e06f687509ac5d2f8535af6e782212913d3e20f80021c92eaeb72b602e6ecbb",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃監字第1040024583號",
+     "證櫃監字第1040026641號"
+    ],
+    "index_dates": [
+     "2015-08-28",
+     "2015-09-16"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "主旨：轉知財團法人中華民國會計研究發展基金會審議之2015年版「農業：生產性植物」正體中文版草案之意見徵詢，詳如說明，請 查照。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "3ee6400e5abd022d712b42d11238a70a9ddb2c67817c186cb7c8add7595a9910",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃監字第0940202960號"
+    ],
+    "index_dates": [
+     "2005-12-21",
+     "2005-12-22"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     "1787"
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "45960d0e28ff710915633f60ea7d2e0947d891b15e1160294ad8393bcaa836fe",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字94字0009634號",
+     "證櫃交字第0940005602號",
+     "證櫃交字第0940006837號",
+     "證櫃交字第0940007101號",
+     "證櫃交字第0940007543號",
+     "證櫃交字第0940009072號",
+     "證櫃交字第0940300167號",
+     "證櫃交字第0940300427號",
+     "證櫃交字第0940300462號"
+    ],
+    "index_dates": [
+     "2005-03-09",
+     "2005-03-22",
+     "2005-03-24",
+     "2005-03-29",
+     "2005-04-12",
+     "2005-04-15",
+     "2005-05-04",
+     "2005-06-01",
+     "2005-06-07"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 9,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "465eb0963af4f0ad505482b6d5d4fbc361982bc21545e335a4378cad704f24c3",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第1020302627號",
+     "證櫃交字第1020302747號"
+    ],
+    "index_dates": [
+     "2013-09-17",
+     "2013-10-03"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "主旨：公告易福股份有限公司股票處置措施及期間。說明："
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "49dbec940e555828a1a7e3a117b9586336c2f682a4677a598fc7d7c62a7465ca",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃監字第0940032367號"
+    ],
+    "index_dates": [
+     "2005-12-14",
+     "2005-12-15"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "4ca22f4ac95ba60b9c473eb41028cae0cb353fae2e47d00abceadc5f46528d4c",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃審字第1030030563號",
+     "證櫃審字第1060003804號"
+    ],
+    "index_dates": [
+     "2014-11-10",
+     "2017-02-21"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "主旨：修訂「一般行業IFRSs資產負債表及綜合損益表會計項目及代碼」、「一般行業IFRSs現金流量表及權益變動表會計項目及代碼」如說明，請 ...",
+     "主旨：修訂「一般行業IFRSs資產負債表及綜合損益表會計項目及代碼」、「一般行業IFRSs現金流量表及權益變動表會計項目及代碼」如說明，請查..."
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "4cab1d82a5ef4d6f04ce6bdb3dfd6c2647ede0dd480d848fa12fa26f6381bfdd",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0950300471號",
+     "證櫃交字第0950300748號"
+    ],
+    "index_dates": [
+     "2006-02-24",
+     "2006-03-24"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "4d3a6e702161d639fe94b9bbb3973b1f343a52ffc79ac81ae070f15cd9780f39",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0980301486號",
+     "證櫃交字第0980303516號"
+    ],
+    "index_dates": [
+     "2009-06-22",
+     "2009-11-09"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "4d87123bb807db463a1d3bd0261bc0b05bf14d936451777d147aead27f9bd9d0",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃監字第1040023166號",
+     "證櫃監字第1040024818號"
+    ],
+    "index_dates": [
+     "2015-08-19",
+     "2015-08-28"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     "主旨：轉知財團法人中華民國會計研究發展基金會審議之2015年版「可接受之折舊及攤銷方法之闡釋」正體中文版草案之意見徵詢，詳如說明，請 查照。"
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "4e001683199aa366f8e6d9f2608039c347f05a3354385bef122efb56a95290a7",
+    "content_files_differ": false,
+    "document_numbers": [
+     "證櫃債字第0940014378號"
+    ],
+    "index_dates": [
+     "2005-06-03",
+     "2005-06-06"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "4e3bf5a2ffd21f62cb85cfada6d0ffd7c1c02c05f423dfd6b9f2cd04b5e050b7",
+    "content_files_differ": false,
+    "document_numbers": [
+     "(九三)證櫃債字第一四八六四號"
+    ],
+    "index_dates": [
+     "2004-05-27",
+     "2004-05-28"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     "中華民國九十三年五月二十八日"
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT"
+   },
+   {
+    "body_sha256": "545c9f7a2181f7946274dabd564eee73aa4d45ad53b142b9b2c506ae15c8728b",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃監字第0950201299號",
+     "證櫃監字第0990201181號"
+    ],
+    "index_dates": [
+     "2006-05-11",
+     "2010-09-10"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "56d575dda1a0e6d5a2c62d38b960379925ab44daff3c7097c735f31348da9d0a",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃審字第0980100089號",
+     "證櫃監字第0980200104號"
+    ],
+    "index_dates": [
+     "2009-01-20",
+     "2009-01-21"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "5d633c474a9d7063bf31b64f9c54f6cbf299805fa8aead37d541d49a766287a4",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃審字第0970101408號",
+     "證櫃審字第0980100006號"
+    ],
+    "index_dates": [
+     "2008-08-27",
+     "2009-01-09"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "5f992a38bfa582f688ebbf2dc80875fd323728c90765cabb0eb3dfb5741ecfc8",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0960307261號",
+     "證櫃交字第0970302268號"
+    ],
+    "index_dates": [
+     "2007-12-27",
+     "2008-05-29"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 2,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   },
+   {
+    "body_sha256": "6034d683e28ee1e25719d8c779d365076eb6d9e617cdf1adfeab190dc7dbb085",
+    "content_files_differ": true,
+    "document_numbers": [
+     "證櫃交字第0940003418號",
+     "證櫃交字第0950300069號",
+     "證櫃交字第0950300852號",
+     "證櫃交字第0950301170號",
+     "證櫃交字第0950301611號",
+     "證櫃交字第0950302018號",
+     "證櫃交字第0950302724號",
+     "證櫃交字第0960300103號",
+     "證櫃交字第0960300702號",
+     "證櫃交字第0960300860號",
+     "證櫃交字第0960301063號",
+     "證櫃交字第0960301378號",
+     "證櫃交字第0960304183號",
+     "證櫃交字第0960305199號",
+     "證櫃交字第0960305646號",
+     "證櫃交字第0960306159號",
+     "證櫃交字第0970300086號",
+     "證櫃交字第0970300191號",
+     "證櫃交字第0970300405號",
+     "證櫃交字第0970300547號",
+     "證櫃交字第0970300646號",
+     "證櫃交字第0970300688號",
+     "證櫃交字第0970301155號",
+     "證櫃交字第0970301308號",
+     "證櫃交字第0970301463號",
+     "證櫃交字第0970302183號",
+     "證櫃交字第0970302517號",
+     "證櫃交字第0970302602號",
+     "證櫃交字第0970302710號",
+     "證櫃交字第0970302901號"
+    ],
+    "index_dates": [
+     "2005-02-14",
+     "2006-01-10",
+     "2006-03-30",
+     "2006-04-27",
+     "2006-06-09",
+     "2006-07-11",
+     "2006-09-06",
+     "2007-01-08",
+     "2007-03-03",
+     "2007-03-15",
+     "2007-04-03",
+     "2007-04-30",
+     "2007-08-10",
+     "2007-09-17",
+     "2007-10-11",
+     "2007-11-05",
+     "2008-01-07",
+     "2008-01-10",
+     "2008-01-21",
+     "2008-01-28",
+     "2008-02-05",
+     "2008-02-14",
+     "2008-03-13",
+     "2008-03-20",
+     "2008-04-03",
+     "2008-05-22",
+     "2008-06-19",
+     "2008-06-26",
+     "2008-07-07",
+     "2008-07-24"
+    ],
+    "locators_differ": true,
+    "publication_dates": [
+     ""
+    ],
+    "securities_named": [
+     ""
+    ],
+    "size": 30,
+    "subjects": [
+     ""
+    ],
+    "verdict": "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT"
+   }
+  ],
+  "groups_reported": 60,
+  "groups_sharing_a_body_text": 145,
+  "locators_inside_shared_groups": 398,
+  "verdicts": {
+   "DISTINCT_OFFICIAL_DOCUMENTS_WITH_IDENTICAL_BODY_TEXT": 87,
+   "DUPLICATE_INDEXING_OF_SAME_OFFICIAL_DOCUMENT": 58
+  }
+ },
+ "U6_frozen_document_equivalence_rule": {
+  "body_hash_equality_alone_is_sufficient": false,
+  "collapse_requires": [
+   "identical normalized substantive body text",
+   "official document numbers equal or at most one present",
+   "publication dates equal or at most one present",
+   "the set of securities named must not conflict"
+  ],
+  "on_conflict": "the documents are retained separately"
+ },
+ "U7_blast_radius": {
+  "changed": [],
+  "events_whose_document_multiplicity_changes": 0,
+  "per_event": [
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 2,
+    "security_id": "6157"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4110"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "documents_hash_only": 2,
+    "documents_under_frozen_rule": 2,
+    "linked_locators": 2,
+    "security_id": "6017"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "documents_hash_only": 2,
+    "documents_under_frozen_rule": 2,
+    "linked_locators": 2,
+    "security_id": "5528"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5436"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "documents_hash_only": 2,
+    "documents_under_frozen_rule": 2,
+    "linked_locators": 2,
+    "security_id": "5494"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6178"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5818"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3298"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "2921"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3389"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "documents_hash_only": 2,
+    "documents_under_frozen_rule": 2,
+    "linked_locators": 2,
+    "security_id": "8705"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6008"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3582"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5466"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "8079"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "8266"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3658"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5384"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6022"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3553"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6105"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5491"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6554"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3068"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3428"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6298"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4103"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3299"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5255"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5480"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "1566"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4180"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "documents_hash_only": 2,
+    "documents_under_frozen_rule": 2,
+    "linked_locators": 2,
+    "security_id": "5317"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "1787"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "8913"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3562"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4947"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6238"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5349"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4152"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "2928"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3144"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "8406"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4429"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5102"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5820"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6247"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6594"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "5281"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4944"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "8418"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6514"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "8420"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6457"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4945"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "6747"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "4987"
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "documents_hash_only": 1,
+    "documents_under_frozen_rule": 1,
+    "linked_locators": 1,
+    "security_id": "3426"
+   }
+  ],
+  "rerun_required": false,
+  "zero_blast_radius_proved_arithmetically": true
+ },
+ "artefacts_rewritten": 0,
+ "audit_sha256": "611ca5604ba352e5718436d3f36407c90266f89d96982bddb151750e91b87cc2",
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "linkage_changed": false,
+ "network_requests": 0,
+ "reader_changed": false,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_4_U5_DOCUMENT_EQUIVALENCE_AUDIT",
+ "replay_started": false,
+ "states_unchanged": true,
+ "successor_side_acquisition": false,
+ "third_party_mirrors_consulted": false
+}

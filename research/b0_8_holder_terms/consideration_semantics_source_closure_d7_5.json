@@ -1,0 +1,119 @@
+{
+ "AB1_starting_census": {
+  "CASH_ONLY": 22,
+  "CONFIRMED_STOCK_BEARING": 30,
+  "MIXED": 3,
+  "STOCK_ONLY": 27,
+  "note": "6514 folded back into semantic-unknown (AB1/AB3): a boundary is an acquisition_status, not a non-stock semantic verdict",
+  "semantic_unknown_population": [
+   "5384",
+   "5491",
+   "3562",
+   "5818",
+   "8705",
+   "3582",
+   "6514"
+  ],
+  "stock_bearing_lower_bound": 30,
+  "stock_bearing_upper_bound": 37
+ },
+ "AB2_two_axis_results": {
+  "3562": {
+   "acquisition_status": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "consideration_semantics": "UNKNOWN",
+   "family_tested_in_d7_5": "holdco annual-report family accessible (not a boundary)",
+   "remaining_untested_family": "SUCCESSOR_PROSPECTUS(股份轉換公開說明書)/OCR",
+   "survivor": "新晶投控(3713)"
+  },
+  "3582": {
+   "acquisition_status": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "consideration_semantics": "UNKNOWN",
+   "family_tested_in_d7_5": "successor MOPS N/A (unlisted)",
+   "remaining_untested_family": "surviving-entity formal disclosure / merger circular",
+   "survivor": "台灣威世光電(unlisted)"
+  },
+  "5384": {
+   "acquisition_status": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "consideration_semantics": "UNKNOWN",
+   "family_tested_in_d7_5": "holdco annual-report retrievable & text-extractable (not a boundary); 股份轉換 公開說明書 not yet retrieved",
+   "remaining_untested_family": "SUCCESSOR_PROSPECTUS(股份轉換公開說明書)/OCR",
+   "survivor": "鑫聯大投控(3709)"
+  },
+  "5491": {
+   "acquisition_status": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "consideration_semantics": "UNKNOWN",
+   "family_tested_in_d7_5": "MOPS t57sb01 driven end-to-end: annual-report PDFs retrievable, pypdf text OK (F02 70pp/23887 chars); specific consideration in 公開說明書 (empty on this flow)",
+   "remaining_untested_family": "SUCCESSOR_PROSPECTUS(股份轉換公開說明書)/OCR",
+   "survivor": "連展投控(3710)"
+  },
+  "5818": {
+   "acquisition_status": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "consideration_semantics": "UNKNOWN",
+   "family_tested_in_d7_5": "successor MOPS N/A (unlisted); STK003 no coverage",
+   "remaining_untested_family": "banking-regulator merger approval / formal filing",
+   "survivor": "花旗(台灣)商業銀行(unlisted)"
+  },
+  "6514": {
+   "acquisition_status": "PUBLIC_AUTHORITATIVE_BOUNDARY",
+   "consideration_semantics": "UNKNOWN",
+   "family_tested_in_d7_5": "op-co -KY MOPS refused; domestic families inapplicable; foreign successor has no publicly-authoritative TW-accessible disclosure (foreign family SOURCE_PUBLICLY_UNAVAILABLE)",
+   "remaining_untested_family": null,
+   "survivor": "UMT Holdings (Samoa/Cayman, foreign private)"
+  },
+  "8705": {
+   "acquisition_status": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "consideration_semantics": "UNKNOWN",
+   "family_tested_in_d7_5": "successor MOPS N/A (unlisted)",
+   "remaining_untested_family": "surviving-entity formal disclosure / merger circular",
+   "survivor": "台灣史丹利安防系統(unlisted)"
+  }
+ },
+ "AB8_boundary_audit": {
+  "6514_qualifies": true,
+  "boundary_events": [
+   "6514"
+  ],
+  "criterion": "every applicable frozen first-party family tested-and-absent/unavailable OR proven inapplicable; none left UNTESTED or ROUTING_UNRESOLVED",
+  "holdco_and_nonpublic_do_NOT_qualify_reason": "an applicable first-party family (holdco 股份轉換 公開說明書; unlisted-survivor formal/regulatory filing) remains retrievable in principle but not yet exhausted -- these are NOT boundaries"
+ },
+ "AB9_denominator": {
+  "FINAL_CONFIRMED_CASH_ONLY": 22,
+  "FINAL_CONFIRMED_STOCK_BEARING": 30,
+  "FINAL_CONSIDERATION_SEMANTICS_UNKNOWN": 7,
+  "FINAL_MIXED": 3,
+  "FINAL_STOCK_ONLY": 27,
+  "UNKNOWN_DUE_TO_PUBLIC_AUTHORITATIVE_BOUNDARY": 1,
+  "UNKNOWN_DUE_TO_SOURCE_FAMILY_NOT_EXHAUSTED": 6,
+  "acquisition_workflow_closed": false,
+  "exact_stock_denominator_closed": false,
+  "reading": "exact stock denominator NOT closed: 7 semantic-unknown remain (6 source-family-not-exhausted + 1 foreign boundary). Acquisition workflow NOT closed while 6 families remain testable. Confirmed stock-bearing 30; upper 37",
+  "stock_bearing_lower_bound": 30,
+  "stock_bearing_upper_bound": 37
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_materialized": false,
+ "cash_settlement_hunting": false,
+ "closure_sha256": "29cc8d4d54b2fa5ca7616d86a7e8bcad8f97e009e987abfbeeddaa1a3c82df9b",
+ "consideration_grammar_changed": false,
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "inputs": {
+  "d7_4_closure_sha256": "91bd77b861ebe812cdc129a9757a1150878c566665daef4461a01a9ab56dcc23"
+ },
+ "population_reconciliation": {
+  "CASH_ONLY": 22,
+  "MIXED": 3,
+  "SEMANTIC_UNKNOWN": 7,
+  "STOCK_ONLY": 27,
+  "total": 59
+ },
+ "prior_artefacts_rewritten": 0,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_unchanged": true,
+ "record": "B0_8_D7_5_CONSIDERATION_SEMANTICS_SOURCE_CLOSURE",
+ "replay_started": false,
+ "states_unchanged": true,
+ "termination_branch_reopened": false,
+ "third_party_mirrors_consulted": false
+}

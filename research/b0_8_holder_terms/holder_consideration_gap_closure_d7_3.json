@@ -1,0 +1,304 @@
+{
+ "Z11_final_denominator": {
+  "FINAL_CASH_ONLY": 22,
+  "FINAL_CONFIRMED_STOCK_BEARING": 27,
+  "FINAL_MIXED": 3,
+  "REMAINING_CONSIDERATION_UNKNOWN": 10,
+  "reading": "confirmed lower bound 27 stock-bearing; up to 10 of the remaining unknowns could still be stock or mixed",
+  "stock_leg_denominator_closed": false
+ },
+ "Z1_d7_2_presence_rebase": {
+  "6105_reclassified": "CASH_ONLY -> its successor/counterparty listing field is NOT holder stock-successor evidence",
+  "holder_stock_listing_confirmed": [
+   "4110",
+   "5466",
+   "1566",
+   "4429"
+  ],
+  "prevalence_not_computed": true,
+  "successor_share_credit_confirmed": [
+   "8420"
+  ]
+ },
+ "Z5_source_registry": {
+  "disappearing_issuer_mops": "refused after delisting (D7.0b-2); not usable",
+  "families_frozen_before_outcome_inspection": [
+   "surviving/acquiring issuer MOPS same-transaction announcement",
+   "first-party company directories (TWSE/TPEx) + MOPS autocomplete"
+  ],
+  "forbidden": [
+   "third-party mirrors",
+   "TEJ",
+   "price inference",
+   "search-engine snippets"
+  ],
+  "termination_discovery_branch": "CLOSED, not reopened"
+ },
+ "Z8_gap_results": {
+  "CASH_ONLY_ESTABLISHED": 0,
+  "CONSIDERATION_STILL_NOT_ESTABLISHED": 10,
+  "MIXED_ESTABLISHED": 0,
+  "STOCK_ONLY_ESTABLISHED": 2,
+  "counts": {
+   "CONSIDERATION_STILL_NOT_ESTABLISHED": 10,
+   "STOCK_ONLY_ESTABLISHED": 2
+  },
+  "population": 12
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_materialized": false,
+ "cash_settlement_hunting": false,
+ "closure_sha256": "2366c34594cdd3e8c4c3250deca3ae96516ac9c11f83b5e3d07bfe4d17f5d9ec",
+ "confirmed_stock_bearing_lower_bound_before_d7_3": 25,
+ "d7_2_1_artefact_rewritten": false,
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "historical_d7_2_1_census": {
+  "CASH_ONLY": 22,
+  "CONSIDERATION_NOT_ESTABLISHED": 12,
+  "MIXED_STOCK_AND_CASH": 3,
+  "STOCK_ONLY": 22
+ },
+ "inputs": {
+  "d7_2_1_census_sha256": "99e203e763cd6e10330d983b43882e9169168de884a65b219caba17917f560da"
+ },
+ "per_event": [
+  {
+   "counterparty_survivor": null,
+   "disappearing_entity": "振遠科技股份有限公司",
+   "holder_cash": false,
+   "holder_security": false,
+   "reason": "no merger/share-conversion counterparty stated in the authoritative bundle (administrative delisting)",
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "security_id": "6178",
+   "survivor_route": null,
+   "transaction_named": false
+  },
+  {
+   "counterparty_survivor": "花旗(台灣)商業銀行股份有限公司",
+   "disappearing_entity": "華僑商業銀行",
+   "holder_cash": false,
+   "holder_security": false,
+   "reason": "survivor is unlisted / foreign; no first-party MOPS consideration route",
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "security_id": "5818",
+   "survivor_public_status": "NONPUBLIC_OR_FOREIGN_SURVIVOR",
+   "survivor_route": null,
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "致新科技股份有限公司",
+   "disappearing_entity": "圓創科技股份有限公司",
+   "holder_cash": false,
+   "holder_security": true,
+   "issuer_public_security_status": "PUBLIC_SECURITY_ID_ESTABLISHED",
+   "linked_doc_count": 2,
+   "result": "STOCK_ONLY_ESTABLISHED",
+   "same_transaction_linked_docs": [
+    {
+     "date": "97/02/29",
+     "evidence": {
+      "cash": null,
+      "stock": "換股比例"
+     },
+     "holder_cash": false,
+     "holder_security": true,
+     "subject": "公告本公司董事會決議合併圓創科技股份有限公司，\n以本公司為存續公司"
+    },
+    {
+     "date": "97/06/10",
+     "evidence": {
+      "cash": null,
+      "stock": "換股比例"
+     },
+     "holder_cash": false,
+     "holder_security": true,
+     "subject": "本公司董事會決議調整本公司與圓創科技股份有限公司\n合併換股比例及變更合併基準日案"
+    }
+   ],
+   "security_id": "3298",
+   "stock_consideration_issuer": "致新科技股份有限公司",
+   "survivor_history_available": true,
+   "survivor_route": {
+    "board": "TWSE",
+    "code": "8081",
+    "source": "STATIC_DIRECTORY"
+   },
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "特力屋股份有限公司",
+   "disappearing_entity": "特力和樂股份有限公司",
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc_count": 0,
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "same_transaction_linked_docs": [],
+   "security_id": "2921",
+   "survivor_history_available": true,
+   "survivor_route": {
+    "board": "MOPS",
+    "code": "7867",
+    "source": "MOPS_AUTOCOMPLETE"
+   },
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "文曄科技股份有限公司",
+   "disappearing_entity": "志遠電子股份有限公司",
+   "holder_cash": false,
+   "holder_security": true,
+   "issuer_public_security_status": "PUBLIC_SECURITY_ID_ESTABLISHED",
+   "linked_doc_count": 3,
+   "result": "STOCK_ONLY_ESTABLISHED",
+   "same_transaction_linked_docs": [
+    {
+     "date": "",
+     "evidence": {
+      "cash": null,
+      "stock": "換股比例"
+     },
+     "holder_cash": false,
+     "holder_security": true,
+     "subject": "公告董事會決議本公司以股份轉換方式取得志遠電子股份有限公司\n所有股權"
+    },
+    {
+     "date": "",
+     "evidence": {
+      "cash": null,
+      "stock": "換股比例"
+     },
+     "holder_cash": false,
+     "holder_security": true,
+     "subject": "依據「公開發行公司取得或處分資產處理準則」規定公告：\n本公司以股份轉換方式取得志遠電子股份有限公司所有股權"
+    },
+    {
+     "date": "",
+     "evidence": {
+      "cash": null,
+      "stock": null
+     },
+     "holder_cash": false,
+     "holder_security": false,
+     "subject": "公告董事會決議通過變更本公司與志遠電子股份有限公司之\n股份轉換基準日"
+    }
+   ],
+   "security_id": "3389",
+   "stock_consideration_issuer": "文曄科技股份有限公司",
+   "survivor_history_available": true,
+   "survivor_route": {
+    "board": "TWSE",
+    "code": "3036",
+    "source": "STATIC_DIRECTORY"
+   },
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "台灣史丹利安防系統股份有限公司",
+   "disappearing_entity": "東隆五金工業股份有限公司",
+   "holder_cash": false,
+   "holder_security": false,
+   "reason": "survivor is unlisted / foreign; no first-party MOPS consideration route",
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "security_id": "8705",
+   "survivor_public_status": "NONPUBLIC_OR_FOREIGN_SURVIVOR",
+   "survivor_route": null,
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "中華開發金融控股股份有限公司",
+   "disappearing_entity": "凱基證券股份有限公司",
+   "holder_cash": false,
+   "holder_security": false,
+   "reason": "survivor is unlisted / foreign; no first-party MOPS consideration route",
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "security_id": "6008",
+   "survivor_public_status": "NONPUBLIC_OR_FOREIGN_SURVIVOR",
+   "survivor_route": null,
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "台灣威世光電股份有限公司",
+   "disappearing_entity": "凌耀科技股份有限公司",
+   "holder_cash": false,
+   "holder_security": false,
+   "reason": "survivor is unlisted / foreign; no first-party MOPS consideration route",
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "security_id": "3582",
+   "survivor_public_status": "NONPUBLIC_OR_FOREIGN_SURVIVOR",
+   "survivor_route": null,
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "鑫聯大投資控股股份有限公司",
+   "disappearing_entity": "",
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc_count": 0,
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "same_transaction_linked_docs": [],
+   "security_id": "5384",
+   "survivor_history_available": true,
+   "survivor_route": {
+    "board": "TPEX",
+    "code": "3709",
+    "source": "STATIC_DIRECTORY"
+   },
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "連展投資控股股份有限公司",
+   "disappearing_entity": "",
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc_count": 0,
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "same_transaction_linked_docs": [],
+   "security_id": "5491",
+   "survivor_history_available": true,
+   "survivor_route": {
+    "board": "TPEX",
+    "code": "3710",
+    "source": "STATIC_DIRECTORY"
+   },
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "新晶投資控股股份有限公司",
+   "disappearing_entity": "",
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc_count": 0,
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "same_transaction_linked_docs": [],
+   "security_id": "3562",
+   "survivor_history_available": true,
+   "survivor_route": {
+    "board": "TPEX",
+    "code": "3713",
+    "source": "STATIC_DIRECTORY"
+   },
+   "transaction_named": true
+  },
+  {
+   "counterparty_survivor": "UMTCayman",
+   "disappearing_entity": "芮特科技股份有限公司",
+   "holder_cash": false,
+   "holder_security": false,
+   "reason": "survivor is unlisted / foreign; no first-party MOPS consideration route",
+   "result": "CONSIDERATION_STILL_NOT_ESTABLISHED",
+   "security_id": "6514",
+   "survivor_public_status": "NONPUBLIC_OR_FOREIGN_SURVIVOR",
+   "survivor_route": null,
+   "transaction_named": true
+  }
+ ],
+ "reconstruction_classification_changed": 0,
+ "reconstruction_schema_unchanged": true,
+ "record": "B0_8_D7_3_HOLDER_CONSIDERATION_GAP_CLOSURE",
+ "replay_started": false,
+ "states_unchanged": true,
+ "termination_branch_reopened": false,
+ "third_party_mirrors_consulted": false
+}

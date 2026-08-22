@@ -1,0 +1,466 @@
+{
+ "READER_IS_BLIND_TO_THIS_VINTAGE": true,
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "corpus": {
+  "pre_2005_bodies": 13798,
+  "scanned": 13797,
+  "unreadable_or_absent": 1
+ },
+ "documents_hit_per_probe_kind": {
+  "ARABIC_CODE_KEYED": 13,
+  "CJK_CODE_BARE": 53,
+  "CJK_CODE_KEYED": 34,
+  "LEGAL_NAME": 31,
+  "TDCC_SHORT_NAME": 29
+ },
+ "events_reclassified_here": 0,
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "measurement_sha256": "ce11b036ff88e62d450c4d347628371e7ae5d65cc4aac88c1e656790f9244c9f",
+ "predicates_changed_here": false,
+ "probes": [
+  "ARABIC_CODE_KEYED",
+  "CJK_CODE_KEYED",
+  "CJK_CODE_BARE",
+  "LEGAL_NAME",
+  "TDCC_SHORT_NAME"
+ ],
+ "purpose": "separate 'the archive has no such document' from 'the reader cannot see documents of this vintage'",
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_2_S6C_PRE2005_SCRIPT_REACHABILITY",
+ "replay_started": false,
+ "securities_reached": {
+  "1566": {
+   "CJK_CODE_BARE": 6,
+   "CJK_CODE_KEYED": 7,
+   "LEGAL_NAME": 7
+  },
+  "1787": {
+   "CJK_CODE_BARE": 8,
+   "CJK_CODE_KEYED": 4,
+   "LEGAL_NAME": 5,
+   "TDCC_SHORT_NAME": 5
+  },
+  "2921": {
+   "CJK_CODE_BARE": 11,
+   "CJK_CODE_KEYED": 2,
+   "LEGAL_NAME": 2,
+   "TDCC_SHORT_NAME": 2
+  },
+  "2928": {
+   "CJK_CODE_BARE": 6
+  },
+  "3068": {
+   "CJK_CODE_BARE": 6,
+   "CJK_CODE_KEYED": 6,
+   "LEGAL_NAME": 9,
+   "TDCC_SHORT_NAME": 9
+  },
+  "3144": {
+   "CJK_CODE_BARE": 3,
+   "CJK_CODE_KEYED": 9,
+   "LEGAL_NAME": 10,
+   "TDCC_SHORT_NAME": 10
+  },
+  "3298": {
+   "CJK_CODE_BARE": 9,
+   "CJK_CODE_KEYED": 3,
+   "LEGAL_NAME": 4,
+   "TDCC_SHORT_NAME": 4
+  },
+  "3299": {
+   "CJK_CODE_BARE": 6,
+   "CJK_CODE_KEYED": 2,
+   "LEGAL_NAME": 5,
+   "TDCC_SHORT_NAME": 5
+  },
+  "3389": {
+   "CJK_CODE_BARE": 6
+  },
+  "3426": {
+   "CJK_CODE_BARE": 8
+  },
+  "3428": {
+   "CJK_CODE_BARE": 11
+  },
+  "3553": {
+   "CJK_CODE_BARE": 7
+  },
+  "3562": {
+   "CJK_CODE_BARE": 3
+  },
+  "3582": {
+   "CJK_CODE_BARE": 4
+  },
+  "4103": {
+   "ARABIC_CODE_KEYED": 1,
+   "CJK_CODE_BARE": 4,
+   "CJK_CODE_KEYED": 5,
+   "LEGAL_NAME": 31,
+   "TDCC_SHORT_NAME": 33
+  },
+  "4110": {
+   "CJK_CODE_BARE": 6,
+   "CJK_CODE_KEYED": 13,
+   "TDCC_SHORT_NAME": 16
+  },
+  "4180": {
+   "CJK_CODE_BARE": 2
+  },
+  "4429": {
+   "CJK_CODE_BARE": 3
+  },
+  "4944": {
+   "CJK_CODE_BARE": 2
+  },
+  "4945": {
+   "CJK_CODE_BARE": 1
+  },
+  "4947": {
+   "CJK_CODE_BARE": 3
+  },
+  "4987": {
+   "CJK_CODE_BARE": 3
+  },
+  "5102": {
+   "CJK_CODE_BARE": 4,
+   "CJK_CODE_KEYED": 4,
+   "LEGAL_NAME": 5,
+   "TDCC_SHORT_NAME": 24
+  },
+  "5255": {
+   "CJK_CODE_BARE": 4
+  },
+  "5281": {
+   "CJK_CODE_BARE": 2
+  },
+  "5317": {
+   "CJK_CODE_BARE": 3,
+   "CJK_CODE_KEYED": 2,
+   "LEGAL_NAME": 3,
+   "TDCC_SHORT_NAME": 3
+  },
+  "5349": {
+   "CJK_CODE_BARE": 5,
+   "CJK_CODE_KEYED": 3,
+   "LEGAL_NAME": 3,
+   "TDCC_SHORT_NAME": 3
+  },
+  "5384": {
+   "ARABIC_CODE_KEYED": 1,
+   "CJK_CODE_BARE": 3,
+   "CJK_CODE_KEYED": 2,
+   "LEGAL_NAME": 2,
+   "TDCC_SHORT_NAME": 2
+  },
+  "5436": {
+   "CJK_CODE_BARE": 2,
+   "CJK_CODE_KEYED": 5,
+   "LEGAL_NAME": 6,
+   "TDCC_SHORT_NAME": 6
+  },
+  "5466": {
+   "ARABIC_CODE_KEYED": 2,
+   "CJK_CODE_BARE": 8,
+   "CJK_CODE_KEYED": 11,
+   "LEGAL_NAME": 44,
+   "TDCC_SHORT_NAME": 44
+  },
+  "5480": {
+   "ARABIC_CODE_KEYED": 2,
+   "CJK_CODE_KEYED": 4,
+   "LEGAL_NAME": 6,
+   "TDCC_SHORT_NAME": 6
+  },
+  "5491": {
+   "ARABIC_CODE_KEYED": 1,
+   "CJK_CODE_BARE": 2,
+   "CJK_CODE_KEYED": 5,
+   "LEGAL_NAME": 9,
+   "TDCC_SHORT_NAME": 9
+  },
+  "5494": {
+   "ARABIC_CODE_KEYED": 1,
+   "CJK_CODE_BARE": 1,
+   "CJK_CODE_KEYED": 4,
+   "LEGAL_NAME": 7,
+   "TDCC_SHORT_NAME": 7
+  },
+  "5528": {
+   "CJK_CODE_BARE": 4,
+   "CJK_CODE_KEYED": 4,
+   "LEGAL_NAME": 7,
+   "TDCC_SHORT_NAME": 7
+  },
+  "5818": {
+   "ARABIC_CODE_KEYED": 2,
+   "CJK_CODE_BARE": 1,
+   "CJK_CODE_KEYED": 4,
+   "LEGAL_NAME": 31
+  },
+  "5820": {
+   "CJK_CODE_BARE": 1,
+   "CJK_CODE_KEYED": 5,
+   "LEGAL_NAME": 10,
+   "TDCC_SHORT_NAME": 11
+  },
+  "6008": {
+   "ARABIC_CODE_KEYED": 2,
+   "CJK_CODE_BARE": 5,
+   "CJK_CODE_KEYED": 12,
+   "LEGAL_NAME": 276
+  },
+  "6017": {
+   "ARABIC_CODE_KEYED": 2,
+   "CJK_CODE_BARE": 2,
+   "CJK_CODE_KEYED": 5,
+   "TDCC_SHORT_NAME": 114
+  },
+  "6022": {
+   "CJK_CODE_BARE": 4,
+   "CJK_CODE_KEYED": 3,
+   "LEGAL_NAME": 9,
+   "TDCC_SHORT_NAME": 1
+  },
+  "6105": {
+   "ARABIC_CODE_KEYED": 2,
+   "CJK_CODE_BARE": 3,
+   "CJK_CODE_KEYED": 5,
+   "LEGAL_NAME": 27,
+   "TDCC_SHORT_NAME": 27
+  },
+  "6157": {
+   "CJK_CODE_BARE": 1,
+   "CJK_CODE_KEYED": 7,
+   "TDCC_SHORT_NAME": 15
+  },
+  "6178": {
+   "ARABIC_CODE_KEYED": 1,
+   "CJK_CODE_BARE": 1,
+   "CJK_CODE_KEYED": 8,
+   "LEGAL_NAME": 38,
+   "TDCC_SHORT_NAME": 40
+  },
+  "6238": {
+   "CJK_CODE_KEYED": 8,
+   "LEGAL_NAME": 17
+  },
+  "6247": {
+   "CJK_CODE_BARE": 3,
+   "CJK_CODE_KEYED": 5,
+   "LEGAL_NAME": 10,
+   "TDCC_SHORT_NAME": 10
+  },
+  "6298": {
+   "CJK_CODE_BARE": 3,
+   "CJK_CODE_KEYED": 6,
+   "LEGAL_NAME": 8,
+   "TDCC_SHORT_NAME": 8
+  },
+  "6457": {
+   "CJK_CODE_BARE": 1
+  },
+  "6514": {
+   "CJK_CODE_BARE": 1
+  },
+  "6554": {
+   "CJK_CODE_BARE": 1
+  },
+  "6594": {
+   "CJK_CODE_BARE": 3
+  },
+  "6747": {
+   "CJK_CODE_BARE": 2
+  },
+  "8079": {
+   "ARABIC_CODE_KEYED": 3,
+   "CJK_CODE_BARE": 2,
+   "CJK_CODE_KEYED": 10,
+   "LEGAL_NAME": 22,
+   "TDCC_SHORT_NAME": 22
+  },
+  "8266": {
+   "ARABIC_CODE_KEYED": 4,
+   "CJK_CODE_BARE": 5,
+   "CJK_CODE_KEYED": 5,
+   "LEGAL_NAME": 9,
+   "TDCC_SHORT_NAME": 9
+  },
+  "8418": {
+   "CJK_CODE_BARE": 3
+  },
+  "8705": {
+   "CJK_CODE_BARE": 2,
+   "CJK_CODE_KEYED": 9,
+   "LEGAL_NAME": 9,
+   "TDCC_SHORT_NAME": 9
+  },
+  "8913": {
+   "CJK_CODE_BARE": 1,
+   "CJK_CODE_KEYED": 3,
+   "LEGAL_NAME": 3
+  }
+ },
+ "securities_reached_by_any_probe": 55,
+ "states_unchanged": true,
+ "successor_side_acquisition": false,
+ "the_three_none_events": {
+  "4110": {
+   "canonical_entity_known": null,
+   "evidence": [
+    {
+     "doc_id": "OTExMTI2NA==",
+     "excerpt": "司九十一年度現金增資普通股股票應行辦理事項。公告事項:一、公開申購期間:九十一年十一月二十七日至九十一年十二月二日。二、證券代號:四一一○。三、公開申購總股數:一、二六九、○○○股。四、銷售價格:每股新台幣二十七.七元整。五、申購數量:每人限購一仟股。六、申購人申購處理費繳存往來銀行截止日:九十一年",
+     "index_date": "2002-11-25",
+     "locator_identity": "a376801127b406a7b9d8265f71202825e1807d97c468f523688b20ac4bfb896b",
+     "probes": [
+      "CJK_CODE_KEYED",
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTExMjM4OA==",
+     "excerpt": "一年十二月二十五日三、上櫃股票權利與原已發行上櫃之股票相同。四、股票簽證機構上海商業儲蓄銀行信託部五、上櫃股票代號及簡稱代號:四一一○簡稱:博登其他:一、本次現金增資股款繳納憑證係直接劃撥轉入認購人指定之台灣證券集中保管股份有限公司之證券存摺帳戶,認購人不得請求交付股款繳納憑證,另認購人未能參加集保",
+     "index_date": "2002-12-24",
+     "locator_identity": "b9650721e5f3d9f7b10f474730bc7ad1d3b32bd6c26443e2b93e3a866c7bc9b3",
+     "probes": [
+      "CJK_CODE_KEYED",
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTIwMTM1Ng==",
+     "excerpt": "額零股股票各壹式,計參式。四、上櫃股票權利與原上櫃股份相同。五、股票簽證機構上海商業儲蓄銀行信託部六、上櫃股票代號及簡稱代號:四一一○簡稱:博登其他:本次上櫃股票中之增資股數一四、六五八、○○○股係先以股款繳納憑證方式上櫃買賣,該股款繳納憑證於新股上櫃同日終止上櫃。副本:博登股份有限公司、股務代理機",
+     "index_date": "2003-01-23",
+     "locator_identity": "2066e6f0f5c27f4a04319dd7fbd739671335881ba2a80d8d7200e1cca8f56118",
+     "probes": [
+      "CJK_CODE_KEYED",
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTIwMTMxOQ==",
+     "excerpt": "證券經紀、自營商主旨:更正本中心前於九十二年一月十六日以(九二)證櫃上字第○一六三四號公告博登股份有限公司(證券代號..四一一○)定期停止股東名簿記載之變更(即暫停股票過戶)之公告事項,請查照。依據:右開公司九十二年一月十三日申報書公告事項一、停止股東名簿記載變更之事由原公告內容為召開股東常會(九十",
+     "index_date": "2003-01-20",
+     "locator_identity": "c61a82212442bc88af94235b07536d3be6954b7245b0cac41fed16dbe2f79a14",
+     "probes": [
+      "CJK_CODE_BARE",
+      "TDCC_SHORT_NAME"
+     ]
+    }
+   ],
+   "probe_hits": {
+    "CJK_CODE_BARE": 6,
+    "CJK_CODE_KEYED": 13,
+    "TDCC_SHORT_NAME": 16
+   },
+   "reached_by_any_probe": true,
+   "tdcc_short_name": "博登"
+  },
+  "6017": {
+   "canonical_entity_known": null,
+   "evidence": [
+    {
+     "doc_id": "OTExMTMyMQ==",
+     "excerpt": "賣時,應繼續先收足款券始得辦理買賣。副本:財政部證券暨期貨管理委員會(第一、四組)、久陽精密股份有限公司、股務代理機構:亞洲證券股份有限公司、台灣證券集中保管股份有限公司(資訊室)、財團法人中華民國證券暨期貨市場發展基金會、中華民國證券商業同業公會、各資訊公司、各證券金融股份有限公司、本中心上櫃部、",
+     "index_date": "2002-11-28",
+     "locator_identity": "5d5e57550f698e7d91193c66a2c3527fe76f1db14cfca9e35eb3c8b8ee2c2064",
+     "probes": [
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTExMTMyMg==",
+     "excerpt": "、股票簽證機構中國農民銀行信託部七、上櫃股票代號及簡稱代號:R九○七簡稱:端強副本:端強實業股份有限公司、股務代理機構:亞洲證券股份有限公司、台灣證券集中保管股份有限公司(資訊室)、中華民國證券暨期貨市場發展基金會、中華民國證券商業同業公會、復華證券金融股份有限公司、環華證券金融股份有限公司、富邦證",
+     "index_date": "2002-11-28",
+     "locator_identity": "53e1c83e916acfb3e7955b5c630d277c686e53cd050fad6d662399b5813f6c91",
+     "probes": [
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTExMTMwMw==",
+     "excerpt": "文受文者:各櫃檯買賣證券商主旨:檢送中美矽晶製品股份有限公司股票撤銷掛失彙總明細表如附件,請查照。說明:依據股務代理機構亞洲證券股份有限公司以網際網路傳輸方式申報辦理。副本:亞洲證券股份有限公司、本中心交易部、資訊部",
+     "index_date": "2002-11-27",
+     "locator_identity": "5f80b4e22205ce4ad18eee0f2c2e6030ad764c3700fa9c95b717616eead21f6a",
+     "probes": [
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTExMTI4OA==",
+     "excerpt": "股票權利各式股票權利義務均相同。六、推薦證券商群益證券股份有限公司、永昌綜合證券股份有限公司、國票綜合證券股份有限公司、亞洲證券股份有限公司七、股票簽證機構華南商業銀行信託部八、股務代理機構群益證券股份有限公司地址:台北市忠孝東路四段八十七號十四樓電話:(○二)二七七六三三七七九、股票櫃檯買賣代號及",
+     "index_date": "2002-11-26",
+     "locator_identity": "7f61a09099ffa4171f6de29e690a63ef71d8e7b06c5335dec75ac50db11d54e7",
+     "probes": [
+      "TDCC_SHORT_NAME"
+     ]
+    }
+   ],
+   "probe_hits": {
+    "ARABIC_CODE_KEYED": 2,
+    "CJK_CODE_BARE": 2,
+    "CJK_CODE_KEYED": 5,
+    "TDCC_SHORT_NAME": 114
+   },
+   "reached_by_any_probe": true,
+   "tdcc_short_name": "亞洲證券"
+  },
+  "6157": {
+   "canonical_entity_known": null,
+   "evidence": [
+    {
+     "doc_id": "OTIwMzQzOQ==",
+     "excerpt": "本中心「業務規則」第八條、第十條之一、第十條之二、第十一條之三、第十二條之八、第三十五條之七、第三十五條之八及第七十條之一等條文(附件二)。三、依據本中心「認購(售)權證上櫃審查準則」第十六條之一第三項規定,本中心將另與台灣證券交易所協商修訂「證券商辦理有價證券買賣融資融券業務操作辦法」及「證券商辦",
+     "index_date": "2003-03-26",
+     "locator_identity": "2cef1b73a9110131b594bbd6407671729f365c470eb408460ad2bfeacb578f73",
+     "probes": [
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTIwNDM3NA==",
+     "excerpt": "年四月十一日發文字號:(九二)證櫃上字第○八六一六號受文者:各櫃檯買賣證券經紀、自營商主旨:公告一等高科技股份有限公司(證券代號:六一五七)定期停止股東名簿記載之變更(即暫停股票過戶),請查照。依據:右開公司九十二年四月七日申報書。公告事項:一、停止股東名簿記載變更之事由召開股東常會(九十二年六月二",
+     "index_date": "2003-04-11",
+     "locator_identity": "ed05c41419845acf60f3aa878db1157984baa5ade8ca1e32ae134f0a55632efb",
+     "probes": [
+      "CJK_CODE_KEYED",
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTIwODI5MQ==",
+     "excerpt": "年八月十二日發文字號:(九二)證櫃上字第二三七二八號受文者:各櫃檯買賣證券經紀、自營商主旨:公告一等高科技股份有限公司(上櫃證券代號:六一五七)定期停止股東名簿記載之變更(即暫停股票過戶),請查照。依據:右開公司九十二年八月六日申報書。公告事項:一、停止股東名簿記載變更之事由召開股東臨時會(九十二年",
+     "index_date": "2003-08-12",
+     "locator_identity": "e079655ae41a6a40aa6365df660c165bc1146aba1070726036e387bbc982889f",
+     "probes": [
+      "CJK_CODE_KEYED",
+      "TDCC_SHORT_NAME"
+     ]
+    },
+    {
+     "doc_id": "OTIwODIzMA==",
+     "excerpt": "四條規定,上櫃公司董事長及總經理之職責應明確劃分,且董事長及總經理不宜由同一人擔任,如董事長及總經理由同一人或互為配偶或一等親屬擔任,則宜增加獨立董事席次。究其理由,主要係考量因董事長兼任總經理缺乏制衡機制,就保護投資大眾之權益而言恐有不周,尚難謂符合公司治理之精神,合先敘明。二、有關前揭上櫃公司之",
+     "index_date": "2003-08-11",
+     "locator_identity": "63199a7d82e67f53cec3a28d57da9a333eb410f45ff8dfd3e4638ffe62ef53bc",
+     "probes": [
+      "TDCC_SHORT_NAME"
+     ]
+    }
+   ],
+   "probe_hits": {
+    "CJK_CODE_BARE": 1,
+    "CJK_CODE_KEYED": 7,
+    "TDCC_SHORT_NAME": 15
+   },
+   "reached_by_any_probe": true,
+   "tdcc_short_name": "一等"
+  }
+ },
+ "third_party_mirrors_consulted": false
+}

@@ -1,0 +1,1236 @@
+{
+ "158_event_register": {
+  "crossed_by_calendar_within_requested_window": 90,
+  "events_actually_held_consumed": 1,
+  "first_blocking_event": {
+   "affected_NAV_exposure": "tradable_shares=0 (fully divested by trading); two residual sub-single-share fractional claims remain open from earlier 2017 corporate actions (~0.1999... and ~0.876... of one share) -- dollar NAV impact is a fraction of one share's value, not independently priced here; the block is triggered by the OPEN CLAIM under the frozen claim-side applicability rule (B0.7/R3), not by a material NAV amount",
+   "classification": "F-CA-B",
+   "effective_date": "2020-01-14",
+   "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+   "exposure_at_boundary": {
+    "claims": [
+     "4999999999997199/25000000000000000",
+     "1095000008783686330995078643/1250000000000000000000000000"
+    ],
+    "pending_exit": 0,
+    "tradable_shares": 0
+   },
+   "holding_spells": [
+    [
+     "2017-03-01",
+     "2017-04-05"
+    ],
+    [
+     "2017-05-02",
+     "2017-08-01"
+    ]
+   ],
+   "period": "2020-01",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8913"
+  },
+  "state_blocking_events": 1,
+  "tally": {
+   "CONSUMED_AND_RECONSTRUCTIBLE": 0,
+   "CONSUMED_BUT_STATE_BLOCKED": 1,
+   "NOT_CONSUMED_BY_BACKTEST": 47,
+   "NOT_EVALUATED": 42,
+   "OUT_OF_REQUESTED_WINDOW": 68
+  },
+  "total": 158
+ },
+ "CA_BLOCKING_EVENTS": 1,
+ "approved_configuration": {
+  "baseline_seal_sha256": "c973cff3dfae700323c092551fd666f0b004def9be19bfd51233df0f797a1798",
+  "cost_model": "COMMISSION_RATE=0.001425, MIN_FEE=20.0, TAX_RATE=0.003 (sell-side), sqrt-impact IMPACT_K=1.0 (core/b0_cost_model.py)",
+  "entrypoint": "research/b0_7_diagnostic/run_b0_7_diagnostic.py --authorization \"<ref>\"",
+  "frozen_commit": "271b1106092f63e52084c6e941989ae3cd5a872a",
+  "master_version": "1.32",
+  "no_single_command_note": "the official path is a 3-step baseline-seal -> open-L2 -> run-sealed-l2 sequence and the current seal has l2_opened=false; the repeatable substitute that reuses the identical production code path is the b0_7_diagnostic runner used here",
+  "requested_periods": 141,
+  "requested_window": [
+   "2014-07-31",
+   "2026-03-31"
+  ],
+  "strategy": "Frozen B0.7 (dual100 / V0 / 本體A): real_composite Top20% ∩ c2 Top20% @ADV≥100萬, equal-weight, monthly rebalance, N_target=20, w_max=5%/name"
+ },
+ "boundary_result": "DIAGNOSTIC_BACKTEST_PARTIAL",
+ "canonical_substitutions": false,
+ "closure_sha256": "6bfe9a2719749924b891dd641998e1d20f20472d61fcecb650d9a27b11cc455f",
+ "d8_2d_r1_or_ca_remediation_resumed": false,
+ "dates_rebalances_processed": 66,
+ "decision_guidance_inputs": {
+  "affected_NAV_exposure_material": false,
+  "consumed_blockers": 1,
+  "reading": "exactly one of 158 register events was actually consumed by the strategy's own holdings, and it blocked; its economic exposure at the boundary is a sub-single-share fractional claim, not a material NAV amount. Per the decision rule in this directive, this is closest to the 'few low-exposure blockers -> resolve only the named event(s)' band, EXCEPT the run never reached periods 67-141 (42 more 158-register events fall in that unevaluated span) -- whether more, and whether larger, blockers exist beyond 2020-01 is NOT_EVALUATED and cannot be inferred from this run."
+ },
+ "diagnostic_terminal_status": "DIAGNOSTIC_NOT_EVALUABLE_CORPORATE_ACTION_RECONSTRUCTION_BLOCK",
+ "event_ledger": [
+  {
+   "effective_date": "2004-03-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2386",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2004-07-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6157",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2004-08-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2319",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2004-09-14",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4110",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2004-10-13",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6017",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-03-09",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2544",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-03-09",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5528",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-05-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5436",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-08-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2370",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-10-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2389",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-10-28",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2416",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-10-28",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2470",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-12-14",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2808",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2005-12-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2422",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-02-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2366",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-04-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2822",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-06-07",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5494",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-07-28",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6960",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-09-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3012",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-09-28",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6178",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-11-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2394",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2006-12-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2343",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2007-02-09",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3214",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2007-03-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6004",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2007-06-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6280",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2007-07-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2469",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2007-11-23",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5818",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2007-12-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2336",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2007-12-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1520",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-01-03",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3020",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-01-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2447",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-02-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "9915",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-04-11",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1311",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-05-29",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "9101",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-06-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3271",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-09-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3298",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2008-10-23",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2411",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2009-11-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2446",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2009-12-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2921",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-03-08",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3009",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-03-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3063",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-03-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2452",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-03-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2526",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-08-04",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2391",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-08-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1523",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-09-03",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6255",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-09-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3614",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-11-09",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2403",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2010-12-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1716",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2011-04-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6012",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2011-05-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2463",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2011-09-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2854",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2011-09-23",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3534",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2011-09-29",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3367",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2011-11-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5854",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2012-01-17",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3389",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2012-02-23",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6119",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2012-11-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2473",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2012-12-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8199",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2012-12-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8705",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2013-01-08",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6008",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2013-01-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3080",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2013-05-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3599",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2013-09-02",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2315",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2014-01-16",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3697",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2014-02-17",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8078",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2014-09-02",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2837",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2014-09-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5326",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2014-12-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5280",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2014-12-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3061",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2014-12-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3582",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2015-06-05",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5466",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2015-10-02",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2833",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-03-10",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2847",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-04-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6286",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-05-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3598",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-06-23",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3573",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-08-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4733",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-08-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8079",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-11-09",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8266",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-11-16",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3658",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2016-11-30",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3474",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-06-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2437",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-08-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5384",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-08-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6022",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-08-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3559",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-09-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3315",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-09-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3553",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-10-11",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6105",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-10-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1715",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2017-12-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5491",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-04-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2311",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-04-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2325",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-05-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6554",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-06-07",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3068",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-08-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4984",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2856",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3428",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3514",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3561",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6145",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6298",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-09-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6422",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-11-07",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4103",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-11-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3299",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2018-11-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5255",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2019-01-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1704",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2019-03-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5480",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2019-07-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1566",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2019-07-30",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4180",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2019-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5317",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2019-10-08",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1262",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2019-11-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1787",
+   "status": "NOT_CONSUMED_BY_BACKTEST"
+  },
+  {
+   "effective_date": "2020-01-14",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8913",
+   "status": "CONSUMED_BUT_STATE_BLOCKED"
+  },
+  {
+   "effective_date": "2020-02-17",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3562",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-05-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4947",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-05-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1902",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-06-11",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6238",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-10-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4144",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-10-22",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8497",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-10-29",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5349",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-11-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5305",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-12-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2448",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2020-12-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3698",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-01-07",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5264",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-01-12",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4725",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-09-30",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4152",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-10-14",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2928",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-10-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1724",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-12-14",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3144",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-12-20",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2823",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2021-12-29",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2456",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-04-14",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1507",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-04-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8406",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-04-27",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4141",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-05-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4429",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-07-07",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5102",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-08-15",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6251",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-11-01",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5820",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2022-12-15",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8480",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2023-02-02",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6247",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2023-03-24",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6594",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2023-10-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "5281",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2023-10-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4944",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2023-12-05",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3682",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2024-01-25",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8418",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2024-08-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "1701",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2024-10-09",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6514",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2024-11-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "8420",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2024-12-26",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6457",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2025-07-14",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2888",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2025-08-05",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6288",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2025-09-02",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4945",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2025-09-18",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "2809",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2025-11-27",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "6747",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2026-03-19",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3454",
+   "status": "NOT_EVALUATED"
+  },
+  {
+   "effective_date": "2026-05-21",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "4987",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  },
+  {
+   "effective_date": "2026-06-02",
+   "kind": "holder_side_reorganization_exit",
+   "reconstructibility": "NOT_RECONSTRUCTIBLE",
+   "security_id": "3426",
+   "status": "OUT_OF_REQUESTED_WINDOW"
+  }
+ ],
+ "existing_backtest_performance_metrics": {
+  "note": "raw NAV level only, NOT a Sharpe/CAGR/MDD -- those are explicitly withheld by the harness below 141/141 and are not computed here either",
+  "performance_computed": false,
+  "performance_displayed": false,
+  "port_value_end": [
+   "2019-12-30",
+   2208939.4237023285
+  ],
+  "port_value_max": [
+   "2015-05-29",
+   2452039.209289316
+  ],
+  "port_value_min": [
+   "2018-10-30",
+   1212299.7827120544
+  ],
+  "port_value_start": [
+   "2014-07-30",
+   2000000.0
+  ],
+  "raw_port_value_trajectory_available": true,
+  "raw_simple_change_over_evaluated_window_pct": 10.45,
+  "reason": "the harness computes and displays Sharpe/CAGR/MDD ONLY on 141/141 completion, by explicit design (\"a cumulative-wealth number from a truncated window is a number about a window that did not happen\")"
+ },
+ "git_stage_or_commit": false,
+ "last_valid_portfolio_date": "2019-12-30",
+ "new_l2_run_or_l2_opening": false,
+ "new_source_acquisition": false,
+ "other_corporate_action_activity_in_evaluated_window": {
+  "by_kind": {
+   "capital_reduction": 9,
+   "release_only": 8,
+   "stock_dividend": 60
+  },
+  "note": "unrelated to the 158 register; reported for context only",
+  "periods_with_any_ca_applied": 21
+ },
+ "parameter_tuning": false,
+ "percentage_of_requested_period_valid": 46.81,
+ "preflight": {
+  "action_taken": "ran run_b0_7_diagnostic.py --preflight-only from the CURRENT working tree (read-only, no git operation)",
+  "conclusion": "a fresh replay cannot be started from the current checkout without a git operation (checking out 271b1106), which this stage does not perform (preserves unrelated dirty work, does not touch git state); the EXISTING valid terminal run below was produced under an exact match to the sealed commit and is used instead of a fresh run",
+  "existing_run_artefact_hashes_pinned_and_matching": true,
+  "existing_run_commit_sha": "271b1106092f63e52084c6e941989ae3cd5a872a",
+  "existing_run_id": "B07DIAG-fb6b6b54381ec4f9",
+  "existing_run_unmodified_during_replay": true,
+  "result": "ABORT: PRE-REPLAY VERIFICATION FAILED -- HEAD != 271b1106 (current HEAD has moved forward via routine scheduled auto-commits and later B0.8 WIP commits, including a harmless core/b0_corporate_actions.py dead-code relocation in commit cfbc19d1)"
+ },
+ "production_scheduler_changes": false,
+ "record": "B0_9_D9_0_DIAGNOSTIC_BACKTEST_CA_IMPACT_CENSUS",
+ "requested_period": [
+  "2014-07-31",
+  "2026-03-31"
+ ],
+ "schema_consumer_changes": false,
+ "strategy_changes": 0,
+ "valid_evaluated_period": [
+  "2014-07-30",
+  "2019-12-30"
+ ]
+}

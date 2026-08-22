@@ -1,0 +1,157 @@
+{
+ "classification": {
+  "BODY_AVAILABLE": "template marker present, no refusal, no throttle",
+  "OFFICIAL_SOURCE_REFUSED": "the source returned a refusal",
+  "REQUEST_ERROR": "the source answered about the request: throttle or parameter rejection",
+  "TRANSPORT_UNRESOLVED": "no official response, or an empty body"
+ },
+ "d6_1_preserved": {
+  "census_sha256": "b60c4c38948ca39a38688959e6635e67875f497b0d4890a6bfd42c8074607a18",
+  "counts": {
+   "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS": 25,
+   "OFFICIAL_EVENT_DOCUMENT_NONE": 116,
+   "OFFICIAL_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+   "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 17
+  },
+  "none_decomposition": {
+   "NONE_DISCOVERED_BUT_LINKAGE_NOT_ESTABLISHED": 109,
+   "NONE_NO_DOCUMENT_DISCOVERED": 7
+  },
+  "router_sha256": "21562aa95dc9695b3a2e950fa19126b7d30921f149fae2da779baa4033f3f3e8"
+ },
+ "frozen_before_any_request": true,
+ "http_200_with_refusal_or_throttle_is_not_body_available": true,
+ "not_authorized": [
+  "dual extraction",
+  "holder-term materialization",
+  "RECONSTRUCTIBLE classification",
+  "CA rebuild",
+  "state rebuild",
+  "replay",
+  "NAV",
+  "performance",
+  "gates",
+  "bulk retry of all 781 documents"
+ ],
+ "per_stratum": 2,
+ "protocol_sha256": "f0f82a4b3278c9900d0b06730fd58654d8f9696d889eaead3ed186a591574b67",
+ "purpose": "can an authoritative MOPS announcement body already known to exist be acquired through a deterministic official transport path",
+ "record": "B0_8_D6_2_TRANSPORT_PROTOCOL",
+ "reissue_delay_seconds": 8,
+ "selected": [
+  {
+   "document_id": "MOPS-T05ST01:9101:20080602:141947:3",
+   "identity_sha256": "05907713c2f6591e36b0f8f6d9111941020ae1465123e739e7abb0a54b80caaa",
+   "previous_body_status": "BODY_RETRIEVED",
+   "publication_date": "2008-06-02",
+   "security_id": "9101",
+   "stratum": "BODY_AVAILABLE",
+   "subject": "新加坡福雷電子股份有限公司協議計畫生效-更正公告"
+  },
+  {
+   "document_id": "MOPS-T05ST01:9101:20080506:084824:1",
+   "identity_sha256": "0badd257c7279e1375841eb8de604aec6673411ccd3eb1ff2752bd33d9c86447",
+   "previous_body_status": "BODY_RETRIEVED",
+   "publication_date": "2008-05-06",
+   "security_id": "9101",
+   "stratum": "BODY_AVAILABLE",
+   "subject": "申報新加坡福雷電子臺灣存託憑證表彰股票所屬國交易市場每日 收盤價"
+  },
+  {
+   "document_id": "MOPS-T05ST01:4733:20160721:155719:2",
+   "identity_sha256": "008e1c0a67edd6a797f4735f8a0a3dd2ca9a240f46af6c9b60a8af1b25d147d0",
+   "previous_body_status": "BODY_WITHHELD_BY_SOURCE",
+   "publication_date": "2016-07-21",
+   "security_id": "4733",
+   "stratum": "BODY_REFUSED",
+   "subject": "公告取得臺灣證券交易所股份有限公司同意本公司終止上市 暨上緯國際投資控股股份有限公司上市。"
+  },
+  {
+   "document_id": "MOPS-T05ST01:6105:20170912:194209:6",
+   "identity_sha256": "00d99421f58d9a55b10f6fa5d10b1070cadacdd6b6aeb934dd8c47df235c56e4",
+   "previous_body_status": "BODY_WITHHELD_BY_SOURCE",
+   "publication_date": "2017-09-12",
+   "security_id": "6105",
+   "stratum": "BODY_REFUSED",
+   "subject": "公告本公司辦理第四次庫藏股註銷減資變更登記完成"
+  }
+ ],
+ "selection_blind_to": [
+  "security holdings",
+  "B0 blocker status",
+  "8913",
+  "3299",
+  "transaction consideration",
+  "apparent reconstructibility",
+  "performance"
+ ],
+ "selection_rule": "sha256(canonical_document_id) ascending",
+ "short_stratum_rule": "use all available, never top up from another",
+ "signed_url_treated_as_ephemeral": true,
+ "socket_failure_is_not_official_refusal": true,
+ "state_forbidden": [
+  "third_party_mirror",
+  "cached_copy",
+  "tej",
+  "search_engine_cache",
+  "archival_service"
+ ],
+ "state_permitted": [
+  "official MOPS cookies",
+  "official session",
+  "referer",
+  "redirect state",
+  "official signed URL",
+  "immediately preceding official request context"
+ ],
+ "steps": [
+  {
+   "id": "P0",
+   "method": "GET",
+   "name": "SESSION_BOOTSTRAP",
+   "target": "https://mops.twse.com.tw/mops/"
+  },
+  {
+   "id": "P1",
+   "method": "POST",
+   "name": "CONTEXT_LIST",
+   "target": "https://mops.twse.com.tw/mops/api/t05st01"
+  },
+  {
+   "id": "P2",
+   "method": "POST",
+   "name": "SIGNED_URL",
+   "target": "https://mops.twse.com.tw/mops/api/redirectToOld"
+  },
+  {
+   "id": "P3",
+   "method": "GET",
+   "name": "FETCH_AS_ISSUED",
+   "target": "<signed url as issued>"
+  },
+  {
+   "id": "P4",
+   "method": "GET",
+   "name": "FETCH_ON_APP_HOST",
+   "target": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters="
+  },
+  {
+   "id": "P5",
+   "method": "POST",
+   "name": "POST_ON_APP_HOST",
+   "target": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+  },
+  {
+   "id": "P6",
+   "method": "POST+GET",
+   "name": "REISSUE_AND_REFETCH",
+   "target": "<P2 then P3 after delay>"
+  }
+ ],
+ "stop_rule": "first step returning an actual announcement body",
+ "strata_populations": {
+  "BODY_AVAILABLE": 146,
+  "BODY_REFUSED": 635,
+  "BODY_TRANSPORT_UNRESOLVED_OR_UNAVAILABLE": 0
+ }
+}

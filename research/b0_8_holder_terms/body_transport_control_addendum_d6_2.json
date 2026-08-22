@@ -1,0 +1,126 @@
+{
+ "b0_8_state": "WIP, UNSEALED",
+ "bulk_retry_performed": false,
+ "control_documents": [
+  "MOPS-T05ST01:6008:20121212:161908:1",
+  "MOPS-T05ST01:2823:20211202:201044:1"
+ ],
+ "control_route_preserves_known_good_content": false,
+ "dual_extraction_performed": false,
+ "event_classifications_changed": false,
+ "finding_unrecognised_refusal_dialects": {
+  "consequence_for_adjudication": "true body availability across the 781-document register is 56, not 146; every count that rested on 146 overstates what was actually acquired",
+  "dialects": {
+   "已下市": 84,
+   "已下櫃": 6
+  },
+  "documents_recorded_as_body_retrieved": 146,
+  "frozen_markers_that_missed_them": [
+   "不繼續公開發行",
+   "查無公司資料",
+   "查無所需資料",
+   "查無資料"
+  ],
+  "refusals_recorded_as_bodies": 90,
+  "securities_affected": 15,
+  "status": "REPORTED ONLY -- no classification changed, no predicate re-frozen, D6.1 counts untouched",
+  "verified_real_announcement_bodies": 56
+ },
+ "primary_record_sha256": "d0f4b0b27c8f4bf9d7282d4a10971aed0c0cdf33f224ee9d67bad863221ba555",
+ "primary_record_unchanged": true,
+ "protocol_sha256": "f0f82a4b3278c9900d0b06730fd58654d8f9696d889eaead3ed186a591574b67",
+ "record": "B0_8_D6_2_F6_KNOWN_GOOD_CONTROL_ADDENDUM",
+ "record_sha256": "b0194c568d8b8f7c313ee74267e46e9873c04915348af5a4a340ceae4ffee268",
+ "results": [
+  {
+   "attempts": [
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P3"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "GET",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/addendum/MOPS-T05ST01_6008_20121212_161908_1.P4.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P4"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "POST",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/addendum/MOPS-T05ST01_6008_20121212_161908_1.P5.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P5"
+    }
+   ],
+   "detail_parameters": {
+    "companyId": "6008",
+    "enterDate": "1011212",
+    "marketKind": "sii",
+    "serialNumber": "1"
+   },
+   "document_id": "MOPS-T05ST01:6008:20121212:161908:1",
+   "preserved_original_still_intact": true,
+   "previous_body_status": "BODY_AVAILABLE (verified real body)",
+   "redirect_preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/addendum/MOPS-T05ST01_6008_20121212_161908_1.P2_redirect.json",
+   "redirect_raw_sha256": "395eb559f1de757e11733518efe328666f68fdc9556028aa4b5b44b5ccd6b02b",
+   "resulting_body_status": "TRANSPORT_UNRESOLVED",
+   "signed_url_issued": true,
+   "stratum": "TRUE_BODY_AVAILABLE",
+   "transport_attempted": true
+  },
+  {
+   "attempts": [
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P3"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "GET",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/addendum/MOPS-T05ST01_2823_20211202_201044_1.P4.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P4"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "POST",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/addendum/MOPS-T05ST01_2823_20211202_201044_1.P5.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P5"
+    }
+   ],
+   "detail_parameters": {
+    "companyId": "2823",
+    "enterDate": "1101202",
+    "marketKind": "sii",
+    "serialNumber": "1"
+   },
+   "document_id": "MOPS-T05ST01:2823:20211202:201044:1",
+   "preserved_original_still_intact": true,
+   "previous_body_status": "BODY_AVAILABLE (verified real body)",
+   "redirect_preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/addendum/MOPS-T05ST01_2823_20211202_201044_1.P2_redirect.json",
+   "redirect_raw_sha256": "5479cc4250bc0bd7e2eb8473a937dc23d39da550ac6c7d5f650a9df6040e36e3",
+   "resulting_body_status": "TRANSPORT_UNRESOLVED",
+   "signed_url_issued": true,
+   "stratum": "TRUE_BODY_AVAILABLE",
+   "transport_attempted": true
+  }
+ ]
+}

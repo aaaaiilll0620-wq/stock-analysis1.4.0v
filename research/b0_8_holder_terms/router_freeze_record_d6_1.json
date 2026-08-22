@@ -1,0 +1,201 @@
+{
+ "audit_findings_recorded": {
+  "acquisition_state_conflation": "OFFICIAL_EVENT_DOCUMENT_NONE conflated 'no document discovered' with 'documents discovered, bodies never acquired'; 635 of 781 v1.4 bodies were withheld by the source",
+  "discovery_under_inclusions": [
+   "A: 「終止櫃檯買賣」 absent from the event-linkage vocabulary",
+   "B: linkage tested per document while the corpus splits it across the filer's announcements in the same window",
+   "C: transaction-party extraction positional rather than role-based, admitting market operators and filing recipients"
+  ]
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "frozen_before_reclassification": true,
+ "preserved_v1_4_census": {
+  "counts": {
+   "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS": 9,
+   "OFFICIAL_EVENT_DOCUMENT_NONE": 144,
+   "OFFICIAL_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+   "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 5
+  },
+  "path": "research/b0_8_holder_terms/d6_1_historical/document_discovery_census_v1_4.json",
+  "router_sha256": "e04f411171a472a2e459aee61570afdb5cff7f4a626b729dd992e00516dd059b",
+  "sha256": "f11abea08466d46988fd63500c507c0d3955eae7109a54dac0865eced6ec8ddb",
+  "status": "HISTORICAL EVIDENCE -- not rewritten, not reclassified"
+ },
+ "record": "B0_8_D6_1_ROUTER_FREEZE",
+ "router": {
+  "acquisition_routes": [
+   {
+    "endpoint": "https://mopsov.twse.com.tw/mops/web/ajax_t05st01 (step=2)",
+    "evidence": "identical 2,528-byte 不繼續公開發行 refusal across TYPEK all/sii/otc/pub/rotc/empty on a deterministically chosen withheld document",
+    "id": "R1",
+    "serves_this_population": false
+   },
+   {
+    "endpoint": "https://mops.twse.com.tw/mops/api/t05st01",
+    "evidence": "returns historical announcements by code for 8913, 3299, 2888 and 1262; used for the discovery conformance check",
+    "id": "R2",
+    "serves_this_population": true
+   },
+   {
+    "endpoint": "https://mops.twse.com.tw/mops/api/t05st01_detail",
+    "evidence": "same 不繼續公開發行 refusal as R1",
+    "id": "R3",
+    "serves_this_population": false
+   },
+   {
+    "endpoint": "https://mops.twse.com.tw/mops/api/redirectToOld -> mopsov t05st01_detail",
+    "evidence": "the signed URL is issued, but the target endpoint closes the connection without a response for a LIVE control company as well, so the block is transport, not refusal",
+    "id": "R4",
+    "serves_this_population": "UNTESTED_END_TO_END"
+   }
+  ],
+  "acquisition_state_taxonomy": [
+   "BODY_RETRIEVED",
+   "BODY_WITHHELD_BY_SOURCE",
+   "BODY_UNREACHABLE_TRANSPORT"
+  ],
+  "b0_8_state": "WIP, UNSEALED",
+  "correction_A_event_markers_added": [
+   "終止櫃檯買賣"
+  ],
+  "correction_A_flagged_but_not_ruled_not_added": [
+   "核准本公司股票終止"
+  ],
+  "correction_B_bundle": {
+   "membership": "the documents the frozen D4 window already discovered for that event/filer",
+   "name": "AUTHORITATIVE_EVENT_DOCUMENT_BUNDLE",
+   "rule": "linkage holds when the bundle contains a document establishing the event and a document establishing the transaction; uniqueness is decided on the role-based parties named anywhere in the bundle"
+  },
+  "correction_C_role_based": {
+   "excluded_entity_tokens": [
+    "臺灣證券交易所",
+    "台灣證券交易所",
+    "證券櫃檯買賣中心",
+    "櫃檯買賣中心",
+    "臺灣集中保管結算所",
+    "台灣集中保管結算所",
+    "臺灣期貨交易所",
+    "金融監督管理委員會",
+    "證券期貨局",
+    "經濟部",
+    "公開資訊觀測站"
+   ],
+   "role_patterns": [
+    [
+     "counterparty_to_the_transaction",
+     "與\\s*([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))[^。；;]{0,20}?(?:簡易|吸收|新設)?(?:合併|股份轉換|股份交換|概括讓與|概括承受)"
+    ],
+    [
+     "surviving_company",
+     "([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))\\s*(?:為|係|擔任)\\s*存續公司"
+    ],
+    [
+     "surviving_company",
+     "存續公司\\s*[為：:]\\s*([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))"
+    ],
+    [
+     "surviving_company",
+     "合併後(?:之)?存續公司\\s*[為：:]?\\s*([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))"
+    ],
+    [
+     "extinguished_company",
+     "消滅公司\\s*[為：:]\\s*([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))"
+    ],
+    [
+     "share_transfer_acquirer",
+     "轉換為\\s*([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))\\s*(?:之)?(?:普通股|股份)"
+    ],
+    [
+     "share_transfer_acquirer",
+     "([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))\\s*(?:以|依)[^。；;]{0,20}?(?:股份轉換|換股)方式"
+    ],
+    [
+     "share_transfer_acquirer",
+     "(?:讓與|移轉)\\s*(?:予|給|至)\\s*([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))"
+    ],
+    [
+     "holding_company_formed",
+     "([一-鿿A-Za-z0-9（）()\\-\\.·]{2,30}?(?:股份有限公司|有限公司))\\s*(?:之)?(?:100%|百分之百)?\\s*(?:持股)?(?:金融)?控股(?:母)?公司"
+    ]
+   ],
+   "service_role_lookback_chars": 24,
+   "service_role_tokens": [
+    "股務代理",
+    "股務",
+    "簽證會計師",
+    "會計師事務所",
+    "律師事務所",
+    "承銷",
+    "保管機構",
+    "存託機構",
+    "存託銀行",
+    "受託",
+    "財務顧問",
+    "獨立專家",
+    "評價機構",
+    "代理機構",
+    "簽證機構",
+    "報導",
+    "媒體"
+   ]
+  },
+  "discovery_window_unchanged": true,
+  "document_identity_normalisation": "spoke_time zero-padded to six digits so the legacy and v2 surfaces name the same announcement identically",
+  "event_markers": [
+   "終止上市",
+   "終止上櫃",
+   "終止買賣",
+   "停止買賣",
+   "下市",
+   "下櫃",
+   "終止有價證券",
+   "最後交易日",
+   "終止櫃檯買賣"
+  ],
+  "none_decomposition": [
+   "NONE_NO_DOCUMENT_DISCOVERED",
+   "NONE_DISCOVERED_BUT_LINKAGE_NOT_ESTABLISHED"
+  ],
+  "not_authorized_in_this_stage": [
+   "holder-term extraction",
+   "reconstruction classification",
+   "CA rebuild",
+   "state rebuild",
+   "replay",
+   "NAV",
+   "performance",
+   "gates"
+  ],
+  "parent_router_sha256": "e04f411171a472a2e459aee61570afdb5cff7f4a626b729dd992e00516dd059b",
+  "preserved_v1_4_census_sha256": "f11abea08466d46988fd63500c507c0d3955eae7109a54dac0865eced6ec8ddb",
+  "router": "B0_8_OFFICIAL_DOCUMENT_ROUTER_D6_1",
+  "transaction_markers_contextual": [
+   "合併",
+   "控股公司"
+  ],
+  "transaction_markers_specific": [
+   "存續公司",
+   "消滅公司",
+   "合併基準日",
+   "合併解散基準日",
+   "合併契約",
+   "合併案",
+   "合併換股",
+   "簡易合併",
+   "吸收合併",
+   "新設合併",
+   "股份轉換",
+   "股份轉換基準日",
+   "股份交換",
+   "換股基準日",
+   "換股比例",
+   "概括讓與",
+   "概括承受",
+   "轉換設立",
+   "金融控股公司",
+   "投資控股公司"
+  ],
+  "version": "D6.1.1"
+ },
+ "router_sha256": "21562aa95dc9695b3a2e950fa19126b7d30921f149fae2da779baa4033f3f3e8"
+}

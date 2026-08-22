@@ -1,0 +1,1712 @@
+{
+ "b0_8_acquisition_protocol_remains_uniform_over_158": true,
+ "ca_ledger_unchanged": true,
+ "census_sha256": "7900691b64cb00f2bb7fccd61227269ba71d3ca816a27ab320ec3b2a03260af4",
+ "declared_limitations": [
+  "successor securities credited by a prior reorganization are not captured by a selection-based necessary condition",
+  "the selection layer is recomputed path-independently and does not reproduce the sealed run exactly (8913 spell opens 2017-03-01, recomputed target entry 2017-04-28)",
+  "port_value swept only over 500k .. 4.0M"
+ ],
+ "eligibility_periods_by_security": {
+  "1262": 24,
+  "1507": 31,
+  "1566": 20,
+  "1701": 66,
+  "1704": 22,
+  "1715": 6,
+  "1724": 7,
+  "1787": 30,
+  "1902": 26,
+  "2311": 24,
+  "2325": 18,
+  "2437": 15,
+  "2448": 17,
+  "2456": 59,
+  "2928": 16,
+  "3068": 26,
+  "3144": 34,
+  "3299": 24,
+  "3315": 6,
+  "3428": 32,
+  "3454": 56,
+  "3474": 7,
+  "3514": 15,
+  "3553": 8,
+  "3559": 18,
+  "3561": 12,
+  "3562": 1,
+  "3573": 3,
+  "3598": 8,
+  "3658": 12,
+  "3698": 18,
+  "4103": 12,
+  "4141": 12,
+  "4144": 24,
+  "4180": 7,
+  "4429": 3,
+  "4725": 7,
+  "4733": 16,
+  "4944": 3,
+  "4945": 24,
+  "4947": 27,
+  "4984": 29,
+  "5102": 9,
+  "5255": 21,
+  "5264": 15,
+  "5281": 11,
+  "5305": 49,
+  "5317": 18,
+  "5326": 1,
+  "5349": 32,
+  "5384": 5,
+  "5466": 5,
+  "5480": 21,
+  "5491": 8,
+  "6105": 25,
+  "6145": 14,
+  "6238": 33,
+  "6247": 4,
+  "6251": 47,
+  "6286": 19,
+  "6288": 39,
+  "6298": 25,
+  "6422": 12,
+  "6457": 40,
+  "6514": 35,
+  "6554": 6,
+  "6594": 10,
+  "6747": 24,
+  "8079": 7,
+  "8266": 1,
+  "8406": 41,
+  "8420": 43,
+  "8480": 13,
+  "8497": 12,
+  "8913": 9
+ },
+ "gates_evaluated": false,
+ "in_window_by_document_class": {
+  "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS": 6,
+  "OFFICIAL_EVENT_DOCUMENT_NONE": 32,
+  "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 8,
+  "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW": 13,
+  "STATIC_EVENT_DOCUMENT_UNIQUE": 31
+ },
+ "in_window_by_lineage": {
+  "LINEAGE_UNRESOLVED": 1,
+  "TPEX": 44,
+  "TWSE": 45
+ },
+ "is_selection_input": false,
+ "layer_a_deductive": {
+  "b0_7_periods_executed": 66,
+  "b0_7_terminal_event": "8913|holder_side_reorganization_exit|2020-01-14",
+  "basis": "all 158 are NOT_RECONSTRUCTIBLE by construction (§15.3); W-1 aborts on ANY exposed NOT_RECONSTRUCTIBLE event (§15.5); the B0.7 diagnostic executed periods 1-66 without aborting and terminated on 8913 at 2020-01-14",
+  "boundaries_after_blocker": 42,
+  "boundaries_after_blocker_by_lineage": {
+   "TPEX": 21,
+   "TWSE": 21
+  },
+  "boundaries_before_blocker": 47,
+  "boundaries_before_blocker_by_lineage": {
+   "LINEAGE_UNRESOLVED": 1,
+   "TPEX": 22,
+   "TWSE": 24
+  },
+  "exposed_among_them": 0,
+  "exposed_at_blocker": [
+   "8913"
+  ],
+  "reading": "the portfolio reached NONE of the 47 pre-blocker boundaries while holding; the open question is confined to the 42 post-blocker boundaries"
+ },
+ "layer_b2_recency_bounded_selection": {
+  "selection_last_12__port_value_1000000": {
+   "adv_floor": 5000000.0,
+   "control_false_positive_rate": 0.064,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 3,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 12,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_12__port_value_2000000": {
+   "adv_floor": 10000000.0,
+   "control_false_positive_rate": 0.064,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 3,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 12,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_12__port_value_4000000": {
+   "adv_floor": 20000000.0,
+   "control_false_positive_rate": 0.064,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 3,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 12,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_12__port_value_500000": {
+   "adv_floor": 2500000.0,
+   "control_false_positive_rate": 0.064,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 3,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 12,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_1__port_value_1000000": {
+   "adv_floor": 5000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 1,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_1__port_value_2000000": {
+   "adv_floor": 10000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 1,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_1__port_value_4000000": {
+   "adv_floor": 20000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 1,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_1__port_value_500000": {
+   "adv_floor": 2500000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 1,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_2__port_value_1000000": {
+   "adv_floor": 5000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 2,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_2__port_value_2000000": {
+   "adv_floor": 10000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 2,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_2__port_value_4000000": {
+   "adv_floor": 20000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 2,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_2__port_value_500000": {
+   "adv_floor": 2500000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 2,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_3__port_value_1000000": {
+   "adv_floor": 5000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 3,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_3__port_value_2000000": {
+   "adv_floor": 10000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 3,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_3__port_value_4000000": {
+   "adv_floor": 20000000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 3,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_3__port_value_500000": {
+   "adv_floor": 2500000.0,
+   "control_false_positive_rate": 0.0,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 0,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 3,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_6__port_value_1000000": {
+   "adv_floor": 5000000.0,
+   "control_false_positive_rate": 0.021,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 1,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 6,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_6__port_value_2000000": {
+   "adv_floor": 10000000.0,
+   "control_false_positive_rate": 0.021,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 1,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 6,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_6__port_value_4000000": {
+   "adv_floor": 20000000.0,
+   "control_false_positive_rate": 0.021,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 1,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 6,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  },
+  "selection_last_6__port_value_500000": {
+   "adv_floor": 2500000.0,
+   "control_false_positive_rate": 0.021,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 1,
+   "control_pre_blocker_total": 47,
+   "k_periods_before_boundary": 6,
+   "post_blocker_ids": [],
+   "post_blocker_possibly_exposable": 0,
+   "post_blocker_possibly_exposable_by_lineage": {}
+  }
+ },
+ "layer_b_eligibility_bound": {
+  "eligibility__port_value_1000000": {
+   "adv_floor": 5000000.0,
+   "bound": "eligibility",
+   "control_false_positive_rate": 0.809,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 38,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 34,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 17,
+    "TWSE": 17
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "1507",
+     "2022-04-14",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1701",
+     "2024-08-21",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1724",
+     "2021-10-26",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1902",
+     "2020-05-26",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2448",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2456",
+     "2021-12-29",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "2928",
+     "2021-10-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3144",
+     "2021-12-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "3698",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4141",
+     "2022-04-27",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4144",
+     "2020-10-22",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4429",
+     "2022-05-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4725",
+     "2021-01-12",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4944",
+     "2023-10-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "4945",
+     "2025-09-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5102",
+     "2022-07-07",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5264",
+     "2021-01-07",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5305",
+     "2020-11-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5349",
+     "2020-10-29",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6247",
+     "2023-02-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6251",
+     "2022-08-15",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "6288",
+     "2025-08-05",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6594",
+     "2023-03-24",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6747",
+     "2025-11-27",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8406",
+     "2022-04-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8480",
+     "2022-12-15",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "8497",
+     "2020-10-22",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 8,
+   "post_blocker_total": 42
+  },
+  "eligibility__port_value_2000000": {
+   "adv_floor": 10000000.0,
+   "bound": "eligibility",
+   "control_false_positive_rate": 0.766,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 36,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 30,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 15,
+    "TWSE": 15
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "1507",
+     "2022-04-14",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1701",
+     "2024-08-21",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1902",
+     "2020-05-26",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2448",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2456",
+     "2021-12-29",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "2928",
+     "2021-10-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3144",
+     "2021-12-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "3698",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4141",
+     "2022-04-27",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4144",
+     "2020-10-22",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4429",
+     "2022-05-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4725",
+     "2021-01-12",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4944",
+     "2023-10-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "4945",
+     "2025-09-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5264",
+     "2021-01-07",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5305",
+     "2020-11-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5349",
+     "2020-10-29",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6251",
+     "2022-08-15",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "6288",
+     "2025-08-05",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6594",
+     "2023-03-24",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6747",
+     "2025-11-27",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8406",
+     "2022-04-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8497",
+     "2020-10-22",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 12,
+   "post_blocker_total": 42
+  },
+  "eligibility__port_value_4000000": {
+   "adv_floor": 20000000.0,
+   "bound": "eligibility",
+   "control_false_positive_rate": 0.745,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 35,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 28,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 14,
+    "TWSE": 14
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "1507",
+     "2022-04-14",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1701",
+     "2024-08-21",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1902",
+     "2020-05-26",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2448",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2456",
+     "2021-12-29",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "2928",
+     "2021-10-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3144",
+     "2021-12-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "3698",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4141",
+     "2022-04-27",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4144",
+     "2020-10-22",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4725",
+     "2021-01-12",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4944",
+     "2023-10-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "4945",
+     "2025-09-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5264",
+     "2021-01-07",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5305",
+     "2020-11-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5349",
+     "2020-10-29",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6251",
+     "2022-08-15",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "6288",
+     "2025-08-05",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6594",
+     "2023-03-24",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6747",
+     "2025-11-27",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8406",
+     "2022-04-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 14,
+   "post_blocker_total": 42
+  },
+  "eligibility__port_value_500000": {
+   "adv_floor": 2500000.0,
+   "bound": "eligibility",
+   "control_false_positive_rate": 0.83,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 39,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 35,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 18,
+    "TWSE": 17
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "1507",
+     "2022-04-14",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1701",
+     "2024-08-21",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1724",
+     "2021-10-26",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "1902",
+     "2020-05-26",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2448",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "2456",
+     "2021-12-29",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "2928",
+     "2021-10-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3144",
+     "2021-12-14",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "3562",
+     "2020-02-17",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3698",
+     "2020-12-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4141",
+     "2022-04-27",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4144",
+     "2020-10-22",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4429",
+     "2022-05-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4725",
+     "2021-01-12",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4944",
+     "2023-10-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "4945",
+     "2025-09-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5102",
+     "2022-07-07",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5264",
+     "2021-01-07",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5305",
+     "2020-11-24",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "5349",
+     "2020-10-29",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6247",
+     "2023-02-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6251",
+     "2022-08-15",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "6288",
+     "2025-08-05",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6594",
+     "2023-03-24",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6747",
+     "2025-11-27",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8406",
+     "2022-04-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8480",
+     "2022-12-15",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "8497",
+     "2020-10-22",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 7,
+   "post_blocker_total": 42
+  },
+  "selection__port_value_1000000": {
+   "adv_floor": 5000000.0,
+   "bound": "selection",
+   "control_false_positive_rate": 0.213,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 10,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 9,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 8,
+    "TWSE": 1
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4945",
+     "2025-09-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6247",
+     "2023-02-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 33,
+   "post_blocker_total": 42
+  },
+  "selection__port_value_2000000": {
+   "adv_floor": 10000000.0,
+   "bound": "selection",
+   "control_false_positive_rate": 0.234,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 11,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 7,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 6,
+    "TWSE": 1
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 35,
+   "post_blocker_total": 42
+  },
+  "selection__port_value_4000000": {
+   "adv_floor": 20000000.0,
+   "bound": "selection",
+   "control_false_positive_rate": 0.234,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 11,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 8,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 6,
+    "TWSE": 2
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "2456",
+     "2021-12-29",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 34,
+   "post_blocker_total": 42
+  },
+  "selection__port_value_500000": {
+   "adv_floor": 2500000.0,
+   "bound": "selection",
+   "control_false_positive_rate": 0.213,
+   "control_pre_blocker_actual_exposed": 0,
+   "control_pre_blocker_admitted": 10,
+   "control_pre_blocker_total": 47,
+   "control_reading": "Layer A proves 0 of the 47 pre-blocker boundaries were actually exposed. A bound that admits many of them is weak; one that admits few has demonstrated discriminating power on ground truth.",
+   "post_blocker_possibly_exposable": 9,
+   "post_blocker_possibly_exposable_by_lineage": {
+    "TPEX": 8,
+    "TWSE": 1
+   },
+   "post_blocker_possibly_exposable_ids": [
+    [
+     "3454",
+     "2026-03-19",
+     "TWSE",
+     "OFFICIAL_EVENT_DOCUMENT_NONE"
+    ],
+    [
+     "4945",
+     "2025-09-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "4947",
+     "2020-05-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "5281",
+     "2023-10-25",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6238",
+     "2020-06-11",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6247",
+     "2023-02-02",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+    ],
+    [
+     "6457",
+     "2024-12-26",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "6514",
+     "2024-10-09",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ],
+    [
+     "8420",
+     "2024-11-21",
+     "TPEX",
+     "STATIC_EVENT_DOCUMENT_UNIQUE"
+    ]
+   ],
+   "post_blocker_structurally_impossible": 33,
+   "post_blocker_total": 42
+  }
+ },
+ "layer_c_engineering_priority_candidate_envelope": {
+  "by_document_class": {
+   "OFFICIAL_EVENT_DOCUMENT_NONE": 1,
+   "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 1,
+   "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW": 3,
+   "STATIC_EVENT_DOCUMENT_UNIQUE": 5
+  },
+  "by_lineage": {
+   "TPEX": 8,
+   "TWSE": 2
+  },
+  "canonical_acquisition_universe_unchanged": 158,
+  "claim_this_DOES_support": "these are the events most likely to be load-bearing, and therefore an engineering-priority ordering -- not a restriction of the canonical acquisition universe",
+  "claim_this_does_NOT_support": "only these events can ever block a replay",
+  "control_false_positive_rate_of_the_bound": 0.213,
+  "engineering_priority_candidate_set": 11,
+  "identified_under_tested_envelope": 10,
+  "is_a_strict_upper_bound_on_exposure": false,
+  "known_actual_blocker": {
+   "8913": "2020-01-14"
+  },
+  "members": [
+   [
+    "4947",
+    "2020-05-21",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+   ],
+   [
+    "6238",
+    "2020-06-11",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_UNIQUE"
+   ],
+   [
+    "2456",
+    "2021-12-29",
+    "TWSE",
+    "OFFICIAL_EVENT_DOCUMENT_UNIQUE"
+   ],
+   [
+    "6247",
+    "2023-02-02",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+   ],
+   [
+    "5281",
+    "2023-10-25",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+   ],
+   [
+    "6514",
+    "2024-10-09",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_UNIQUE"
+   ],
+   [
+    "8420",
+    "2024-11-21",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_UNIQUE"
+   ],
+   [
+    "6457",
+    "2024-12-26",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_UNIQUE"
+   ],
+   [
+    "4945",
+    "2025-09-02",
+    "TPEX",
+    "STATIC_EVENT_DOCUMENT_UNIQUE"
+   ],
+   [
+    "3454",
+    "2026-03-19",
+    "TWSE",
+    "OFFICIAL_EVENT_DOCUMENT_NONE"
+   ]
+  ],
+  "name": "11-event load-bearing candidate envelope under the tested direct-selection assumptions",
+  "post_8913_events": 42,
+  "why_not": "the three declared limitations are each a possible false-negative source: successor securities never pass through selection, the recomputed selection layer is not the sealed portfolio path, and port_value is swept only over a tested range"
+ },
+ "layer_d_exact_claim_bearing_intersection": {
+  "claim_bearing_securities_at_terminal_period": 29,
+  "claim_bearing_securities_ever": 31,
+  "evidence_class": "EXACT_FROM_ACTUAL_REPLAY_STATE",
+  "intersection_with_the_158_at_terminal_period": [
+   "8913"
+  ],
+  "intersection_with_the_158_ever": [
+   "6514",
+   "8913"
+  ],
+  "periods_covered": [
+   "2014-07",
+   "2019-12"
+  ],
+  "scope_limit": "proves only what had formed by the B0.7 terminal period; it does NOT establish that no new claim appears after 2020-01, and therefore does not narrow the B0.8 acquisition universe",
+  "source": "B0.7 retrospective diagnostic period_progress.jsonl",
+  "value": "engineering risk -- it is stronger evidence than the selection screen because it is actual replay state"
+ },
+ "nav_computed": false,
+ "performance_computed": false,
+ "population_in_window": 90,
+ "population_total": 158,
+ "purpose": "bound how many holder-side reorganization boundaries the portfolio can reach while holding, over the 141-period window",
+ "recency_bound_rejected_because": "8913's exposure at 2020-01-14 was two residual fractional claims from spells that ended 2017-08-01, thirty-one periods earlier; a last-K-periods condition is a false negative on the one known positive",
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_W1_EXPOSURE_CENSUS",
+ "result_class": "ENVELOPE_NOT_PROOF",
+ "sealed_artefacts_written": 0,
+ "selected_dates_by_security": {
+  "1704": [
+   "2015-11-27",
+   "2015-12-30",
+   "2016-01-30",
+   "2016-02-26",
+   "2016-03-30",
+   "2016-04-29",
+   "2016-05-30",
+   "2016-06-29",
+   "2016-07-29",
+   "2016-09-29"
+  ],
+  "3428": [
+   "2016-05-30"
+  ],
+  "3454": [
+   "2022-10-28",
+   "2022-11-29",
+   "2022-12-30",
+   "2023-01-30"
+  ],
+  "3559": [
+   "2015-01-30",
+   "2015-03-30",
+   "2015-04-29",
+   "2015-05-29",
+   "2015-06-29",
+   "2015-07-30"
+  ],
+  "4733": [
+   "2014-08-29",
+   "2014-09-29",
+   "2014-10-30"
+  ],
+  "4945": [
+   "2024-02-27"
+  ],
+  "4947": [
+   "2016-08-30"
+  ],
+  "4984": [
+   "2016-03-30",
+   "2016-04-29",
+   "2016-05-30",
+   "2016-06-29",
+   "2016-07-29",
+   "2016-08-30",
+   "2016-09-29",
+   "2016-10-28"
+  ],
+  "5255": [
+   "2016-12-30",
+   "2017-01-24",
+   "2017-05-26"
+  ],
+  "5281": [
+   "2018-03-30",
+   "2018-04-27"
+  ],
+  "5317": [
+   "2018-02-27",
+   "2018-08-30",
+   "2018-09-28",
+   "2018-10-30"
+  ],
+  "5466": [
+   "2014-07-30",
+   "2014-11-28",
+   "2014-12-30",
+   "2015-01-30"
+  ],
+  "5491": [
+   "2017-04-28",
+   "2017-05-26"
+  ],
+  "6105": [
+   "2015-03-30",
+   "2015-04-29"
+  ],
+  "6238": [
+   "2015-11-27"
+  ],
+  "6247": [
+   "2015-10-30"
+  ],
+  "6457": [
+   "2020-05-29",
+   "2020-06-29",
+   "2020-07-30",
+   "2020-08-28",
+   "2020-09-29",
+   "2020-10-30",
+   "2020-11-27",
+   "2020-12-30",
+   "2021-01-29",
+   "2021-02-26",
+   "2021-03-30"
+  ],
+  "6514": [
+   "2019-05-30",
+   "2019-06-28",
+   "2019-07-30",
+   "2019-11-29",
+   "2019-12-30",
+   "2020-01-30",
+   "2020-02-27"
+  ],
+  "8420": [
+   "2023-02-24",
+   "2023-03-30",
+   "2023-04-28"
+  ],
+  "8913": [
+   "2017-04-28",
+   "2017-05-26",
+   "2017-06-29"
+  ]
+ },
+ "selected_periods_by_security": {
+  "1704": 10,
+  "3428": 1,
+  "3454": 4,
+  "3559": 6,
+  "4733": 3,
+  "4945": 1,
+  "4947": 1,
+  "4984": 8,
+  "5255": 3,
+  "5281": 2,
+  "5317": 4,
+  "5466": 4,
+  "5491": 2,
+  "6105": 2,
+  "6238": 1,
+  "6247": 1,
+  "6457": 11,
+  "6514": 7,
+  "8420": 3,
+  "8913": 3
+ },
+ "used_to_scope_document_acquisition": false,
+ "window": [
+  "2014-07-30",
+  "2026-03-30"
+ ]
+}

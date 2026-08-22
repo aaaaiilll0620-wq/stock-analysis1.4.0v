@@ -1,0 +1,156 @@
+{
+ "acquisition_sizing": {
+  "ACQUIRED_DISTINCT_OFFICIAL_LOCATORS": 58120,
+  "NEVER_REQUESTED_LOCATORS": 13798,
+  "TOTAL_DISTINCT_OFFICIAL_LOCATORS": 71961,
+  "UNVERIFIED_DUPLICATE_LOCATORS": 43,
+  "naive_row_based_estimate": 13798,
+  "never_requested_by_year": {
+   "2002": 819,
+   "2003": 6295,
+   "2004": 6365,
+   "2005": 319
+  },
+  "requests_required": 13841,
+  "sample_never_requested": [
+   {
+    "content_file": "NDMxNTMuaHRt",
+    "content_file_decoded": "43153.htm",
+    "date": "2002-11-05",
+    "doc_id": "OTExMTA0MA==",
+    "doc_id_decoded": "9111040",
+    "subject": ""
+   },
+   {
+    "content_file": "NDMxMzUuaHRt",
+    "content_file_decoded": "43135.htm",
+    "date": "2002-11-05",
+    "doc_id": "OTExMTA0MQ==",
+    "doc_id_decoded": "9111041",
+    "subject": ""
+   },
+   {
+    "content_file": "NDI5NzQuaHRt",
+    "content_file_decoded": "42974.htm",
+    "date": "2002-11-05",
+    "doc_id": "OTExMTA0Mg==",
+    "doc_id_decoded": "9111042",
+    "subject": ""
+   },
+   {
+    "content_file": "NDI2NTQuaHRt",
+    "content_file_decoded": "42654.htm",
+    "date": "2002-11-05",
+    "doc_id": "OTExMTA0Mw==",
+    "doc_id_decoded": "9111043",
+    "subject": ""
+   },
+   {
+    "content_file": "NDI1MzAuaHRt",
+    "content_file_decoded": "42530.htm",
+    "date": "2002-11-05",
+    "doc_id": "OTExMTA0NA==",
+    "doc_id_decoded": "9111044",
+    "subject": ""
+   }
+  ],
+  "why_naive_estimate_is_wrong_in_both_directions": "it counts rows rather than locators, and it misses the 43 locators whose document number was already cached under a sibling locator and which were therefore never requested"
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "bodies_acquired_here": 0,
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "census_sha256": "eec035f35696b82b80e246c2a2d35e873e55f4016ecb92e1a89190bdbe918e37",
+ "defect": "PRE2005_DOCUMENT_IDENTITY_KEYING_COMPLETENESS_DEFECT",
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "identity_audit": {
+  "LOCATOR_IS_A_VALID_PRIMARY_IDENTITY": true,
+  "candidate_identity": "doc_id (with content_file as the co-field the request needs)",
+  "content_file_alone_is_an_identity": false,
+  "content_file_reuse_examples": {
+   "MDEwMDA0Ny5odG0=": [
+    "證櫃審字第0940100047號",
+    "證櫃審字第0960100047號",
+    "證櫃審字第0970100047號",
+    "證櫃審字第0980100047號"
+   ],
+   "MDIwMDEwNi5odG0=": [
+    "證櫃監字第0940200106號",
+    "證櫃監字第0970200106號",
+    "證櫃監字第0980200106號"
+   ],
+   "MDQwMDA2NC5odG0=": [
+    "證櫃債字第0940400064號",
+    "證櫃債字第0960400064號",
+    "證櫃債字第0970400064號",
+    "證櫃債字第0980400064號"
+   ]
+  },
+  "content_files_carrying_more_than_one_document_number": 5645,
+  "cross_content_file_case": {
+   "證櫃債字第0950022234號": [
+    "MDAyMjIzNC5odG0=",
+    "MDIwMzA4MS5odG0="
+   ]
+  },
+  "distinct_content_files": 62432,
+  "distinct_doc_ids": 71961,
+  "doc_ids_appearing_on_more_than_one_row": 0,
+  "doc_ids_mapping_to_more_than_one_content_file": 0,
+  "document_numbers_with_more_than_one_locator": 43,
+  "duplicate_index_entries_are_not_identity_collisions": true,
+  "locator_to_body_is_one_to_one": "NOT_ASSERTED -- a many-to-one map is measured from body sha256 after acquisition",
+  "of_those_sharing_one_content_file": 42,
+  "of_those_spanning_two_content_files": 1,
+  "verdict": "LOCATOR_IDENTITY_AUDIT_PASSED",
+  "why_not": "the filename's serial repeats across ROC years; 0400064.htm serves four different official documents"
+ },
+ "identity_frozen_here": false,
+ "index_rows": {
+  "blank_document_number_by_year": {
+   "2002": 819,
+   "2003": 6295,
+   "2004": 6365,
+   "2005": 319
+  },
+  "months_enumerated": 295,
+  "months_missing_from_cache": [
+   "2026-08",
+   "2026-09",
+   "2026-10",
+   "2026-11",
+   "2026-12"
+  ],
+  "rows_without_a_resolvable_locator": 0,
+  "total": 71961,
+  "with_blank_document_number": 13798,
+  "with_document_number": 58163
+ },
+ "nav_inspected": false,
+ "network_requests": 0,
+ "performance_inspected": false,
+ "populations": {
+  "content_files_seen_both_ways": 629,
+  "locators_seen_both_ways": 0,
+  "locators_with_a_blank_document_number": 13798,
+  "locators_with_a_document_number": 58163,
+  "reading": "no locator is shared between the two populations, so no blank-docno row points at a body already held; the 629 shared content_files are ROC-year reuse, which is why the filename cannot be the identity"
+ },
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_2_S3_SOURCE_NATIVE_LOCATOR_CENSUS",
+ "replay_started": false,
+ "run": "r2",
+ "states_unchanged": true,
+ "successor_side_acquisition": false,
+ "supersedes": {
+  "artefact_preserved": "source_native_locator_census_d6_8_2_r1.json",
+  "census_sha256": "07be1bb0bdd861387a9ca96ad740b915497917c33d757dcd504f6e8b729d8282",
+  "defect_in_r1": "r1 failed the audit on document_number -> many locators. That is the wrong direction: it describes duplicate INDEX entries, not an ambiguous identity. r1 also did not test whether content_file alone is an identity -- it is not",
+  "run": "r1"
+ },
+ "third_party_mirrors_consulted": false
+}

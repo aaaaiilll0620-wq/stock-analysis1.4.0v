@@ -1,0 +1,183 @@
+{
+ "TPEX_59_final": {
+  "CASH_ONLY": 22,
+  "CONFIRMED_STOCK_BEARING": 32,
+  "MIXED": 3,
+  "STOCK_ONLY": 29,
+  "TPEX_59_HOLDER_CONSIDERATION_DENOMINATOR_CLOSED": false,
+  "UNKNOWN": 5,
+  "consideration_acquisition_boundary": 0,
+  "reconciliation_total": 59,
+  "source_family_not_exhausted": 5
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_materialized": false,
+ "cash_settlement_hunting": false,
+ "closure_sha256": "18c4d91e67c5891cb04a33ac6e7679e98df150d5f88947bef61477c63928b2b7",
+ "consideration_grammar_changed": false,
+ "dual_extraction_started": false,
+ "inputs": {
+  "d7_5_closure_sha256": "29cc8d4d54b2fa5ca7616d86a7e8bcad8f97e009e987abfbeeddaa1a3c82df9b"
+ },
+ "method": {
+  "distinct_from": "MOPS material-announcement endpoint (refused for delisted issuers, D7.0b-2)",
+  "grammar": "frozen D7.2.1 holder-consideration grammar, unchanged",
+  "party": "the DISAPPEARING company's own filed documents",
+  "surface": "MOPS electronic-document archive (doc.twse.com.tw t57sb01)",
+  "values_materialised": false
+ },
+ "newly_cash": [],
+ "newly_mixed": [],
+ "newly_stock": [
+  "5384",
+  "5491"
+ ],
+ "per_event": {
+  "3562": {
+   "counterparty": "新晶投資控股",
+   "disappearing": "頂晶",
+   "docs_on_edoc_surface": 124,
+   "docs_scanned": 1,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc": null,
+   "listing_ok": true,
+   "result": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "semantics": "UNKNOWN",
+   "years": [
+    "2017",
+    "2018",
+    "2019"
+   ]
+  },
+  "3582": {
+   "counterparty": "威世光電",
+   "disappearing": "凌耀",
+   "docs_on_edoc_surface": 43,
+   "docs_scanned": 0,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc": null,
+   "listing_ok": true,
+   "result": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "semantics": "UNKNOWN",
+   "years": [
+    "1401",
+    "1402",
+    "1403"
+   ]
+  },
+  "5384": {
+   "counterparty": "鑫聯大投資控股",
+   "disappearing": "捷元",
+   "docs_on_edoc_surface": 114,
+   "docs_scanned": 10,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發投控公司普通股"
+    ]
+   },
+   "holder_cash": false,
+   "holder_security": true,
+   "linked_doc": "2017_5384_20170615F02.pdf",
+   "listing_ok": true,
+   "result": "STOCK_ONLY_ESTABLISHED",
+   "semantics": "STOCK_ONLY",
+   "years": [
+    "2015",
+    "2016",
+    "2017"
+   ]
+  },
+  "5491": {
+   "counterparty": "連展投資控股",
+   "disappearing": "連展",
+   "docs_on_edoc_surface": 169,
+   "docs_scanned": 3,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發連展投控公司普通股"
+    ]
+   },
+   "holder_cash": false,
+   "holder_security": true,
+   "linked_doc": "2017_5491_20170613F01.pdf",
+   "listing_ok": true,
+   "result": "STOCK_ONLY_ESTABLISHED",
+   "semantics": "STOCK_ONLY",
+   "years": [
+    "2015",
+    "2016",
+    "2017"
+   ]
+  },
+  "5818": {
+   "counterparty": "花旗",
+   "disappearing": "華僑商業銀行",
+   "docs_on_edoc_surface": null,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc": null,
+   "listing_ok": false,
+   "result": "ROUTING_OR_ACQUISITION_ERROR",
+   "semantics": "UNKNOWN"
+  },
+  "6514": {
+   "counterparty": "UMT",
+   "disappearing": "芮特",
+   "docs_on_edoc_surface": 113,
+   "docs_scanned": 0,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc": null,
+   "listing_ok": true,
+   "result": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "semantics": "UNKNOWN",
+   "years": [
+    "2304",
+    "2401",
+    "2402"
+   ]
+  },
+  "8705": {
+   "counterparty": "史丹利",
+   "disappearing": "東隆五金",
+   "docs_on_edoc_surface": 113,
+   "docs_scanned": 0,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "linked_doc": null,
+   "listing_ok": true,
+   "result": "SOURCE_FAMILY_NOT_EXHAUSTED",
+   "semantics": "UNKNOWN",
+   "years": [
+    "2010",
+    "2011",
+    "2012"
+   ]
+  }
+ },
+ "prior_artefacts_rewritten": 0,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_unchanged": true,
+ "record": "B0_8_D7_6_DISAPPEARING_PARTY_EDOC_CONSIDERATION",
+ "states_unchanged": true,
+ "still_unknown_boundary": [],
+ "still_unknown_not_exhausted": [
+  "3562",
+  "5818",
+  "8705",
+  "3582",
+  "6514"
+ ],
+ "termination_branch_reopened": false,
+ "third_party_mirrors_consulted": false
+}

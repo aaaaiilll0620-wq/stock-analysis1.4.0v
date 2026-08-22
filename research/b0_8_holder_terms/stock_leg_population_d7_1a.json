@@ -1,0 +1,2668 @@
+{
+ "V2_leg_census": {
+  "CASH_LEG_PRESENT": 14,
+  "MIXED_LEG_PRESENT": 12,
+  "NO_STOCK_LEG_EVIDENCE": 15,
+  "STOCK_LEG_PRESENT": 18
+ },
+ "V3_successor_routing": {
+  "all_marked": "DISCOVERY_METADATA_ONLY",
+  "code_to_legal_name_index_size": 2416,
+  "identity": {
+   "ESTABLISHED": 15,
+   "UNRESOLVED": 15
+  },
+  "identity_but_no_security_id": [
+   "4103",
+   "4152",
+   "4180",
+   "4429",
+   "4944",
+   "5255",
+   "5466",
+   "6105",
+   "6594",
+   "8420",
+   "8913"
+  ],
+  "security_id": {
+   "ESTABLISHED": 4,
+   "UNRESOLVED": 26
+  },
+  "unresolved_identity": [
+   "1566",
+   "3299",
+   "3428",
+   "3553",
+   "4110",
+   "4947",
+   "5317",
+   "5436",
+   "5494",
+   "5528",
+   "6017",
+   "6022",
+   "6157",
+   "6298",
+   "8266"
+  ]
+ },
+ "acquisition_population": {
+  "cash_leg_present": 14,
+  "mixed_leg_present": 12,
+  "no_stock_leg_evidence": 15,
+  "security_ids": [
+   "1566",
+   "3299",
+   "3428",
+   "3553",
+   "4103",
+   "4110",
+   "4152",
+   "4180",
+   "4429",
+   "4944",
+   "4945",
+   "4947",
+   "5255",
+   "5281",
+   "5317",
+   "5436",
+   "5466",
+   "5494",
+   "5528",
+   "5820",
+   "6017",
+   "6022",
+   "6105",
+   "6157",
+   "6298",
+   "6457",
+   "6594",
+   "8266",
+   "8420",
+   "8913"
+  ],
+  "stock_leg_present": 18,
+  "total": 30
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_leg_source_hunting": false,
+ "census_sha256": "227500e66df0b56c28888e742887358b69f28436abc1aa9e664eaa03d5b729d5",
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "inputs": {
+  "d6_8_3_census_sha256": "ba92e4b856b192cf1aac1bef68b09970c9041489928d214a026c23efd631c350",
+  "d6_8_4_closure_sha256": "762e1a8ba770de59fe618a4325c75942caf7c8701cbd2e2d74eb8fc53623fffa",
+  "termination_branch": "CLOSED, not reopened"
+ },
+ "marker_specificity_diagnostic": {
+  "events_whose_leg_depends_on_the_cash_flag": 26,
+  "note": "the frozen cash marker set includes the bare token 現金, which can fire on unrelated cash-related wording; it is reported, not changed"
+ },
+ "nav_inspected": false,
+ "network_requests": 0,
+ "performance_inspected": false,
+ "population_rule": {
+  "ambiguous_events_use_union_of_all_linked_documents": true,
+  "defined_by": "the corporate-action type read by the unchanged presence-only reader",
+  "not_defined_by": [
+   "B0 holdings",
+   "claim exposure",
+   "load-bearing envelope",
+   "replay blocker",
+   "performance",
+   "8913"
+  ],
+  "preferred_document_chosen": false,
+  "presence_reader_changed": false,
+  "sampling": false
+ },
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D7_1A_STOCK_LEG_POPULATION_AND_SUCCESSOR_ROUTING",
+ "replay_started": false,
+ "results": [
+  {
+   "bundle_is_a_union_over_all_linked_documents": true,
+   "canonical_event_date": "2004-07-21",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "一等高科技股份有限公司",
+   "disappearing_lineage": [
+    "一等高科技股份有限公司"
+   ],
+   "event_id": "6157|holder_side_reorganization_exit|2004-07-21",
+   "linked_documents": 2,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "6157",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "停止股東名簿記載變更之事由為一等高科技股份有限公司",
+     "三六股)合併換發華新科技股份有限公司",
+     "股務代理人復華綜合證券股份有限公司",
+     "復華綜合證券股份有限公司",
+     "台灣證券集中保管股份有限公司",
+     "復華證券金融股份有限公司",
+     "環華證券金融股份有限公司",
+     "富邦證券金融股份有限公司",
+     "安泰證券金融股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2004-09-14",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "博登股份有限公司",
+   "disappearing_lineage": [
+    "博登股份有限公司"
+   ],
+   "event_id": "4110|holder_side_reorganization_exit|2004-09-14",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4110",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "停止股東名簿記載變更之事由為博登股份有限公司",
+     "(一股)合併換發美吾華股份有限公司",
+     "停止股東名簿記載變更說明博登股份有限公司",
+     ")與美吾華股份有限公司",
+     "股務代理人金鼎綜合證券股份有限公司",
+     "金鼎綜合證券股份有限公司",
+     "台灣證券集中保管股份有限公司",
+     "復華證券金融股份有限公司",
+     "環華證券金融股份有限公司",
+     "富邦證券金融股份有限公司",
+     "安泰證券金融股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "金鼎綜合證券股份有限公司": [
+      "6012"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     ")與美吾華股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": true,
+   "canonical_event_date": "2004-10-13",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+   "disappearing_entity": "亞洲證券股份有限公司",
+   "disappearing_lineage": [
+    "亞洲證券股份有限公司"
+   ],
+   "event_id": "6017|holder_side_reorganization_exit|2004-10-13",
+   "linked_documents": 2,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "6017",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "停止股東名簿記載變更之事由為亞洲證券股份有限公司",
+     "三股)合併換發元大京華證券股份有限公司",
+     "停止股東名簿記載變更說明亞洲證券股份有限公司",
+     ")與元大京華證券股份有限公司",
+     "股務代理人元大京華證券股份有限公司",
+     "元大京華證券股份有限公司",
+     "台灣證券集中保管股份有限公司",
+     "復華證券金融股份有限公司",
+     "環華證券金融股份有限公司",
+     "富邦證券金融股份有限公司",
+     "安泰證券金融股份有限公司",
+     "說明亞洲證券股份有限公司",
+     "台灣證券交易所股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "元大京華證券股份有限公司": [
+      "6004",
+      "9826"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     ")與元大京華證券股份有限公司": [
+      "DISAPPEARING"
+     ],
+     "元大京華證券股份有限公司": [
+      "DISAPPEARING"
+     ],
+     "說明亞洲證券股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": true,
+   "canonical_event_date": "2005-03-09",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+   "disappearing_entity": "廣大興業股份有限公司",
+   "disappearing_lineage": [
+    "廣大興業股份有限公司"
+   ],
+   "event_id": "5528|holder_side_reorganization_exit|2005-03-09",
+   "linked_documents": 2,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5528",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "鼎大興業股份有限公司",
+     "益鼎光電股份有限公司",
+     "股務代理人台証綜合證券股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "益鼎光電股份有限公司": [
+      "DISAPPEARING"
+     ],
+     "鼎大興業股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2005-05-20",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "立生半導體股份有限公司",
+   "disappearing_lineage": [
+    "立生半導體股份有限公司"
+   ],
+   "event_id": "5436|holder_side_reorganization_exit|2005-05-20",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5436",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     ")與敦南科技股份有限公司",
+     "股務代理人倍利國際綜合證券股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     ")與敦南科技股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": true,
+   "canonical_event_date": "2006-06-07",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+   "disappearing_entity": "德鑫科技股份有限公司",
+   "disappearing_lineage": [
+    "德鑫科技股份有限公司"
+   ],
+   "event_id": "5494|holder_side_reorganization_exit|2006-06-07",
+   "linked_documents": 2,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5494",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "其股票換發為致伸科技股份有限公司",
+     "致伸科技股份有限公司",
+     "股務代理人建華證券股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "其股票換發為致伸科技股份有限公司": [
+      "2336"
+     ],
+     "致伸科技股份有限公司": [
+      "4915"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "致伸科技股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2006-09-28",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "振遠科技股份有限公司",
+   "disappearing_lineage": [
+    "振遠科技股份有限公司"
+   ],
+   "event_id": "6178|holder_side_reorganization_exit|2006-09-28",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "6178",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2007-11-23",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "華僑商業銀行股份有限公司",
+   "disappearing_lineage": [
+    "華僑商業銀行股份有限公司"
+   ],
+   "event_id": "5818|holder_side_reorganization_exit|2007-11-23",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": false,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "5818",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查華僑商業銀行股份有限公司",
+     "因與花旗(台灣)商業銀行股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "因與花旗(台灣)商業銀行股份有限公司": [
+      "DISAPPEARING"
+     ],
+     "查華僑商業銀行股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2008-09-19",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "圓創科技股份有限公司",
+   "disappearing_lineage": [
+    "圓創科技股份有限公司"
+   ],
+   "event_id": "3298|holder_side_reorganization_exit|2008-09-19",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": false,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3298",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查圓創科技股份有限公司",
+     "致新科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "致新科技股份有限公司": [
+      "8081"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "查圓創科技股份有限公司": [
+      "DISAPPEARING"
+     ],
+     "致新科技股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2009-12-24",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "特力和樂股份有限公司",
+   "disappearing_lineage": [
+    "特力和樂股份有限公司"
+   ],
+   "event_id": "2921|holder_side_reorganization_exit|2009-12-24",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": false,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "2921",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "特力屋股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "特力屋股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2012-01-17",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "志遠電子股份有限公司",
+   "disappearing_lineage": [
+    "志遠電子股份有限公司"
+   ],
+   "event_id": "3389|holder_side_reorganization_exit|2012-01-17",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": false,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3389",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查志遠電子股份有限公司",
+     "文曄科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": true,
+   "canonical_event_date": "2012-12-26",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+   "disappearing_entity": "東隆五金工業股份有限公司",
+   "disappearing_lineage": [
+    "東隆五金工業股份有限公司"
+   ],
+   "event_id": "8705|holder_side_reorganization_exit|2012-12-26",
+   "linked_documents": 2,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "8705",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查東隆五金工業股份有限公司",
+     "因與台灣史丹利安防系統股份有限公司",
+     "與臺灣史丹利安防系統股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "因與台灣史丹利安防系統股份有限公司": [
+      "DISAPPEARING"
+     ],
+     "查東隆五金工業股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2013-01-08",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "凱基證券股份有限公司",
+   "disappearing_lineage": [
+    "中信證券股份有限公司",
+    "凱基證券股份有限公司"
+   ],
+   "event_id": "6008|holder_side_reorganization_exit|2013-01-08",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "6008",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "與中華開發金融控股股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "與中華開發金融控股股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2014-12-25",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "凌耀科技股份有限公司",
+   "disappearing_lineage": [
+    "凌耀科技股份有限公司"
+   ],
+   "event_id": "3582|holder_side_reorganization_exit|2014-12-25",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3582",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "與台灣威世光電股份有限公司",
+     "以台灣威世光電股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "以台灣威世光電股份有限公司": [
+      "SURVIVOR"
+     ],
+     "與台灣威世光電股份有限公司": [
+      "SURVIVOR"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2015-06-05",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "泰林科技股份有限公司",
+   "disappearing_lineage": [
+    "泰林科技股份有限公司"
+   ],
+   "event_id": "5466|holder_side_reorganization_exit|2015-06-05",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5466",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "與南茂科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "與南茂科技股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2016-08-25",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "誠遠科技股份有限公司",
+   "disappearing_lineage": [
+    "誠遠科技股份有限公司"
+   ],
+   "event_id": "8079|holder_side_reorganization_exit|2016-08-25",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "8079",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查誠遠科技股份有限公司",
+     "被矽格股份有限公司",
+     "取得誠遠科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2016-11-09",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "中日新科技股份有限公司",
+   "disappearing_lineage": [
+    "中日新科技股份有限公司"
+   ],
+   "event_id": "8266|holder_side_reorganization_exit|2016-11-09",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "8266",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查中日新科技股份有限公司",
+     "被台灣顯示器股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2016-11-16",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "漢民微測科技股份有限公司",
+   "disappearing_lineage": [
+    "漢民微測科技股份有限公司"
+   ],
+   "event_id": "3658|holder_side_reorganization_exit|2016-11-16",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3658",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查漢民微測科技股份有限公司",
+     "被荷商艾斯摩爾股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2017-08-22",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "捷元股份有限公司",
+   "disappearing_lineage": [
+    "捷元股份有限公司"
+   ],
+   "event_id": "5384|holder_side_reorganization_exit|2017-08-22",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "5384",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     ")因依據企業併購法規定股份轉換為鑫聯大投資控股股份有限公司",
+     "凱基證券股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "凱基證券股份有限公司": [
+      "6008",
+      "9212",
+      "9215",
+      "9218",
+      "9219",
+      "9224",
+      "9232",
+      "9236",
+      "9237",
+      "9239",
+      "9243",
+      "9259",
+      "9261",
+      "9263",
+      "9265",
+      "9269",
+      "9288",
+      "9289",
+      "9294"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2017-08-22",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "大眾綜合證券股份有限公司",
+   "disappearing_lineage": [
+    "大眾綜合證券股份有限公司"
+   ],
+   "event_id": "6022|holder_side_reorganization_exit|2017-08-22",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "6022",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查大眾綜合證券股份有限公司",
+     "因與台新綜合證券股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "因與台新綜合證券股份有限公司": [
+      "DISAPPEARING"
+     ],
+     "查大眾綜合證券股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2017-09-25",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "力積電子股份有限公司",
+   "disappearing_lineage": [
+    "力積電子股份有限公司"
+   ],
+   "event_id": "3553|holder_side_reorganization_exit|2017-09-25",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "3553",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查力積電子股份有限公司",
+     "被愛普科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2017-10-11",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "瑞傳科技股份有限公司",
+   "disappearing_lineage": [
+    "瑞傳科技股份有限公司"
+   ],
+   "event_id": "6105|holder_side_reorganization_exit|2017-10-11",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "6105",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "與振樺電子股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "與振樺電子股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2017-12-19",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "連展科技股份有限公司",
+   "disappearing_lineage": [
+    "連展科技股份有限公司"
+   ],
+   "event_id": "5491|holder_side_reorganization_exit|2017-12-19",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "5491",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     ")因依據企業併購法規定轉換為連展投資控股股份有限公司",
+     "統一綜合證券股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "統一綜合證券股份有限公司": [
+      "5852"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2018-05-24",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "中美冠科生物技術股份有限公司",
+   "disappearing_lineage": [
+    "中美冠科生物技術股份有限公司"
+   ],
+   "event_id": "6554|holder_side_reorganization_exit|2018-05-24",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "6554",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2018-06-07",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "美磊科技股份有限公司",
+   "disappearing_lineage": [
+    "美磊科技股份有限公司"
+   ],
+   "event_id": "3068|holder_side_reorganization_exit|2018-06-07",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3068",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "與奇力新電子股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "與奇力新電子股份有限公司": [
+      "2456"
+     ]
+    },
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": true,
+    "successor_legal_entity": "與奇力新電子股份有限公司",
+    "successor_market": "TPEX_CORPUS_BINDING",
+    "successor_security_id": "2456",
+    "successor_security_id_candidates": [
+     "2456"
+    ]
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2018-09-18",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "光燿科技股份有限公司",
+   "disappearing_lineage": [
+    "光燿科技股份有限公司"
+   ],
+   "event_id": "3428|holder_side_reorganization_exit|2018-09-18",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "3428",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查光燿科技股份有限公司",
+     "以股份轉換之方式而成為永崴投資控股股份有限公司",
+     "換發永崴投資控股股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2018-09-18",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "崴強科技股份有限公司",
+   "disappearing_lineage": [
+    "崴強科技股份有限公司"
+   ],
+   "event_id": "6298|holder_side_reorganization_exit|2018-09-18",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "6298",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查崴強科技股份有限公司",
+     "以股份轉換之方式而成為永崴投資控股股份有限公司",
+     "換發永崴投資控股股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2018-11-07",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "百略醫學科技股份有限公司",
+   "disappearing_lineage": [
+    "百略醫學科技股份有限公司"
+   ],
+   "event_id": "4103|holder_side_reorganization_exit|2018-11-07",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4103",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "被滿得投資股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "被滿得投資股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2018-11-22",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "帛漢股份有限公司",
+   "disappearing_lineage": [
+    "帛漢股份有限公司"
+   ],
+   "event_id": "3299|holder_side_reorganization_exit|2018-11-22",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "3299",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查帛漢股份有限公司",
+     "以股份轉換之方式而成為凱美電機股份有限公司",
+     "換發凱美電機股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2018-11-22",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "美桀科技股份有限公司",
+   "disappearing_lineage": [
+    "美桀科技股份有限公司"
+   ],
+   "event_id": "5255|holder_side_reorganization_exit|2018-11-22",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5255",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "被奇力新電子股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "被奇力新電子股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2019-03-21",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "統盟電子股份有限公司",
+   "disappearing_lineage": [
+    "統盟電子股份有限公司"
+   ],
+   "event_id": "5480|holder_side_reorganization_exit|2019-03-21",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "5480",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查統盟電子股份有限公司",
+     "被志超科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2019-07-25",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "捷邦國際科技股份有限公司",
+   "disappearing_lineage": [
+    "捷邦國際科技股份有限公司",
+    "毅金工業股份有限公司"
+   ],
+   "event_id": "1566|holder_side_reorganization_exit|2019-07-25",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "1566",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "查捷邦國際科技股份有限公司",
+     "以股份轉換之方式而成為應華精密科技股份有限公司",
+     "換發應華精密科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2019-07-30",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "安成國際藥業股份有限公司",
+   "disappearing_lineage": [
+    "安成國際藥業股份有限公司"
+   ],
+   "event_id": "4180|holder_side_reorganization_exit|2019-07-30",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4180",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "由加陳國際藥業股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "由加陳國際藥業股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": true,
+   "canonical_event_date": "2019-09-18",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+   "disappearing_entity": "凱美電機股份有限公司",
+   "disappearing_lineage": [
+    "凱美電機股份有限公司"
+   ],
+   "event_id": "5317|holder_side_reorganization_exit|2019-09-18",
+   "linked_documents": 2,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5317",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "國票綜合證券股份有限公司",
+     "與智寶電子股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "國票綜合證券股份有限公司": [
+      "7791",
+      "7797"
+     ],
+     "與智寶電子股份有限公司": [
+      "2375"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "與智寶電子股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2019-11-21",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "福盈科技化學股份有限公司",
+   "disappearing_lineage": [
+    "福盈科技化學股份有限公司"
+   ],
+   "event_id": "1787|holder_side_reorganization_exit|2019-11-21",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": true,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "1787",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "被優沛國際股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "被優沛國際股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2020-01-14",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "全銓租賃股份有限公司",
+   "disappearing_lineage": [
+    "全銓租賃股份有限公司",
+    "華夏租賃股份有限公司",
+    "華夏資融股份有限公司"
+   ],
+   "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "8913",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "被宏育管理顧問股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "被宏育管理顧問股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2020-02-17",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "頂晶科技股份有限公司",
+   "disappearing_lineage": [
+    "頂晶科技股份有限公司"
+   ],
+   "event_id": "3562|holder_side_reorganization_exit|2020-02-17",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3562",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     ")因依據企業併購法規定轉換為新晶投資控股股份有限公司",
+     "富邦綜合證券股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "富邦綜合證券股份有限公司": [
+      "9600",
+      "9601",
+      "9602",
+      "9605",
+      "9611",
+      "9615",
+      "9618",
+      "9624",
+      "9627",
+      "9629",
+      "9638",
+      "9645",
+      "9648",
+      "9651",
+      "9652",
+      "9655",
+      "9673",
+      "9676",
+      "9678",
+      "9687",
+      "9688"
+     ]
+    },
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2020-05-21",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "昂寶電子股份有限公司",
+   "disappearing_lineage": [
+    "昂寶電子股份有限公司"
+   ],
+   "event_id": "4947|holder_side_reorganization_exit|2020-05-21",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4947",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2020-06-11",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "勝麗國際股份有限公司",
+   "disappearing_lineage": [
+    "勝麗國際股份有限公司",
+    "巨圖科技股份有限公司"
+   ],
+   "event_id": "6238|holder_side_reorganization_exit|2020-06-11",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "6238",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "同欣電子工業股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "同欣電子工業股份有限公司": [
+      "6271"
+     ]
+    },
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": true,
+    "successor_legal_entity": "同欣電子工業股份有限公司",
+    "successor_market": "TPEX_CORPUS_BINDING",
+    "successor_security_id": "6271",
+    "successor_security_id_candidates": [
+     "6271"
+    ]
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2020-10-29",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "先豐通訊股份有限公司",
+   "disappearing_lineage": [
+    "先豐通訊股份有限公司"
+   ],
+   "event_id": "5349|holder_side_reorganization_exit|2020-10-29",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "5349",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "臻鼎科技控股股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "臻鼎科技控股股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2021-09-30",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "台灣微脂體股份有限公司",
+   "disappearing_lineage": [
+    "台灣微脂體股份有限公司"
+   ],
+   "event_id": "4152|holder_side_reorganization_exit|2021-09-30",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4152",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "由森投資股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "由森投資股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2021-10-14",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "紅馬集團股份有限公司",
+   "disappearing_lineage": [
+    "紅馬有限公司",
+    "紅馬集團股份有限公司"
+   ],
+   "event_id": "2928|holder_side_reorganization_exit|2021-10-14",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "2928",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "NO_STOCK_LEG_EVIDENCE"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2021-12-14",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "新揚科技股份有限公司",
+   "disappearing_lineage": [
+    "新揚科技股份有限公司"
+   ],
+   "event_id": "3144|holder_side_reorganization_exit|2021-12-14",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": true,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3144",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2022-04-21",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "金可國際股份有限公司",
+   "disappearing_lineage": [
+    "金可國際股份有限公司"
+   ],
+   "event_id": "8406|holder_side_reorganization_exit|2022-04-21",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "8406",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2022-05-25",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "聚紡股份有限公司",
+   "disappearing_lineage": [
+    "聚紡股份有限公司"
+   ],
+   "event_id": "4429|holder_side_reorganization_exit|2022-05-25",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4429",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "因以股份轉換之方式成為興采實業股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "因以股份轉換之方式成為興采實業股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2022-07-07",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "富強輪胎工廠股份有限公司",
+   "disappearing_lineage": [
+    "富強輪胎工廠股份有限公司"
+   ],
+   "event_id": "5102|holder_side_reorganization_exit|2022-07-07",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "5102",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "被彩安資產股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "被彩安資產股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2022-11-01",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "日盛金融控股股份有限公司",
+   "disappearing_lineage": [
+    "日盛金融控股股份有限公司"
+   ],
+   "event_id": "5820|holder_side_reorganization_exit|2022-11-01",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5820",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "與富邦金融控股股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "與富邦金融控股股份有限公司": [
+      "2881"
+     ]
+    },
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {
+     "與富邦金融控股股份有限公司": [
+      "DISAPPEARING"
+     ]
+    },
+    "security_id_established": true,
+    "successor_legal_entity": "與富邦金融控股股份有限公司",
+    "successor_market": "TPEX_CORPUS_BINDING",
+    "successor_security_id": "2881",
+    "successor_security_id_candidates": [
+     "2881"
+    ]
+   },
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2023-02-02",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "淇譽電子科技股份有限公司",
+   "disappearing_lineage": [
+    "淇譽電子科技股份有限公司"
+   ],
+   "event_id": "6247|holder_side_reorganization_exit|2023-02-02",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "6247",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "被福譽投資股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "被福譽投資股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2023-03-24",
+   "canonical_exit_reason": "併入控股公司下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "展匯科技股份有限公司",
+   "disappearing_lineage": [
+    "展匯科技股份有限公司"
+   ],
+   "event_id": "6594|holder_side_reorganization_exit|2023-03-24",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "6594",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "因以股份轉換之方式成為安格科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "因以股份轉換之方式成為安格科技股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2023-10-25",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "大峽谷半導體照明系統(開曼)股份有限公司",
+   "disappearing_lineage": [
+    "大峽谷半導體照明系統(開曼)股份有限公司"
+   ],
+   "event_id": "5281|holder_side_reorganization_exit|2023-10-25",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "5281",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "湯石照明科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "湯石照明科技股份有限公司": [
+      "4972"
+     ]
+    },
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": true,
+    "successor_legal_entity": "湯石照明科技股份有限公司",
+    "successor_market": "TPEX_CORPUS_BINDING",
+    "successor_security_id": "4972",
+    "successor_security_id_candidates": [
+     "4972"
+    ]
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2023-10-26",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "兆遠科技股份有限公司",
+   "disappearing_lineage": [
+    "兆遠科技股份有限公司"
+   ],
+   "event_id": "4944|holder_side_reorganization_exit|2023-10-26",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4944",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "以股份轉換之方式成為環球晶圓股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "以股份轉換之方式成為環球晶圓股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2024-01-25",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "捷必勝控股股份有限公司",
+   "disappearing_lineage": [
+    "捷必勝控股股份有限公司"
+   ],
+   "event_id": "8418|holder_side_reorganization_exit|2024-01-25",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "8418",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2024-10-09",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "芮特科技股份有限公司",
+   "disappearing_lineage": [
+    "芮特科技股份有限公司"
+   ],
+   "event_id": "6514|holder_side_reorganization_exit|2024-10-09",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "6514",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2024-11-21",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "明揚國際科技股份有限公司",
+   "disappearing_lineage": [
+    "明揚國際科技股份有限公司"
+   ],
+   "event_id": "8420|holder_side_reorganization_exit|2024-11-21",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "8420",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "以股份轉換之方式成為明安國際企業股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "以股份轉換之方式成為明安國際企業股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2024-12-26",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "紘康科技股份有限公司",
+   "disappearing_lineage": [
+    "紘康科技股份有限公司"
+   ],
+   "event_id": "6457|holder_side_reorganization_exit|2024-12-26",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "6457",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "以股份轉換方式成為矽統科技股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "以股份轉換方式成為矽統科技股份有限公司": [
+      "2363"
+     ]
+    },
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": true,
+    "successor_legal_entity": "以股份轉換方式成為矽統科技股份有限公司",
+    "successor_market": "TPEX_CORPUS_BINDING",
+    "successor_security_id": "2363",
+    "successor_security_id_candidates": [
+     "2363"
+    ]
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2025-09-02",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "陞達科技股份有限公司",
+   "disappearing_lineage": [
+    "陞達科技股份有限公司"
+   ],
+   "event_id": "4945|holder_side_reorganization_exit|2025-09-02",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": false,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": true,
+    "transaction_party": true
+   },
+   "security_id": "4945",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "以股份轉換方式成為偉詮電子股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {
+     "以股份轉換方式成為偉詮電子股份有限公司": [
+      "2436"
+     ]
+    },
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": true,
+    "successor_legal_entity": "以股份轉換方式成為偉詮電子股份有限公司",
+    "successor_market": "TPEX_CORPUS_BINDING",
+    "successor_security_id": "2436",
+    "successor_security_id_candidates": [
+     "2436"
+    ]
+   },
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2025-11-27",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "亨泰光學股份有限公司",
+   "disappearing_lineage": [
+    "亨泰光學股份有限公司"
+   ],
+   "event_id": "6747|holder_side_reorganization_exit|2025-11-27",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "6747",
+   "successor": {
+    "candidate_entities_in_bundle": [],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": null,
+    "identity_established": false,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": null,
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2026-05-21",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "科誠股份有限公司",
+   "disappearing_lineage": [
+    "科誠股份有限公司"
+   ],
+   "event_id": "4987|holder_side_reorganization_exit|2026-05-21",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "4987",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "因以股份轉換方式成為誠拓興業股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "因以股份轉換方式成為誠拓興業股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  },
+  {
+   "bundle_is_a_union_over_all_linked_documents": false,
+   "canonical_event_date": "2026-06-02",
+   "canonical_exit_reason": "合併下市",
+   "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+   "disappearing_entity": "台興電子股份有限公司",
+   "disappearing_lineage": [
+    "台興電子股份有限公司"
+   ],
+   "event_id": "3426|holder_side_reorganization_exit|2026-06-02",
+   "linked_documents": 1,
+   "presence_union": {
+    "cash_consideration": true,
+    "fractional_treatment": false,
+    "holder_effective_or_conversion_date": true,
+    "payment_or_credit_date": false,
+    "stock_consideration": false,
+    "transaction_party": true
+   },
+   "security_id": "3426",
+   "successor": {
+    "candidate_entities_in_bundle": [
+     "因以股份轉換方式成為頤盛投資股份有限公司"
+    ],
+    "code_resolution_source": "first-party TPEx code-to-legal-name bindings in the preserved archive",
+    "entity_codes_seen": {},
+    "identity_basis": "SOLE_OTHER_LEGAL_ENTITY_IN_BUNDLE",
+    "identity_established": true,
+    "not_canonical_holder_term_extraction": true,
+    "provenance": "DISCOVERY_METADATA_ONLY",
+    "role_markers": {},
+    "security_id_established": false,
+    "successor_legal_entity": "因以股份轉換方式成為頤盛投資股份有限公司",
+    "successor_market": null,
+    "successor_security_id": null,
+    "successor_security_id_candidates": []
+   },
+   "transaction_leg": "CASH_LEG_PRESENT"
+  }
+ ],
+ "states_unchanged": true,
+ "termination_discovery_branch_reopened": false
+}

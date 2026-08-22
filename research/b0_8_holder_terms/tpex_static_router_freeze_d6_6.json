@@ -1,0 +1,152 @@
+{
+ "category_filter": "never sent -- all categories searched",
+ "category_role": "diagnostic metadata only, recovered after matching",
+ "classes": [
+  "STATIC_EVENT_DOCUMENT_UNIQUE",
+  "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW",
+  "STATIC_EVENT_DOCUMENT_AMBIGUOUS",
+  "STATIC_EVENT_DOCUMENT_REQUEST_ERROR"
+ ],
+ "d6_5_counts_not_rewritten": {
+  "STATIC_EVENT_DOCUMENT_AMBIGUOUS": 1,
+  "STATIC_EVENT_DOCUMENT_NONE": 20,
+  "STATIC_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+  "STATIC_EVENT_DOCUMENT_UNIQUE": 38
+ },
+ "d6_5_preserved_historically": true,
+ "date_format": "AD YYYY/MM/DD",
+ "detail_surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail",
+ "event_specific_branches": [],
+ "fallback_inputs_forbidden": [
+  "TEJ narrative",
+  "company-name inference",
+  "counterparty name",
+  "holder terms"
+ ],
+ "field_presence_is_metadata_only": true,
+ "field_presence_markers": {
+  "cash_consideration": [
+   "現金",
+   "現金對價",
+   "每股現金",
+   "價款",
+   "收購價格",
+   "現金補償"
+  ],
+  "fractional_treatment": [
+   "不足一股",
+   "畸零股",
+   "零股",
+   "尾數",
+   "現金補償"
+  ],
+  "holder_effective_or_conversion_date": [
+   "基準日",
+   "合併基準日",
+   "股份轉換基準日",
+   "換股基準日",
+   "停止櫃檯買賣",
+   "最後交易日"
+  ],
+  "payment_or_credit_date": [
+   "發放",
+   "撥付",
+   "給付",
+   "領取",
+   "交付",
+   "開始換發",
+   "換發日期",
+   "上市買賣日"
+  ],
+  "stock_consideration": [
+   "換股比例",
+   "股份轉換比例",
+   "轉換比例",
+   "換發",
+   "每一股換發",
+   "配發",
+   "換發新股"
+  ],
+  "transaction_party": [
+   "合併",
+   "股份轉換",
+   "存續公司",
+   "消滅公司",
+   "控股公司",
+   "概括讓與",
+   "概括承受",
+   "股份有限公司"
+  ]
+ },
+ "frozen_before_corpus_requests": true,
+ "identity_fallback": "official body bytes, for rows whose subject is empty or carries no code at all; ordered by issuing unit 證櫃監字 first, then date and document number; NO CAP",
+ "identity_primary": "security code present in the official index subject",
+ "k1_none_population_reinterpreted": {
+  "DISCOVERY_NONE_WITHIN_FROZEN_WINDOW_AFTER_POOL_EXHAUSTION": 5,
+  "DISCOVERY_UNRESOLVED_PROBE_CAP": 15,
+  "reading": "a probe-cap termination is an acquisition completeness limit, not evidence of document absence"
+ },
+ "k2_sole_repair": {
+  "body_fallback_cap": null,
+  "d6_5": "probe = pool[:150] -- bounded partial enumeration",
+  "d6_6": "probe = pool -- complete enumeration"
+ },
+ "k2_unchanged": [
+  "frozen date window [C-30d, C+40d]",
+  "official TPEx surfaces",
+  "all-category routing -- cate never sent",
+  "receiver never sent",
+  "security-code matching",
+  "body fallback eligibility and ordering",
+  "encoding detection",
+  "event-linkage predicates",
+  "UNIQUE / AMBIGUOUS rule"
+ ],
+ "k2b_transport_concurrency": {
+  "adjudication": "single-threaded, frozen order, disk only",
+  "d6_5_cache": "read-only reuse, never rewritten",
+  "prefetch_workers": 5,
+  "same_url_set": true,
+  "semantic_change": false
+ },
+ "k4a_error_is_not_absence": "an event with an uninspected candidate cannot be exhausted, so it finishes REQUEST_ERROR rather than NONE; this can only move an event out of NONE, never into UNIQUE or AMBIGUOUS",
+ "k7_reconstruction_schema": "FROZEN, UNCHANGED, NOT RELAXED",
+ "keywords_categories_added_from_d6_5_misses": [],
+ "none_emission_precondition": "pool_exhausted == true",
+ "population": "all 59 TPEx-lineage register events, no sampling",
+ "prohibited": [
+  "value extraction",
+  "canonicalization",
+  "RECONSTRUCTIBLE classification",
+  "CA rebuild",
+  "state rebuild",
+  "replay",
+  "NAV",
+  "performance",
+  "gates",
+  "dual extraction",
+  "window widening",
+  "related-document acquisition"
+ ],
+ "receiver_parameter": "never sent",
+ "record": "B0_8_D6_6_TPEX_EXHAUSTIVE_DISCOVERY_ROUTER",
+ "rerun_scope": "59/59, not only the 15 capped failures",
+ "router_sha256": "c178946e988e1ead85d6a3c541f1b8a9f3df4dd35cfe839ba09bddf82c249f77",
+ "selection_blind_to": [
+  "B0 holdings",
+  "claim exposure",
+  "8913",
+  "3299",
+  "expected terms",
+  "consideration type",
+  "replay usefulness",
+  "performance"
+ ],
+ "static_root": "https://www.tpex.org.tw/storage/eb_data/",
+ "supersedes_for_discovery_only": "fa39464f73ba23b525ae001bc8d39a0265a3276532dfa99ef03c8ad12b1ab3eb",
+ "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement",
+ "unique_rule": "the FETCHED body must establish the security and a termination/reorganization event; two qualifying bodies with different document numbers make the event AMBIGUOUS",
+ "window_back_days": 30,
+ "window_forward_days": 40,
+ "window_tuning_in_d6_6": "FORBIDDEN -- K6"
+}

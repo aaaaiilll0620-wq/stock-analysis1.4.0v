@@ -1,0 +1,306 @@
+{
+ "ALTERNATIVE_AUTHORITATIVE_BODY_ROUTE": "NOT_FEASIBLE",
+ "archive_router_path": "research/b0_8_holder_terms/archive_router_freeze_d6_3.json",
+ "archive_router_sha256": "438d9f6973600825dc5f328425202c5fb0b464b093ef9048ac5309309f9b790e",
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_terms_materialized": false,
+ "corrected_781_body_state_census": {
+  "OFFICIAL_REFUSAL_PAGE": 725,
+  "REAL_ANNOUNCEMENT_BODY": 56
+ },
+ "corrected_by_market": {
+  "LINEAGE_UNRESOLVED": {
+   "OFFICIAL_REFUSAL_PAGE": 6
+  },
+  "TPEX": {
+   "OFFICIAL_REFUSAL_PAGE": 243,
+   "REAL_ANNOUNCEMENT_BODY": 11
+  },
+  "TWSE": {
+   "OFFICIAL_REFUSAL_PAGE": 476,
+   "REAL_ANNOUNCEMENT_BODY": 45
+  }
+ },
+ "d6_1_history_preserved": {
+  "census_sha256": "b60c4c38948ca39a38688959e6635e67875f497b0d4890a6bfd42c8074607a18",
+  "counts": {
+   "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS": 25,
+   "OFFICIAL_EVENT_DOCUMENT_NONE": 116,
+   "OFFICIAL_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+   "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 17
+  },
+  "none_decomposition": {
+   "NONE_DISCOVERED_BUT_LINKAGE_NOT_ESTABLISHED": 109,
+   "NONE_NO_DOCUMENT_DISCOVERED": 7
+  },
+  "not_rewritten": true,
+  "originally_reported_body_available": 146
+ },
+ "d6_2_correction_recorded": {
+  "dialects": {
+   "上市公司已下市": 84,
+   "上櫃公司已下櫃": 6
+  },
+  "previously_misclassified_refusal_pages": 90,
+  "verified_real_body_available": 56
+ },
+ "daily_snapshot_provenance": {
+  "A1": {
+   "bytes": 182757,
+   "dates_present": [
+    "1150819"
+   ],
+   "raw_sha256": "5bb0f94dfec6e31064acf13661e3af50da2215bcc49aa23e9a55068279e7109c",
+   "row_count": 121
+  },
+  "A2": {
+   "bytes": 70600,
+   "dates_present": [
+    "1150819"
+   ],
+   "raw_sha256": "0aa224a95d2e2e0c30ae5a649d3e788eaef071b52377c884ac1f0cf14270bf77",
+   "row_count": 52
+  }
+ },
+ "dual_extraction_performed": false,
+ "empty_strata": [
+  [
+   "TWSE",
+   "currently_unavailable_body"
+  ],
+  [
+   "TPEX",
+   "currently_unavailable_body"
+  ]
+ ],
+ "gates_evaluated": false,
+ "nav_computed": false,
+ "performance_inspected": false,
+ "reconstruction_classification_performed": false,
+ "record": "B0_8_D6_3_ALTERNATIVE_ARCHIVE_BODY_FEASIBILITY",
+ "record_sha256": "a165e2570d957e4829c58774eabc849c68b77daac40f7ef13fc0e59ad8782174",
+ "replay_started": false,
+ "results": [
+  {
+   "archive_document_found": false,
+   "archive_routes_attempted": [
+    "A1"
+   ],
+   "attempts": [
+    {
+     "archive_document_found": false,
+     "error": null,
+     "identity_linkage": "FAIL",
+     "matching_keys": {
+      "公司代號": "2823",
+      "發言日期": "1101202",
+      "發言時間": "201044"
+     },
+     "reason": "the snapshot contains only the current publication day; this document's day is not in it",
+     "response_sha256": "5bb0f94dfec6e31064acf13661e3af50da2215bcc49aa23e9a55068279e7109c",
+     "route": "A1",
+     "rows_searched": 121,
+     "surface": "https://openapi.twse.com.tw/v1/opendata/t187ap04_L"
+    }
+   ],
+   "body_acquired": false,
+   "body_sha256": null,
+   "document_id": "MOPS-T05ST01:2823:20211202:201044:1",
+   "identity_linkage": "FAIL",
+   "identity_sha256": "0dab39486f79b0f3fbccde2df6d4039701670855b4abc9b9e9a918d25829c739",
+   "legacy_id": "MOPS-T05ST01:2823:20211202:201044:1",
+   "market": "TWSE",
+   "preserved_body_hash_intact": true,
+   "preserved_body_sha256": "c6921781570943c117b8f93a19fe2cac739b18c348cca7ce9f09d4eaef8f677f",
+   "previous_body_state": "REAL_ANNOUNCEMENT_BODY",
+   "publication_date": "2021-12-02",
+   "security_id": "2823",
+   "stratum": "verified_real_body",
+   "subject": "公告臺灣證券交易所股份有限公司核准本公司發行上市之 股票自民國110年12月30日起終止上市。",
+   "verified_body_control_comparison": "NOT_APPLICABLE -- the archive route returned no matching document, so there is nothing to compare; the preserved authoritative body is untouched and its hash re-verifies"
+  },
+  {
+   "archive_document_found": false,
+   "archive_routes_attempted": [
+    "A1"
+   ],
+   "attempts": [
+    {
+     "archive_document_found": false,
+     "error": null,
+     "identity_linkage": "FAIL",
+     "matching_keys": {
+      "公司代號": "4733",
+      "發言日期": "1050721",
+      "發言時間": "155719"
+     },
+     "reason": "the snapshot contains only the current publication day; this document's day is not in it",
+     "response_sha256": "5bb0f94dfec6e31064acf13661e3af50da2215bcc49aa23e9a55068279e7109c",
+     "route": "A1",
+     "rows_searched": 121,
+     "surface": "https://openapi.twse.com.tw/v1/opendata/t187ap04_L"
+    }
+   ],
+   "body_acquired": false,
+   "body_sha256": null,
+   "document_id": "MOPS-T05ST01:4733:20160721:155719:2",
+   "identity_linkage": "FAIL",
+   "identity_sha256": "008e1c0a67edd6a797f4735f8a0a3dd2ca9a240f46af6c9b60a8af1b25d147d0",
+   "legacy_id": "MOPS-T05ST01:4733:20160721:155719:2",
+   "market": "TWSE",
+   "previous_body_state": "OFFICIAL_REFUSAL_PAGE",
+   "publication_date": "2016-07-21",
+   "security_id": "4733",
+   "stratum": "official_refusal_historical_detail",
+   "subject": "公告取得臺灣證券交易所股份有限公司同意本公司終止上市 暨上緯國際投資控股股份有限公司上市。",
+   "verified_body_control_comparison": null
+  },
+  {
+   "archive_document_found": false,
+   "archive_routes_attempted": [
+    "A2",
+    "A3"
+   ],
+   "attempts": [
+    {
+     "archive_document_found": false,
+     "error": null,
+     "identity_linkage": "FAIL",
+     "matching_keys": {
+      "公司代號": "6008",
+      "發言日期": "1011212",
+      "發言時間": "161908"
+     },
+     "reason": "the snapshot contains only the current publication day; this document's day is not in it",
+     "response_sha256": "0aa224a95d2e2e0c30ae5a649d3e788eaef071b52377c884ac1f0cf14270bf77",
+     "route": "A2",
+     "rows_searched": 52,
+     "surface": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O"
+    },
+    {
+     "archive_document_found": false,
+     "cate": "all",
+     "error": null,
+     "identity_linkage": "FAIL",
+     "reason": "exchange bulletins are keyed by 發文字號 / 資料日期 and carry no 公司代號 + 發言時間 + 主旨, so they cannot uniquely link to a company announcement row",
+     "response_sha256": "95849ed3ba66723628f0db33177106d5e81d0abfd50706453a67dff113857794",
+     "route": "A3",
+     "rows_returned": 0,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement",
+     "window": [
+      "2012/12/01",
+      "2013/01/01"
+     ]
+    },
+    {
+     "archive_document_found": false,
+     "cate": "4",
+     "error": null,
+     "identity_linkage": "FAIL",
+     "reason": "exchange bulletins are keyed by 發文字號 / 資料日期 and carry no 公司代號 + 發言時間 + 主旨, so they cannot uniquely link to a company announcement row",
+     "response_sha256": "95849ed3ba66723628f0db33177106d5e81d0abfd50706453a67dff113857794",
+     "route": "A3",
+     "rows_returned": 0,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement",
+     "window": [
+      "2012/12/01",
+      "2013/01/01"
+     ]
+    }
+   ],
+   "body_acquired": false,
+   "body_sha256": null,
+   "document_id": "MOPS-T05ST01:6008:20121212:161908:1",
+   "identity_linkage": "FAIL",
+   "identity_sha256": "0bc78e46776eda64949881f9bd11aa44e4e7e039514e164adaccf89b15a94beb",
+   "legacy_id": "MOPS-T05ST01:6008:20121212:161908:1",
+   "market": "TPEX",
+   "preserved_body_hash_intact": true,
+   "preserved_body_sha256": "d4d6c02812a32e32354963a480f164998f26ef5d1b2e95005ec2e5c04f11dc47",
+   "previous_body_state": "REAL_ANNOUNCEMENT_BODY",
+   "publication_date": "2012-12-12",
+   "security_id": "6008",
+   "stratum": "verified_real_body",
+   "subject": "凱基證券公告取得合作金庫商業銀行股份有限公司 101年度第2期次順位金融債券",
+   "verified_body_control_comparison": "NOT_APPLICABLE -- the archive route returned no matching document, so there is nothing to compare; the preserved authoritative body is untouched and its hash re-verifies"
+  },
+  {
+   "archive_document_found": false,
+   "archive_routes_attempted": [
+    "A2",
+    "A3"
+   ],
+   "attempts": [
+    {
+     "archive_document_found": false,
+     "error": null,
+     "identity_linkage": "FAIL",
+     "matching_keys": {
+      "公司代號": "6105",
+      "發言日期": "1060912",
+      "發言時間": "194209"
+     },
+     "reason": "the snapshot contains only the current publication day; this document's day is not in it",
+     "response_sha256": "0aa224a95d2e2e0c30ae5a649d3e788eaef071b52377c884ac1f0cf14270bf77",
+     "route": "A2",
+     "rows_searched": 52,
+     "surface": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O"
+    },
+    {
+     "archive_document_found": false,
+     "cate": "all",
+     "error": null,
+     "identity_linkage": "FAIL",
+     "reason": "exchange bulletins are keyed by 發文字號 / 資料日期 and carry no 公司代號 + 發言時間 + 主旨, so they cannot uniquely link to a company announcement row",
+     "response_sha256": "f16dd7855fffca507a0022e667259e82313321ecec9d07d1c85cb466ccf8e5c5",
+     "route": "A3",
+     "rows_returned": 0,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement",
+     "window": [
+      "2017/09/01",
+      "2017/10/01"
+     ]
+    },
+    {
+     "archive_document_found": false,
+     "cate": "4",
+     "error": null,
+     "identity_linkage": "FAIL",
+     "reason": "exchange bulletins are keyed by 發文字號 / 資料日期 and carry no 公司代號 + 發言時間 + 主旨, so they cannot uniquely link to a company announcement row",
+     "response_sha256": "f16dd7855fffca507a0022e667259e82313321ecec9d07d1c85cb466ccf8e5c5",
+     "route": "A3",
+     "rows_returned": 0,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement",
+     "window": [
+      "2017/09/01",
+      "2017/10/01"
+     ]
+    }
+   ],
+   "body_acquired": false,
+   "body_sha256": null,
+   "document_id": "MOPS-T05ST01:6105:20170912:194209:6",
+   "identity_linkage": "FAIL",
+   "identity_sha256": "00d99421f58d9a55b10f6fa5d10b1070cadacdd6b6aeb934dd8c47df235c56e4",
+   "legacy_id": "MOPS-T05ST01:6105:20170912:194209:6",
+   "market": "TPEX",
+   "previous_body_state": "OFFICIAL_REFUSAL_PAGE",
+   "publication_date": "2017-09-12",
+   "security_id": "6105",
+   "stratum": "official_refusal_historical_detail",
+   "subject": "公告本公司辦理第四次庫藏股註銷減資變更登記完成",
+   "verified_body_control_comparison": null
+  }
+ ],
+ "sample_size": 4,
+ "sample_size_intended": 6,
+ "scaled_to_corpus": false,
+ "states_unchanged": true,
+ "unruled_linkage_marker_added": false,
+ "verified_bodies_hash_intact": 56
+}

@@ -1,0 +1,516 @@
+{
+ "X5_first_party_directories": {
+  "directory_is_current_snapshot_caveat": "these are current directories; a successor that later renamed or delisted is absent and is reported SUCCESSOR_SECURITY_ROUTING_UNRESOLVED, not guessed",
+  "forbidden": [
+   "TEJ",
+   "price history",
+   "fuzzy similarity",
+   "search-engine snippets",
+   "market outcome"
+  ],
+  "match_rule": "exact full legal name; never fuzzy",
+  "sources_used": [
+   "TDCC STK003 survivor table (ROC 93-97)",
+   "TWSE openapi t187ap03_L listed-company directory",
+   "TPEx openapi t187ap03_O OTC-company directory"
+  ],
+  "tpex_directory_rows": 890,
+  "tpex_out_date": "1150821",
+  "twse_directory_rows": 1095,
+  "twse_out_date": "1150820"
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_extracted": false,
+ "canonical_holder_terms_materialized": false,
+ "cash_leg_source_hunting": false,
+ "domestic_security_ids_established": [
+  [
+   "1566",
+   "5392"
+  ],
+  [
+   "3299",
+   "5317"
+  ],
+  [
+   "3428",
+   "3712"
+  ],
+  [
+   "3553",
+   "6531"
+  ],
+  [
+   "4110",
+   "1731"
+  ],
+  [
+   "4429",
+   "4433"
+  ],
+  [
+   "4944",
+   "6488"
+  ],
+  [
+   "4945",
+   "2436"
+  ],
+  [
+   "5281",
+   "4972"
+  ],
+  [
+   "5317",
+   "2375"
+  ],
+  [
+   "5436",
+   "5305"
+  ],
+  [
+   "5466",
+   "8150"
+  ],
+  [
+   "5494",
+   "4915"
+  ],
+  [
+   "5528",
+   "2410"
+  ],
+  [
+   "5820",
+   "2881"
+  ],
+  [
+   "6017",
+   "6004"
+  ],
+  [
+   "6022",
+   "8159"
+  ],
+  [
+   "6105",
+   "8114"
+  ],
+  [
+   "6157",
+   "2492"
+  ],
+  [
+   "6298",
+   "3712"
+  ],
+  [
+   "6457",
+   "2363"
+  ],
+  [
+   "6594",
+   "6684"
+  ],
+  [
+   "8420",
+   "8938"
+  ]
+ ],
+ "domestic_security_ids_established_total": 23,
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "inputs": {
+  "d7_2a_freeze_sha256": "1be43004d624a5808f557a4f2b40e87d642b1d4d58bd2deed46f490ee9ba41ed"
+ },
+ "market_status_counts": {
+  "ABSENT_FROM_CURRENT_DIRECTORY": 3,
+  "DOMESTIC_LISTED_OR_OTC": 23,
+  "FOREIGN_SUCCESSOR_ROUTE_REQUIRED": 1,
+  "NON_ISSUER_PRIVATE_OR_HOLDING": 3
+ },
+ "per_event": [
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": "TWSE_TPEX_OPENAPI_DIRECTORY",
+   "security_id": "6157",
+   "successor_legal_entity": "華新科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "2492",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "1731",
+   "prior_source": "MOPS_COMPANY_DIRECTORY",
+   "route_source": "MOPS_COMPANY_DIRECTORY",
+   "security_id": "4110",
+   "successor_legal_entity": "美吾華股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "1731",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": "TPEX_CORPUS_BINDING",
+   "route_source": "TDCC_STK003_SURVIVOR",
+   "security_id": "6017",
+   "successor_legal_entity": "元大京華證券股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "6004",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": "TDCC_STK003_SURVIVOR",
+   "security_id": "5528",
+   "successor_legal_entity": "鼎大興業股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "2410",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "5305",
+   "prior_source": "TPEX_CORPUS_BINDING",
+   "route_source": "TPEX_CORPUS_BINDING",
+   "security_id": "5436",
+   "successor_legal_entity": "敦南科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "5305",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "4915",
+   "prior_source": "TPEX_CORPUS_BINDING",
+   "route_source": "TPEX_CORPUS_BINDING",
+   "security_id": "5494",
+   "successor_legal_entity": "致伸科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "4915",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": "TWSE_TPEX_OPENAPI_DIRECTORY",
+   "security_id": "5466",
+   "successor_legal_entity": "南茂科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "8150",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": null,
+   "security_id": "8266",
+   "successor_legal_entity": "台灣顯示器股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "ABSENT_FROM_CURRENT_DIRECTORY",
+   "successor_security_id": null,
+   "successor_security_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "transaction_leg": "MIXED_LEG_PRESENT",
+   "unresolved_note": "established legal name is absent from the current TWSE/TPEx directory; likely a later rename or delisting -- not guessed around"
+  },
+  {
+   "prior_security_id": "8159",
+   "prior_source": "TPEX_CORPUS_BINDING",
+   "route_source": "TPEX_CORPUS_BINDING",
+   "security_id": "6022",
+   "successor_legal_entity": "台新綜合證券股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "8159",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "6531",
+   "prior_source": "TPEX_CORPUS_BINDING",
+   "route_source": "TPEX_CORPUS_BINDING",
+   "security_id": "3553",
+   "successor_legal_entity": "愛普科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "6531",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "8114",
+   "prior_source": "TPEX_CORPUS_BINDING",
+   "route_source": "TPEX_CORPUS_BINDING",
+   "security_id": "6105",
+   "successor_legal_entity": "振樺電子股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "8114",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": "TWSE_TPEX_OPENAPI_DIRECTORY",
+   "security_id": "3428",
+   "successor_legal_entity": "永崴投資控股股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "3712",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": "TWSE_TPEX_OPENAPI_DIRECTORY",
+   "security_id": "6298",
+   "successor_legal_entity": "永崴投資控股股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "3712",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "entity_form_note": "legal name is an investment/holding/consulting form with no listed security in any first-party directory",
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": null,
+   "security_id": "4103",
+   "successor_legal_entity": "滿得投資股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "NON_ISSUER_PRIVATE_OR_HOLDING",
+   "successor_security_id": null,
+   "successor_security_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "5317",
+   "prior_source": "TPEX_CORPUS_BINDING",
+   "route_source": "TPEX_CORPUS_BINDING",
+   "security_id": "3299",
+   "successor_legal_entity": "凱美電機股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "5317",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": null,
+   "security_id": "5255",
+   "successor_legal_entity": "奇力新電子股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "ABSENT_FROM_CURRENT_DIRECTORY",
+   "successor_security_id": null,
+   "successor_security_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "transaction_leg": "STOCK_LEG_PRESENT",
+   "unresolved_note": "established legal name is absent from the current TWSE/TPEx directory; likely a later rename or delisting -- not guessed around"
+  },
+  {
+   "prior_security_id": "5392",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "1566",
+   "successor_legal_entity": "應華精密科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "5392",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": null,
+   "security_id": "4180",
+   "successor_legal_entity": "加陳國際藥業股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "ABSENT_FROM_CURRENT_DIRECTORY",
+   "successor_security_id": null,
+   "successor_security_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "transaction_leg": "STOCK_LEG_PRESENT",
+   "unresolved_note": "established legal name is absent from the current TWSE/TPEx directory; likely a later rename or delisting -- not guessed around"
+  },
+  {
+   "prior_security_id": "2375",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "5317",
+   "successor_legal_entity": "智寶電子股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "2375",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "entity_form_note": "legal name is an investment/holding/consulting form with no listed security in any first-party directory",
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": null,
+   "security_id": "8913",
+   "successor_legal_entity": "宏育管理顧問股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "NON_ISSUER_PRIVATE_OR_HOLDING",
+   "successor_security_id": null,
+   "successor_security_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": "D7_2A_DIAGNOSTIC",
+   "security_id": "4947",
+   "successor_legal_entity": null,
+   "successor_legal_entity_status": "UNRESOLVED",
+   "successor_market_status": "FOREIGN_SUCCESSOR_ROUTE_REQUIRED",
+   "successor_security_id": null,
+   "successor_security_status": "FOREIGN_OR_NON_ROC_SUCCESSOR",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "entity_form_note": "legal name is an investment/holding/consulting form with no listed security in any first-party directory",
+   "prior_security_id": null,
+   "prior_source": null,
+   "route_source": null,
+   "security_id": "4152",
+   "successor_legal_entity": "森投資股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "NON_ISSUER_PRIVATE_OR_HOLDING",
+   "successor_security_id": null,
+   "successor_security_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "4433",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "4429",
+   "successor_legal_entity": "興采實業股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "4433",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "2881",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "5820",
+   "successor_legal_entity": "富邦金融控股股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "2881",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "6684",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "6594",
+   "successor_legal_entity": "安格科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "6684",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "4972",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "5281",
+   "successor_legal_entity": "湯石照明科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "4972",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "6488",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "4944",
+   "successor_legal_entity": "環球晶圓股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "6488",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "8938",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "8420",
+   "successor_legal_entity": "明安國際企業股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "8938",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "2363",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "6457",
+   "successor_legal_entity": "矽統科技股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "2363",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "prior_security_id": "2436",
+   "prior_source": "IN_DOCUMENT_CODE_LABEL",
+   "route_source": "IN_DOCUMENT_CODE_LABEL",
+   "security_id": "4945",
+   "successor_legal_entity": "偉詮電子股份有限公司",
+   "successor_legal_entity_status": "ESTABLISHED",
+   "successor_market_status": "DOMESTIC_LISTED_OR_OTC",
+   "successor_security_id": "2436",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  }
+ ],
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D7_2B_DOMESTIC_SECURITY_ROUTING",
+ "replay_started": false,
+ "routing_sha256": "0fe8e9c82aafdbe99a5ef79eca860442ff1211009b1a5027fa3cd6ef7616b475",
+ "security_status_counts": {
+  "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY": 3,
+  "DOMESTIC_SECURITY_ID_ESTABLISHED": 23,
+  "FOREIGN_OR_NON_ROC_SUCCESSOR": 1,
+  "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED": 3
+ },
+ "states_unchanged": true,
+ "successor_identity_is": "DISCOVERY_METADATA_ONLY",
+ "termination_discovery_branch_reopened": false
+}

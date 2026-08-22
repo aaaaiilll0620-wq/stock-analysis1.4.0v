@@ -1,0 +1,100 @@
+{
+ "adjudication_static_archive_preobservation": true,
+ "allowed_routing_inputs": [
+  "security_id",
+  "TPEx lineage",
+  "canonical event date",
+  "fixed predeclared window"
+ ],
+ "body_fallback": "older bulletins publish an empty 主旨, so when no subject matches, every cate=4 row in the window is body-checked; cap 60",
+ "cate": {
+  "4": "變更交易方法、停止買賣、終止上櫃(股票)"
+ },
+ "chain": [
+  "security_id + canonical date + TPEx lineage",
+  "TPEx 公告查詢 bulletin/announcement (cate=4)",
+  "bulletin/annDetail -> downHtml",
+  "/storage/eb_data/<ROC yyymm>/<document number>.html"
+ ],
+ "date_format": "AD YYYY/MM/DD (ROC is rejected: 日期參數錯誤)",
+ "disclosed_controls": [
+  "3299",
+  "8913"
+ ],
+ "forbidden_routing_inputs": [
+  "holder consideration",
+  "counterparty name",
+  "TEJ narrative",
+  "B0 exposure",
+  "8913-specific knowledge",
+  "performance",
+  "public search engine"
+ ],
+ "frozen_before_any_request": true,
+ "mops_body_routes_closed_this_stage": [
+  "redirectToOld",
+  "signed MOPS body URLs",
+  "A1/A2 current-day feeds"
+ ],
+ "narrowing": {
+  "TESTED_D6_3_ROUTES_A1_TO_A4": "NOT_FEASIBLE",
+  "must_not_be_generalised_to": "NO_ALTERNATIVE_AUTHORITATIVE_ARCHIVE_EXISTS"
+ },
+ "performance_inspection": false,
+ "preobserved_event_ids": [
+  3299,
+  8913
+ ],
+ "preobserved_excluded_from_primary_sample": true,
+ "primary_sample": [
+  {
+   "canonical_event_date": "2017-09-25",
+   "event_id": "3553|holder_side_reorganization_exit|2017-09-25",
+   "event_id_sha256": "056323ae4bf0e5ab9cb9d8b1b87f321a85c3c902046dbc387f150c7c4f523333",
+   "security_id": "3553"
+  },
+  {
+   "canonical_event_date": "2026-05-21",
+   "event_id": "4987|holder_side_reorganization_exit|2026-05-21",
+   "event_id_sha256": "18dc4a403b85d55bfdffafa2ebdf7c55bab6c0a2d395e70b7b48e4589ee03f17",
+   "security_id": "4987"
+  },
+  {
+   "canonical_event_date": "2024-11-21",
+   "event_id": "8420|holder_side_reorganization_exit|2024-11-21",
+   "event_id_sha256": "1992cca20c23563120ac31040122b66d65a3a0f7d4ac5720f228ff92006b4c47",
+   "security_id": "8420"
+  },
+  {
+   "canonical_event_date": "2024-10-09",
+   "event_id": "6514|holder_side_reorganization_exit|2024-10-09",
+   "event_id_sha256": "1c8d626cb6d53f961d11cd8dc3ca551038bacd3a861bcc57e16e9f3c69557384",
+   "security_id": "6514"
+  }
+ ],
+ "prohibited": [
+  "dual extraction",
+  "holder-term materialization",
+  "reconstruction classification",
+  "CA rebuild",
+  "state rebuild",
+  "replay",
+  "NAV",
+  "performance",
+  "gates",
+  "scaling to all TPEx events"
+ ],
+ "receiver_parameter": "never sent -- an empty receiver= silently zeroes the result set while answering stat: ok, which is what made D6.3's A3 look empty",
+ "record": "B0_8_D6_4_TPEX_STATIC_ARCHIVE_ROUTER",
+ "router_sha256": "f6fccd7e82085b931e87188bc8e414d88ae522cdd95258671c909540649a83ca",
+ "row_match": "code-first: 股票代號/證券代號/代號 + id, or (id)",
+ "success_criterion_h5": "the official body itself must identify the disappearing security and the event",
+ "surfaces": {
+  "bulletin": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement",
+  "detail": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail",
+  "static_root": "https://www.tpex.org.tw/storage/eb_data/"
+ },
+ "window_back_days": 30,
+ "window_expansion": "calendar months intersecting the window",
+ "window_forward_days": 40
+}

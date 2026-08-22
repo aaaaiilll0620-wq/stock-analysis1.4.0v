@@ -1,0 +1,104 @@
+{
+ "admissible_outcomes": [
+  "A_EXISTING_SEMANTICS_UNAMBIGUOUSLY_DEFINE_TERMINAL_TREATMENT",
+  "B_EXISTING_SEMANTICS_UNAMBIGUOUSLY_REQUIRE_PERSISTENCE",
+  "C_EXISTING_SEMANTICS_UNDERSPECIFIED_OR_CONTRADICTORY"
+ ],
+ "audit_sha256": "7dd965bb288aad61f950e3ac948481831f866cdaa022b736e67a48e136b3b893",
+ "ca_ledger_unchanged": true,
+ "consequence": {
+  "b0_7_f_ca_b_at_8913_was_correct": true,
+  "datarepair_or_bundle_acquisition_remains_necessary": true,
+  "exit_condition_named_by_the_frozen_text": "acquire the official settlement rule -- 直到官方 settlement semantics 可重建. B0.8's bundle route is not merely one option; it is the remedy §6.1.9 itself points to.",
+  "is_there_a_conformance_shortcut": false
+ },
+ "explicitly_not_considered": {
+  "economic_size_of_the_blocking_claim": "~1.076 shares, ~NT$14.4 — recorded elsewhere as an engineering-priority input only. §2.4 mechanically forbids a materiality threshold (MISSING_DATA_RATE_THRESHOLD is None), so size is not an input to this audit and no fourth outcome was constructed from it."
+ },
+ "findings": {
+  "clauses_defining_a_terminal_treatment_for_a_fractional_claim": [],
+  "governing_clause": "§6.1.9 Fractional entitlement and rounding",
+  "governing_clause_lines": [
+   879,
+   890
+  ],
+  "governing_clause_text": "#### §6.1.9 Fractional entitlement and rounding\n\n所有 corporate-action arithmetic **MUST** 使用 deterministic high-precision arithmetic。\nstate transition 階段**禁止** `round()` / `int()` / lot rounding / nearest-share approximation\n導致權利憑空消失。`economic units` 與 `executable units` 必須分開。\n\n小於 canonical executable unit 之 fractional entitlement **MUST 保留為 non-tradable\nentitlement**，直到官方 settlement semantics 可重建。若官方規則要求 cash-in-lieu，\n則 `fractional security claim → cash receivable`。\n若 fractional settlement 會影響 exposed holding 之 NAV / cash / exit 而 settlement semantics\n無法 reconstruct → **W-1 BLOCK**。不得以 floor-and-discard / ceil / round-to-nearest 讓 run 繼續。",
+  "implementation": {
+   "conforms_to_the_clause": true,
+   "file": "core\\b0_corporate_actions.py",
+   "function": "_release_matured",
+   "remainder_is_kept_as_the_same_claim": true,
+   "remainder_is_rounded_or_discarded": false
+  },
+  "other_frozen_mentions_of_fractional_claims": [
+   {
+    "line": 3,
+    "text": "**版本:** 1.32（v1.0 凍結 2026-08-17；v1.1 = P-1a，關閉 O-A ~ O-D；v1.2 = O-E closure，關閉 O-E / O-E-1 並新增 D-1 blocking requirement；v1.3 = P-1b omission corrections C-16 ~ C-20；v1.4 = A/B/C resolutions C-21 ~ C-27；v1.5 = 7 個 D 項與 σ20D ddof：C-28 ~ C-35；v1.6 = C-36，canonical core 規格完備，OPEN SPEC ITEMS = 0；v1.7 = P-2 shared route 與兩個 adapter 建成，B-20 route pair 宣告：C-37；v1.8 = D-1 驗證跨來源強化與來源 quarantine：C-38；v1.9 = "
+   },
+   {
+    "line": 879,
+    "text": "#### §6.1.9 Fractional entitlement and rounding"
+   },
+   {
+    "line": 885,
+    "text": "小於 canonical executable unit 之 fractional entitlement **MUST 保留為 non-tradable"
+   },
+   {
+    "line": 887,
+    "text": "則 `fractional security claim → cash receivable`。"
+   },
+   {
+    "line": 888,
+    "text": "若 fractional settlement 會影響 exposed holding 之 NAV / cash / exit 而 settlement semantics"
+   },
+   {
+    "line": 1032,
+    "text": "fractional entitlement、duplicate event_id、handler atomic rollback、"
+   },
+   {
+    "line": 1203,
+    "text": "| `MIN_FEE` | 20.0 | **券商政策，非法定最低**；整張與零股同 |"
+   },
+   {
+    "line": 3367,
+    "text": "零股處理、可交易／入帳邊界。"
+   },
+   {
+    "line": 3736,
+    "text": "2017 年一次 `share_multiplier = 0.2` 的減資留下 `0.19999…` 股零股 claim；"
+   },
+   {
+    "line": 3740,
+    "text": "到 2020-01 已累積 **30 檔**（當期仍在 **27 檔**），全部是 0.0176 ~ 0.99239 股的零股餘數。"
+   },
+   {
+    "line": 3756,
+    "text": "以「零股數 + 一筆 claim」探測，從轉換的實際輸出反推該集合。"
+   },
+   {
+    "line": 3800,
+    "text": "零股 claim：不捨去、不虛構現金交割、不強制 credit <1 股          未變"
+   }
+  ]
+ },
+ "implementation_modified": false,
+ "network_requests_issued": 0,
+ "question": "does the frozen text define a terminal treatment for a permanently <1-share SecurityReceivable that the implementation fails to execute?",
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_FRACTIONAL_CLAIM_LIFECYCLE_M3_AUDIT",
+ "source_hashes": {
+  "core\\b0_corporate_actions.py": "c78b4a956f9ff3591df40ef7b1cd1978f907fa34a0f277dbbcc2faa57f4a227e",
+  "core\\b0_state.py": "48b2dcd017da11e5b69805d5c8a9380bed3dbe5a0d97d91bcd2be6e913e87ddb",
+  "docs\\FrozenB0_MasterPreregistration.md": "d9212c8f1a6781709307f7428905287904fd2a6651bd431f43d2e5ac7b66efd3"
+ },
+ "states_unchanged": true,
+ "text_modified": false,
+ "verdict": "B_EXISTING_SEMANTICS_UNAMBIGUOUSLY_REQUIRE_PERSISTENCE",
+ "verdict_basis": {
+  "1_the_only_transformation_defined_is_conditional": "§6.1.9: 若官方規則要求 cash-in-lieu，則 fractional security claim → cash receivable. The transformation is GATED on the official rule being known. It is not an automatic maturity treatment.",
+  "2_the_unknown_case_is_named_and_its_outcome_is_prescribed": "§6.1.9: 若 fractional settlement 會影響 exposed holding 之 NAV / cash / exit 而 settlement semantics 無法 reconstruct → W-1 BLOCK. 8913 is exactly this case, so B0.7's F-CA-B is the SPECIFIED behaviour, not a conformance defect.",
+  "3_no_unconditional_terminal_clause_exists": "a mechanical scan of the frozen text for expiry, write-off, sinking, voiding, auto-cash-settlement and forced-buyback terms returns no clause that grants a fractional claim a terminal treatment",
+  "4_the_lifecycle_was_explicitly_re_affirmed": "§18.6 未變更: 零股 claim：不捨去、不虛構現金交割、不強制 credit <1 股 — B0.7 restated the lifecycle as unchanged while repairing the applicability domain around it",
+  "5_the_implementation_conforms": "_release_matured keeps the remainder as the SAME claim and performs no rounding; there is no unexecuted clause"
+ }
+}

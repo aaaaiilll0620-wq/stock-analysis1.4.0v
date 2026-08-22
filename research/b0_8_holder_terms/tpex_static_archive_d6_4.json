@@ -1,0 +1,693 @@
+{
+ "TESTED_D6_3_ROUTES_A1_TO_A4": "NOT_FEASIBLE",
+ "TPEX_STATIC_ARCHIVE_DISCOVERY": "PARTIALLY_FEASIBLE",
+ "TPEX_STATIC_ARCHIVE_FETCH": "FEASIBLE",
+ "adjudication_static_archive_preobservation": true,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "control_note": "3299 and 8913 were excluded from the primary sample and run afterwards through the identical protocol; the protocol was not altered for them",
+ "d6_3_verdict_not_generalised": true,
+ "disclosed_controls": [
+  {
+   "FIRST_PARTY_DOCUMENT_ID_DISCOVERED": "YES",
+   "STATIC_BODY_FETCHED": "YES",
+   "body_fallback_rows_probed": 0,
+   "body_fallback_used": false,
+   "body_matches": [
+    {
+     "body_bytes": 19568,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國107年11月5日 發文字號: 證櫃監字第10702101681號 附件: 主旨: 帛漢股份有限公司普通股股票(股票代號:3299)62,333,875股,自107年11月22日起停止櫃檯買賣,並自107年11月29日起終止櫃檯買賣。 依據: 本中心證券商營業處所買賣有價證券業務規則(以下簡稱業務規則)第15條之12、有價證券櫃檯買賣契約第4條規定,暨帛漢",
+     "body_identifies_security": true,
+     "body_sha256": "90b9a6d9a1328e18e465dc29928447512728a877ec4b4e0fd0d8b7690da1d3cf",
+     "detail_raw_sha256": "4893828303a40d404197a43b73d76fc0b9e4739e15a9b3574d57fa3d424d21f1",
+     "detail_request": {
+      "content_file": "MTA3MDIxMDE2ODEuaHRtbA==",
+      "docId": "MTA3MDIxMDE2ODE=",
+      "docId_decoded": "10702101681",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第10702101681號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=3299"
+     ],
+     "publication_date": "中華民國107年11月05日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/10711/10702101681.html",
+     "subject": "帛漢股份有限公司普通股股票（股票代號：3299）62,333,875股，自107年11月22日起停止櫃檯買賣，並自107年11月29日起終止櫃檯買賣。"
+    }
+   ],
+   "canonical_event_date": "2018-11-22",
+   "errors": [],
+   "event_id": "3299|holder_side_reorganization_exit|2018-11-22",
+   "fetched": [
+    {
+     "body_bytes": 19568,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國107年11月5日 發文字號: 證櫃監字第10702101681號 附件: 主旨: 帛漢股份有限公司普通股股票(股票代號:3299)62,333,875股,自107年11月22日起停止櫃檯買賣,並自107年11月29日起終止櫃檯買賣。 依據: 本中心證券商營業處所買賣有價證券業務規則(以下簡稱業務規則)第15條之12、有價證券櫃檯買賣契約第4條規定,暨帛漢",
+     "body_identifies_security": true,
+     "body_sha256": "90b9a6d9a1328e18e465dc29928447512728a877ec4b4e0fd0d8b7690da1d3cf",
+     "detail_raw_sha256": "4893828303a40d404197a43b73d76fc0b9e4739e15a9b3574d57fa3d424d21f1",
+     "detail_request": {
+      "content_file": "MTA3MDIxMDE2ODEuaHRtbA==",
+      "docId": "MTA3MDIxMDE2ODE=",
+      "docId_decoded": "10702101681",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第10702101681號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=3299"
+     ],
+     "publication_date": "中華民國107年11月05日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/10711/10702101681.html",
+     "subject": "帛漢股份有限公司普通股股票（股票代號：3299）62,333,875股，自107年11月22日起停止櫃檯買賣，並自107年11月29日起終止櫃檯買賣。"
+    }
+   ],
+   "queries": [
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2018/10/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2018/10/01"
+     },
+     "raw_sha256": "a9ddd4bb83410e7d2367d216067f1fd9fb10d1ab5aede0bc5e365334e9f16f10",
+     "rows": 7,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2018/11/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2018/11/01"
+     },
+     "raw_sha256": "64455d1e2a17927b6d0d2185607689c796e16d4baa120ca8af4113f1ad9ee3b8",
+     "rows": 11,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2018/12/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2018/12/01"
+     },
+     "raw_sha256": "8c35eac35745e5e5c083367325693f384f22360defb5dbc984d6e5c07bc33b90",
+     "rows": 7,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2019/01/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2019/01/01"
+     },
+     "raw_sha256": "da39d108e4e6b30e097a72c3946789f1d8de4feb0f204a29afe268cb54ec1424",
+     "rows": 5,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    }
+   ],
+   "role": "disclosed_control",
+   "rows_in_window": 19,
+   "security_id": "3299",
+   "subject_match_used": true,
+   "subject_matches": [
+    "證櫃監字第10702101681號"
+   ],
+   "window": [
+    "2018-10-23",
+    "2019-01-01"
+   ]
+  },
+  {
+   "FIRST_PARTY_DOCUMENT_ID_DISCOVERED": "YES",
+   "STATIC_BODY_FETCHED": "YES",
+   "body_fallback_rows_probed": 0,
+   "body_fallback_used": false,
+   "body_matches": [
+    {
+     "body_bytes": 21217,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國108年12月17日 發文字號: 證櫃監字第10800136464號 附件: 主旨: 全銓租賃股份有限公司(股票代號:8913,以下簡稱全銓公司)普通股股票69,335,682股,自109年1月14日起停止櫃檯買賣,並自109年1月20日起終止櫃檯買賣;另自108年12月18日起暫停融資融券交易,惟了結交易不在此限。 依據: 本中心證券商營業處所買賣有價證",
+     "body_identifies_security": true,
+     "body_sha256": "20ddb5d5b42142d62194b77ea434c3b542bba185c3f20eabc16baa1a3428caa6",
+     "detail_raw_sha256": "66400d17d7d995d4be26153c04b1f81341f01f31de0396eb764fb8b1f32edcf9",
+     "detail_request": {
+      "content_file": "MTA4MDAxMzY0NjQuaHRtbA==",
+      "docId": "MTA4MDAxMzY0NjQ=",
+      "docId_decoded": "10800136464",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第10800136464號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=8913"
+     ],
+     "publication_date": "中華民國108年12月17日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/10812/10800136464.html",
+     "subject": "全銓租賃股份有限公司（股票代號：8913，以下簡稱全銓公司）普通股股票69,335,682股，自109年1月14日起停止櫃檯買賣，並自109年1月20日起終止櫃檯買賣；另自108年12月18日起暫停融資融券交易，惟了結交易不在此限。"
+    }
+   ],
+   "canonical_event_date": "2020-01-14",
+   "errors": [],
+   "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+   "fetched": [
+    {
+     "body_bytes": 21217,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國108年12月17日 發文字號: 證櫃監字第10800136464號 附件: 主旨: 全銓租賃股份有限公司(股票代號:8913,以下簡稱全銓公司)普通股股票69,335,682股,自109年1月14日起停止櫃檯買賣,並自109年1月20日起終止櫃檯買賣;另自108年12月18日起暫停融資融券交易,惟了結交易不在此限。 依據: 本中心證券商營業處所買賣有價證",
+     "body_identifies_security": true,
+     "body_sha256": "20ddb5d5b42142d62194b77ea434c3b542bba185c3f20eabc16baa1a3428caa6",
+     "detail_raw_sha256": "66400d17d7d995d4be26153c04b1f81341f01f31de0396eb764fb8b1f32edcf9",
+     "detail_request": {
+      "content_file": "MTA4MDAxMzY0NjQuaHRtbA==",
+      "docId": "MTA4MDAxMzY0NjQ=",
+      "docId_decoded": "10800136464",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第10800136464號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=8913"
+     ],
+     "publication_date": "中華民國108年12月17日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/10812/10800136464.html",
+     "subject": "全銓租賃股份有限公司（股票代號：8913，以下簡稱全銓公司）普通股股票69,335,682股，自109年1月14日起停止櫃檯買賣，並自109年1月20日起終止櫃檯買賣；另自108年12月18日起暫停融資融券交易，惟了結交易不在此限。"
+    }
+   ],
+   "queries": [
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2019/12/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2019/12/01"
+     },
+     "raw_sha256": "3c2e9ec426dd5b8e91375252b6b53872f1689ae795afedcba36f9f42f3f79f77",
+     "rows": 6,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2020/01/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2020/01/01"
+     },
+     "raw_sha256": "ba77b5229cf53bb4a7669c847389e782e8fcabd0d71f59d8dea88a9fb3f27be6",
+     "rows": 1,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2020/02/29",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2020/02/01"
+     },
+     "raw_sha256": "2732106bcdd0c1a874af01d87c474f1e6415ce3b3ef528d01a380af92404504c",
+     "rows": 4,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    }
+   ],
+   "role": "disclosed_control",
+   "rows_in_window": 8,
+   "security_id": "8913",
+   "subject_match_used": true,
+   "subject_matches": [
+    "證櫃監字第10800136464號"
+   ],
+   "window": [
+    "2019-12-15",
+    "2020-02-23"
+   ]
+  }
+ ],
+ "gates_evaluated": false,
+ "holder_terms_extracted": false,
+ "nav_computed": false,
+ "performance_inspection": false,
+ "preobserved_event_ids": [
+  3299,
+  8913
+ ],
+ "primary_discovered": 2,
+ "primary_fetched": 2,
+ "primary_sample_size": 4,
+ "reconstruction_classification_performed": false,
+ "record": "B0_8_D6_4_TPEX_STATIC_ARCHIVE_FEASIBILITY",
+ "record_sha256": "ba15eab743fb5da6c1a8c9a6aeb0323cba4d3f624f6cbd20f7eebc0c22905cee",
+ "replay_started": false,
+ "results": [
+  {
+   "FIRST_PARTY_DOCUMENT_ID_DISCOVERED": "NO",
+   "STATIC_BODY_FETCHED": "NO",
+   "body_fallback_rows_probed": 8,
+   "body_fallback_used": true,
+   "body_matches": [],
+   "canonical_event_date": "2017-09-25",
+   "errors": [],
+   "event_id": "3553|holder_side_reorganization_exit|2017-09-25",
+   "fetched": [],
+   "queries": [
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2017/08/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2017/08/01"
+     },
+     "raw_sha256": "e7877ba14321976c35569401aba07670ac268aba9244fc89724be948d4948f0f",
+     "rows": 9,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2017/09/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2017/09/01"
+     },
+     "raw_sha256": "7102e4dc6de6b42e7e63441bbcb7baf377ece3d2c87a3f7d6dad459483342713",
+     "rows": 4,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2017/10/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2017/10/01"
+     },
+     "raw_sha256": "cc11da393b3a5678fb58bc8b9afd65f260b3fc4e30a67d6cc38d67872e34bcda",
+     "rows": 4,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2017/11/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2017/11/01"
+     },
+     "raw_sha256": "aaedeff57e898b3ed89ac7452a6356e1321ba88af174794bae793923481f76ce",
+     "rows": 6,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    }
+   ],
+   "role": "primary",
+   "rows_in_window": 8,
+   "security_id": "3553",
+   "subject_match_used": false,
+   "subject_matches": [],
+   "window": [
+    "2017-08-26",
+    "2017-11-04"
+   ]
+  },
+  {
+   "FIRST_PARTY_DOCUMENT_ID_DISCOVERED": "YES",
+   "STATIC_BODY_FETCHED": "YES",
+   "body_fallback_rows_probed": 0,
+   "body_fallback_used": false,
+   "body_matches": [
+    {
+     "body_bytes": 22154,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "下櫃",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國115年4月23日 發文字號: 證櫃監字第11500024591號 附件: 主旨: 公告科誠股份有限公司上櫃之有價證券(股票代號:4987,以下簡稱科誠公司)自115年5月21日起停止櫃檯買賣,並自115年5月29日起終止櫃檯買賣。 依據: 證券商營業處所買賣有價證券管理辦法第10條、本中心證券商營業處所買賣有價證券業務規則 (以下簡稱業務規則) 第15條",
+     "body_identifies_security": true,
+     "body_sha256": "cc68215131037bc6d1579451fc57776dd9e5f93565eca3be72a511c1da1cf3d3",
+     "detail_raw_sha256": "c857091f7b35e4284ad36fad0604080a54dc3c7d7e79ca69decc2827b30d7ada",
+     "detail_request": {
+      "content_file": "MTE1MDAwMjQ1OTEuaHRtbA==",
+      "docId": "MTE1MDAwMjQ1OTE=",
+      "docId_decoded": "11500024591",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第11500024591號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "下櫃",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=4987"
+     ],
+     "publication_date": "中華民國115年04月23日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/11504/11500024591.html",
+     "subject": "公告科誠股份有限公司上櫃之有價證券（股票代號：4987，以下簡稱科誠公司）自115年5月21日起停止櫃檯買賣，並自115年5月29日起終止櫃檯買賣。"
+    }
+   ],
+   "canonical_event_date": "2026-05-21",
+   "errors": [],
+   "event_id": "4987|holder_side_reorganization_exit|2026-05-21",
+   "fetched": [
+    {
+     "body_bytes": 22154,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "下櫃",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國115年4月23日 發文字號: 證櫃監字第11500024591號 附件: 主旨: 公告科誠股份有限公司上櫃之有價證券(股票代號:4987,以下簡稱科誠公司)自115年5月21日起停止櫃檯買賣,並自115年5月29日起終止櫃檯買賣。 依據: 證券商營業處所買賣有價證券管理辦法第10條、本中心證券商營業處所買賣有價證券業務規則 (以下簡稱業務規則) 第15條",
+     "body_identifies_security": true,
+     "body_sha256": "cc68215131037bc6d1579451fc57776dd9e5f93565eca3be72a511c1da1cf3d3",
+     "detail_raw_sha256": "c857091f7b35e4284ad36fad0604080a54dc3c7d7e79ca69decc2827b30d7ada",
+     "detail_request": {
+      "content_file": "MTE1MDAwMjQ1OTEuaHRtbA==",
+      "docId": "MTE1MDAwMjQ1OTE=",
+      "docId_decoded": "11500024591",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第11500024591號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "下櫃",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=4987"
+     ],
+     "publication_date": "中華民國115年04月23日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/11504/11500024591.html",
+     "subject": "公告科誠股份有限公司上櫃之有價證券（股票代號：4987，以下簡稱科誠公司）自115年5月21日起停止櫃檯買賣，並自115年5月29日起終止櫃檯買賣。"
+    }
+   ],
+   "queries": [
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2026/04/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2026/04/01"
+     },
+     "raw_sha256": "380b38b249ea83952f9942729ca460a2f07aea16c266eceb06f7e652cebcffcd",
+     "rows": 8,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2026/05/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2026/05/01"
+     },
+     "raw_sha256": "db7265d055710bc4d1826a8434a173561ce413cdab48e9346c4705f98aba3970",
+     "rows": 7,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2026/06/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2026/06/01"
+     },
+     "raw_sha256": "625810fc5d46572e010ee1c9996e2ae12718fa061333501163dd64c3ea792c86",
+     "rows": 3,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    }
+   ],
+   "role": "primary",
+   "rows_in_window": 14,
+   "security_id": "4987",
+   "subject_match_used": true,
+   "subject_matches": [
+    "證櫃監字第11500024591號"
+   ],
+   "window": [
+    "2026-04-21",
+    "2026-06-30"
+   ]
+  },
+  {
+   "FIRST_PARTY_DOCUMENT_ID_DISCOVERED": "YES",
+   "STATIC_BODY_FETCHED": "YES",
+   "body_fallback_rows_probed": 0,
+   "body_fallback_used": false,
+   "body_matches": [
+    {
+     "body_bytes": 19984,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國113年10月30日 發文字號: 證櫃監字第11300095221號 附件: 主旨: 公告明揚國際科技股份有限公司上櫃之有價證券(股票代號:8420,以下簡稱明揚公司)自113年11月21日起停止櫃檯買賣,並自113年11月29日起終止櫃檯買賣。 依據: 證券商營業處所買賣有價證券管理辦法第10條、本中心證券商營業處所買賣有價證券業務規則(以下簡稱業務規則",
+     "body_identifies_security": true,
+     "body_sha256": "985038803e1df39d24557487262c879fdc80a464393e2c2cffe8eab24428aed0",
+     "detail_raw_sha256": "704f9d9036ec95c00e28b4e3fa6b41168c79564012884fdc9b06972c7f2100e4",
+     "detail_request": {
+      "content_file": "MTEzMDAwOTUyMjEuaHRtbA==",
+      "docId": "MTEzMDAwOTUyMjE=",
+      "docId_decoded": "11300095221",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第11300095221號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=8420"
+     ],
+     "publication_date": "中華民國113年10月30日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/11310/11300095221.html",
+     "subject": "公告明揚國際科技股份有限公司上櫃之有價證券（股票代號：8420，以下簡稱明揚公司）自113年11月21日起停止櫃檯買賣，並自113年11月29日起終止櫃檯買賣。"
+    }
+   ],
+   "canonical_event_date": "2024-11-21",
+   "errors": [],
+   "event_id": "8420|holder_side_reorganization_exit|2024-11-21",
+   "fetched": [
+    {
+     "body_bytes": 19984,
+     "body_event_markers": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "body_head": "財團法人中華民國證券櫃檯買賣中心 公告 受文者: 如行文單位 發文日期: 中華民國113年10月30日 發文字號: 證櫃監字第11300095221號 附件: 主旨: 公告明揚國際科技股份有限公司上櫃之有價證券(股票代號:8420,以下簡稱明揚公司)自113年11月21日起停止櫃檯買賣,並自113年11月29日起終止櫃檯買賣。 依據: 證券商營業處所買賣有價證券管理辦法第10條、本中心證券商營業處所買賣有價證券業務規則(以下簡稱業務規則",
+     "body_identifies_security": true,
+     "body_sha256": "985038803e1df39d24557487262c879fdc80a464393e2c2cffe8eab24428aed0",
+     "detail_raw_sha256": "704f9d9036ec95c00e28b4e3fa6b41168c79564012884fdc9b06972c7f2100e4",
+     "detail_request": {
+      "content_file": "MTEzMDAwOTUyMjEuaHRtbA==",
+      "docId": "MTEzMDAwOTUyMjE=",
+      "docId_decoded": "11300095221",
+      "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail"
+     },
+     "document_number": "證櫃監字第11300095221號",
+     "event_markers_in_body": [
+      "終止",
+      "停止",
+      "櫃檯買賣"
+     ],
+     "identifies_security_in_body": true,
+     "matching_keys": [
+      "股票代號=8420"
+     ],
+     "publication_date": "中華民國113年10月30日",
+     "static_url": "https://www.tpex.org.tw/storage/eb_data/11310/11300095221.html",
+     "subject": "公告明揚國際科技股份有限公司上櫃之有價證券（股票代號：8420，以下簡稱明揚公司）自113年11月21日起停止櫃檯買賣，並自113年11月29日起終止櫃檯買賣。"
+    }
+   ],
+   "queries": [
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2024/10/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2024/10/01"
+     },
+     "raw_sha256": "9ba5d52c75d72e279746048f449e4b56afe2027e49afd3471e3aabf317d77eb6",
+     "rows": 4,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2024/11/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2024/11/01"
+     },
+     "raw_sha256": "1cc0c4a4008e3fe53933fcb1daa96e7a5141e14b0dd00d31050f107e395fea0a",
+     "rows": 3,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2024/12/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2024/12/01"
+     },
+     "raw_sha256": "883335a2a9dde5f163fd2e2e7ac5b2f1b9a327cc021e6084543cc51c32ca3bb1",
+     "rows": 5,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    }
+   ],
+   "role": "primary",
+   "rows_in_window": 10,
+   "security_id": "8420",
+   "subject_match_used": true,
+   "subject_matches": [
+    "證櫃監字第11300095221號"
+   ],
+   "window": [
+    "2024-10-22",
+    "2024-12-31"
+   ]
+  },
+  {
+   "FIRST_PARTY_DOCUMENT_ID_DISCOVERED": "NO",
+   "STATIC_BODY_FETCHED": "NO",
+   "body_fallback_rows_probed": 7,
+   "body_fallback_used": true,
+   "body_matches": [],
+   "canonical_event_date": "2024-10-09",
+   "errors": [],
+   "event_id": "6514|holder_side_reorganization_exit|2024-10-09",
+   "fetched": [],
+   "queries": [
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2024/09/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2024/09/01"
+     },
+     "raw_sha256": "c347001ffdf403aba3f903ce3432b0dec06e0257af2960493470b5818ccbf4c1",
+     "rows": 3,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2024/10/31",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2024/10/01"
+     },
+     "raw_sha256": "9ba5d52c75d72e279746048f449e4b56afe2027e49afd3471e3aabf317d77eb6",
+     "rows": 4,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    },
+    {
+     "params": {
+      "cate": "4",
+      "endDate": "2024/11/30",
+      "paging-offset": "0",
+      "paging-size": "500",
+      "startDate": "2024/11/01"
+     },
+     "raw_sha256": "1cc0c4a4008e3fe53933fcb1daa96e7a5141e14b0dd00d31050f107e395fea0a",
+     "rows": 3,
+     "stat": "ok",
+     "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+    }
+   ],
+   "role": "primary",
+   "rows_in_window": 7,
+   "security_id": "6514",
+   "subject_match_used": false,
+   "subject_matches": [],
+   "window": [
+    "2024-09-09",
+    "2024-11-18"
+   ]
+  }
+ ],
+ "router_path": "research/b0_8_holder_terms/tpex_static_router_freeze_d6_4.json",
+ "router_sha256": "f6fccd7e82085b931e87188bc8e414d88ae522cdd95258671c909540649a83ca",
+ "scaled_to_all_tpex_events": false,
+ "states_unchanged": true
+}

@@ -1,0 +1,477 @@
+{
+ "b0_8_state": "WIP, UNSEALED",
+ "blocked_or_limited_families": [
+  "disappearing_side_MOPS_material_announcements",
+  "MOPS_electronic_document_archive",
+  "TWSE_same_transaction_records",
+  "TDCC_surfaces"
+ ],
+ "ca_ledger_or_states_changed": false,
+ "canonical_values_materialized": false,
+ "closure_sha256": "e83a978177513c6d179695d166cf72aa2dda0161c977017825904432429cdb99",
+ "consumer_modified": false,
+ "d8_2a_correction": {
+  "BULK_STOCK_ACQUISITION": "NO_GO",
+  "CONFIRMED_SUCCESSOR_CREDIT_POSITIVES": 0,
+  "control_count_deviation": {
+   "controls_selected": 17,
+   "frozen_target_range": [
+    12,
+    16
+   ],
+   "reason": "TARGET=16 stratified round-robin selection, plus 8420 appended unconditionally as the carried known control (D8.2A sampling.8420_carried_as_known_control_not_semantics_definer) since it was not drawn naturally within the first 16"
+  },
+  "does_not_establish": "global or event-level NOT_RECONSTRUCTIBLE",
+  "eligible_pool_by_stratum": {
+   "TPEX|2004-2009": 7,
+   "TPEX|2010-2014": 1,
+   "TPEX|2015-2019": 6,
+   "TPEX|2020-2026": 7,
+   "TWSE|2004-2009": 16
+  },
+  "gate_result": "NO_REPRODUCIBLE_POSITIVE_IN_BOUNDED_CONTROL_SET",
+  "per_event_outcomes": [
+   {
+    "band": "2004-2009",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "4110",
+    "successor_code": "1731",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2010-2014",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "6008",
+    "successor_code": "2883",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2015-2019",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "1566",
+    "successor_code": "5392",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2020-2026",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "4429",
+    "successor_code": "4433",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2004-2009",
+    "carried_known_control": false,
+    "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+    "security_id": "1311",
+    "successor_code": "1704",
+    "venue": "TWSE"
+   },
+   {
+    "band": "2004-2009",
+    "carried_known_control": false,
+    "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+    "security_id": "5436",
+    "successor_code": "5305",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2015-2019",
+    "carried_known_control": false,
+    "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+    "security_id": "3299",
+    "successor_code": "5317",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2020-2026",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "4944",
+    "successor_code": "6488",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2004-2009",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "2343",
+    "successor_code": "6214",
+    "venue": "TWSE"
+   },
+   {
+    "band": "2004-2009",
+    "carried_known_control": false,
+    "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+    "security_id": "5494",
+    "successor_code": "4915",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2015-2019",
+    "carried_known_control": false,
+    "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+    "security_id": "3428",
+    "successor_code": "3712",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2020-2026",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "4945",
+    "successor_code": "2436",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2004-2009",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "2366",
+    "successor_code": "2357",
+    "venue": "TWSE"
+   },
+   {
+    "band": "2004-2009",
+    "carried_known_control": false,
+    "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+    "security_id": "5528",
+    "successor_code": "2410",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2015-2019",
+    "carried_known_control": false,
+    "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+    "security_id": "5317",
+    "successor_code": "2375",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2020-2026",
+    "carried_known_control": false,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "5281",
+    "successor_code": "4972",
+    "venue": "TPEX"
+   },
+   {
+    "band": "2020-2026",
+    "carried_known_control": true,
+    "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+    "security_id": "8420",
+    "successor_code": "8938",
+    "venue": "TPEX"
+   }
+  ],
+  "selected_controls_by_stratum": {
+   "TPEX|2004-2009": 4,
+   "TPEX|2010-2014": 1,
+   "TPEX|2015-2019": 4,
+   "TPEX|2020-2026": 5,
+   "TWSE|2004-2009": 3
+  },
+  "withdrawn_positive_controls": {
+   "4429": {
+    "evidence": [
+     {
+      "date": "",
+      "disqualifiers_in_window": [
+       "應賣",
+       "交存",
+       "公開收購"
+      ],
+      "raw_match": "帳簿劃撥",
+      "subject": "公告本公司公開收購聚紡股份有限公司之普通股股份",
+      "window": "務處理準則規定之資格條件，且最近一年內未有因公開收購業務經本會處 糾正以上處分者。但違規情事已具體改善，並經本會認可者，得不受其限制。（第3 項）受委任機構接受應賣人有價證券之交存時，應開具該有價證券種類、數量之憑證 與應賣人。（第4項）受委任機構接受應賣人透過證券商或保管銀行以帳簿劃撥方式 交存有價證券者，應依證券集中保管事業相關規定辦理。（第5項）」 (2) 查公開收購人就本公開收購案已委任凱基證券辦理前述事項，並簽訂委任 契約，且"
+     }
+    ],
+    "raw_unscoped_hits": 1,
+    "successor_code": "4433",
+    "withdrawal_reason": "DIFFERENT_CORPORATE_ACTION_TENDER_OFFER_DEPOSIT"
+   },
+   "6008": {
+    "evidence": [
+     {
+      "date": "",
+      "disqualifiers_in_window": [
+       "應賣",
+       "公開收購"
+      ],
+      "raw_match": "帳簿劃撥",
+      "subject": "公告本公司公開收購凱基證券股份有限公司普通股\n之公開收購期間已屆滿",
+      "window": "地點:(一)時間：公開收購期間屆滿後 次日起算9個營業日以內(含第9個營業日，即101年6月8日前)。 (二)方法：公開收購股份之股票對價（公開收購人─中華開發金融控股 股份有限公司辦理之增資發行普通股）將由受委任機構統一綜合證券股份有限公司 依臺灣集中保管結算所相關規定， 辦理帳簿劃撥交付至應賣人於證券商之集中保管劃撥帳戶。 (三)地點：公開收購股份之股票對價（公開收購人─中華開發金融控股股份 有限公司辦理之增資發行普通股）將由受委任"
+     },
+     {
+      "date": "",
+      "disqualifiers_in_window": [
+       "應賣",
+       "公開收購"
+      ],
+      "raw_match": "帳簿劃撥",
+      "subject": "公告本公司公開收購凱基證券股份有限公司普通股\n之公開收購期間已屆滿",
+      "window": "證券股份有限公司 依臺灣集中保管結算所相關規定， 辦理帳簿劃撥交付至應賣人於證券商之集中保管劃撥帳戶。 (三)地點：公開收購股份之股票對價（公開收購人─中華開發金融控股股份 有限公司辦理之增資發行普通股）將由受委任機構統一綜合證券股份有限公司 依臺灣集中保管結算所相關規定， 辦理帳簿劃撥交付至應賣人於證券商之集中保管劃撥帳戶。 11.其他應敘明事項:無 以上資料均由各公司依發言當時所屬市場別之規定申報後，由本系統對外公佈，資料如有虛偽不"
+     }
+    ],
+    "raw_unscoped_hits": 2,
+    "successor_code": "2883",
+    "withdrawal_reason": "DIFFERENT_CORPORATE_ACTION_TENDER_OFFER_DEPOSIT"
+   },
+   "8420": {
+    "evidence": [
+     {
+      "date": "",
+      "disqualifiers_in_window": [
+       "轉換公司債",
+       "可轉債",
+       "債權人",
+       "贖回",
+       "賣回"
+      ],
+      "raw_match": "帳簿劃撥",
+      "subject": "公告本公司與明揚國際科技股份有限公司於股份轉換\n基準日後，明揚國際科技股份有限公司發行之國內第一次\n無擔保轉換公司債請求",
+      "window": "0.6元，明揚一每張面額新臺幣壹拾萬元 得轉換為本公司普通股765股。日後若明揚一之轉換價格依該發行及轉換辦法而有 變更，將另行公告。 明揚一債權人欲依前述申請將該可轉債轉換為本公司普通股者，其轉換程序如下； 日後若有變更，將再予另行公告。 1.債權人至原交易券商填具「轉換公司債帳簿劃撥轉換／贖回／賣回申請書」 (註明轉換)，並檢附相關文件，由交易券商向臺灣集中保管結算所股份有限公司 (下稱集保公司)提出申請。 2.債權人務必填具「債權"
+     }
+    ],
+    "raw_unscoped_hits": 1,
+    "successor_code": "8938",
+    "withdrawal_reason": "DIFFERENT_CORPORATE_ACTION_CB_CONVERSION"
+   }
+  }
+ },
+ "dual_extraction_started": false,
+ "event_level_adjudication_admissible": false,
+ "event_level_adjudication_admissible_reason": "3 of 7 families (disappearing-side MOPS material announcements, TWSE same-transaction records, and the not-yet-tested MOPS e-doc archive credit-date rescan) are not closed; D7.5's own denominator still carries 7 SEMANTIC_UNKNOWN events. A later adjudication rule may map completed family coverage to event-specific evidence once those are closed -- not here.",
+ "families_reported_at_population_level_reason": "prior B0.8 closures (D6.x/D7.x) were run and reported at whole-population level, not stratified by the four D8.2A bands; re-stratifying would require a new pass, which this stage does not run (not a bulk crawl).",
+ "families_where_no_period_stratified_breakdown_exists": true,
+ "family_by_period_coverage_matrix": {
+  "MOPS_electronic_document_archive": {
+   "basis": {
+    "CASH_ONLY": 22,
+    "CONFIRMED_STOCK_BEARING": 32,
+    "MIXED": 3,
+    "STOCK_ONLY": 29,
+    "TPEX_59_HOLDER_CONSIDERATION_DENOMINATOR_CLOSED": false,
+    "UNKNOWN": 5,
+    "consideration_acquisition_boundary": 0,
+    "reconciliation_total": 59,
+    "source_family_not_exhausted": 5
+   },
+   "coverage_limitation": "D7.6 tested this route (doc.twse.com.tw t57sb01, distinct from the material-announcement endpoint) for CONSIDERATION-TYPE existence (cash/stock/mixed) across the TPEX_59 population -- 54/59 reconciled, 5 not yet exhausted. It has NOT yet been re-scanned specifically for explicit holder-inbound credit-DATE semantics; this is a distinct not-yet-executed query against an already-reachable route, not a route or coverage failure.",
+   "credit_delivery_field_expected_by_doc_type": true,
+   "disposition": "NOT_YET_TESTED_FOR_THIS_FIELD",
+   "disposition_note": "outside the D8.2B permitted taxonomy -- reported for transparency, not a closure disposition",
+   "explicit_holder_inbound_credit_date_found": false,
+   "full_text_available": true,
+   "query_executed_successfully": true,
+   "route_available": true,
+   "transaction_linked_records_returned": true
+  },
+  "TDCC_surfaces": {
+   "coverage_limitation": "OD-1-7 (有價證券帳簿劃撥配發交付日期一覽表) and PORTAL-QRYPS carry a delivery/credit-date field by schema, but OD-1-7's observed coverage window is 2025-01-02..present -- it does not reach any of the 2004-2024 control vintages. SM-STK003 (合併換票一覽表) carries only 消滅公司/存續公司/換票比率 (D7.1b's reader); no delivery/credit-date column was found on inspection, so its D7.0c capable_of_settlement_or_credit_date=true flag is a schema-name heuristic not confirmed by content and should not be relied on without re-inspection. The adjudication supplement additionally establishes 0 of 10 documented TDCC public surfaces expose a settlement/payment date for the cash-leg case (8913), by the same schema-first method.",
+   "credit_delivery_field_expected_by_doc_type": true,
+   "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+   "explicit_holder_inbound_credit_date_found": false,
+   "full_text_available": true,
+   "query_executed_successfully": true,
+   "route_available": true,
+   "surfaces": [
+    {
+     "capable_of_settlement_or_credit_date": false,
+     "coverage_range": [
+      "20260820",
+      "20260820"
+     ],
+     "id": "OD-1-1",
+     "name": "證券基本資料"
+    },
+    {
+     "capable_of_settlement_or_credit_date": true,
+     "coverage_range": [
+      "20250102",
+      "20260820"
+     ],
+     "id": "OD-1-7",
+     "name": "有價證券帳簿劃撥配發交付日期一覽表"
+    },
+    {
+     "capable_of_settlement_or_credit_date": false,
+     "coverage_range": [
+      "20260819",
+      "20260819"
+     ],
+     "id": "OD-1-13",
+     "name": "有價證券轉(交)換/認股價格變更資料查詢"
+    },
+    {
+     "capable_of_settlement_or_credit_date": false,
+     "coverage_range": [
+      "20260820",
+      "20260820"
+     ],
+     "id": "OD-1-14",
+     "name": "有價證券董事收購相關資訊"
+    },
+    {
+     "capable_of_settlement_or_credit_date": false,
+     "coverage_range": null,
+     "id": "OD-2-5",
+     "name": "帳簿劃撥配發新股統計表"
+    },
+    {
+     "capable_of_settlement_or_credit_date": false,
+     "coverage_range": null,
+     "id": "OD-2-23",
+     "name": "有價證券集中保管個別股票異動月分析表－上櫃證券"
+    },
+    {
+     "capable_of_settlement_or_credit_date": true,
+     "coverage_range": null,
+     "id": "SM-STK001",
+     "name": "發行公司名稱變更一覽表"
+    },
+    {
+     "capable_of_settlement_or_credit_date": true,
+     "coverage_range": null,
+     "id": "SM-STK002",
+     "name": "發行公司減資換票一覽表"
+    },
+    {
+     "capable_of_settlement_or_credit_date": true,
+     "coverage_range": null,
+     "id": "SM-STK003",
+     "name": "發行公司合併換票一覽表"
+    },
+    {
+     "capable_of_settlement_or_credit_date": true,
+     "coverage_range": null,
+     "id": "PORTAL-QRYPS",
+     "name": "有價證券帳簿劃撥配發/交付日期一覽表查詢"
+    }
+   ],
+   "transaction_linked_records_returned": false
+  },
+  "TPEx_same_transaction_records": {
+   "coverage_limitation": "D6.6 exhaustive census of TPEx static termination bulletins: 39 unique event bodies, payment_or_credit_date present on only 2 (1787, 3144) -- both re-checked here and both have stock_consideration=false / cash_consideration=true, i.e. a cash settlement date, not a successor share credit date; out of section-5 scope regardless.",
+   "credit_delivery_field_expected_by_doc_type": true,
+   "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+   "explicit_holder_inbound_credit_date_found": false,
+   "field_presence_counts": {
+    "in_scope_for_stock_credit": 0,
+    "of_unique_bodies": 39,
+    "payment_or_credit_date_hits": 2
+   },
+   "full_text_available": true,
+   "query_executed_successfully": true,
+   "route_available": true,
+   "scope_check_detail": [
+    {
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": true,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "in_scope_for_stock_credit": false,
+     "security_id": "1787"
+    },
+    {
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": true,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "in_scope_for_stock_credit": false,
+     "security_id": "3144"
+    }
+   ],
+   "transaction_linked_records_returned": true
+  },
+  "TWSE_same_transaction_records": {
+   "coverage_limitation": "No first-party TWSE surface distinct from (a) MOPS material announcements, already audited above, and (b) TDCC's TWSE-scoped STK-series lists, already audited under TDCC below, has been identified or queried in prior B0.8 stages as a separate 'TWSE bulletin' family for this semantic.",
+   "credit_delivery_field_expected_by_doc_type": null,
+   "disposition": "ROUTE_ERROR_OR_ACCESS_LIMITATION",
+   "explicit_holder_inbound_credit_date_found": false,
+   "full_text_available": false,
+   "query_executed_successfully": false,
+   "route_available": null,
+   "transaction_linked_records_returned": false
+  },
+  "disappearing_side_MOPS_material_announcements": {
+   "coverage_limitation": "MOPS_BODY_ROUTES_CLOSED_FOR_THIS_POPULATION",
+   "credit_delivery_field_expected_by_doc_type": true,
+   "detail": {
+    "R1_legacy_ajax_t05st01": "SOURCE REFUSAL for this population -- the host answers 200 and returns the 不繼續公開發行 page; the same request against the LIVE control returns a non-refusal page, so the refusal is aimed at deregistered issuers, not at us",
+    "R3_v2_detail_api": "SOURCE REFUSAL for this population -- answers with the same 不繼續公開發行 text",
+    "R4_signed_redirect": "TARGET ENDPOINT DEAD FOR EVERYONE. The signature is issued normally (HTTP 200, distinct per announcement), but mopsov /mops/web/t05st01_detail closes the connection without a response for this population, for the LIVE control, and for a request carrying no query at all. Input-independent and population-independent."
+   },
+   "disposition": "ROUTE_ERROR_OR_ACCESS_LIMITATION",
+   "explicit_holder_inbound_credit_date_found": false,
+   "full_text_available": false,
+   "query_executed_successfully": true,
+   "route_available": false,
+   "transaction_linked_records_returned": false
+  },
+  "issuer_or_surviving_company_formal_transaction_documents": {
+   "basis": {
+    "FINAL_CONFIRMED_CASH_ONLY": 22,
+    "FINAL_CONFIRMED_STOCK_BEARING": 30,
+    "FINAL_CONSIDERATION_SEMANTICS_UNKNOWN": 7,
+    "FINAL_MIXED": 3,
+    "FINAL_STOCK_ONLY": 27,
+    "UNKNOWN_DUE_TO_PUBLIC_AUTHORITATIVE_BOUNDARY": 1,
+    "UNKNOWN_DUE_TO_SOURCE_FAMILY_NOT_EXHAUSTED": 6,
+    "acquisition_workflow_closed": false,
+    "exact_stock_denominator_closed": false,
+    "reading": "exact stock denominator NOT closed: 7 semantic-unknown remain (6 source-family-not-exhausted + 1 foreign boundary). Acquisition workflow NOT closed while 6 families remain testable. Confirmed stock-bearing 30; upper 37",
+    "stock_bearing_lower_bound": 30,
+    "stock_bearing_upper_bound": 37
+   },
+   "coverage_limitation": "D7.5's AB9 denominator: 30 confirmed stock-bearing of 59, but 7 remain SEMANTIC_UNKNOWN (6 source-family-not-exhausted -- holdco 股份轉換公開說明書 or unlisted-survivor formal/regulatory filing still retrievable in principle; 1 foreign public-authoritative boundary, 6514). Formal transaction documents (shareholder circulars, merger agreements) established CONSIDERATION TYPE for several events (D7.6 AC-series) but were not examined there for an explicit credit-DATE field.",
+   "credit_delivery_field_expected_by_doc_type": true,
+   "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+   "explicit_holder_inbound_credit_date_found": false,
+   "full_text_available": true,
+   "query_executed_successfully": true,
+   "route_available": true,
+   "transaction_linked_records_returned": true
+  },
+  "successor_side_MOPS_material_announcements": {
+   "basis_sha256": "c33dcfdbf83d10c99c31d5bb73beda362a74e86dd37697bb938d83c4e336f9d7",
+   "coverage_limitation": "Full ROC 90-113 successor-side MOPS history enumerated (D7.2c), 301 candidate bodies fetched. One SUCCESSOR_CREDIT_FIELD_PRESENT hit (8420) was raised before scope-disqualification existed; re-verified here (offline, cached body) as a convertible-bond conversion procedure for 明揚一, not a merger share credit -- withdrawn.",
+   "credit_delivery_field_expected_by_doc_type": true,
+   "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+   "explicit_holder_inbound_credit_date_found": false,
+   "full_text_available": true,
+   "query_executed_successfully": true,
+   "route_available": true,
+   "transaction_linked_records_returned": true
+  }
+ },
+ "frozen_schema_modified": false,
+ "inputs": {
+  "d6_6_census_sha256": null,
+  "d7_2c_presence_sha256": "c33dcfdbf83d10c99c31d5bb73beda362a74e86dd37697bb938d83c4e336f9d7",
+  "d7_5_closure_sha256": "29cc8d4d54b2fa5ca7616d86a7e8bcad8f97e009e987abfbeeddaa1a3c82df9b",
+  "d7_6_closure_sha256": "18c4d91e67c5891cb04a33ac6e7679e98df150d5f88947bef61477c63928b2b7",
+  "d8_2a_gate_sha256": "5a8423ed55d789d4c2dd5456cb856707b1b286b65e9a2ac70eb8afaed615074b"
+ },
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_D8_2B_SUCCESSOR_CREDIT_DATE_SOURCE_FAMILY_COVERAGE_CLOSURE",
+ "source_family_closure_verdict": "CLOSURE_BLOCKED_BY_COVERAGE_OR_ACCESS",
+ "structural_exclusions_carried_unchanged": {
+  "4152_elective": "SCHEMA_OR_EVENT_CLASS_CONFLICT",
+  "CASH_ONLY_settlement_acquisition": "SCHEMA_CONSUMER_CONFORMANCE_CONFLICT"
+ },
+ "twse_99_bulk_acquisition_started": false,
+ "valid_positives": []
+}

@@ -1,0 +1,296 @@
+{
+ "adjudication_source_preobservation": true,
+ "correction_1_3_justification": "reading a source's refusal page as though it were the document it refused to serve is wrong whichever way it moves the count; the v1.2 result is preserved in this history so the effect of the fix is visible",
+ "correction_1_3_made_after_seeing_an_outcome": true,
+ "corrections_changed_any_request": false,
+ "frozen_before_any_corpus_request": true,
+ "no_tpex_openapi_delisted_directory_does_not_mean": "NO_AUTHORITATIVE_TPEX_HISTORICAL_SOURCE -- the authoritative TPEx 終止上櫃公司 directory exists outside OpenAPI and is used here as a primary surface",
+ "no_tpex_openapi_delisted_directory_means": "no TERMINATED-COMPANY endpoint among the 225 enumerated TPEx OpenAPI endpoints",
+ "performance_inspection": false,
+ "policy_schema_sha256": "f9b4322a160258f6e11293422626877f0a2f9157bfbe09cac1dac1114e4eb948",
+ "preobservation_effect_on_routing": "none; both codes enter the loop in register order and the router has no branch that can see them",
+ "preobserved_event_ids": [
+  3299,
+  8913
+ ],
+ "record": "B0_8_OFFICIAL_DOCUMENT_ROUTER_FREEZE",
+ "register_sha256": "783334ba2efa17dff65c6ebf35acee981172b3b8d765799a581df964447f2c1a",
+ "router": {
+  "accounting_sense_suffixes": [
+   "財務報表",
+   "財務報告",
+   "財報",
+   "報表",
+   "營收",
+   "營業收入",
+   "損益",
+   "資產負債",
+   "現金流量",
+   "個體",
+   "財務資訊",
+   "基礎",
+   "範圍",
+   "報表編製",
+   "營業額",
+   "毛利",
+   "總損益",
+   "自結"
+  ],
+  "cash_consideration_markers": [
+   "現金對價",
+   "現金為對價",
+   "每股現金",
+   "以現金",
+   "現金支付",
+   "收購價格",
+   "每股價格",
+   "現金補償"
+  ],
+  "counterparty_proximity_chars": 40,
+  "directory_match_tolerance_days": 370,
+  "discovery_classes": [
+   "OFFICIAL_EVENT_DOCUMENT_UNIQUE",
+   "OFFICIAL_EVENT_DOCUMENT_NONE",
+   "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS",
+   "OFFICIAL_EVENT_DOCUMENT_REQUEST_ERROR"
+  ],
+  "event_markers": [
+   "終止上市",
+   "終止上櫃",
+   "終止買賣",
+   "停止買賣",
+   "下市",
+   "下櫃",
+   "終止有價證券",
+   "最後交易日"
+  ],
+  "fallback_surfaces": [
+   "https://mopsov.twse.com.tw/mops/web/ajax_autoComplete"
+  ],
+  "field_markers": {
+   "cash_consideration_per_old_share": [
+    "現金對價",
+    "現金為對價",
+    "每股現金",
+    "以現金",
+    "現金支付",
+    "收購價格",
+    "每股價格",
+    "現金補償"
+   ],
+   "fractional_share_treatment": [
+    "不足一股",
+    "畸零股",
+    "零股",
+    "現金補償"
+   ],
+   "holder_effective_boundary": [
+    "合併基準日",
+    "股份轉換基準日",
+    "換股基準日",
+    "終止上市",
+    "終止上櫃",
+    "最後交易日"
+   ],
+   "old_security_id": [
+    "股票代號",
+    "證券代號",
+    "公司代號"
+   ],
+   "settlement_date": [
+    "價款",
+    "給付",
+    "撥付",
+    "匯款",
+    "領取"
+   ],
+   "stock_conversion_ratio": [
+    "換股比例",
+    "股份轉換比例",
+    "轉換比例",
+    "每一股換發",
+    "換發"
+   ],
+   "successor_credit_date": [
+    "換發基準日",
+    "撥發",
+    "配發基準日",
+    "交付",
+    "上市買賣日",
+    "上櫃買賣日"
+   ],
+   "successor_security_id": [
+    "股票代號",
+    "證券代號",
+    "公司代號",
+    "存續公司",
+    "新設公司",
+    "控股公司"
+   ],
+   "successor_tradable_date": [
+    "開始買賣",
+    "上市買賣日",
+    "上櫃買賣日",
+    "掛牌"
+   ],
+   "transaction_type": [
+    "存續公司",
+    "消滅公司",
+    "合併基準日",
+    "合併解散基準日",
+    "合併契約",
+    "合併案",
+    "合併換股",
+    "簡易合併",
+    "吸收合併",
+    "新設合併",
+    "股份轉換",
+    "股份轉換基準日",
+    "股份交換",
+    "換股基準日",
+    "換股比例",
+    "概括讓與",
+    "概括承受",
+    "轉換設立",
+    "金融控股公司",
+    "投資控股公司"
+   ]
+  },
+  "forbidden_routing_inputs": [
+   "disappearing_company_name",
+   "tej_counterparty_narrative",
+   "third_party_dataset",
+   "b0_holdings",
+   "b0_claim_exposure",
+   "price_or_nav",
+   "eventual_performance",
+   "whether_the_event_blocks_replay",
+   "b0_7_blocker_identity"
+  ],
+  "lineage_classes": [
+   "TWSE",
+   "TPEX",
+   "AMBIGUOUS_BOTH_DIRECTORIES",
+   "LINEAGE_UNRESOLVED"
+  ],
+  "name_delimiters": "與及和暨或跟由向對為被以自從經至給之稱即是係讓予「」『』（）()，,、：:；;。 \t",
+  "primary_inputs": [
+   "security_id",
+   "canonical_event_date",
+   "authoritative_market_lineage"
+  ],
+  "primary_surfaces": [
+   "https://openapi.twse.com.tw/v1/company/suspendListingCsvAndHtml",
+   "https://www.tpex.org.tw/www/zh-tw/company/deListed",
+   "https://mopsov.twse.com.tw/mops/web/ajax_t05st01"
+  ],
+  "rate_limit_markers": [
+   "查詢過於頻繁",
+   "Overrun",
+   "系統忙碌",
+   "請稍後再試"
+  ],
+  "refusal_markers": [
+   "不繼續公開發行",
+   "查無公司資料",
+   "查無所需資料",
+   "查無資料"
+  ],
+  "refused_body_is_assessed_on": "preserved announcement row subject",
+  "router": "B0_8_OFFICIAL_DOCUMENT_ROUTER",
+  "segmentation": "calendar day-blocks 01-10 / 11-20 / 21-EOM",
+  "stock_consideration_markers": [
+   "換股比例",
+   "股份轉換比例",
+   "轉換比例",
+   "換發",
+   "換發新股",
+   "配發",
+   "每一股換發",
+   "換股基準日"
+  ],
+  "transaction_markers": [
+   "存續公司",
+   "消滅公司",
+   "合併基準日",
+   "合併解散基準日",
+   "合併契約",
+   "合併案",
+   "合併換股",
+   "簡易合併",
+   "吸收合併",
+   "新設合併",
+   "股份轉換",
+   "股份轉換基準日",
+   "股份交換",
+   "換股基準日",
+   "換股比例",
+   "概括讓與",
+   "概括承受",
+   "轉換設立",
+   "金融控股公司",
+   "投資控股公司",
+   "合併",
+   "控股公司"
+  ],
+  "transaction_markers_contextual": [
+   "合併",
+   "控股公司"
+  ],
+  "transaction_markers_specific": [
+   "存續公司",
+   "消滅公司",
+   "合併基準日",
+   "合併解散基準日",
+   "合併契約",
+   "合併案",
+   "合併換股",
+   "簡易合併",
+   "吸收合併",
+   "新設合併",
+   "股份轉換",
+   "股份轉換基準日",
+   "股份交換",
+   "換股基準日",
+   "換股比例",
+   "概括讓與",
+   "概括承受",
+   "轉換設立",
+   "金融控股公司",
+   "投資控股公司"
+  ],
+  "typek": "all",
+  "uniqueness_test": "exactly one distinct counterparty entity standing within COUNTERPARTY_PROXIMITY_CHARS of a transaction marker, across the event's linking documents",
+  "version": "1.4",
+  "window_back_days": 30,
+  "window_forward_days": 20
+ },
+ "router_sha256": "e04f411171a472a2e459aee61570afdb5cff7f4a626b729dd992e00516dd059b",
+ "router_version_history": [
+  {
+   "router_sha256": "13fccc4e008163bfdf07d2577f901878614dee5500fb863a0261bc9fba3ea287",
+   "state": "frozen before any corpus request; corpus acquired under this version",
+   "version": "1"
+  },
+  {
+   "router_sha256": "54b761ec434a6e29862ef06d8a54c4a57fe3b6d8dd1f944589bba02bdecfa84c",
+   "state": "counterparty token cut back to the last delimiter; uniqueness tested on transaction-adjacent names",
+   "version": "1.1"
+  },
+  {
+   "router_sha256": "51c179102f1e52ee337ac07f0570f5f92282da7e77d06e8d52df2f05ebd33d7e",
+   "state": "合併 in the accounting sense excluded; MOPS template tokens matched in their own right; first full census pass ran under this version and returned 1 UNIQUE / 153 NONE / 4 AMBIGUOUS / 0 ERROR",
+   "version": "1.2"
+  },
+  {
+   "router_sha256": "e04f411171a472a2e459aee61570afdb5cff7f4a626b729dd992e00516dd059b",
+   "state": "MOPS throttle pages (HTTP 200 with 「查詢過於頻繁」) detected, retried with backoff and never cached; 106 of the 781 v1.3 bodies were that page. The 518 date-keyed block responses were verified clean, so the discovery layer was never affected. Census reported under this version",
+   "version": "1.4"
+  },
+  {
+   "router_sha256": "e3f32fac0d137677a59c576bad58d5633f2b444eab7f0458f26bb1ad41e305aa",
+   "state": "MOPS refusal pages no longer read as document content. Found FROM the v1.2 output -- 550 of 781 preserved bodies were the refusal page -- so this correction was made after an outcome was visible and is disclosed as such. It is a defect fix, not a predicate preference: v1.2 scored announcements on a page that said nothing. Census reported under this version",
+   "version": "1.3"
+  }
+ ]
+}

@@ -1,0 +1,171 @@
+{
+ "TDCC_CURRENT_WINDOW": null,
+ "b0_8_state": "WIP, UNSEALED",
+ "bulk_crawl": false,
+ "canonical_values_materialized": false,
+ "closure_sha256": "f85a96546534d1cc9eb2154d6e294284d2fd8cb462f64e36e5fe24b6bde87912",
+ "d8_2c_correction_recorded": {
+  "ISSUER_FORMAL_DOCS_2015_2019": "PARTIAL_COVERAGE",
+  "MOPS_EDOC_2015_2019": "PARTIAL_COVERAGE",
+  "extraction_unavailable_documents": 3,
+  "note": "recorded per instruction; D8.2C's own JSON is NOT modified by this stage",
+  "successfully_inspected_documents": 4,
+  "validated_positives_in_successfully_inspected_documents": 0
+ },
+ "d8_3_started": false,
+ "excluded_date_types": [
+  "新股上市",
+  "上市日期",
+  "上櫃日期",
+  "開始買賣",
+  "掛牌",
+  "停止過戶",
+  "基準日",
+  "交存",
+  "new-share listing date",
+  "first-trading date",
+  "delisting date",
+  "record date",
+  "stop-transfer date",
+  "merger/share-conversion effective date",
+  "tender deposit",
+  "certificate exchange"
+ ],
+ "interpretation_boundary": "establishes only contemporary TDCC representability for this single event if positive; does not reopen D8.2A bulk acquisition or establish historical coverage; a non-positive result does not imply historical absence or global non-reconstructibility",
+ "network_used": true,
+ "other_events_or_sources_acquired": false,
+ "overall_result": "QUERY_SUCCEEDED_NO_EVENT_RECORD",
+ "per_route_result": {
+  "OD-1-7": "QUERY_SUCCEEDED_NO_EVENT_RECORD",
+  "PORTAL-QRYPS": "QUERY_SUCCEEDED_NO_EVENT_RECORD"
+ },
+ "population": {
+  "basis": "only confirmed-stock event established in D8.2B-R2 as falling within the observed TDCC 2025-01-02..present window",
+  "effective_date": "2025-09-02",
+  "security_id": "4945",
+  "successor_code": "2436"
+ },
+ "positive_semantics_required": [
+  "same 4945 canonical merger/share-conversion",
+  "successor consideration shares",
+  "holder-inbound delivery or account credit",
+  "explicit date"
+ ],
+ "record": "B0_8_D8_2D_TDCC_CURRENT_WINDOW_SINGLE_EVENT_TEST",
+ "requests": [
+  {
+   "error": null,
+   "event_linkage_evidence": {
+    "rows": [],
+    "security_id_matched_rows": 0
+   },
+   "http_status": 200,
+   "official_endpoint": "https://opendata.tdcc.com.tw/getOD.ashx?id=1-7",
+   "query_parameters": {
+    "id": "1-7"
+   },
+   "raw_response_path": "artifacts/b0_8_holder_terms/d8_2d_tdcc_raw/OD-1-7_d8_2d.csv",
+   "response_content_sha256": "0551df1b997b2a57c36d542501e0e75fbd7067b7e0e39e41cf8c0f47893cd4ea",
+   "response_headers_location": null,
+   "result_status": "OK",
+   "retrieval_timestamp": "2026-08-22T11:43:30.686398+00:00",
+   "route": "OD-1-7",
+   "route_result": "QUERY_SUCCEEDED_NO_EVENT_RECORD",
+   "schema_field_names_returned": [
+    "證券代號",
+    "證券名稱",
+    "交付日期",
+    "交付原因"
+   ]
+  },
+  {
+   "error": null,
+   "event_linkage_evidence": null,
+   "http_status": 200,
+   "official_endpoint": "https://www.tdcc.com.tw/portal/zh/smWeb/qryPS",
+   "query_parameters": {},
+   "raw_response_path": "artifacts/b0_8_holder_terms/d8_2d_tdcc_raw/PORTAL-QRYPS_form_d8_2d.html",
+   "response_content_sha256": "ca4157f415891bdcdd697f5de45d8e9cb9566f348638833769cd8d4b0eaf58ac",
+   "result_status": "OK",
+   "retrieval_timestamp": "2026-08-22T11:43:35.387678+00:00",
+   "route": "PORTAL-QRYPS (form GET)",
+   "route_result": null,
+   "schema_field_names_returned": []
+  },
+  {
+   "error": null,
+   "event_linkage_evidence": {
+    "credit_semantics_hits": [
+     {
+      "label": "帳簿劃撥",
+      "window": "名錄 資本額及股東結構 服務優勢 主要服務 服務窗口 年報 發展願景及策略 服務項目 無實體登錄/交付 保管 結算交割 帳簿劃撥 短期票券服務 電子投票 基金服務 股務服務 證券所有人名冊服務作業 集保帳戶與基金查詢資料 跨境保管服務 洗錢防制 出版刊物 電子雙月刊 年報 年紀 專案研究"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "作業 集保帳戶與基金查詢資料 跨境保管服務 洗錢防制 出版刊物 電子雙月刊 年報 年紀 專案研究報告 業務手冊 PDF 帳簿劃撥業務處理手冊 宣導年曆卡 宣導海報 宣導小冊 其它出版品 國際交流 國際合作備忘錄 國際交流活動紀錄 公司治理 公司投資人關係整合 法令應公告事項 股東服務 股"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "傳輸作業功能 票券/債券 短期票券 短期票券服務總覽 開戶及變更 發行登錄 永續發展票券 實體保管 承銷首買 結算交割 帳簿劃撥 提示兌償 TAIBIR編製 其他 新臺幣計價債券 新台幣計價債券服務總覽 處所議價交易 帳簿劃撥 還本付息作業 國際債券/登錄外國債券 國際債券/登錄外國債券"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": " 承銷首買 結算交割 帳簿劃撥 提示兌償 TAIBIR編製 其他 新臺幣計價債券 新台幣計價債券服務總覽 處所議價交易 帳簿劃撥 還本付息作業 國際債券/登錄外國債券 國際債券/登錄外國債券服務總覽 開戶 發行登錄 保管 帳簿劃撥 還本付息/稅務處理 境內/境外/期信基金 境內基金 境外"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "覽 處所議價交易 帳簿劃撥 還本付息作業 國際債券/登錄外國債券 國際債券/登錄外國債券服務總覽 開戶 發行登錄 保管 帳簿劃撥 還本付息/稅務處理 境內/境外/期信基金 境內基金 境外基金 期信基金 基金清算平台 跨境保管服務 跨境保管服務 黃金現貨 黃金現貨 境外結構型商品 境外結構"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "權益證券 證券基本資料 公司股務單位資料 股東常會電子投票資訊 發行公司電子投票比率統計資訊 集保戶股權分散表 有價證券帳簿劃撥配發/交付日期一覽表查詢 票券/債券服務 TAIBIR當日最新次級買賣利率報價 ABCP成交資訊 國庫券成交資料 債券還本付息資料 債券持有對象分析 基金 境外"
+     },
+     {
+      "label": "配發交付",
+      "window": "公司無實體發行登錄 發行公司名稱變更一覽表 發行公司減資換票一覽表 發行公司合併換票一覽表 私募有價證券無實體登錄資料 配發交付及還本付息 有價證券帳簿劃撥配發/交付日期一覽表資料查詢 債券發行暨還本付息資料 統計資訊 集保戶股權分散表 發行人董事、監察人特定股東分戶保管總股數異動統計表"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "名稱變更一覽表 發行公司減資換票一覽表 發行公司合併換票一覽表 私募有價證券無實體登錄資料 配發交付及還本付息 有價證券帳簿劃撥配發/交付日期一覽表資料查詢 債券發行暨還本付息資料 統計資訊 集保戶股權分散表 發行人董事、監察人特定股東分戶保管總股數異動統計表 有價證券集中保管庫存個別股"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "集中保管帳戶異動統計表 集中保管有價證券業務概況表 集中保管債券收付統計表 集中保管有價證券保管統計表 集中保管有價證券帳簿劃撥統計表 帳簿劃撥配發統計表 集中保管有價證券帳簿劃撥設質交付統計表 境外基金交易平台業務量統計表 集中保管有價證券異動月分析表－上市證券 集中保管有價證券異動月"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "統計表 集中保管有價證券業務概況表 集中保管債券收付統計表 集中保管有價證券保管統計表 集中保管有價證券帳簿劃撥統計表 帳簿劃撥配發統計表 集中保管有價證券帳簿劃撥設質交付統計表 境外基金交易平台業務量統計表 集中保管有價證券異動月分析表－上市證券 集中保管有價證券異動月分析表－上櫃證券"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "集中保管債券收付統計表 集中保管有價證券保管統計表 集中保管有價證券帳簿劃撥統計表 帳簿劃撥配發統計表 集中保管有價證券帳簿劃撥設質交付統計表 境外基金交易平台業務量統計表 集中保管有價證券異動月分析表－上市證券 集中保管有價證券異動月分析表－上櫃證券 集中保管有價證券異動月分析表－興櫃"
+     },
+     {
+      "label": "帳簿劃撥",
+      "window": "動月分析表－上櫃證券 集中保管有價證券異動月分析表－興櫃股票 可轉換公司債月分析表 認購售權證月分析表 集中保管有價證券帳簿劃撥設質交付個股週統計表 上市混藏保管有價證券週餘額表 上櫃混藏保管有價證券週餘額表 興櫃混藏保管有價證券週餘額表 上市櫃檯合併混藏保管有價證券週餘額表 固定收益 "
+     }
+    ],
+    "no_data_marker_present": false,
+    "security_id_present_in_response": false
+   },
+   "http_status": 200,
+   "official_endpoint": "https://www.tdcc.com.tw/portal/zh/smWeb/qryPS",
+   "query_parameters": {
+    "sqlMethod": "StockNo",
+    "stockNo": "4945"
+   },
+   "raw_response_path": "artifacts/b0_8_holder_terms/d8_2d_tdcc_raw/PORTAL-QRYPS_result_4945_d8_2d.html",
+   "response_content_sha256": "3ec5354c5969b9d55f047f741da94dded33e3c8815fee49dec3b2571f68d65c5",
+   "result_status": "OK",
+   "retrieval_timestamp": "2026-08-22T11:43:37.411553+00:00",
+   "route": "PORTAL-QRYPS (StockNo=4945 POST)",
+   "route_result": "QUERY_SUCCEEDED_NO_EVENT_RECORD",
+   "schema_field_names_returned": []
+  }
+ ],
+ "routes_queried": [
+  "OD-1-7",
+  "PORTAL-QRYPS"
+ ],
+ "schema_consumer_ledger_state_changed": false
+}

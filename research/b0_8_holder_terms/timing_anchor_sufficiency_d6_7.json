@@ -1,0 +1,2401 @@
+{
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "cash_settlement_acquisition": false,
+ "census_sha256": "087656b371d4d9d5bc9dfc30b4edad0161da13871b43cc61c322667459971f70",
+ "d6_6_census_sha256": "afe5bff9e409c4b92855b45a02f04f5d9f22ad436741530ce78a224a3c9cc347",
+ "d6_8_created": false,
+ "gates_evaluated": false,
+ "holder_term_extraction": false,
+ "nav_inspected": false,
+ "network_requests": 0,
+ "p0_cash_leg_branch_status": {
+  "8913": "NOT_RECONSTRUCTIBLE under the current frozen schema and the established public-authoritative source environment",
+  "further_cash_settlement_source_hunting_in_d6_7": false,
+  "not_asserted": "SETTLEMENT_DATE_DOES_NOT_EXIST",
+  "official_replay": "blocked at 2020-01",
+  "third_party_mirrors_consulted": false,
+  "wording": "PUBLIC_AUTHORITATIVE_SETTLEMENT_DATE_NOT_CURRENTLY_ACQUIRABLE"
+ },
+ "p4_publication_lag": {
+  "P10": -28.0,
+  "P25": -27.0,
+  "P75": -14.0,
+  "P90": -11.0,
+  "after_C": 0,
+  "before_C": 39,
+  "censoring_warning": "this population was SELECTED by the frozen window, so min cannot fall below -30 and max cannot exceed +40 by construction; the distribution is censored and must not be read as the true timing profile",
+  "max": -3,
+  "mean": -19.9,
+  "median": -22,
+  "min": -30,
+  "n": 39,
+  "on_C": 0
+ },
+ "p5_c_role_counts": {
+  "C_MATCHES_CONVERSION_EFFECTIVE_DATE": 0,
+  "C_MATCHES_DELISTING_DATE": 0,
+  "C_MATCHES_MERGER_EFFECTIVE_DATE": 0,
+  "C_MATCHES_MULTIPLE_ROLES": 1,
+  "C_MATCHES_OTHER_EXPLICIT_BOUNDARY": 1,
+  "C_MATCHES_STOP_TRADING_DATE": 37,
+  "C_ROLE_NOT_ESTABLISHED": 0
+ },
+ "p6_lag_by_c_role": {
+  "C_MATCHES_MULTIPLE_ROLES": {
+   "P10": -28,
+   "P25": -28,
+   "P75": -28,
+   "P90": -28,
+   "after_C": 0,
+   "before_C": 1,
+   "max": -28,
+   "mean": -28,
+   "median": -28,
+   "min": -28,
+   "n": 1,
+   "on_C": 0
+  },
+  "C_MATCHES_OTHER_EXPLICIT_BOUNDARY": {
+   "P10": -3,
+   "P25": -3,
+   "P75": -3,
+   "P90": -3,
+   "after_C": 0,
+   "before_C": 1,
+   "max": -3,
+   "mean": -3,
+   "median": -3,
+   "min": -3,
+   "n": 1,
+   "on_C": 0
+  },
+  "C_MATCHES_STOP_TRADING_DATE": {
+   "P10": -28.0,
+   "P25": -26.5,
+   "P75": -14.0,
+   "P90": -11.8,
+   "after_C": 0,
+   "before_C": 37,
+   "max": -6,
+   "mean": -20.14,
+   "median": -22,
+   "min": -30,
+   "n": 37,
+   "on_C": 0
+  }
+ },
+ "p6_timing_regime": {
+  "c_role_classes_established": 3,
+  "classification": "ONE_STABLE_TIMING_REGIME",
+  "dominant_class_share": 0.949,
+  "must_not_define_a_window": true,
+  "per_class_lag_spans_days": [
+   24
+  ]
+ },
+ "p7_current_window": {
+  "distances_outside": [],
+  "documents_exactly_at_lower_boundary": 1,
+  "documents_exactly_at_upper_boundary": 0,
+  "documents_inside_strictly": 38,
+  "documents_outside": 0,
+  "frozen_window": [
+   -30,
+   40
+  ],
+  "note": "a document sitting exactly on the lower boundary is the signature of censoring, not of a comfortable fit",
+  "replacement_window_derived_here": false
+ },
+ "p8_unresolved_events": [
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2004-07-21",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "6157",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2004-09-14",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "4110",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2004-10-13",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "6017",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2007-11-23",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "5818",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2014-12-25",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "3582",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2016-08-25",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "8079",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2016-11-09",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "8266",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2017-08-22",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "6022",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2017-09-25",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "3553",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2018-11-07",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "4103",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2019-03-21",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "5480",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 1,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2020-05-21",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [
+    "BODY_ESTABLISHES_NO_TERMINATION_EVENT"
+   ],
+   "pool_exhausted": true,
+   "security_id": "4947",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2022-07-07",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "5102",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 1,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2022-11-01",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [
+    "BODY_ESTABLISHES_NO_TERMINATION_EVENT"
+   ],
+   "pool_exhausted": true,
+   "security_id": "5820",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2023-02-02",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "6247",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2023-10-25",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "5281",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2023-10-26",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "4944",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  {
+   "candidates_found": 0,
+   "canonical_C_semantic_information_known": "none -- no authoritative body for this event, so C's role cannot be read from a document",
+   "canonical_event_date": "2026-06-02",
+   "document_absence_asserted": false,
+   "lineage": "TPEX",
+   "non_qualifying": [],
+   "pool_exhausted": true,
+   "security_id": "3426",
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  }
+ ],
+ "p9_engineering_diagnostic_only": {
+  "4947": {
+   "candidates_found": 1,
+   "canonical_event_date": "2020-05-21",
+   "pool_exhausted": true,
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  "5281": {
+   "candidates_found": 0,
+   "canonical_event_date": "2023-10-25",
+   "pool_exhausted": true,
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  },
+  "6247": {
+   "candidates_found": 0,
+   "canonical_event_date": "2023-02-02",
+   "pool_exhausted": true,
+   "status": "STATIC_EVENT_DOCUMENT_NONE_WITHIN_FROZEN_WINDOW"
+  }
+ },
+ "parsed_date_reuse_rule": "the frozen schema's settlement/credit fields are dates; a date parsed by this single-path timing study may not be inherited as a reconstruction input and must be re-extracted under the dual-extraction protocol if ever required",
+ "parsed_dates_may_become_reconstruction_inputs": false,
+ "parsed_dates_provenance": "ADJUDICATION_ONLY",
+ "performance_inspected": false,
+ "population": {
+  "ambiguous_documents_not_chosen_between": true,
+  "ambiguous_kept_separate": 2,
+  "unique": 39,
+  "unreadable_bodies": []
+ },
+ "reads_only_bytes_preserved_by": [
+  "D6.4",
+  "D6.5",
+  "D6.6"
+ ],
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_7_TIMING_ANCHOR_SUFFICIENCY",
+ "replay_started": false,
+ "results": [
+  {
+   "body_sha256": "25136983fb42f77e925498e3d6745cd66f70966f551df742abaa636055536388",
+   "c_role_class": "C_MATCHES_OTHER_EXPLICIT_BOUNDARY",
+   "canonical_event_date": "2005-05-20",
+   "distinct_boundary_dates_in_document": [
+    "2005-05-20",
+    "2005-05-25",
+    "2005-06-01"
+   ],
+   "document_number": "證櫃監字第0940012588號",
+   "event_id": "5436|holder_side_reorganization_exit|2005-05-20",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2005-06-01",
+     "label": "終止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2005-05-20",
+     "label": "最後交易日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "LAST_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2005-06-01",
+     "label": "合併基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MERGER_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2005-06-01",
+     "label": "停止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2005-05-25",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2005-05-17",
+   "publication_lag_days": -3,
+   "roles_matching_C": [
+    "LAST_TRADING"
+   ],
+   "security_id": "5436"
+  },
+  {
+   "body_sha256": "c95433973279c8cbace4bdf681f940a35cbd7aef27e7c9aeaaa942036bd8e9f8",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2006-09-28",
+   "distinct_boundary_dates_in_document": [
+    "2006-09-28",
+    "2006-10-01"
+   ],
+   "document_number": "證櫃監字第0950025652號",
+   "event_id": "6178|holder_side_reorganization_exit|2006-09-28",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 0,
+     "date": "2006-10-01",
+     "label": "轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 2,
+     "date": "2006-10-01",
+     "label": "終止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 2,
+     "date": "2006-09-28",
+     "label": "停止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    }
+   ],
+   "publication_date": "2006-09-22",
+   "publication_lag_days": -6,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6178"
+  },
+  {
+   "body_sha256": "47109a3952b6cc3d0a602a1d237ec6e79213fac0ca33c45b3e1ee90628f240a0",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2008-09-19",
+   "distinct_boundary_dates_in_document": [
+    "2008-09-19",
+    "2008-10-01"
+   ],
+   "document_number": "證櫃監字第0970201657號",
+   "event_id": "3298|holder_side_reorganization_exit|2008-09-19",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 0,
+     "date": "2008-10-01",
+     "label": "終止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2008-09-19",
+     "label": "停止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    }
+   ],
+   "publication_date": "2008-08-28",
+   "publication_lag_days": -22,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3298"
+  },
+  {
+   "body_sha256": "ee5f339fc77fd8f5e44e1556b499132eb22b6b5b51f2b5de16864fa6aba1c65d",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2009-12-24",
+   "distinct_boundary_dates_in_document": [
+    "2009-12-24",
+    "2009-12-31"
+   ],
+   "document_number": "證櫃監字第0980028659號",
+   "event_id": "2921|holder_side_reorganization_exit|2009-12-24",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2009-12-31",
+     "label": "終止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2009-12-24",
+     "label": "停止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    }
+   ],
+   "publication_date": "2009-11-30",
+   "publication_lag_days": -24,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "2921"
+  },
+  {
+   "body_sha256": "620e0d20ed3d3c11214efd9b5305df88d134599b03e2704b532b18f4f9116c0b",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2012-01-17",
+   "distinct_boundary_dates_in_document": [
+    "2012-01-17",
+    "2012-02-01"
+   ],
+   "document_number": "證櫃監字第10000339972號",
+   "event_id": "3389|holder_side_reorganization_exit|2012-01-17",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2012-02-01",
+     "label": "終止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2012-01-17",
+     "label": "停止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    }
+   ],
+   "publication_date": "2012-01-03",
+   "publication_lag_days": -14,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3389"
+  },
+  {
+   "body_sha256": "8d4c8768289718f5d76a80fa4493065963b17526f2fbf28f59c7beaee9169a47",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2012-12-26",
+   "distinct_boundary_dates_in_document": [
+    "2012-12-26",
+    "2012-12-28",
+    "2013-01-01"
+   ],
+   "document_number": "證櫃監字第1010201091號",
+   "event_id": "8705|holder_side_reorganization_exit|2012-12-26",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2013-01-01",
+     "label": "終止該公司之有價證券櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2013-01-01",
+     "label": "合併基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MERGER_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2012-12-26",
+     "label": "停止其有價證券之櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2012-12-28",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2012-12-19",
+   "publication_lag_days": -7,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "8705"
+  },
+  {
+   "body_sha256": "544c1aa84e908dfd1d430e4259144f87dc52cebc6001456ebdc04849faf2194a",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2013-01-08",
+   "distinct_boundary_dates_in_document": [
+    "2013-01-08",
+    "2013-01-10",
+    "2013-01-18"
+   ],
+   "document_number": "證櫃監字第10100311763號",
+   "event_id": "6008|holder_side_reorganization_exit|2013-01-08",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2013-01-18",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2013-01-18",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2013-01-08",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2013-01-10",
+     "label": "停止股東名簿記載之變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2012-12-27",
+   "publication_lag_days": -12,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6008"
+  },
+  {
+   "body_sha256": "55ecfc7fcd407b9db677df5fc4375ad22b61ae4d724d3483848fc4c22a7e480f",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2015-06-05",
+   "distinct_boundary_dates_in_document": [
+    "2015-06-05",
+    "2015-06-09",
+    "2015-06-17"
+   ],
+   "document_number": "證櫃監字第10400118862號",
+   "event_id": "5466|holder_side_reorganization_exit|2015-06-05",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2015-06-17",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2015-06-17",
+     "label": "合併基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MERGER_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2015-06-05",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2015-06-09",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2015-05-19",
+   "publication_lag_days": -17,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "5466"
+  },
+  {
+   "body_sha256": "6eb5277845dc7aac6e1d3314cb3e8870c014d049b20f41572253929d84b9691b",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2016-11-16",
+   "distinct_boundary_dates_in_document": [
+    "2016-10-20",
+    "2016-11-16",
+    "2016-11-18",
+    "2016-11-22"
+   ],
+   "document_number": "證櫃監字第10500298391號",
+   "event_id": "3658|holder_side_reorganization_exit|2016-11-16",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2016-11-22",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 38,
+     "date": "2016-10-20",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2016-11-22",
+     "label": "終止在證券商營業處所買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2016-10-20",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2016-11-16",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2016-11-18",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2016-10-19",
+   "publication_lag_days": -28,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3658"
+  },
+  {
+   "body_sha256": "224cb838e57c1575df9973321a12955bebfd7b4ef2a06e37ffdbf9f32586d3b9",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2017-08-22",
+   "distinct_boundary_dates_in_document": [
+    "2017-08-22",
+    "2017-08-24",
+    "2017-09-01"
+   ],
+   "document_number": "證櫃監字第10600220621號",
+   "event_id": "5384|holder_side_reorganization_exit|2017-08-22",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2017-09-01",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 4,
+     "date": "2017-08-22",
+     "label": "停止股票櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2017-08-24",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2017-08-11",
+   "publication_lag_days": -11,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "5384"
+  },
+  {
+   "body_sha256": "d30414666bba7c6eba791062193b0aee2aa91a95bdaeb35bad85187a831d5ef1",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2017-10-11",
+   "distinct_boundary_dates_in_document": [
+    "2017-09-12",
+    "2017-10-11",
+    "2017-10-13",
+    "2017-10-17"
+   ],
+   "document_number": "證櫃監字第10600249031號",
+   "event_id": "6105|holder_side_reorganization_exit|2017-10-11",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 10,
+     "date": "2017-10-17",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 38,
+     "date": "2017-09-12",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2017-10-17",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2017-09-12",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2017-10-11",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2017-10-13",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2017-09-11",
+   "publication_lag_days": -30,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6105"
+  },
+  {
+   "body_sha256": "2b2badadfb8d21079131a8d19016cb0182b76145545e2f7be08bce5cde2fb635",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2017-12-19",
+   "distinct_boundary_dates_in_document": [
+    "2017-12-19",
+    "2017-12-21",
+    "2017-12-29"
+   ],
+   "document_number": "證櫃監字第10602012341號",
+   "event_id": "5491|holder_side_reorganization_exit|2017-12-19",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2017-12-29",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 4,
+     "date": "2017-12-19",
+     "label": "停止股票櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2017-12-21",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2017-11-22",
+   "publication_lag_days": -27,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "5491"
+  },
+  {
+   "body_sha256": "be0c3e4a9b9a9d47db5913a94a5f53b72775f8d14de3a2deb4d02088019aaf33",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2018-05-24",
+   "distinct_boundary_dates_in_document": [
+    "2018-05-04",
+    "2018-05-24",
+    "2018-05-27",
+    "2018-05-31"
+   ],
+   "document_number": "證櫃監字第10700094911號",
+   "event_id": "6554|holder_side_reorganization_exit|2018-05-24",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2018-05-31",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-05-31",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-05-04",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-05-24",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2018-05-27",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2018-05-03",
+   "publication_lag_days": -21,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6554"
+  },
+  {
+   "body_sha256": "1adac7ec94b770b491a6632c222fa287a0330db2fa276f7f1f8f5b5c1dcfd75c",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2018-06-07",
+   "distinct_boundary_dates_in_document": [
+    "2018-06-07",
+    "2018-06-09",
+    "2018-06-13"
+   ],
+   "document_number": "證櫃監字第10700110291號",
+   "event_id": "3068|holder_side_reorganization_exit|2018-06-07",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2018-06-13",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-06-13",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-06-07",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2018-06-09",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2018-05-17",
+   "publication_lag_days": -21,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3068"
+  },
+  {
+   "body_sha256": "240030eadb7859146f39d3cd7727e7d76798b9ee1b130986538b459d5a7ff512",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2018-09-18",
+   "distinct_boundary_dates_in_document": [
+    "2018-09-18",
+    "2018-09-20",
+    "2018-10-01"
+   ],
+   "document_number": "證櫃監字第10702011431號",
+   "event_id": "3428|holder_side_reorganization_exit|2018-09-18",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2018-10-01",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-10-01",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-09-18",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2018-09-20",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2018-09-05",
+   "publication_lag_days": -13,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3428"
+  },
+  {
+   "body_sha256": "cf3bb1612f355bc9f598e7373a1fc72c7c218864bb578d8dea70f5814f79fa9b",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2018-09-18",
+   "distinct_boundary_dates_in_document": [
+    "2018-09-18",
+    "2018-09-20",
+    "2018-10-01"
+   ],
+   "document_number": "證櫃監字第10702011484號",
+   "event_id": "6298|holder_side_reorganization_exit|2018-09-18",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2018-10-01",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-10-01",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-09-18",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2018-09-20",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2018-09-05",
+   "publication_lag_days": -13,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6298"
+  },
+  {
+   "body_sha256": "4ee1d649e78501833e45a5bb8c6945003598e75134476e8774744091e34f4629",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2018-11-22",
+   "distinct_boundary_dates_in_document": [
+    "2018-11-22",
+    "2018-11-25",
+    "2018-11-29"
+   ],
+   "document_number": "證櫃監字第10702101681號",
+   "event_id": "3299|holder_side_reorganization_exit|2018-11-22",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2018-11-29",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-11-29",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-11-22",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2018-11-25",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2018-11-05",
+   "publication_lag_days": -17,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3299"
+  },
+  {
+   "body_sha256": "c9906237eb1d99872917baf29d9fd965fe0eeb541d0d879ac29af67ea52a354a",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2018-11-22",
+   "distinct_boundary_dates_in_document": [
+    "2018-11-22",
+    "2018-11-26",
+    "2018-11-30"
+   ],
+   "document_number": "證櫃監字第10700307151號",
+   "event_id": "5255|holder_side_reorganization_exit|2018-11-22",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2018-11-30",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-11-30",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2018-11-22",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2018-11-26",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2018-11-05",
+   "publication_lag_days": -17,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "5255"
+  },
+  {
+   "body_sha256": "395a2e7c90494aca0c9b6a08ea25d737484fa5ad436daa9516ee03ed73e4b754",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2019-07-25",
+   "distinct_boundary_dates_in_document": [
+    "2019-07-25",
+    "2019-07-27",
+    "2019-07-31"
+   ],
+   "document_number": "證櫃監字第10800059921號",
+   "event_id": "1566|holder_side_reorganization_exit|2019-07-25",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2019-07-31",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-07-31",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-07-25",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2019-07-27",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2019-06-27",
+   "publication_lag_days": -28,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "1566"
+  },
+  {
+   "body_sha256": "dd937afcd42310c3771e8ad91493437a9889c48e04fa9703db2a47ff511b4709",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2019-07-30",
+   "distinct_boundary_dates_in_document": [
+    "2019-07-30",
+    "2019-08-01",
+    "2019-08-05"
+   ],
+   "document_number": "證櫃監字第10800063431號",
+   "event_id": "4180|holder_side_reorganization_exit|2019-07-30",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2019-08-05",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-08-05",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-07-30",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2019-08-01",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2019-07-10",
+   "publication_lag_days": -20,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "4180"
+  },
+  {
+   "body_sha256": "bf21819325ed2d3963c1feb8a71b882641e4535448f1a354df74d21763cbde81",
+   "c_role_class": "C_MATCHES_MULTIPLE_ROLES",
+   "canonical_event_date": "2019-09-18",
+   "distinct_boundary_dates_in_document": [
+    "2019-09-12",
+    "2019-09-17",
+    "2019-09-18"
+   ],
+   "document_number": "證櫃交字第10800611701號",
+   "event_id": "5317|holder_side_reorganization_exit|2019-09-18",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 2,
+     "date": "2019-09-18",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-09-12",
+     "label": "最後交易日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "LAST_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2019-09-17",
+     "label": "停止買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2019-09-18",
+     "label": "停止買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    }
+   ],
+   "publication_date": "2019-08-21",
+   "publication_lag_days": -28,
+   "roles_matching_C": [
+    "DELISTING",
+    "STOP_TRADING"
+   ],
+   "security_id": "5317"
+  },
+  {
+   "body_sha256": "5dac595103c258e72502b58e2a0ec8bce92c5ecf675a07219b797f4564e146cd",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2019-11-21",
+   "distinct_boundary_dates_in_document": [
+    "2019-10-28",
+    "2019-11-21",
+    "2019-11-25",
+    "2019-11-29"
+   ],
+   "document_number": "證櫃監字第10800117441號",
+   "event_id": "1787|holder_side_reorganization_exit|2019-11-21",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2019-11-29",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-11-29",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-10-28",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-11-21",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2019-11-25",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2019-10-25",
+   "publication_lag_days": -27,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "1787"
+  },
+  {
+   "body_sha256": "1696abc6956fdb7901e52a6d30d0b7bf038abe56952d5dd7e7f3d35e1876e2e6",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2020-01-14",
+   "distinct_boundary_dates_in_document": [
+    "2019-12-18",
+    "2020-01-14",
+    "2020-01-16",
+    "2020-01-20"
+   ],
+   "document_number": "證櫃監字第10800136464號",
+   "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2020-01-20",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2020-01-20",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2019-12-18",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2020-01-14",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2020-01-16",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2019-12-17",
+   "publication_lag_days": -28,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "8913"
+  },
+  {
+   "body_sha256": "58e6a09a141bf6edc42433fb253583a277cbad1c71bf32beed40ae86bd29192b",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2020-02-17",
+   "distinct_boundary_dates_in_document": [
+    "2020-02-17",
+    "2020-02-19",
+    "2020-02-27"
+   ],
+   "document_number": "證櫃監字第10900007641號",
+   "event_id": "3562|holder_side_reorganization_exit|2020-02-17",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2020-02-27",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 4,
+     "date": "2020-02-17",
+     "label": "停止股票櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2020-02-19",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2020-02-03",
+   "publication_lag_days": -14,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3562"
+  },
+  {
+   "body_sha256": "4e9797c72c8deff465374468d1329cba7ded7f31eac5473d36f398d55e5ccbfd",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2020-06-11",
+   "distinct_boundary_dates_in_document": [
+    "2020-06-11",
+    "2020-06-15",
+    "2020-06-19"
+   ],
+   "document_number": "證櫃監字第10902007224號",
+   "event_id": "6238|holder_side_reorganization_exit|2020-06-11",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2020-06-19",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2020-06-19",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2020-06-11",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2020-06-15",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2020-05-20",
+   "publication_lag_days": -22,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6238"
+  },
+  {
+   "body_sha256": "c1022bef379e6def7fc0e6bf0cb9fc4088c1e631b09c81a5b595eeaa054055d6",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2020-10-29",
+   "distinct_boundary_dates_in_document": [
+    "2020-10-29",
+    "2020-10-31",
+    "2020-11-04"
+   ],
+   "document_number": "證櫃監字第10902016231號",
+   "event_id": "5349|holder_side_reorganization_exit|2020-10-29",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2020-11-04",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2020-11-04",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2020-10-29",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2020-10-31",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2020-10-15",
+   "publication_lag_days": -14,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "5349"
+  },
+  {
+   "body_sha256": "4eab685ef718f3b0f268e9b7d005d3d9a9a740071386104c4e0a491717aa5feb",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2021-09-30",
+   "distinct_boundary_dates_in_document": [
+    "2021-09-30",
+    "2021-10-04",
+    "2021-10-08"
+   ],
+   "document_number": "證櫃監字第11000099831號",
+   "event_id": "4152|holder_side_reorganization_exit|2021-09-30",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2021-10-08",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2021-10-08",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2021-09-30",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2021-10-04",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2021-09-03",
+   "publication_lag_days": -27,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "4152"
+  },
+  {
+   "body_sha256": "8ae879530109ec4337618a5678804a2e48e45cc7301b6e71f696d2997021e502",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2021-10-14",
+   "distinct_boundary_dates_in_document": [
+    "2021-10-14",
+    "2021-10-18",
+    "2021-10-22"
+   ],
+   "document_number": "證櫃監字第11000106334號",
+   "event_id": "2928|holder_side_reorganization_exit|2021-10-14",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2021-10-22",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2021-10-22",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2021-10-14",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2021-10-18",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2021-09-22",
+   "publication_lag_days": -22,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "2928"
+  },
+  {
+   "body_sha256": "cad786a7adb962144dfc301d1aa427fd66f6afa453b1d1f4859451eb21fc2776",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2021-12-14",
+   "distinct_boundary_dates_in_document": [
+    "2021-11-19",
+    "2021-12-14",
+    "2021-12-16",
+    "2021-12-20"
+   ],
+   "document_number": "證櫃監字第11000122074號",
+   "event_id": "3144|holder_side_reorganization_exit|2021-12-14",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2021-12-20",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2021-12-20",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2021-11-19",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2021-12-14",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2021-12-16",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2021-11-18",
+   "publication_lag_days": -26,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "3144"
+  },
+  {
+   "body_sha256": "af85e558966a986883be3a112d0d9cdaccb669680520838c24400bc4d55ca867",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2022-04-21",
+   "distinct_boundary_dates_in_document": [
+    "2022-03-31",
+    "2022-04-21",
+    "2022-04-25",
+    "2022-04-29"
+   ],
+   "document_number": "證櫃監字第11102004991號",
+   "event_id": "8406|holder_side_reorganization_exit|2022-04-21",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2022-04-29",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2022-03-31",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2022-04-21",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2022-04-25",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2022-03-30",
+   "publication_lag_days": -22,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "8406"
+  },
+  {
+   "body_sha256": "d8088f4b9ab2dcb0023e3c0db7f22123c6d21eea9a03dd0f2a1be01fa48bece6",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2022-05-25",
+   "distinct_boundary_dates_in_document": [
+    "2022-05-25",
+    "2022-05-27",
+    "2022-05-31"
+   ],
+   "document_number": "證櫃監字第11100037781號",
+   "event_id": "4429|holder_side_reorganization_exit|2022-05-25",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2022-05-31",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2022-05-31",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2022-05-25",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2022-05-27",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2022-05-10",
+   "publication_lag_days": -15,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "4429"
+  },
+  {
+   "body_sha256": "3a677cae2ae8155fb7f8affb630dcc444b674ee7caad57ae62616abdc7e63025",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2023-03-24",
+   "distinct_boundary_dates_in_document": [
+    "2023-03-02",
+    "2023-03-24",
+    "2023-03-28",
+    "2023-04-01"
+   ],
+   "document_number": "證櫃監字第11200007241號",
+   "event_id": "6594|holder_side_reorganization_exit|2023-03-24",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2023-04-01",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2023-04-01",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2023-03-02",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2023-03-24",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 3,
+     "date": "2023-04-01",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2023-03-28",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2023-03-01",
+   "publication_lag_days": -23,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6594"
+  },
+  {
+   "body_sha256": "621e61ef473db77928326f05d181d1116dfd4db220780acffb791d41343d5fd8",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2024-01-25",
+   "distinct_boundary_dates_in_document": [
+    "2023-12-18",
+    "2024-01-25",
+    "2024-01-27",
+    "2024-01-31"
+   ],
+   "document_number": "證櫃監字第11200125431號",
+   "event_id": "8418|holder_side_reorganization_exit|2024-01-25",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 0,
+     "date": "2023-12-18",
+     "label": "終止上櫃",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-01-31",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-01-25",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2024-01-27",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2024-01-05",
+   "publication_lag_days": -20,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "8418"
+  },
+  {
+   "body_sha256": "e8bf6c7fdbffc47e178edbef80c969582b1d9bc100d032a8719f9360e071e5cb",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2024-10-09",
+   "distinct_boundary_dates_in_document": [
+    "2024-09-26",
+    "2024-10-09",
+    "2024-10-14",
+    "2024-10-18"
+   ],
+   "document_number": "證櫃監字第11300087701號",
+   "event_id": "6514|holder_side_reorganization_exit|2024-10-09",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-10-18",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-09-26",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-10-09",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2024-10-14",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2024-09-25",
+   "publication_lag_days": -14,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6514"
+  },
+  {
+   "body_sha256": "7093022c97bcbd421189b4a167ab912a418d6203486874e6160d475e9928d177",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2024-11-21",
+   "distinct_boundary_dates_in_document": [
+    "2024-11-21",
+    "2024-11-25",
+    "2024-11-29"
+   ],
+   "document_number": "證櫃監字第11300095221號",
+   "event_id": "8420|holder_side_reorganization_exit|2024-11-21",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2024-11-29",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-11-29",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-11-21",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2024-11-25",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2024-10-30",
+   "publication_lag_days": -22,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "8420"
+  },
+  {
+   "body_sha256": "62ad6b0022af3995d2a4ffe2a5c76015006da93178ebcd075d215554d35e5330",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2024-12-26",
+   "distinct_boundary_dates_in_document": [
+    "2024-12-26",
+    "2025-01-01"
+   ],
+   "document_number": "證櫃監字第11300110841號",
+   "event_id": "6457|holder_side_reorganization_exit|2024-12-26",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2025-01-01",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2025-01-01",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2024-12-26",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    }
+   ],
+   "publication_date": "2024-12-02",
+   "publication_lag_days": -24,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6457"
+  },
+  {
+   "body_sha256": "f78d02428f866a94ac0cea61d790009304e7575d2fe5f26e5b84d622374ba07d",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2025-09-02",
+   "distinct_boundary_dates_in_document": [
+    "2025-09-02",
+    "2025-09-04",
+    "2025-09-08"
+   ],
+   "document_number": "證櫃監字第11400058741號",
+   "event_id": "4945|holder_side_reorganization_exit|2025-09-02",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2025-09-08",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2025-09-08",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2025-09-02",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2025-09-04",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2025-08-06",
+   "publication_lag_days": -27,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "4945"
+  },
+  {
+   "body_sha256": "83798fd4b62d24ba2ebfc2a9ea26888b05af5833a7001a2ed11b4e83232c35e2",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2025-11-27",
+   "distinct_boundary_dates_in_document": [
+    "2025-11-27",
+    "2025-11-30",
+    "2025-12-04"
+   ],
+   "document_number": "證櫃監字第11402027051號",
+   "event_id": "6747|holder_side_reorganization_exit|2025-11-27",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2025-12-04",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2025-12-04",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2025-11-27",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 5,
+     "date": "2025-11-30",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2025-11-05",
+   "publication_lag_days": -22,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "6747"
+  },
+  {
+   "body_sha256": "b6149170ff0fd5c07eaaa4f1b7d58192a173946fc770f9fb7ae924209eb82fe2",
+   "c_role_class": "C_MATCHES_STOP_TRADING_DATE",
+   "canonical_event_date": "2026-05-21",
+   "distinct_boundary_dates_in_document": [
+    "2026-04-24",
+    "2026-05-21",
+    "2026-05-25",
+    "2026-05-29"
+   ],
+   "document_number": "證櫃監字第11500024591號",
+   "event_id": "4987|holder_side_reorganization_exit|2026-05-21",
+   "labelled_boundary_dates": [
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 9,
+     "date": "2026-05-29",
+     "label": "股份轉換基準日",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "CONVERSION_EFFECTIVE"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2026-05-29",
+     "label": "終止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "DELISTING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2026-04-24",
+     "label": "暫停融資融券",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "MARGIN_SUSPENSION"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 1,
+     "date": "2026-05-21",
+     "label": "停止櫃檯買賣",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "STOP_TRADING"
+    },
+    {
+     "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+     "char_distance": 6,
+     "date": "2026-05-25",
+     "label": "停止股東名簿記載變更",
+     "provenance": "ADJUDICATION_ONLY",
+     "role": "TRANSFER_SUSPENSION"
+    }
+   ],
+   "publication_date": "2026-04-23",
+   "publication_lag_days": -28,
+   "roles_matching_C": [
+    "STOP_TRADING"
+   ],
+   "security_id": "4987"
+  }
+ ],
+ "states_unchanged": true,
+ "successor_side_acquisition": false,
+ "window_expanded": false
+}

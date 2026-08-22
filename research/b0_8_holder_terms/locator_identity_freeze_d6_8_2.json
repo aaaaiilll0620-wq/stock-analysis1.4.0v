@@ -1,0 +1,29 @@
+{
+ "audit_facts_relied_on": {
+  "content_file_alone_is_an_identity": false,
+  "distinct_doc_ids": 71961,
+  "doc_ids_duplicated": 0,
+  "doc_ids_mapping_to_many_content_files": 0
+ },
+ "crosswalk_emitted": "research\\b0_8_holder_terms\\locator_identity_crosswalk_d6_8_2.json",
+ "freeze_sha256": "67073ece06f4f2781e3785ab62251749b768ad2983015b65b5b65e92375dfd7e",
+ "frozen_after": {
+  "census_sha256": "eec035f35696b82b80e246c2a2d35e873e55f4016ecb92e1a89190bdbe918e37",
+  "stage": "S3",
+  "verdict": "LOCATOR_IDENTITY_AUDIT_PASSED"
+ },
+ "locator_to_body_cardinality": "MEASURED_AFTER_ACQUISITION",
+ "older_artefact_identities_rewritten": false,
+ "primitive": {
+  "body_identity": "sha256(raw official bytes)",
+  "fields": [
+   "content_file",
+   "doc_id"
+  ],
+  "locator_identity": "sha256(canonical_json({source, content_file, doc_id}))",
+  "official_document_number": "OPTIONAL_METADATA",
+  "source": "TPEX_BULLETIN"
+ },
+ "record": "B0_8_D6_8_2_LOCATOR_IDENTITY_FREEZE",
+ "uniqueness_forced_by_appending": null
+}

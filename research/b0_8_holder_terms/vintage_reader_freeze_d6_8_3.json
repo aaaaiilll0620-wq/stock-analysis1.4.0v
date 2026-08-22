@@ -1,0 +1,75 @@
+{
+ "calendar_decoder": {
+  "accepted_characters": "〇○零一二三四五六七八九十百",
+  "digit_style_forms": [
+   "一○一 -> 101",
+   "九二 -> 92"
+  ],
+  "shares_code_decoder": false,
+  "style": "VALUE_WITH_DIGIT_STYLE_VARIANT",
+  "value_forms": [
+   "十X",
+   "X十",
+   "X十Y",
+   "X百",
+   "X百零Y",
+   "X百Y十Z"
+  ],
+  "year_bounds": [
+   10,
+   999
+  ],
+  "year_bounds_reason": "identical to the Arabic pattern's (\\d{2,3})"
+ },
+ "class": "LEXICAL_REPRESENTATION_REPAIR",
+ "d6_7_binding_semantics": {
+  "called_verbatim": true,
+  "direction_of_error": "can only bind less, never more",
+  "function_copied": false,
+  "function_edited": false,
+  "label_vocabulary_changed": false,
+  "length_preserving": true,
+  "padding_codepoint": "U+E000",
+  "padding_is_in_any_whitelist": false,
+  "parsed_dates_remain": "ADJUDICATION_ONLY",
+  "role_taxonomy_changed": false,
+  "sentence_boundary_rules_changed": false,
+  "text_transformation": "CJK date expressions rewritten to Arabic"
+ },
+ "defect": "PRE2005_NUMERIC_REPRESENTATION_READER_CONFORMANCE_DEFECT",
+ "freeze_sha256": "14ccb062a239ffe970b6464632346c66856685bd9e30ae43762d1daa9553ec26",
+ "frozen_before_any_59_event_recomputation": true,
+ "grammar_derived_from": {
+  "corpus_inventory_sha256": "cf736c5af84a404fdcd4a18718044e4265be9e74c372e0634292dabd15ccf1b4",
+  "general_chinese_numeral_syntax": true,
+  "target_event_outcomes": false
+ },
+ "identity_semantics": {
+  "gate_i_changed": false,
+  "gate_ii_changed": false,
+  "l1_l2_changed": false,
+  "note": "the code label inside bind_names gains the same second representation; the requirement that an authoritative legal name be carried is untouched",
+  "rename_lineage_changed": false
+ },
+ "outcome_exposure": {
+  "exposed_event_ids": [
+   "6157",
+   "4110",
+   "6017"
+  ],
+  "pre_repair_outcome_exposure": true,
+  "rule_designed_around_them": false
+ },
+ "record": "B0_8_D6_8_3_VINTAGE_READER_FREEZE",
+ "security_code_decoder": {
+  "accepted_characters": "〇○零一二三四五六七八九",
+  "authorised_construct": "the existing code label only",
+  "bare_cjk_numeral_runs": "DIAGNOSTIC_ONLY, never identity evidence",
+  "parenthesised_bare_code_key_extended": false,
+  "required_shape": "exactly four decimal digits, the Arabic predicate's own shape",
+  "style": "POSITIONAL_ONLY",
+  "value_style_accepted": false,
+  "value_style_found": false,
+  "value_style_searched_for_in_corpus": true
+ }
+}

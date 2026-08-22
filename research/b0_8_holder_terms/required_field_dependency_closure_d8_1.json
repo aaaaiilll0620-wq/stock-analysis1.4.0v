@@ -1,0 +1,1985 @@
+{
+ "B1_authority": {
+  "frozen_class_required_fields": {
+   "CASH_ONLY": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "MIXED": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "successor_credit_date",
+    "settlement_date"
+   ],
+   "STOCK_ONLY": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ]
+  },
+  "not_traced_to": "D8.0 implementation (explicitly forbidden by B1)",
+  "traced_to": "core/b0_holder_side_terms.py :: CLASS_REQUIRED_FIELDS (the canonical CA consumer, classify_reconstruction)"
+ },
+ "B1_field_dependencies": {
+  "cash_consideration": {
+   "basis": "required by CLASS_REQUIRED_FIELDS for CASH_ONLY/MIXED; its absence makes the event NOT_RECONSTRUCTIBLE",
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "frozen_field": "cash_consideration_per_old_share"
+  },
+  "cash_payment_settlement_date": {
+   "basis": "required by CLASS_REQUIRED_FIELDS for CASH_ONLY/MIXED; its absence makes the event NOT_RECONSTRUCTIBLE",
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "frozen_field": "settlement_date"
+  },
+  "conversion_ratio": {
+   "basis": "required by CLASS_REQUIRED_FIELDS for STOCK_ONLY/MIXED; its absence makes the event NOT_RECONSTRUCTIBLE",
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "frozen_field": "stock_conversion_ratio"
+  },
+  "default_election_semantics": {
+   "basis": "not present anywhere in EXTRACTION_SCHEMA",
+   "dependency": "NOT_IN_FROZEN_SCHEMA_INVENTED_BY_D8_0",
+   "frozen_field": null
+  },
+  "election_rule": {
+   "basis": "not present anywhere in EXTRACTION_SCHEMA",
+   "dependency": "NOT_IN_FROZEN_SCHEMA_INVENTED_BY_D8_0",
+   "frozen_field": null
+  },
+  "fractional_cash_handling": {
+   "basis": "not present anywhere in EXTRACTION_SCHEMA",
+   "dependency": "NOT_IN_FROZEN_SCHEMA_INVENTED_BY_D8_0",
+   "frozen_field": null
+  },
+  "fractional_treatment": {
+   "basis": "§6.1.9: a fractional entitlement PERSISTS as a non-tradable entitlement by default; the field is needed only where fractional settlement affects exposed NAV/cash/exit and would otherwise force a W-1 BLOCK. Not in CLASS_REQUIRED_FIELDS, so it never decides the class",
+   "dependency": "CONDITIONALLY_REQUIRED",
+   "frozen_field": "fractional_share_treatment"
+  },
+  "holder_effective_date": {
+   "basis": "required by CLASS_REQUIRED_FIELDS for STOCK_ONLY/CASH_ONLY/MIXED; its absence makes the event NOT_RECONSTRUCTIBLE",
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "frozen_field": "holder_effective_boundary"
+  },
+  "successor_credit_delivery_date": {
+   "basis": "required by CLASS_REQUIRED_FIELDS for STOCK_ONLY/MIXED; its absence makes the event NOT_RECONSTRUCTIBLE",
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "frozen_field": "successor_credit_date"
+  },
+  "successor_issuer_security": {
+   "basis": "required by CLASS_REQUIRED_FIELDS for STOCK_ONLY/MIXED; its absence makes the event NOT_RECONSTRUCTIBLE",
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "frozen_field": "successor_security_id"
+  },
+  "tradable_listing_date": {
+   "basis": "in EXTRACTION_SCHEMA and outcome-relevant for R6 agreement IF extracted, but absent from CLASS_REQUIRED_FIELDS, so it does not gate reconstruction",
+   "dependency": "DIAGNOSTIC_ONLY",
+   "frozen_field": "successor_tradable_date"
+  }
+ },
+ "B1_fields_removed_from_readiness_requirement": [
+  "tradable_listing_date",
+  "fractional_treatment",
+  "fractional_cash_handling",
+  "election_rule",
+  "default_election_semantics"
+ ],
+ "B2_fractional_semantics": {
+  "classification": "CONDITIONALLY_REQUIRED",
+  "default_without_the_field": "persist as non-tradable entitlement (fully defined; no acquisition needed)",
+  "frozen_text_6_1_9": "小於 canonical executable unit 之 fractional entitlement MUST 保留為 non-tradable entitlement,直到官方 settlement semantics 可重建;若 fractional settlement 會影響 exposed holding 之 NAV/cash/exit 而 settlement semantics 無法 reconstruct -> W-1 BLOCK",
+  "required_for_every_event": false,
+  "required_when": "a fractional entitlement actually arises AND its settlement would affect exposed NAV/cash/exit",
+  "schema_modified": false
+ },
+ "B4_field_level_results": {
+  "default_election_semantics": {
+   "dependency": "NOT_IN_FROZEN_SCHEMA_INVENTED_BY_D8_0",
+   "note": "as above",
+   "verdict": "NOT_REQUIRED"
+  },
+  "election_rule": {
+   "dependency": "NOT_IN_FROZEN_SCHEMA_INVENTED_BY_D8_0",
+   "note": "invented by D8.0; MIXED/ELECTIVE remains discovery metadata, the frozen CA model does not consume an election field",
+   "verdict": "NOT_REQUIRED"
+  },
+  "fractional_cash_handling": {
+   "dependency": "NOT_IN_FROZEN_SCHEMA_INVENTED_BY_D8_0",
+   "note": "invented by D8.0; no such frozen field",
+   "verdict": "NOT_REQUIRED"
+  },
+  "fractional_share_treatment": {
+   "dependency": "CONDITIONALLY_REQUIRED",
+   "note": "§6.1.9 default is persist-as-claim; only exposure-affecting unreconstructable fractional settlement triggers W-1 BLOCK",
+   "verdict": "CONDITIONAL_ONLY"
+  },
+  "settlement_date": {
+   "control_count": 34,
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "note": "D8.0's 0/25 measured the disappearing-side termination bundle only -- a class that structurally cannot carry a settlement date. Re-measured on acquirer-side first-party documents the field class IS expressed",
+   "positive_controls": [
+    {
+     "body_sha256": "3be998292c225491b695d66a003aa2fc4ba74ff8a1b02bf49bbb748a28560220",
+     "labels": [
+      "對價"
+     ],
+     "security_id": "3553",
+     "subject": "本公司公開收購力積電子股份有限公司普通股股份"
+    },
+    {
+     "body_sha256": "cfeec3f42550071427885ad24ba5a6a4485143e9ed011b598fd847dde5b73028",
+     "labels": [
+      "對價"
+     ],
+     "security_id": "3553",
+     "subject": "公告本公司董事會決議通過公開收購力積電子股份有限公司之普通股股份"
+    },
+    {
+     "body_sha256": "f3b3c4e72ab3578170f91d94cf31cd99cc7a3f713aff4deabb0f7a3a63f04488",
+     "labels": [
+      "對價",
+      "現金對價"
+     ],
+     "security_id": "3553",
+     "subject": "本公司公開收購力積電子股份有限公司普通股股份補充說明"
+    },
+    {
+     "body_sha256": "173555944334279eac43443e174155b87d20f024484b0983189066fbc81a4766",
+     "labels": [
+      "對價"
+     ],
+     "security_id": "3553",
+     "subject": "公告本公司公開收購力積電子股份有限公司普通股，公開收購條件已成就"
+    },
+    {
+     "body_sha256": "0e85771c3a632731eb2ca8b107b48c46be1d631368842c5fed00069888f18f0d",
+     "labels": [
+      "匯入",
+      "對價",
+      "現金對價"
+     ],
+     "security_id": "3553",
+     "subject": "公告本公司公開收購力積電子股份有限公司普通股之公開收購期間屆滿"
+    }
+   ],
+   "source_class": "official_exchange_or_mops (acquirer-side tender / share-conversion announcement)",
+   "verdict": "REPRESENTABLE_BUT_EVENT_COVERAGE_INCOMPLETE"
+  },
+  "successor_credit_date": {
+   "control_count": 1,
+   "dependency": "UNCONDITIONALLY_REQUIRED",
+   "note": "representability established by control; coverage across the corpus is NOT established by it (B5)",
+   "positive_controls": [
+    {
+     "body_sha256": "b387cd53e7f89356aa57c44e60cc54d7713aba1f15db59c31e59c81eb96928ec",
+     "labels": [
+      "帳簿劃撥",
+      "撥入"
+     ],
+     "security_id": "8420",
+     "subject": "公告本公司與明揚國際科技股份有限公司於股份轉換\n基準日後，明揚國際科技股份有限公司發行之國內第一次\n無擔保轉換公司債請求"
+    }
+   ],
+   "source_class": "official_exchange_or_mops (successor-side material announcement)",
+   "verdict": "REPRESENTABLE_BUT_EVENT_COVERAGE_INCOMPLETE"
+  },
+  "successor_tradable_date": {
+   "dependency": "DIAGNOSTIC_ONLY",
+   "note": "absent from CLASS_REQUIRED_FIELDS; never gates the class",
+   "verdict": "NOT_REQUIRED"
+  }
+ },
+ "B5_absence_discipline": {
+  "d8_0_claim_corrected": "cash settlement 0/25 ABSENT",
+  "one_control_proves": "representability, not coverage",
+  "why_it_was_wrong": "measured only the disappearing-side termination bundle, which structurally cannot carry it",
+  "zero_observations_prove": "nothing about first-party existence"
+ },
+ "B6_rebased_readiness": {
+  "counts": {
+   "NOT_READY_SOURCE_ACQUISITION": 156,
+   "READY_FOR_DUAL_EXTRACTION": 2
+  },
+  "d8_0_artefact_preserved_unchanged": true,
+  "remaining_blockers_by_frozen_field": {
+   "holder_effective_boundary": 8,
+   "settlement_date": 22,
+   "stock_conversion_ratio": 5,
+   "successor_credit_date": 31,
+   "successor_security_id": 6
+  },
+  "tpex_ready": [
+   "3553",
+   "8420"
+  ]
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_materialized": false,
+ "closure_sha256": "60c0e9bc0e6522f1e841393052594e98385f7716b66133096663c73f73907827",
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "inputs": {
+  "d7_2c_presence_sha256": "c33dcfdbf83d10c99c31d5bb73beda362a74e86dd37697bb938d83c4e336f9d7",
+  "d8_0_freeze_sha256": "03d2923c0bbc83ff2619bf72ecf32d9ef5dd041a6463c867e5b6bd5e455d6fb7",
+  "frozen_schema_sha256": "f9b4322a160258f6e11293422626877f0a2f9157bfbe09cac1dac1114e4eb948"
+ },
+ "per_event": [
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2386",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6157",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2319",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "4110",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6017",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2544",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5528",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5436",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2370",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2389",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2416",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2470",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2808",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2422",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2366",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2822",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5494",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6960",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3012",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6178",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2394",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2343",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3214",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6004",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6280",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2469",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "5818",
+   "semantics": "UNKNOWN",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2336",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1520",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3020",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2447",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "9915",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1311",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "9101",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3271",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "3298",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2411",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2446",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "2921",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3009",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3063",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2452",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2526",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2391",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1523",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6255",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3614",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2403",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1716",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6012",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2463",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2854",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3534",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3367",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "5854",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "3389",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6119",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2473",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "8199",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "8705",
+   "semantics": "UNKNOWN",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6008",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3080",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3599",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2315",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3697",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "8078",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2837",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "5326",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "5280",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3061",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3582",
+   "semantics": "UNKNOWN",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date",
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "successor_credit_date",
+    "settlement_date"
+   ],
+   "security_id": "5466",
+   "semantics": "MIXED",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2833",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2847",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6286",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3598",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3573",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "4733",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "8079",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "8266",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "3658",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3474",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2437",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "stock_conversion_ratio",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5384",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "6022",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3559",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3315",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [],
+   "readiness": "READY_FOR_DUAL_EXTRACTION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "3553",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "6105",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1715",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "stock_conversion_ratio",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5491",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2311",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2325",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "6554",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_security_id",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "3068",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "4984",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2856",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "3428",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3514",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3561",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6145",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6298",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6422",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "4103",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "3299",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_security_id",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5255",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1704",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "5480",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "1566",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_security_id",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "4180",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5317",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1262",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "1787",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "8913",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3562",
+   "semantics": "UNKNOWN",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "4947",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1902",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_security_id",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6238",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "4144",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "8497",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_security_id",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5349",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "5305",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2448",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3698",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "5264",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "4725",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_security_id",
+    "successor_credit_date",
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "successor_credit_date",
+    "settlement_date"
+   ],
+   "security_id": "4152",
+   "semantics": "MIXED",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "2928",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1724",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "3144",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2823",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2456",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1507",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "8406",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "4141",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "successor_credit_date",
+    "settlement_date"
+   ],
+   "security_id": "4429",
+   "semantics": "MIXED",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "5102",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6251",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "holder_effective_boundary"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "5820",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "8480",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "6247",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6594",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "5281",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "4944",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3682",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "8418",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "1701",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6514",
+   "semantics": "UNKNOWN",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [],
+   "readiness": "READY_FOR_DUAL_EXTRACTION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "8420",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "6457",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2888",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "6288",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "successor_credit_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ],
+   "security_id": "4945",
+   "semantics": "STOCK_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "2809",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "6747",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "consideration semantics"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "security_id": "3454",
+   "semantics": "UNKNOWN",
+   "venue": "NON_TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "4987",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  },
+  {
+   "missing": [
+    "settlement_date"
+   ],
+   "readiness": "NOT_READY_SOURCE_ACQUISITION",
+   "required_frozen_fields": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "security_id": "3426",
+   "semantics": "CASH_ONLY",
+   "venue": "TPEX"
+  }
+ ],
+ "prior_artefacts_rewritten": 0,
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_D8_1_REQUIRED_FIELD_DEPENDENCY_CLOSURE",
+ "schema_modified": false,
+ "states_unchanged": true,
+ "twse_99_acquisition_started": false
+}

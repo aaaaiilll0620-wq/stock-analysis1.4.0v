@@ -1,0 +1,68 @@
+{
+ "S7_acquisition_completeness": {
+  "ACQUIRED_DISTINCT_OFFICIAL_LOCATORS": 71961,
+  "ARCHIVE_COMPLETE": true,
+  "TOTAL_DISTINCT_OFFICIAL_LOCATORS": 71961,
+  "UNRESOLVED_LOCATORS": 0,
+  "acquired_by_this_stage": 13841,
+  "acquired_inherited_read_only": 58120,
+  "completeness_is_measured_against": "the full S3 locator census, not against requests attempted",
+  "locators_retried": 0,
+  "transport_errors_after_retry": 0,
+  "unresolved_detail": []
+ },
+ "acquisition_sha256": "9f805bd440eaf3c559969e498dbaa4369bac1314ac276c14d4ddea61a929481c",
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "blank_in_index_but_numbered_in_body": 0,
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "defect_repaired": "PRE2005_DOCUMENT_IDENTITY_KEYING_COMPLETENESS_DEFECT",
+ "duplicate_verification": {
+  "byte_identical_to_sibling": 42,
+  "checked": 43,
+  "differing": [
+   {
+    "body_sha256": "fa2d280ef3ac60d1e1489b264fd01242c5bc7bc0eff881457c76260943e8f4b1",
+    "doc_id": "OTYxMjkyNg==",
+    "document_number": "證櫃監字第0960203721號",
+    "sibling_body_sha256": "739d53fa5f3495c61537e2f94d2470b5450cc48742578cabb390a31b10196a9c"
+   }
+  ],
+  "differs_from_sibling": 1,
+  "reading": "42 document numbers are indexed on two adjacent dates; this settles from bytes whether the second locator is the same document"
+ },
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "locator_identity_freeze_sha256": "67073ece06f4f2781e3785ab62251749b768ad2983015b65b5b65e92375dfd7e",
+ "locator_to_body_cardinality": {
+  "bodies_reached_by_more_than_one_locator": 57,
+  "distinct_bodies": 71901,
+  "extra_locators_over_bodies": 60,
+  "measured_not_assumed": true
+ },
+ "nav_inspected": false,
+ "official_document_number_present_in_body": 43,
+ "older_document_identities_rewritten": false,
+ "parse_state": {
+  "parsed": 13841,
+  "unparseable": 0
+ },
+ "performance_inspected": false,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_2_PRE2005_LOCATOR_ACQUISITION",
+ "replay_started": false,
+ "requested_population": {
+  "filtered_by_security_or_exposure": false,
+  "never_requested": 13798,
+  "sampling_applied": false,
+  "unverified_duplicates": 43
+ },
+ "s3_census_sha256": "eec035f35696b82b80e246c2a2d35e873e55f4016ecb92e1a89190bdbe918e37",
+ "states_unchanged": true,
+ "store": "artifacts\\b0_8_holder_terms\\d6_8_2_locator_raw",
+ "successor_side_acquisition": false,
+ "third_party_mirrors_consulted": false
+}

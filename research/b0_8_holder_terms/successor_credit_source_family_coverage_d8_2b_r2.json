@@ -1,0 +1,1332 @@
+{
+ "admissible_negative_count": 43,
+ "applicable_population": {
+  "classification": {
+   "1311": "CONFIRMED_STOCK_BEARING",
+   "1566": "CONFIRMED_STOCK_BEARING",
+   "1787": "CONFIRMED_NON_STOCK",
+   "2343": "CONFIRMED_STOCK_BEARING",
+   "2366": "CONFIRMED_STOCK_BEARING",
+   "2921": "CONFIRMED_STOCK_BEARING",
+   "2928": "CONFIRMED_NON_STOCK",
+   "3068": "CONFIRMED_STOCK_BEARING",
+   "3144": "CONFIRMED_NON_STOCK",
+   "3298": "CONFIRMED_STOCK_BEARING",
+   "3299": "CONFIRMED_STOCK_BEARING",
+   "3389": "CONFIRMED_STOCK_BEARING",
+   "3428": "CONFIRMED_STOCK_BEARING",
+   "3562": "CONSIDERATION_UNKNOWN",
+   "3582": "CONSIDERATION_UNKNOWN",
+   "3658": "CONFIRMED_NON_STOCK",
+   "4110": "CONFIRMED_STOCK_BEARING",
+   "4152": "SCHEMA_OR_EVENT_CLASS_CONFLICT",
+   "4180": "CONFIRMED_STOCK_BEARING",
+   "4429": "CONFIRMED_STOCK_BEARING",
+   "4944": "CONFIRMED_STOCK_BEARING",
+   "4945": "CONFIRMED_STOCK_BEARING",
+   "4987": "CONFIRMED_NON_STOCK",
+   "5255": "CONFIRMED_STOCK_BEARING",
+   "5281": "CONFIRMED_STOCK_BEARING",
+   "5317": "CONFIRMED_STOCK_BEARING",
+   "5349": "CONFIRMED_STOCK_BEARING",
+   "5384": "CONFIRMED_STOCK_BEARING",
+   "5436": "CONFIRMED_STOCK_BEARING",
+   "5466": "CONFIRMED_STOCK_BEARING",
+   "5491": "CONFIRMED_STOCK_BEARING",
+   "5494": "CONFIRMED_STOCK_BEARING",
+   "5528": "CONFIRMED_STOCK_BEARING",
+   "5818": "CONSIDERATION_UNKNOWN",
+   "6008": "CONFIRMED_STOCK_BEARING",
+   "6105": "CONFIRMED_NON_STOCK",
+   "6178": "CONFIRMED_STOCK_BEARING",
+   "6238": "CONFIRMED_STOCK_BEARING",
+   "6298": "CONFIRMED_STOCK_BEARING",
+   "6457": "CONFIRMED_STOCK_BEARING",
+   "6514": "CONSIDERATION_UNKNOWN",
+   "6554": "CONFIRMED_NON_STOCK",
+   "6594": "CONFIRMED_STOCK_BEARING",
+   "6747": "CONFIRMED_NON_STOCK",
+   "8406": "CONFIRMED_NON_STOCK",
+   "8418": "CONFIRMED_NON_STOCK",
+   "8420": "CONFIRMED_STOCK_BEARING",
+   "8705": "CONSIDERATION_UNKNOWN",
+   "8913": "CONFIRMED_NON_STOCK"
+  },
+  "denominator_counts": {
+   "CONFIRMED_NON_STOCK": 11,
+   "CONFIRMED_STOCK_BEARING": 32,
+   "CONSIDERATION_UNKNOWN": 5,
+   "SCHEMA_OR_EVENT_CLASS_CONFLICT": 1
+  },
+  "events_referenced_in_d8_2b_r1_evidence": 49,
+  "rule": "only CONFIRMED_STOCK_BEARING events may contribute negative evidence about a missing successor credit date"
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "bulk_crawl": false,
+ "ca_ledger_or_states_changed": false,
+ "canonical_values_materialized": false,
+ "closure_sha256": "3cacb06ce49438c9fe0cc4ce2dd1e86312a482de083fb4669344d13445456f57",
+ "consumer_modified": false,
+ "d8_3_started": false,
+ "dual_extraction_started": false,
+ "event_level_adjudication_admissible": false,
+ "family_by_period_coverage_matrix": {
+  "2004-2009": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [],
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "only 5384/5491 (2015-2019) are CONFIRMED_STOCK_BEARING among the 7 residual events; 3562/3582/5818/6514/8705 removed as CONSIDERATION_UNKNOWN -> NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "no part of this band reaches the OD-1-7/PORTAL-QRYPS window"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "5436",
+     "6178",
+     "3298",
+     "2921"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "unchanged from D8.2B-R1 -- structural refusal, not stock-applicability-dependent"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "4110",
+     "1311",
+     "5436",
+     "2343",
+     "5494",
+     "2366",
+     "5528"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  },
+  "2010-2014": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [],
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "only 5384/5491 (2015-2019) are CONFIRMED_STOCK_BEARING among the 7 residual events; 3562/3582/5818/6514/8705 removed as CONSIDERATION_UNKNOWN -> NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "no part of this band reaches the OD-1-7/PORTAL-QRYPS window"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "3389",
+     "6008"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "unchanged from D8.2B-R1 -- structural refusal, not stock-applicability-dependent"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "6008"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  },
+  "2015-2019": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [
+     "5384",
+     "5491"
+    ],
+    "disposition": "PARTIAL_COVERAGE",
+    "note": "only 5384/5491 (2015-2019) are CONFIRMED_STOCK_BEARING among the 7 residual events; 3562/3582/5818/6514/8705 removed as CONSIDERATION_UNKNOWN -> NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "no part of this band reaches the OD-1-7/PORTAL-QRYPS window"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "5466",
+     "5384",
+     "5491",
+     "3068",
+     "3428",
+     "6298",
+     "3299",
+     "5255",
+     "1566",
+     "4180",
+     "5317"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "unchanged from D8.2B-R1 -- structural refusal, not stock-applicability-dependent"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "1566",
+     "3299",
+     "3428",
+     "5317"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  },
+  "2020-2026": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [],
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "only 5384/5491 (2015-2019) are CONFIRMED_STOCK_BEARING among the 7 residual events; 3562/3582/5818/6514/8705 removed as CONSIDERATION_UNKNOWN -> NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE"
+   },
+   "TDCC_surfaces": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "1 confirmed-stock event (4945, 2025-09-02) falls in the observed window; no query run"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "6238",
+     "5349",
+     "4429",
+     "6594",
+     "8420",
+     "6457",
+     "4945"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "unchanged from D8.2B-R1 -- structural refusal, not stock-applicability-dependent"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "4429",
+     "4944",
+     "4945",
+     "5281",
+     "8420"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  }
+ },
+ "frozen_schema_modified": false,
+ "inputs": {
+  "d8_2a_gate_sha256": "5a8423ed55d789d4c2dd5456cb856707b1b286b65e9a2ac70eb8afaed615074b",
+  "d8_2b_closure_sha256": "e83a978177513c6d179695d166cf72aa2dda0161c977017825904432429cdb99",
+  "d8_2b_r1_closure_sha256": "908a743e11bce684b609069c537a37981c1d3edbbf000e961e29a57c057f9f30"
+ },
+ "network_used": false,
+ "new_pdf_acquisition": false,
+ "non_diagnostic_removed": [
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3562",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": false,
+   "credit_date_result": "NO_CACHED_DOCUMENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": false,
+   "event_id": "3582",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "5818",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": false,
+   "credit_date_result": "NO_CACHED_DOCUMENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": false,
+   "event_id": "6514",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8705",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8705",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3658",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6105",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6554",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_PRESENT_BUT_NON_STOCK",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "1787",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8913",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3562",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "SCHEMA_OR_EVENT_CLASS_CONFLICT",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "4152",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "2928",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_PRESENT_BUT_NON_STOCK",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3144",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8406",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8418",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6514",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6747",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "4987",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  }
+ ],
+ "non_diagnostic_removed_count": 20,
+ "ocr_performed": false,
+ "offline_gaps": {
+  "3582_6514_excluded_reason": "CONSIDERATION_UNKNOWN -- not included merely because PDFs are listed on the e-doc surface; stock consideration not independently established",
+  "CACHED_FORMAL_DOCS_REQUIRING_FIELD_AUDIT_FOR_CONFIRMED_STOCK_EVENTS": [
+   {
+    "consideration_class": "CONFIRMED_STOCK_BEARING",
+    "counterparty_of": "5384",
+    "file": "201709_3709_B07.pdf",
+    "has_extract_json": true,
+    "has_txt_sidecar": true
+   },
+   {
+    "consideration_class": "CONFIRMED_STOCK_BEARING",
+    "counterparty_of": "5491",
+    "file": "201712_3710_B07.pdf",
+    "has_extract_json": false,
+    "has_txt_sidecar": true
+   }
+  ],
+  "CONFIRMED_STOCK_EVENTS_WITH_NO_APPLICABLE_CACHED_DOCUMENT": [],
+  "OCR_REQUIRED_CONFIRMED_STOCK_DOCUMENTS": [
+   {
+    "event_id": "5384",
+    "file": "5384_2016_5384_20160616F05.pdf",
+    "status": "EMPTY_TEXT"
+   },
+   {
+    "event_id": "5384",
+    "file": "5384_2017_5384_20170615F05.pdf",
+    "status": "EMPTY_TEXT"
+   },
+   {
+    "event_id": "5491",
+    "file": "5491_2016_5491_20160615F02.pdf",
+    "status": "ENCRYPTED_MISSING_CRYPTOGRAPHY_LIB"
+   },
+   {
+    "event_id": "5491",
+    "file": "5491_2016_5491_20160615F05.pdf",
+    "status": "ENCRYPTED_MISSING_CRYPTOGRAPHY_LIB"
+   },
+   {
+    "event_id": "5491",
+    "file": "5491_2016_5491_20160615F17.pdf",
+    "status": "EMPTY_TEXT"
+   }
+  ]
+ },
+ "preserves_unmodified": [
+  "credit_date_representability_gate_d8_2a.json",
+  "successor_credit_source_family_coverage_d8_2b.json",
+  "successor_credit_source_family_coverage_d8_2b_r1.json"
+ ],
+ "rebased_document_evidence": [
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "4110",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "6008",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "1566",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "4429",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": false,
+   "event_id": "1311",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": false,
+   "event_id": "5436",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": false,
+   "event_id": "3299",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "4944",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "2343",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": false,
+   "event_id": "5494",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": false,
+   "event_id": "3428",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "4945",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "2366",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": false,
+   "event_id": "5528",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": false,
+   "event_id": "5317",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5281",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "8420",
+   "family": "successor_side_MOPS_material_announcements",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3562",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": false,
+   "credit_date_result": "NO_CACHED_DOCUMENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": false,
+   "event_id": "3582",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5384",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5491",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "5818",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": false,
+   "credit_date_result": "NO_CACHED_DOCUMENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": false,
+   "event_id": "6514",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": false
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "NO_SCOPED_HITS",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8705",
+   "family": "MOPS_electronic_document_archive",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5436",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "6178",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "3298",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2004-2009",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "2921",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "3389",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8705",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2010-2014",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "6008",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5466",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3658",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5384",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6105",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5491",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6554",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "3068",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "3428",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "6298",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "3299",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5255",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "1566",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "4180",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5317",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2015-2019",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_PRESENT_BUT_NON_STOCK",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "1787",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8913",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3562",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "6238",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "5349",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "SCHEMA_OR_EVENT_CLASS_CONFLICT",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "4152",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "2928",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_PRESENT_BUT_NON_STOCK",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "3144",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8406",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "4429",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "6594",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "8418",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONSIDERATION_UNKNOWN",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6514",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "8420",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "6457",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_STOCK_BEARING",
+   "disposition_if_not_admissible": null,
+   "document_readable": true,
+   "event_id": "4945",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": true,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "6747",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  },
+  {
+   "band": "2020-2026",
+   "credit_date_audit_performed": true,
+   "credit_date_result": "FIELD_ABSENT",
+   "current_consideration_class": "CONFIRMED_NON_STOCK",
+   "disposition_if_not_admissible": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+   "document_readable": true,
+   "event_id": "4987",
+   "family": "TPEx_same_transaction_records",
+   "negative_evidence_admissible": false,
+   "same_transaction_linkage": true
+  }
+ ],
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_D8_2B_R2_STOCK_APPLICABILITY_DENOMINATOR_REPAIR",
+ "source_family_closure_verdict": "CLOSURE_BLOCKED_BY_COVERAGE_OR_ACCESS",
+ "tdcc_applicability": {
+  "TDCC_CURRENT_WINDOW": "NOT_EVALUATED_FOR_THIS_FIELD",
+  "applicable_event_count": 1,
+  "applicable_event_ids": [
+   "4945"
+  ],
+  "observed_window": [
+   "2025-01-02",
+   "2026-08-20"
+  ]
+ },
+ "twse_99_bulk_acquisition_started": false
+}

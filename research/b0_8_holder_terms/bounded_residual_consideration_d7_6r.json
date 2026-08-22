@@ -1,0 +1,143 @@
+{
+ "D7_CONSIDERATION_DISCOVERY": "PERMANENTLY_CLOSED",
+ "TPEX_59_census": {
+  "CASH_ONLY": 22,
+  "CONFIRMED_STOCK_BEARING": 32,
+  "MIXED": 3,
+  "STOCK_ONLY": 29,
+  "UNKNOWN": 5,
+  "denominator_closed": false,
+  "reconciliation_total": 59,
+  "unknown_detail": {
+   "3562": "NOT_READY_SOURCE_ACQUISITION",
+   "3582": "NOT_READY_SOURCE_ACQUISITION",
+   "5818": "NOT_READY_SOURCE_ACQUISITION",
+   "6514": "UNKNOWN_CARRIED_TO_D8_0_READINESS",
+   "8705": "NOT_READY_SOURCE_ACQUISITION"
+  }
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "boundary_verdicts_issued": 0,
+ "budget_enforced": {
+  "excluded_by_instruction": [
+   "6514"
+  ],
+  "fresh_session_per_request": true,
+  "full_history_crawl": false,
+  "grammar_modified": false,
+  "max_documents_per_event": 10,
+  "max_transport_retries": 3,
+  "ocr_policy": "permitted only for an identified same-transaction candidate with an image-only decisive page",
+  "ocr_used": false,
+  "population": [
+   "3562",
+   "5818",
+   "8705",
+   "3582"
+  ],
+  "surface": "disappearing-party MOPS e-document archive only"
+ },
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_materialized": false,
+ "closure_sha256": "1eef1fae734f095c6eb1a7d39facd89c082d015f1fb869df957ce2c5c23e1549",
+ "consideration_grammar_changed": false,
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "infrastructure_failure_is_not_absence": true,
+ "inputs": {
+  "d7_6_closure_sha256": "18c4d91e67c5891cb04a33ac6e7679e98df150d5f88947bef61477c63928b2b7"
+ },
+ "next_stage": "D8.0 158-event canonical extraction readiness freeze",
+ "per_event": {
+  "3562": {
+   "counterparty_stem": "新晶",
+   "disappearing": "頂晶",
+   "docs_inspected": 10,
+   "docs_listed": 124,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "image_only_candidates": [
+    "2019_3562_20190620F02.pdf",
+    "2019_3562_20190620F05.pdf",
+    "2018_3562_20180627F02.pdf",
+    "2018_3562_20180627F05.pdf"
+   ],
+   "linked_doc": null,
+   "reason": "budgeted document set inspected; no same-transaction holder-consideration statement extracted (not a boundary claim)",
+   "result": "NOT_READY_SOURCE_ACQUISITION",
+   "semantics": "UNKNOWN",
+   "vintages": [
+    "2018",
+    "2019"
+   ]
+  },
+  "3582": {
+   "counterparty_stem": "威世",
+   "disappearing": "凌耀",
+   "docs_inspected": 0,
+   "docs_listed": 45,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "image_only_candidates": [],
+   "linked_doc": null,
+   "reason": "budgeted document set inspected; no same-transaction holder-consideration statement extracted (not a boundary claim)",
+   "result": "NOT_READY_SOURCE_ACQUISITION",
+   "semantics": "UNKNOWN",
+   "vintages": [
+    "2013",
+    "2014"
+   ]
+  },
+  "5818": {
+   "counterparty_stem": "花旗",
+   "disappearing": "華僑商業銀行",
+   "docs_inspected": 4,
+   "docs_listed": 10,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "image_only_candidates": [
+    "2006_5818_20060609F01.pdf",
+    "2006_5818_20060609F02.pdf"
+   ],
+   "linked_doc": null,
+   "reason": "budgeted document set inspected; no same-transaction holder-consideration statement extracted (not a boundary claim)",
+   "result": "NOT_READY_SOURCE_ACQUISITION",
+   "semantics": "UNKNOWN",
+   "vintages": [
+    "2006",
+    "2007"
+   ]
+  },
+  "8705": {
+   "counterparty_stem": "史丹利",
+   "disappearing": "東隆五金",
+   "docs_inspected": 10,
+   "docs_listed": 113,
+   "evidence": null,
+   "holder_cash": false,
+   "holder_security": false,
+   "image_only_candidates": [
+    "2012_8705_20120615F05.pdf",
+    "2012_8705_20120615F17.pdf",
+    "2011_8705_20110622F01.pdf"
+   ],
+   "linked_doc": null,
+   "reason": "budgeted document set inspected; no same-transaction holder-consideration statement extracted (not a boundary claim)",
+   "result": "NOT_READY_SOURCE_ACQUISITION",
+   "semantics": "UNKNOWN",
+   "vintages": [
+    "2011",
+    "2012"
+   ]
+  }
+ },
+ "prior_artefacts_rewritten": 0,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_unchanged": true,
+ "record": "B0_8_D7_6R_BOUNDED_RESIDUAL_CONSIDERATION",
+ "replay_started": false,
+ "states_unchanged": true
+}

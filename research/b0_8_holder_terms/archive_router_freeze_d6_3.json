@@ -1,0 +1,189 @@
+{
+ "allowed_routing_inputs": [
+  "market lineage",
+  "security_id",
+  "publication date/time",
+  "announcement subject",
+  "canonical document identity"
+ ],
+ "body_state_classifier": {
+  "refusal_shape": "該\\s*[0-9A-Za-z]{2,10}\\s*[^!！。]{0,30}[!！]",
+  "refusal_tokens": [
+   "查無",
+   "不繼續公開發行",
+   "已下市",
+   "已下櫃",
+   "已終止"
+  ],
+  "request_error_tokens": [
+   "傳入參數異常",
+   "參數錯誤",
+   "日期參數錯誤",
+   "安全性考量",
+   "無法呈現"
+  ],
+  "security_specific_rules": false,
+  "states": [
+   "REAL_ANNOUNCEMENT_BODY",
+   "OFFICIAL_REFUSAL_PAGE",
+   "OFFICIAL_THROTTLE_PAGE",
+   "TRANSPORT_FAILURE",
+   "REQUEST_ERROR"
+  ],
+  "template_marker": "本資料由",
+  "throttle_tokens": [
+   "查詢過於頻繁",
+   "Overrun",
+   "系統忙碌",
+   "請稍後再試"
+  ]
+ },
+ "corrected_population": {
+  "OFFICIAL_REFUSAL_PAGE": 725,
+  "REAL_ANNOUNCEMENT_BODY": 56
+ },
+ "corrected_population_by_market": {
+  "LINEAGE_UNRESOLVED": {
+   "OFFICIAL_REFUSAL_PAGE": 6
+  },
+  "TPEX": {
+   "OFFICIAL_REFUSAL_PAGE": 243,
+   "REAL_ANNOUNCEMENT_BODY": 11
+  },
+  "TWSE": {
+   "OFFICIAL_REFUSAL_PAGE": 476,
+   "REAL_ANNOUNCEMENT_BODY": 45
+  }
+ },
+ "d6_1_history_preserved": {
+  "census_sha256": "b60c4c38948ca39a38688959e6635e67875f497b0d4890a6bfd42c8074607a18",
+  "counts": {
+   "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS": 25,
+   "OFFICIAL_EVENT_DOCUMENT_NONE": 116,
+   "OFFICIAL_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+   "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 17
+  },
+  "none_decomposition": {
+   "NONE_DISCOVERED_BUT_LINKAGE_NOT_ESTABLISHED": 109,
+   "NONE_NO_DOCUMENT_DISCOVERED": 7
+  },
+  "not_rewritten": true,
+  "originally_reported_body_available": 146
+ },
+ "forbidden_sources": [
+  "third_party_mirrors",
+  "TEJ",
+  "search_engine_caches",
+  "web_archives",
+  "portfolio_information",
+  "performance"
+ ],
+ "frozen_before_any_request": true,
+ "identity_rule_g7": "a candidate counts as the same document only if deterministic authoritative fields uniquely link it to the canonical row; thematic similarity is not linkage",
+ "mops_r4_signed_detail_under_test": false,
+ "record": "B0_8_D6_3_ARCHIVE_ROUTER",
+ "router_sha256": "438d9f6973600825dc5f328425202c5fb0b464b093ef9048ac5309309f9b790e",
+ "routes": [
+  {
+   "agency": "TWSE",
+   "content": "上市公司每日重大訊息 incl. 說明 (full body)",
+   "id": "A1",
+   "identity_keys": [
+    "公司代號",
+    "發言日期",
+    "發言時間",
+    "主旨"
+   ],
+   "parameters": "none -- daily snapshot",
+   "surface": "https://openapi.twse.com.tw/v1/opendata/t187ap04_L"
+  },
+  {
+   "agency": "TPEx",
+   "content": "上櫃公司每日重大訊息 incl. 說明 (full body)",
+   "id": "A2",
+   "identity_keys": [
+    "SecuritiesCompanyCode",
+    "發言日期",
+    "發言時間",
+    "主旨"
+   ],
+   "parameters": "none -- daily snapshot",
+   "surface": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O"
+  },
+  {
+   "agency": "TPEx",
+   "archive_start": "2001-10-12",
+   "categories": [
+    "all",
+    "4"
+   ],
+   "content": "本中心公告 (the exchange's own bulletins)",
+   "frozen_window": "the calendar month of the publication date",
+   "g7_status": "cannot satisfy G7 for a company announcement -- different identity keys; supplementary only",
+   "id": "A3",
+   "identity_keys": [
+    "發文字號",
+    "資料日期"
+   ],
+   "parameters": "startDate/endDate as AD YYYY/MM/DD; cate",
+   "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement"
+  },
+  {
+   "agency": "TWSE",
+   "content": "no historical bulletin query surface found",
+   "id": "A4",
+   "search_performed": [
+    "/zh/announcement/* page enumeration",
+    "TWSE OpenAPI catalogue (143 endpoints)",
+    "TWSE routes 重大訊息 to MOPS"
+   ],
+   "surface": null
+  }
+ ],
+ "selected": [
+  {
+   "document_id": "MOPS-T05ST01:2823:20211202:201044:1",
+   "identity_sha256": "0dab39486f79b0f3fbccde2df6d4039701670855b4abc9b9e9a918d25829c739",
+   "legacy_id": "MOPS-T05ST01:2823:20211202:201044:1",
+   "market": "TWSE",
+   "previous_body_state": "REAL_ANNOUNCEMENT_BODY",
+   "publication_date": "2021-12-02",
+   "security_id": "2823",
+   "stratum": "verified_real_body",
+   "subject": "公告臺灣證券交易所股份有限公司核准本公司發行上市之 股票自民國110年12月30日起終止上市。"
+  },
+  {
+   "document_id": "MOPS-T05ST01:4733:20160721:155719:2",
+   "identity_sha256": "008e1c0a67edd6a797f4735f8a0a3dd2ca9a240f46af6c9b60a8af1b25d147d0",
+   "legacy_id": "MOPS-T05ST01:4733:20160721:155719:2",
+   "market": "TWSE",
+   "previous_body_state": "OFFICIAL_REFUSAL_PAGE",
+   "publication_date": "2016-07-21",
+   "security_id": "4733",
+   "stratum": "official_refusal_historical_detail",
+   "subject": "公告取得臺灣證券交易所股份有限公司同意本公司終止上市 暨上緯國際投資控股股份有限公司上市。"
+  },
+  {
+   "document_id": "MOPS-T05ST01:6008:20121212:161908:1",
+   "identity_sha256": "0bc78e46776eda64949881f9bd11aa44e4e7e039514e164adaccf89b15a94beb",
+   "legacy_id": "MOPS-T05ST01:6008:20121212:161908:1",
+   "market": "TPEX",
+   "previous_body_state": "REAL_ANNOUNCEMENT_BODY",
+   "publication_date": "2012-12-12",
+   "security_id": "6008",
+   "stratum": "verified_real_body",
+   "subject": "凱基證券公告取得合作金庫商業銀行股份有限公司 101年度第2期次順位金融債券"
+  },
+  {
+   "document_id": "MOPS-T05ST01:6105:20170912:194209:6",
+   "identity_sha256": "00d99421f58d9a55b10f6fa5d10b1070cadacdd6b6aeb934dd8c47df235c56e4",
+   "legacy_id": "MOPS-T05ST01:6105:20170912:194209:6",
+   "market": "TPEX",
+   "previous_body_state": "OFFICIAL_REFUSAL_PAGE",
+   "publication_date": "2017-09-12",
+   "security_id": "6105",
+   "stratum": "official_refusal_historical_detail",
+   "subject": "公告本公司辦理第四次庫藏股註銷減資變更登記完成"
+  }
+ ]
+}

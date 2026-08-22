@@ -1,0 +1,175 @@
+{
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "controls": {
+  "d6_6_unique_documents_still_linked": "39/39",
+  "prior_unique_documents_displaced": 0,
+  "prior_unique_to_ambiguous": 2,
+  "prior_unique_to_ambiguous_are_additive": true
+ },
+ "finding_1_archive_completeness": {
+  "bodies_scanned_by_d6_8": 58115,
+  "d6_8_domain_exhausted_flag_is_global": true,
+  "distinct_documents_in_domain": 58120,
+  "documents": [
+   {
+    "detail_raw_sha256": "d0b8736b3ecb0eedd1f070b9982d6fffb020afbed55db3ec946e897671d664a5",
+    "document_number": "證櫃交字第0950004890號",
+    "index_date": "2006-03-03",
+    "names_any_of_the_59_securities": false,
+    "resolved": true,
+    "securities_named": [],
+    "subject": "公告玉山綜合證券股份有限公司士林分公司訂於95年3月9日開始營業。",
+    "subject_empty_in_index": true
+   },
+   {
+    "detail_raw_sha256": "7c35b96d2adacbddf0d24dae2a110ad651bc4928ba97f7a2c783ef12c3ef8aed",
+    "document_number": "證櫃交字第0950004992號",
+    "index_date": "2006-03-06",
+    "names_any_of_the_59_securities": false,
+    "resolved": true,
+    "securities_named": [],
+    "subject": "新竹國際商業銀行證券股份有限公司前申報客戶林錦彩（帳號2503-4，身分證統一編號：H220530563）委託買賣證券不履行給付結算義務發生違約乙案，經該公司函報業已結案，請  查照。",
+    "subject_empty_in_index": true
+   },
+   {
+    "detail_raw_sha256": "490ce2dfb7491bac23e62da44c70d7aaf684c42c72ef112d57bd7c60f09a2d54",
+    "document_number": "證櫃交字第0950005020號",
+    "index_date": "2006-03-07",
+    "names_any_of_the_59_securities": false,
+    "resolved": true,
+    "securities_named": [],
+    "subject": "公告修正本中心「證券商營業處所買賣認購(售)權證審查準則」部分條文暨附表七之一如附件，自即日起實施。",
+    "subject_empty_in_index": true
+   },
+   {
+    "detail_raw_sha256": "901064e7f59ba5a6d283fc19b76c6a36764932372cd7215ceb6c96e70f0a7edf",
+    "document_number": "證櫃交字第0950005296號",
+    "index_date": "2006-03-09",
+    "names_any_of_the_59_securities": false,
+    "resolved": true,
+    "securities_named": [],
+    "subject": "富邦綜合證券股份有限公司前申報客戶李嘉豪（身分證統一編號：A125736459）委託買賣證券不履行給付結算義務發生違約乙案，經該公司函報業已結案，請  查照。",
+    "subject_empty_in_index": true
+   },
+   {
+    "detail_raw_sha256": "16099f1295583dc5b114186eed87b9d699e613d5f39a9fe1dade0a66f4f0746f",
+    "document_number": "證櫃交字第0950005306號",
+    "index_date": "2006-03-13",
+    "names_any_of_the_59_securities": false,
+    "resolved": true,
+    "securities_named": [],
+    "subject": "為加強宣導95年1月11日公布之證券交易法修正條文，惠請  貴公司將相關宣導資料轉送  貴公司內部人參閱，請  查照。",
+    "subject_empty_in_index": true
+   }
+  ],
+  "now_resolved": 5,
+  "resolved_documents_naming_any_of_the_59": 0,
+  "retried_here": 5,
+  "still_unresolved": 0,
+  "unread_by_d6_8": 5,
+  "unread_cause": "HTTP 429 during the concurrent prefetch sweep",
+  "why_all_59_read_false": "domain_exhausted = not rec.errors and not arc.errors; the second term is archive-global, so five 429s anywhere denied the flag to every event, including events whose own candidate pool was fully read"
+ },
+ "finding_2_gate_i_name_form": {
+  "blast_radius_documents": 2,
+  "blast_radius_events": 2,
+  "defect": "GATE_I_AUTHORITATIVE_NAME_FORM_MISMATCH",
+  "events_currently_UNIQUE_that_would_become_AMBIGUOUS": 0,
+  "events_that_would_change_class": [
+   {
+    "canonical_event_date": "2007-11-23",
+    "classification_if_gate_i_were_form_tolerant": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "d6_8_classification": "FULL_HISTORY_EVENT_DOCUMENT_NONE",
+    "documents": [
+     {
+      "body_sha256": "163ad7ccab72f50d93e1764fe809f738f8d6591a1d6d338724a4551fd530e008",
+      "document_number": "證櫃監字第0960203373號",
+      "field_presence": {
+       "cash_consideration": false,
+       "fractional_treatment": false,
+       "holder_effective_or_conversion_date": false,
+       "payment_or_credit_date": false,
+       "stock_consideration": false,
+       "transaction_party": true
+      },
+      "index_date": "2007-10-18",
+      "labelled_boundary_date_equal_to_C": [
+       {
+        "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+        "char_distance": 1,
+        "date": "2007-11-23",
+        "label": "停止在證券商營業處所買賣",
+        "provenance": "ADJUDICATION_ONLY",
+        "role": "STOP_TRADING"
+       }
+      ],
+      "subject": "公告華僑商業銀行股份有限公司普通股股票（股票代號：5818）1,194,480,000股，自本（96）年11月23日起停止在證券商營業處所買賣，並自同年12月1日起終止在證券商營業處所買賣。"
+     }
+    ],
+    "security_id": "5818",
+    "tdcc_short_name": "華僑商銀"
+   },
+   {
+    "canonical_event_date": "2023-10-25",
+    "classification_if_gate_i_were_form_tolerant": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "d6_8_classification": "FULL_HISTORY_EVENT_DOCUMENT_NONE",
+    "documents": [
+     {
+      "body_sha256": "ac5b818609a277cfae37e05da5773d68dfdb3f3f9a4ec71c23433273bdf465a1",
+      "document_number": "證櫃監字第11200099021號",
+      "field_presence": {
+       "cash_consideration": false,
+       "fractional_treatment": false,
+       "holder_effective_or_conversion_date": true,
+       "payment_or_credit_date": false,
+       "stock_consideration": true,
+       "transaction_party": true
+      },
+      "index_date": "2023-09-21",
+      "labelled_boundary_date_equal_to_C": [
+       {
+        "binding_rule": "clause-bounded; preceding only via 自…起; forward wins ties",
+        "char_distance": 2,
+        "date": "2023-10-25",
+        "label": "停止櫃檯買賣",
+        "provenance": "ADJUDICATION_ONLY",
+        "role": "STOP_TRADING"
+       }
+      ],
+      "subject": "公告大峽谷半導體照明系統(開曼)股份有限公司上櫃之有價證券（股票代號：5281，以下簡稱大峽谷-KY公司）自112年10月25日起停止櫃檯買賣，並自112年10月31日起終止櫃檯買賣暨停止公開發行。"
+     }
+    ],
+    "security_id": "5281",
+    "tdcc_short_name": "大峽谷－KY"
+   }
+  ],
+  "gate_i_test_as_frozen": "TDCC 證券簡稱 as an exact substring of the body",
+  "not_an_argument_for_code_only_identity": "any correction must still establish entity identity from a first-party name; this is a comparison-form defect, not evidence that code matching alone is sufficient",
+  "positive_control_was_censored": "the 39/39 control could only run on events that already had a known-good D6.6 body, which is exactly the sub-population where containment holds; it had no power over the 20 events D6.8 was built for",
+  "rule_changed_here": false,
+  "why_it_fails": "TDCC 1-1 carries the short name; TPEx bulletins carry the full legal name. Containment holds only when the short name is a prefix of the legal name -- not for contractions (華僑商銀 / 華僑商業銀行) and not across punctuation width (大峽谷－KY / 大峽谷-KY)",
+  "why_not_corrected_here": "Q7 amendment: results have been inspected, so exposure is reported and the identity/linkage rule is left to adjudication. Relaxing a gate after seeing which events it rejected is outcome-driven tuning"
+ },
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_SUPPLEMENT_S1",
+ "replay_started": false,
+ "states_unchanged": true,
+ "successor_side_acquisition": false,
+ "supplement_sha256": "85a896bbf86abfc524a750ea3b8d8a2fd102c5079dcbe06b11a85fe586dd149f",
+ "supplements": {
+  "artefact": "research\\b0_8_holder_terms\\listing_spell_complete_discovery_d6_8.json",
+  "census_sha256": "3b8cdeafe5c822d861fab102f3f5502502ea86ac950965978c6778b1a086e4d3",
+  "reclassified_events": 0,
+  "rewritten": false,
+  "router_changed": false,
+  "router_sha256": "6874f5d721b6cb10e05362b7b9616e63449c5d334d6025b78bb7f953e6985326"
+ },
+ "third_party_mirrors_consulted": false
+}

@@ -1,0 +1,107 @@
+{
+ "canonical_disappearing_entity": "the lineage component containing the LATEST code->legal-name binding within the event's own domain",
+ "declared_exposure": "D6.8 event outcomes and the corpus name-FORM structure were both inspected before this freeze; no rule was selected by which event it admits",
+ "defect_repaired": "AUTHORITATIVE_ENTITY_IDENTITY_SOURCE_CONFORMANCE",
+ "expected_counts_encoded": false,
+ "extraction_pattern": {
+  "backward_window_chars": 80,
+  "code_key": "\\s*[（(]?\\s*(?:上櫃|上市|興櫃)?(?:股票代號|證券代號|公司代號|代號)[：:\\s]*[（(]?\\s*",
+  "gap_forbidden_tokens": [
+   "。",
+   "、",
+   "代號"
+  ],
+  "gap_forbids_digits": true,
+  "gap_grammar_basis": "the measured inventory of all 153 distinct gap forms in this corpus, not any event outcome",
+  "gap_max_chars": 20,
+  "name_chars": "[0-9A-Za-z一-鿿()（）\\-－_.]"
+ },
+ "freeze_sha256": "0f2235112936ef4cb50c93e8b01c83db5db39bd3ab64c1c71846f07dd9e42dc4",
+ "frozen_before_any_d6_8_1_outcome_computed": true,
+ "gate_i_outcomes": [
+  "ENTITY_IDENTITY_ESTABLISHED",
+  "ENTITY_IDENTITY_NOT_ESTABLISHED",
+  "ENTITY_IDENTITY_CONFLICT"
+ ],
+ "gate_i_shape": "code-first key for the security AND a name from the canonical lineage carried by the body -- identical in shape to D6.8; only the identity source is repaired",
+ "identity_source_track_b": "code-first LEGAL-NAME binding printed by TPEx in its own preserved announcement bodies",
+ "leading_tokens": [
+  "更正公告",
+  "公告",
+  "辦理",
+  "有關",
+  "暨",
+  "及",
+  "告",
+  "函",
+  "為",
+  "至",
+  "另",
+  "又"
+ ],
+ "normalization": [
+  "NFKC",
+  "full/half-width folding",
+  "whitespace removal",
+  "leading document-token stripping"
+ ],
+ "record": "B0_8_D6_8_1_IDENTITY_RULE_FREEZE",
+ "run": "r3",
+ "same_entity_requires": "first-party TPEx rename evidence 「A更名為B」 or 「原名A」; never fuzzy similarity, guessed abbreviation, or free substring matching between two different validated names",
+ "suffix_collapse_scope": "within a single security code only",
+ "supersedes": {
+  "artefacts_preserved": [
+   "identity_rule_freeze_d6_8_1_r1.json",
+   "entity_identity_conformance_repair_d6_8_1_r1.json"
+  ],
+  "census_sha256": "397a096371f0e050ea7e83ed6f81c328874ea2b83828e0228056deb4c7448b23",
+  "defect_found_in_r1": "r1 required the authoritative name to sit in the code's own clause. That changed gate I's SHAPE, not just its source, and rejected four same-transaction termination bodies whose only code key is a structured 五、終止櫃檯買賣證券代號 field (4103, 5255, 5349, 6238). r2 restores D6.8's shape -- code key AND authoritative name carried by the body -- and repairs only the identity source, which is the R1 defect",
+  "freeze_sha256": "d0d9660700ce4ee3d385fffbc7834592a4a8d718a001d96ef411c3ca1a5ff2c8",
+  "r1_counts": {
+   "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS": 3,
+   "FULL_HISTORY_EVENT_DOCUMENT_NONE": 3,
+   "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE": 49,
+   "FULL_HISTORY_EVENT_LINKAGE_UNRESOLVED": 4
+  },
+  "run": "r1"
+ },
+ "supersedes_r2": {
+  "census_sha256": "394b54039736e4e877e325e07788ae250f0fe17a0b6e319502c3144a66cad923",
+  "defect_found_in_r2": "r2 reported every event domain-exhausted. That accounting counted only documents carrying a document number, and so could not see 13,798 pre-2005 bulletin rows that no stage has ever acquired. r3 changes no gate and no classification; it makes those rows visible to exhaustion accounting",
+  "freeze_sha256": "708241d8bf721124b85843426700d6140914f74dc29109178f40ee8cc9cd32f6",
+  "identical_adjudication": true,
+  "r2_counts": {
+   "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS": 4,
+   "FULL_HISTORY_EVENT_DOCUMENT_NONE": 3,
+   "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE": 52
+  },
+  "run": "r2"
+ },
+ "tdcc_short_name_role": "DIAGNOSTIC_METADATA_ONLY (R3)",
+ "unchanged_from_d6_8": [
+  "archive start 2002-01-01",
+  "search end C+40d",
+  "candidate corpus definition",
+  "gate II termination predicate",
+  "L1/L2 linkage semantics",
+  "document-class taxonomy"
+ ],
+ "validator": {
+  "cut_at_preceding_company_mention": true,
+  "length_range": [
+   6,
+   30
+  ],
+  "must_end_with": "有限公司",
+  "reject_if_contains": [
+   "公告",
+   "更名",
+   "變更為",
+   "新增",
+   "辭任",
+   "本中心",
+   "主旨"
+  ],
+  "reject_if_contains_digits": true
+ }
+}

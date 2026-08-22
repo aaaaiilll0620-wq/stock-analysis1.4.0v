@@ -1,0 +1,1645 @@
+{
+ "Y11_d7_2_presence_preserved": {
+  "genuine_successor_share_credit_field_instance": "8420",
+  "listing_field_instances": [
+   "4110",
+   "5466",
+   "6105",
+   "1566",
+   "4429"
+  ],
+  "note": "D7.2 successor-side presence findings are preserved at adjudication level; 1/30 and 5/30 are NOT reported as final because the stock population denominator is repaired here",
+  "prevalence_not_final_until_population_repaired": true
+ },
+ "Y12_diagnostics": {
+  "4103": {
+   "consideration": "換發新臺幣84.74元現金",
+   "holder_cash": true,
+   "holder_security": false,
+   "repaired_leg": "CASH_ONLY",
+   "stock_issuer_status": "NOT_APPLICABLE",
+   "tender_language": false
+  },
+  "4152": {
+   "consideration": "或森公司乙種特別股",
+   "holder_cash": true,
+   "holder_security": true,
+   "repaired_leg": "MIXED_STOCK_AND_CASH",
+   "stock_issuer_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "tender_language": false
+  },
+  "4429": {
+   "consideration": "及興采公司增資發行普通股",
+   "holder_cash": true,
+   "holder_security": true,
+   "repaired_leg": "MIXED_STOCK_AND_CASH",
+   "stock_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_language": false
+  },
+  "4945": {
+   "consideration": "換發偉詮公司增資發行普通股",
+   "holder_cash": false,
+   "holder_security": true,
+   "repaired_leg": "STOCK_ONLY",
+   "stock_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_language": false
+  },
+  "4947": {
+   "consideration": "換發新臺幣230元現金",
+   "holder_cash": true,
+   "holder_security": false,
+   "repaired_leg": "CASH_ONLY",
+   "stock_issuer_status": "NOT_APPLICABLE",
+   "tender_language": false
+  },
+  "5820": {
+   "consideration": "現金新臺幣11.71元",
+   "holder_cash": true,
+   "holder_security": false,
+   "repaired_leg": "CASH_ONLY",
+   "stock_issuer_status": "NOT_APPLICABLE",
+   "tender_language": false
+  },
+  "8420": {
+   "consideration": "換發明安公司增資發行普通股",
+   "holder_cash": false,
+   "holder_security": true,
+   "repaired_leg": "STOCK_ONLY",
+   "stock_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_language": false
+  },
+  "8913": {
+   "consideration": "換發新臺幣13.4元現金",
+   "holder_cash": true,
+   "holder_security": false,
+   "repaired_leg": "CASH_ONLY",
+   "stock_issuer_status": "NOT_APPLICABLE",
+   "tender_language": false
+  }
+ },
+ "Y13_movement": {
+  "added_count": 3,
+  "added_to_stock_acquisition": [
+   "3068",
+   "5349",
+   "6238"
+  ],
+  "every_changed_event": [
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "6178",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "5818",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "3298",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "2921",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "3389",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "8705",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "6008",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "3582",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "8266",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "5384",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "6022",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "3553",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "6105",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "5491",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": true,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "class moved under holder-consideration semantics",
+    "repaired": "STOCK_ONLY",
+    "security_id": "3068",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "4103",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": true,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit clause issues only shares, tender/cash was precursor or absent",
+    "repaired": "STOCK_ONLY",
+    "security_id": "5317",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "8913",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "3562",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "4947",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": true,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "class moved under holder-consideration semantics",
+    "repaired": "STOCK_ONLY",
+    "security_id": "6238",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": true,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "class moved under holder-consideration semantics",
+    "repaired": "STOCK_ONLY",
+    "security_id": "5349",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "NO_STOCK_LEG_EVIDENCE",
+    "reason": "class moved under holder-consideration semantics",
+    "repaired": "CASH_ONLY",
+    "security_id": "2928",
+    "tender_language": false
+   },
+   {
+    "holder_cash": true,
+    "holder_security": false,
+    "prior": "MIXED_LEG_PRESENT",
+    "reason": "prior MIXED was lexical over-inclusion; canonical exit pays only cash, share-conversion vocabulary was mechanism not consideration",
+    "repaired": "CASH_ONLY",
+    "security_id": "5820",
+    "tender_language": false
+   },
+   {
+    "holder_cash": false,
+    "holder_security": false,
+    "prior": "CASH_LEG_PRESENT",
+    "reason": "no authoritative holder-consideration clause resolved in bundle",
+    "repaired": "CONSIDERATION_NOT_ESTABLISHED",
+    "security_id": "6514",
+    "tender_language": false
+   }
+  ],
+  "population": 59,
+  "prior_stock_acquisition_members": 30,
+  "removed_count": 8,
+  "removed_from_stock_acquisition": [
+   "3553",
+   "4103",
+   "4947",
+   "5820",
+   "6022",
+   "6105",
+   "8266",
+   "8913"
+  ],
+  "repaired_stock_population": 25
+ },
+ "Y2_defect": {
+  "D7_1A_LEG_CLASSIFIER": "LEXICAL_TRANSACTION_VOCABULARY_OVERINCLUSION_DEFECT",
+  "d7_1a_historical_counts_preserved_unchanged": {
+   "CASH_LEG_PRESENT": 14,
+   "MIXED_LEG_PRESENT": 12,
+   "NO_STOCK_LEG": 0,
+   "STOCK_LEG_PRESENT": 18
+  }
+ },
+ "Y7_repaired_leg_counts": {
+  "CASH_ONLY": 22,
+  "CONSIDERATION_NOT_ESTABLISHED": 12,
+  "MIXED_STOCK_AND_CASH": 3,
+  "STOCK_ONLY": 22
+ },
+ "Y8_stock_consideration_issuer": {
+  "established": [
+   "1566",
+   "3299",
+   "3428",
+   "4110",
+   "4429",
+   "4944",
+   "4945",
+   "5281",
+   "5317",
+   "5436",
+   "5466",
+   "5494",
+   "5528",
+   "6017",
+   "6157",
+   "6298",
+   "6457",
+   "6594",
+   "8420"
+  ],
+  "established_count": 19,
+  "not_applicable_cash_only": [
+   "1787",
+   "2928",
+   "3144",
+   "3426",
+   "3553",
+   "3658",
+   "4103",
+   "4947",
+   "4987",
+   "5102",
+   "5480",
+   "5820",
+   "6022",
+   "6105",
+   "6247",
+   "6554",
+   "6747",
+   "8079",
+   "8266",
+   "8406",
+   "8418",
+   "8913"
+  ],
+  "not_applicable_count": 22,
+  "routing_unresolved": [
+   "3068",
+   "4152",
+   "4180",
+   "5255",
+   "5349",
+   "6238"
+  ],
+  "routing_unresolved_count": 6
+ },
+ "Y9_grammar_freeze": {
+  "event_specific_rule_added_after_freeze": false,
+  "exposed_events_from_d7_2": [
+   "8420",
+   "4429",
+   "4945",
+   "5820",
+   "4947",
+   "6157",
+   "4110",
+   "5466",
+   "4152"
+  ],
+  "freeze_was_corrected_once_before_final_rerun": {
+   "correction_is_structural_not_outcome_tuned": true,
+   "disclosed": true,
+   "reason": "the first freeze anchored only on the 換發 verb and missed the labelled 轉換對價／合併對價 field and the 取得...全部流通在外之普通股 cash-acquisition form, leaving 24 events unresolved. The grammar was completed from a fuller corpus-wide inventory of the consideration field -- a general document-structure correction, not an event-specific rule"
+  },
+  "frozen_from": "corpus-wide exit-clause language inventory, not the exposed event identities",
+  "frozen_material": {
+   "CASH_RE": "現金[（(]?新[臺台]幣[）)]?\\s*[\\d,.]+\\s*元|新[臺台]幣\\s*[\\d,.]+\\s*元[^。]{0,6}?(?:現金|之現金|之價格|之現金對價|現金對價|現金價格)|換發\\s*新[臺台]幣\\s*[\\d,.]+\\s*元\\s*現金|(?:對價為|之對價為|價格為|對價[:：])\\s*(?:現金)?\\s*新[臺台]幣\\s*[\\d,.]+\\s*元",
+   "CONSID_FIELD": "(?:轉換對價|合併對價|現金對價|收購對價)[：:]",
+   "ELECT": "換發[^。]{0,20}?現金[^。]{0,20}?或[^。]{0,20}?公司[^。]{0,10}?(?:特別股|普通股|股份)",
+   "NEXT_FIELD": "[一二三四五六七八九十]、",
+   "SHARE_CONN": "(?:以及|及|或|併同)\\s*(?!該公司|本公司)[一-鿿]{1,14}?公司[^。]{0,10}?(?:增資發行)?(?:普通股|股份|特別股|股票)",
+   "SHARE_MERGER": "(?:合併)?換發\\s*(?!新[臺台]幣|現金)[一-鿿]{1,16}?公司[（(][^）)]{0,10}股",
+   "SHARE_VERB": "(?:換發為|換發|轉換成為|轉換為)\\s*(?:增資發行)?\\s*(?!新[臺台]幣|現金)[一-鿿]{2,14}?公司[^。]{0,10}?(?:增資發行)?(?:普通股|股份|甲種特別股|乙種特別股|特別股|股票)",
+   "TENDER": "公開收購",
+   "acquirer_cash_verb_excluded": "取得",
+   "holder_share_verbs": [
+    "換發",
+    "換發為",
+    "轉換為",
+    "轉換成為"
+   ]
+  },
+  "grammar_sha256": "b4523a8fec7e320926aae367570aeba07a516939430cc5866132c7b5f0125552",
+  "pre_freeze_event_outcome_exposure": true
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_materialized": false,
+ "cash_leg_source_hunting": false,
+ "census_sha256": "99e203e763cd6e10330d983b43882e9169168de884a65b219caba17917f560da",
+ "d7_1a_artefact_rewritten": false,
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "inputs": {
+  "d6_8_3_census_sha256": "ba92e4b856b192cf1aac1bef68b09970c9041489928d214a026c23efd631c350",
+  "d7_1a_census_sha256": "227500e66df0b56c28888e742887358b69f28436abc1aa9e664eaa03d5b729d5",
+  "d7_2b_routing_sha256": "0fe8e9c82aafdbe99a5ef79eca860442ff1211009b1a5027fa3cd6ef7616b475"
+ },
+ "nav_inspected": false,
+ "network_requests": 0,
+ "new_successor_side_acquisition": false,
+ "per_event": [
+  {
+   "consideration_span": "換發華新科技股份有限公司(一股)而暫停股票過戶",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發華新科技股份有限公司(一股)而暫停股票",
+     "換發華新科技股份有限公司(一股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "6157",
+   "stock_consideration_issuer_route": "2492",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "換發美吾華股份有限公司(一股)而暫停股票過戶",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發美吾華股份有限公司(一股)而暫停股票",
+     "換發美吾華股份有限公司(一股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "4110",
+   "stock_consideration_issuer_route": "1731",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "換發元大京華證券股份有限公司(一股)而暫停股票過戶",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發元大京華證券股份有限公司(一股)而暫停股票",
+     "換發元大京華證券股份有限公司(一股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "6017",
+   "stock_consideration_issuer_route": "6004",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "換發鼎大興業股份有限公司(0.56股)而暫停股票過戶",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發鼎大興業股份有限公司(0.56股)而暫停股票",
+     "換發鼎大興業股份有限公司(0.56股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "5528",
+   "stock_consideration_issuer_route": "2410",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "換發敦南科技股份有限公司(1股)而暫停股票過戶",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發敦南科技股份有限公司(1股)而暫停股票",
+     "換發敦南科技股份有限公司(1股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "5436",
+   "stock_consideration_issuer_route": "5305",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "換發為致伸科技股份有限公司股票(上市證券代號:2336)",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發為致伸科技股份有限公司股票"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "5494",
+   "stock_consideration_issuer_route": "4915",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "NO_MERGER_CONSIDERATION_TRANSACTION_STATED",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "6178",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "5818",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "3298",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "2921",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "3389",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "8705",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "6008",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "3582",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "泰林科技股份有限公司於103年12月30日股東臨時會決議通過以該公司普通股1股,換發新臺幣12.5元現金以及南茂科技股份有限公司普通股0.311股。(如有合併契約所訂應調整合併對價之情形時,由雙方董事會另行協議變更調整之)。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣12.5元現金"
+    ],
+    "security": [
+     "以及南茂科技股份有限公司普通股"
+    ]
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": true,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "MIXED_STOCK_AND_CASH",
+   "security_id": "5466",
+   "stock_consideration_issuer_route": "8150",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "誠遠科技股份有限公司於105年6月20日股東常會決議通過矽格股份有限公司以每股現金(新臺幣)17.5元為對價,取得誠遠科技股份有限公司全部普通股80,200,031股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "現金(新臺幣)17.5元"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "8079",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "中日新科技股份有限公司於105年8月3日股東臨時會決議通過以該公司普通股1股,換發新臺幣21.4元現金。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣21.4元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "8266",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "漢民微測科技股份有限公司於105年8月3日股東臨時會決議通過以該公司普通股每股新臺幣1,410元現金為股份轉換之對價。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新臺幣1,410元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "3658",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "5384",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "大眾綜合證券股份有限公司於106年4月27日股東臨時會決議通過以該公司普通股1股,換發新臺幣11.2元現金。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣11.2元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "6022",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "力積電子股份有限公司於106年6月19日股東會決議通過以該公司普通股1股,換發新臺幣14.5元現金。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣14.5元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "3553",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "瑞傳科技股份有限公司於106年9月1日股東臨時會決議通過,以該公司普通股1股換發新臺幣50元現金。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣50元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "6105",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "5491",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "中美冠科生物技術股份有限公司於107年2月8日股東臨時會決議通過,該公司股東持有之每一股普通股股票將取得新台幣75元之現金對價。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新台幣75元之現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "6554",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "美磊公司於107年3月1日股東臨時會決議通過,該公司股東持有之每1股普通股股票將轉換為奇力新公司之普通股0.73股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "轉換為奇力新公司之普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "3068",
+   "stock_consideration_issuer_route": "PENDING",
+   "stock_consideration_issuer_status": "PENDING",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "光燿科技股份有限公司於107年6月19日股東常會決議通過以該公司普通股1股,換發永崴投資控股股份有限公司普通股1股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發永崴投資控股股份有限公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "3428",
+   "stock_consideration_issuer_route": "3712",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "崴強科技股份有限公司於107年6月19日股東常會決議通過以該公司普通股1股,換發永崴投資控股股份有限公司普通股0.529股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發永崴投資控股股份有限公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "6298",
+   "stock_consideration_issuer_route": "3712",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "百略公司於107年6月14日股東常會決議通過以該公司普通股1股,換發新臺幣84.74元現金。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣84.74元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "4103",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "帛漢股份有限公司普通股1股,換發凱美電機股份有限公司普通股0.8678股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發凱美電機股份有限公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "3299",
+   "stock_consideration_issuer_route": "5317",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "美桀公司於107年8月16日股東臨時會決議通過以該公司普通股1股換發奇力新公司普通股0.503股(後經調整為美桀公司普通股每1股換發奇力新公司0.3562股)。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發奇力新公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "5255",
+   "stock_consideration_issuer_route": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "stock_consideration_issuer_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "統盟電子股份有限公司於108年1月25日股東臨時會決議通過以該公司每1普通股股份之對價為現金新臺幣15.50元。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "之對價為現金新臺幣15.50元"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "5480",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "捷邦國際科技股份有限公司普通股1股,換發應華精密科技股份有限公司普通股0.5291股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發應華精密科技股份有限公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "1566",
+   "stock_consideration_issuer_route": "5392",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "依安成藥業公司於108年6月21日股東常會決議通過與加陳公司股份轉換案,以安成藥業公司普通股1股,換發加陳公司甲種特別股1股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發加陳公司甲種特別股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "4180",
+   "stock_consideration_issuer_route": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "stock_consideration_issuer_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "凱美公司前於108年6月5日股東常會決議通過以該公司普通股1股,換發智寶公司普通股1.165股,且如有合併契約所定應調整合併對價之情形時,授權由雙方董事會另行協議變更調整之。凱美公司及智寶公司後於108年6月5日董事會決議通過考量現金股利後調整為以該公司普通股1股,換發智寶公司普通股1.1541股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發智寶公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "5317",
+   "stock_consideration_issuer_route": "2375",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "福盈科公司於108年8月7日股東臨時會決議通過以該公司每1普通股股份之對價為新台幣26.25元(係27.5元減去福盈科公司於股份轉換基準日前已發放108年股東常會決議通過之每股股利金額1.25元)。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "之對價為新台幣26.25元"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "1787",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "全銓公司於108年12月3日股東臨時會決議通過以該公司普通股1股,換發新臺幣13.4元現金。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣13.4元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "8913",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "3562",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "昂寶公司於109年3月31日股東臨時會決議通過以該公司普通股1股,換發新臺幣230元現金。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "換發新臺幣230元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "4947",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "勝麗公司109年2月14日股東臨時會決議通過,該公司股東持有之每1股普通股股票將轉換為同欣電公司普通股股票1.244股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "轉換為同欣電公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "6238",
+   "stock_consideration_issuer_route": "PENDING",
+   "stock_consideration_issuer_status": "PENDING",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "先豐公司109年6月16日股東常會決議通過,該公司股東持有之每1股普通股股票將轉換為臻鼎公司普通股股票0.2股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "轉換為臻鼎公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "5349",
+   "stock_consideration_issuer_route": "PENDING",
+   "stock_consideration_issuer_status": "PENDING",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "台微體公司於110年8月20日股東臨時會決議通過與森公司股份轉換案,將依股東之資格,以該公司普通股1股換發新臺幣100元現金或森公司乙種特別股1股。",
+   "elective_cash_or_stock": true,
+   "evidence": {
+    "cash": [
+     "換發新臺幣100元現金"
+    ],
+    "security": [
+     "或森公司乙種特別股"
+    ]
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": true,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "MIXED_STOCK_AND_CASH",
+   "security_id": "4152",
+   "stock_consideration_issuer_route": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "stock_consideration_issuer_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "依紅馬公司於110年9月7日股東臨時會之決議,由RH株式會社以每股新臺幣32元之價格取得紅馬公司全部流通在外之普通股股份。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新臺幣32元之價格"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "NO_STOCK_LEG_EVIDENCE",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "2928",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "依新揚科公司於110年9月10日股東臨時會決議,由有沢公司以每股新臺幣38.4元現金(係新臺幣40元減去新揚科公司於股份轉換基準日前已發放109年度盈餘分配之每股現金股利新臺幣1.6元)之價格取得新揚科公司全部流通在外之普通股股份。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新臺幣38.4元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "3144",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "依金可-KY於111年1月27日股東臨時會之決議,由GlamorVision以每股新臺幣280元現金之價格取得金可-KY全部流通在外之普通股股份。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新臺幣280元現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "8406",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "聚紡公司於111年3月1日股東臨時會決議通過,以聚紡公司每1股普通股換發現金新臺幣5元及興采公司增資發行普通股1.2股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "現金新臺幣5元"
+    ],
+    "security": [
+     "及興采公司增資發行普通股"
+    ]
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": true,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "MIXED_STOCK_AND_CASH",
+   "security_id": "4429",
+   "stock_consideration_issuer_route": "4433",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "依富強公司於111年4月26日股東臨時會決議,由彩安公司以每股新臺幣24.67元之現金價格取得富強公司全部流通在外之普通股股份。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新臺幣24.67元之現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "5102",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "日盛金公司於111年6月17日股東常會決議通過合併對價為該公司普通股1股換發現金新臺幣11.71元。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "現金新臺幣11.71元"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "MIXED_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "5820",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "依淇譽電公司於111年11月30日股東臨時會決議,由福譽公司以每股新台幣15.5元之現金價格取得淇譽電公司全部流通在外之普通股股份。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新台幣15.5元之現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "6247",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "展匯科公司於111年10月13日股東臨時會決議通過,以展匯科公司每1股普通股換發安格公司增資發行普通股0.6股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發安格公司增資發行普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "6594",
+   "stock_consideration_issuer_route": "6684",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "大峽谷-KY公司於112年5月25日股東常會決議通過以該公司普通股1.72股,換發湯石照明公司普通股1股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發湯石照明公司普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "5281",
+   "stock_consideration_issuer_route": "4972",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "兆遠公司於112年6月13日股東常會決議通過,以兆遠公司每1股普通股換發環球晶公司增資發行普通股0.02股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發環球晶公司增資發行普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "4944",
+   "stock_consideration_issuer_route": "6488",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "捷必勝-KY公司於112年12月18日股東臨時會決議通過,由NLJ公司以每股新臺幣9元之價格取得捷必勝-KY公司全部流通在外之普通股股份。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新臺幣9元之價格"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "8418",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": []
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": "MERGER_OR_CONVERSION_NAMED_BUT_CONSIDERATION_RATIO_ABSENT",
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CONSIDERATION_NOT_ESTABLISHED",
+   "security_id": "6514",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "CONSIDERATION_NOT_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "明揚公司於113年5月27日股東常會決議通過,以明揚公司每1股普通股換發明安公司增資發行普通股0.54股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發明安公司增資發行普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "8420",
+   "stock_consideration_issuer_route": "8938",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "紘康公司於113年10月9日股東臨時會決議通過,以紘康公司每1股普通股換發矽統公司增資發行普通股0.8713股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發矽統公司增資發行普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "6457",
+   "stock_consideration_issuer_route": "2363",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "陞達公司114年5月26日股東會決議通過,以陞達公司每1股普通股換發偉詮公司增資發行普通股1.60股。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [],
+    "security": [
+     "換發偉詮公司增資發行普通股"
+    ]
+   },
+   "holder_receives_cash": false,
+   "holder_receives_security": true,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "STOCK_LEG_PRESENT",
+   "repaired_leg": "STOCK_ONLY",
+   "security_id": "4945",
+   "stock_consideration_issuer_route": "2436",
+   "stock_consideration_issuer_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "亨泰光公司114年7月22日股東臨時會決議通過,德國卡爾蔡司以每股新台幣200元之現金對價支付予亨泰光公司之全體股東。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新台幣200元之現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "6747",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "科誠公司115年4月8日股東臨時會決議通過,誠拓公司以每股新台幣82元之現金對價支付予科誠公司之全體股東。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新台幣82元之現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "4987",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  },
+  {
+   "consideration_span": "台興公司115年4月8日股東臨時會決議通過,頤盛公司以每股新台幣48元之現金對價支付予台興公司之全體股東。",
+   "elective_cash_or_stock": false,
+   "evidence": {
+    "cash": [
+     "新台幣48元之現金"
+    ],
+    "security": []
+   },
+   "holder_receives_cash": true,
+   "holder_receives_security": false,
+   "mixed_within_single_clause": false,
+   "not_established_reason": null,
+   "prior_d7_1a_leg": "CASH_LEG_PRESENT",
+   "repaired_leg": "CASH_ONLY",
+   "security_id": "3426",
+   "stock_consideration_issuer_route": "NOT_APPLICABLE",
+   "stock_consideration_issuer_status": "NOT_APPLICABLE",
+   "tender_offer_language_present": false
+  }
+ ],
+ "performance_inspected": false,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_unchanged": true,
+ "record": "B0_8_D7_2_1_HOLDER_CONSIDERATION_SEMANTICS",
+ "replay_started": false,
+ "states_unchanged": true,
+ "tender_offer_leakage_count": 9,
+ "tender_offer_leakage_events": [
+  "3553",
+  "4103",
+  "4947",
+  "5317",
+  "5820",
+  "6022",
+  "6105",
+  "8266",
+  "8913"
+ ],
+ "termination_branch_reopened": false
+}

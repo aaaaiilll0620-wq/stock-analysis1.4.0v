@@ -1,0 +1,494 @@
+{
+ "b0_8_state": "WIP, UNSEALED",
+ "bulk_crawl": false,
+ "ca_ledger_or_states_changed": false,
+ "canonical_values_materialized": false,
+ "closure_sha256": "908a743e11bce684b609069c537a37981c1d3edbbf000e961e29a57c057f9f30",
+ "consumer_modified": false,
+ "control_accounting": {
+  "BULK_STOCK_ACQUISITION": "NO_GO",
+  "CONTROL_COUNT_DEVIATION": "17_vs_frozen_total_12_to_16",
+  "gate_result": "NO_REPRODUCIBLE_POSITIVE_IN_BOUNDED_CONTROL_SET",
+  "primary_stratified_controls": 16,
+  "rerun_required": false,
+  "supplemental_carried_control": 1,
+  "supplemental_carried_control_id": "8420",
+  "total_diagnostic_controls": 17
+ },
+ "d8_3_started": false,
+ "documents_events_actually_inspected": {
+  "d8_2a_successor_side_MOPS_controls": 17,
+  "mops_edoc_pdfs_cached_but_unreadable": 15,
+  "mops_edoc_pdfs_read": 30,
+  "tpex_termination_bulletin_unique_bodies": 39
+ },
+ "dual_extraction_started": false,
+ "event_level_adjudication_admissible": false,
+ "family_by_period_coverage_matrix": {
+  "2004-2009": {
+   "MOPS_electronic_document_archive": {
+    "disposition": "PARTIAL_COVERAGE",
+    "events_inspected": [
+     {
+      "cached_pdfs": 4,
+      "pdfs_read": 2,
+      "pdfs_unreadable": 2,
+      "raw_disqualified_hits": 0,
+      "same_transaction_linked_pdfs": 1,
+      "scoped_credit_hits": [],
+      "security_id": "5818",
+      "unlinked_reason": null
+     }
+    ],
+    "note": "covers only the 7 D7.5 residual events with cached PDFs, not the full 59-event population"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "OD-1-7/PORTAL-QRYPS window starts 2025-01-02; no part of this band is reachable"
+   },
+   "TPEx_same_transaction_records": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "field_hits_in_band": [],
+    "note": "D6.6 exhaustive census computed field_presence for every candidate/qualifying body across all bands; UNIQUE documents exist in every band per by_event_year_and_class"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "uniform: identified surface is a listing-status feed regardless of period"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "structural, input-independent source refusal (D7.0b-2) -- applies uniformly, not period-specific"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "formal transaction documents were used (D7.4-D7.6) to establish consideration TYPE, not re-examined for a credit-DATE field, for the ~52 events outside the D7.6 residual set audited above"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "events_inspected": [
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "4110",
+      "venue": "TPEX"
+     },
+     {
+      "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+      "security_id": "1311",
+      "venue": "TWSE"
+     },
+     {
+      "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+      "security_id": "5436",
+      "venue": "TPEX"
+     },
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "2343",
+      "venue": "TWSE"
+     },
+     {
+      "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+      "security_id": "5494",
+      "venue": "TPEX"
+     },
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "2366",
+      "venue": "TWSE"
+     },
+     {
+      "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+      "security_id": "5528",
+      "venue": "TPEX"
+     }
+    ]
+   }
+  },
+  "2010-2014": {
+   "MOPS_electronic_document_archive": {
+    "disposition": "PARTIAL_COVERAGE",
+    "events_inspected": [
+     {
+      "cached_pdfs": 0,
+      "pdfs_read": 0,
+      "pdfs_unreadable": 0,
+      "raw_disqualified_hits": 0,
+      "same_transaction_linked_pdfs": 0,
+      "scoped_credit_hits": [],
+      "security_id": "3582",
+      "unlinked_reason": "NO_CACHED_PDFS_FOR_THIS_EVENT"
+     },
+     {
+      "cached_pdfs": 13,
+      "pdfs_read": 9,
+      "pdfs_unreadable": 4,
+      "raw_disqualified_hits": 0,
+      "same_transaction_linked_pdfs": 7,
+      "scoped_credit_hits": [],
+      "security_id": "8705",
+      "unlinked_reason": null
+     }
+    ],
+    "note": "covers only the 7 D7.5 residual events with cached PDFs, not the full 59-event population"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "OD-1-7/PORTAL-QRYPS window starts 2025-01-02; no part of this band is reachable"
+   },
+   "TPEx_same_transaction_records": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "field_hits_in_band": [],
+    "note": "D6.6 exhaustive census computed field_presence for every candidate/qualifying body across all bands; UNIQUE documents exist in every band per by_event_year_and_class"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "uniform: identified surface is a listing-status feed regardless of period"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "structural, input-independent source refusal (D7.0b-2) -- applies uniformly, not period-specific"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "formal transaction documents were used (D7.4-D7.6) to establish consideration TYPE, not re-examined for a credit-DATE field, for the ~52 events outside the D7.6 residual set audited above"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "events_inspected": [
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "6008",
+      "venue": "TPEX"
+     }
+    ]
+   }
+  },
+  "2015-2019": {
+   "MOPS_electronic_document_archive": {
+    "disposition": "PARTIAL_COVERAGE",
+    "events_inspected": [
+     {
+      "cached_pdfs": 12,
+      "pdfs_read": 10,
+      "pdfs_unreadable": 2,
+      "raw_disqualified_hits": 0,
+      "same_transaction_linked_pdfs": 5,
+      "scoped_credit_hits": [],
+      "security_id": "5384",
+      "unlinked_reason": null
+     },
+     {
+      "cached_pdfs": 6,
+      "pdfs_read": 3,
+      "pdfs_unreadable": 3,
+      "raw_disqualified_hits": 0,
+      "same_transaction_linked_pdfs": 1,
+      "scoped_credit_hits": [],
+      "security_id": "5491",
+      "unlinked_reason": null
+     }
+    ],
+    "note": "covers only the 7 D7.5 residual events with cached PDFs, not the full 59-event population"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "OD-1-7/PORTAL-QRYPS window starts 2025-01-02; no part of this band is reachable"
+   },
+   "TPEx_same_transaction_records": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "field_hits_in_band": [
+     "1787"
+    ],
+    "note": "D6.6 exhaustive census computed field_presence for every candidate/qualifying body across all bands; UNIQUE documents exist in every band per by_event_year_and_class"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "uniform: identified surface is a listing-status feed regardless of period"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "structural, input-independent source refusal (D7.0b-2) -- applies uniformly, not period-specific"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "formal transaction documents were used (D7.4-D7.6) to establish consideration TYPE, not re-examined for a credit-DATE field, for the ~52 events outside the D7.6 residual set audited above"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "events_inspected": [
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "1566",
+      "venue": "TPEX"
+     },
+     {
+      "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+      "security_id": "3299",
+      "venue": "TPEX"
+     },
+     {
+      "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+      "security_id": "3428",
+      "venue": "TPEX"
+     },
+     {
+      "result": "APPLICABLE_SOURCE_ROUTE_EXHAUSTED_NO_CREDIT_FIELD",
+      "security_id": "5317",
+      "venue": "TPEX"
+     }
+    ]
+   }
+  },
+  "2020-2026": {
+   "MOPS_electronic_document_archive": {
+    "disposition": "PARTIAL_COVERAGE",
+    "events_inspected": [
+     {
+      "cached_pdfs": 10,
+      "pdfs_read": 6,
+      "pdfs_unreadable": 4,
+      "raw_disqualified_hits": 0,
+      "same_transaction_linked_pdfs": 3,
+      "scoped_credit_hits": [],
+      "security_id": "3562",
+      "unlinked_reason": null
+     },
+     {
+      "cached_pdfs": 0,
+      "pdfs_read": 0,
+      "pdfs_unreadable": 0,
+      "raw_disqualified_hits": 0,
+      "same_transaction_linked_pdfs": 0,
+      "scoped_credit_hits": [],
+      "security_id": "6514",
+      "unlinked_reason": "NO_CACHED_PDFS_FOR_THIS_EVENT"
+     }
+    ],
+    "note": "covers only the 7 D7.5 residual events with cached PDFs, not the full 59-event population"
+   },
+   "TDCC_surfaces": {
+    "disposition": "PARTIAL_COVERAGE",
+    "note": "only the 2025-01-02..2026-08-20 slice of this band is within the OD-1-7/PORTAL-QRYPS coverage window, and no event-specific query was actually executed against it here -- capability is schema/coverage_range only"
+   },
+   "TPEx_same_transaction_records": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "field_hits_in_band": [
+     "3144"
+    ],
+    "note": "D6.6 exhaustive census computed field_presence for every candidate/qualifying body across all bands; UNIQUE documents exist in every band per by_event_year_and_class"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "uniform: identified surface is a listing-status feed regardless of period"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+    "note": "structural, input-independent source refusal (D7.0b-2) -- applies uniformly, not period-specific"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "formal transaction documents were used (D7.4-D7.6) to establish consideration TYPE, not re-examined for a credit-DATE field, for the ~52 events outside the D7.6 residual set audited above"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "events_inspected": [
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "4429",
+      "venue": "TPEX"
+     },
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "4944",
+      "venue": "TPEX"
+     },
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "4945",
+      "venue": "TPEX"
+     },
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "5281",
+      "venue": "TPEX"
+     },
+     {
+      "result": "EVENT_LINKED_DOCS_PRESENT_NO_CREDIT_FIELD",
+      "security_id": "8420",
+      "venue": "TPEX"
+     }
+    ]
+   }
+  }
+ },
+ "frozen_schema_modified": false,
+ "gap_audit": {
+  "A_mops_edoc_credit_date_rescan": {
+   "cache_source": "artifacts/b0_8_holder_terms/d7_6_edoc_raw (45 files, 5 of 7 residual events; 3582 and 6514 have zero cached PDFs)",
+   "method": "offline re-scan of cached t57sb01 PDFs, Windows pypdf, no network, no new acquisition",
+   "per_event": {
+    "3562": {
+     "cached_pdfs": 10,
+     "pdfs_read": 6,
+     "pdfs_unreadable": 4,
+     "raw_disqualified_hits": 0,
+     "same_transaction_linked_pdfs": 3,
+     "scoped_credit_hits": [],
+     "unlinked_reason": null
+    },
+    "3582": {
+     "cached_pdfs": 0,
+     "pdfs_read": 0,
+     "pdfs_unreadable": 0,
+     "raw_disqualified_hits": 0,
+     "same_transaction_linked_pdfs": 0,
+     "scoped_credit_hits": [],
+     "unlinked_reason": "NO_CACHED_PDFS_FOR_THIS_EVENT"
+    },
+    "5384": {
+     "cached_pdfs": 12,
+     "pdfs_read": 10,
+     "pdfs_unreadable": 2,
+     "raw_disqualified_hits": 0,
+     "same_transaction_linked_pdfs": 5,
+     "scoped_credit_hits": [],
+     "unlinked_reason": null
+    },
+    "5491": {
+     "cached_pdfs": 6,
+     "pdfs_read": 3,
+     "pdfs_unreadable": 3,
+     "raw_disqualified_hits": 0,
+     "same_transaction_linked_pdfs": 1,
+     "scoped_credit_hits": [],
+     "unlinked_reason": null
+    },
+    "5818": {
+     "cached_pdfs": 4,
+     "pdfs_read": 2,
+     "pdfs_unreadable": 2,
+     "raw_disqualified_hits": 0,
+     "same_transaction_linked_pdfs": 1,
+     "scoped_credit_hits": [],
+     "unlinked_reason": null
+    },
+    "6514": {
+     "cached_pdfs": 0,
+     "pdfs_read": 0,
+     "pdfs_unreadable": 0,
+     "raw_disqualified_hits": 0,
+     "same_transaction_linked_pdfs": 0,
+     "scoped_credit_hits": [],
+     "unlinked_reason": "NO_CACHED_PDFS_FOR_THIS_EVENT"
+    },
+    "8705": {
+     "cached_pdfs": 13,
+     "pdfs_read": 9,
+     "pdfs_unreadable": 4,
+     "raw_disqualified_hits": 0,
+     "same_transaction_linked_pdfs": 7,
+     "scoped_credit_hits": [],
+     "unlinked_reason": null
+    }
+   },
+   "reading": "0 scoped holder-inbound credit-date hits, and 0 raw (unscoped) CREDIT_STRICT matches at all, across 30 successfully-read same-transaction-linked PDFs; 15 of 45 cached PDFs were unreadable by pypdf (no extractable text layer -- OCR-dependent, consistent with D7.6's own AC8_ocr_dependent_classifications finding) and were never actually text-inspected for this field.",
+   "result_file": "artifacts/b0_8_holder_terms/d8_2b_r1_edoc_credit_date_audit.json"
+  },
+  "B_seven_unknown_reinspection": {
+   "corrects_d8_2b_error": "D8.2B cited D7.5's AB9 snapshot (7 SEMANTIC_UNKNOWN, '6 not exhausted + 1 foreign boundary') as still current. D7.6 is a LATER stage in the same pipeline and already resolved 2 of the 7 (5384, 5491 -> STOCK_ONLY_ESTABLISHED). D8.2B also mis-cited 6514 as the exhausted PUBLIC_AUTHORITATIVE_BOUNDARY; D7.6's actual current per_event record shows 6514 = SOURCE_FAMILY_NOT_EXHAUSTED (113 docs listed on the e-doc surface, 0 scanned/cached) -- that docstring example in d7_6's own source was illustrative and does not match its own output.",
+   "of_which_ROUTING_OR_ACQUISITION_ERROR_distinct_from_exhaustion": [
+    "5818"
+   ],
+   "of_which_SOURCE_FAMILY_NOT_EXHAUSTED": [
+    "3562",
+    "3582",
+    "6514",
+    "8705"
+   ],
+   "of_which_genuine_PUBLIC_AUTHORITATIVE_BOUNDARY": [],
+   "original_d7_5_semantic_unknown_count": 7,
+   "original_d7_5_semantic_unknown_events": [
+    "3562",
+    "3582",
+    "5384",
+    "5491",
+    "5818",
+    "6514",
+    "8705"
+   ],
+   "reading": "Per current cached state: 2 resolved, 4 SOURCE_FAMILY_NOT_EXHAUSTED (3562, 3582, 6514, 8705), 1 ROUTING_OR_ACQUISITION_ERROR (5818 -- listing_ok=false, an access failure, not an exhaustion state), 0 genuine exhausted boundaries. The premise of 'one exhausted event' is not supported by the artefacts as they currently stand.",
+   "resolved_by_d7_6": [
+    "5384",
+    "5491"
+   ],
+   "still_unresolved": [
+    "3562",
+    "3582",
+    "5818",
+    "6514",
+    "8705"
+   ]
+  },
+  "C_twse_family_registry_check": {
+   "distinct_non_mops_twse_surface_identified": false,
+   "frozen_registry_file": "router_freeze_record.json",
+   "identified_surface": null,
+   "primary_surfaces_in_registry": [],
+   "reading": "A TWSE-domain, non-MOPS surface IS present in the frozen registry, so 'no route was ever identified' is false. But by its own name and function it is a listing/suspension status feed, structurally incapable of carrying holder-inbound consideration or credit-date content -- the correct disposition is SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC, not ROUTE_ERROR_OR_ACCESS_LIMITATION (D8.2B's prior labelling) and not SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED.",
+   "surface_function": null,
+   "twse_domain_surfaces": []
+  }
+ },
+ "inputs": {
+  "d7_5_closure_sha256": "29cc8d4d54b2fa5ca7616d86a7e8bcad8f97e009e987abfbeeddaa1a3c82df9b",
+  "d7_6_closure_sha256": "18c4d91e67c5891cb04a33ac6e7679e98df150d5f88947bef61477c63928b2b7",
+  "d8_2a_gate_sha256": "5a8423ed55d789d4c2dd5456cb856707b1b286b65e9a2ac70eb8afaed615074b",
+  "d8_2b_closure_sha256": "e83a978177513c6d179695d166cf72aa2dda0161c977017825904432429cdb99"
+ },
+ "network_used": false,
+ "new_source_acquisition": false,
+ "not_evaluated_cells": [
+  [
+   "2004-2009",
+   "issuer_or_surviving_company_formal_transaction_documents"
+  ],
+  [
+   "2010-2014",
+   "issuer_or_surviving_company_formal_transaction_documents"
+  ],
+  [
+   "2015-2019",
+   "issuer_or_surviving_company_formal_transaction_documents"
+  ],
+  [
+   "2020-2026",
+   "issuer_or_surviving_company_formal_transaction_documents"
+  ]
+ ],
+ "positive_accounting": {
+  "VALIDATED_POSITIVES_IN_INSPECTED_APPLICABLE_MATERIAL": 0,
+  "basis": "17 D8.2A controls (successor-side MOPS) + 45 cached MOPS t57sb01 PDFs for 5 of 7 D7.6 residual events + 39 unique TPEx termination-bulletin bodies (D6.6) were actually inspected for this field. Zero scoped holder-inbound credit-date hits in any of them.",
+  "families_NOT_folded_into_this_zero": [
+   "disappearing_side_MOPS_material_announcements (SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED for this population)",
+   "TWSE_same_transaction_records (route identified but does not encode this semantic)",
+   "TDCC_surfaces for bands 2004-2009/2010-2014/2015-2019 (HISTORICAL_COVERAGE_UNAVAILABLE)",
+   "issuer_or_surviving_company_formal_transaction_documents for ~52 of 59 events (NOT_EVALUATED_FOR_THIS_FIELD)",
+   "2 of 7 D7.6 residual events (3582, 6514) with zero cached MOPS e-doc PDFs (NOT_EVALUATED_FOR_THIS_FIELD)"
+  ]
+ },
+ "preserves_unmodified": [
+  "credit_date_representability_gate_d8_2a.json",
+  "successor_credit_source_family_coverage_d8_2b.json"
+ ],
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_D8_2B_R1_RECORD_CORRECTION_AND_OFFLINE_GAP_AUDIT",
+ "remaining_accessible_acquisition_gaps": [
+  "3582 and 6514: MOPS e-doc archive lists documents (docs_on_edoc_surface=43 and 113) but none were ever fetched into cache -- fetching them would be new acquisition, not run here",
+  "15 of 45 cached MOPS e-doc PDFs are OCR-dependent and unread",
+  "TDCC OD-1-7/PORTAL-QRYPS: capability is schema/coverage_range only; no event-specific query executed even for the 2025-01-02..present slice",
+  "issuer/surviving-company formal transaction documents: ~52 of 59 events never re-examined for a credit-date field specifically (only for consideration type)"
+ ],
+ "source_family_closure_verdict": "CLOSURE_BLOCKED_BY_COVERAGE_OR_ACCESS",
+ "twse_99_bulk_acquisition_started": false,
+ "valid_positives": []
+}

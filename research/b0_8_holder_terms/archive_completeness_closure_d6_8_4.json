@@ -1,0 +1,615 @@
+{
+ "TPEX_TERMINATION_DOCUMENT_PUBLIC_ARCHIVE_CORPUS": "EXHAUSTED_FOR_THIS_PROTOCOL",
+ "U2_verdict": {
+  "archived_object_last_modified": "2004-08-27",
+  "last_modified_matches_index_row": true,
+  "locator": "2004-08-27 / 24866.htm",
+  "raw_instability_was_cdn_injection": true,
+  "substantive_object_stable": true,
+  "verdict": "OFFICIAL_EMPTY_BODY"
+ },
+ "U4_exhaustion": {
+  "blocked": [],
+  "changed_from_d6_8_3": 59,
+  "domain_exhausted": 59,
+  "events": 59,
+  "not_exhausted": 0,
+  "per_event": [
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 11599,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6157",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 12605,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4110",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "domain_exhausted": true,
+    "domain_locators": 12985,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6017",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "domain_exhausted": true,
+    "domain_locators": 15313,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5528",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 16079,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5436",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "domain_exhausted": true,
+    "domain_locators": 20837,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5494",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 22722,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6178",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 29987,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5818",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 33255,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3298",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 37993,
+    "empty_official_records_in_domain": 1,
+    "security_id": "2921",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 44818,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3389",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "domain_exhausted": true,
+    "domain_locators": 47214,
+    "empty_official_records_in_domain": 1,
+    "security_id": "8705",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 47255,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6008",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 52252,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3582",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 53273,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5466",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 56375,
+    "empty_official_records_in_domain": 1,
+    "security_id": "8079",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 56805,
+    "empty_official_records_in_domain": 1,
+    "security_id": "8266",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 56847,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3658",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 58456,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5384",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 58456,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6022",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 58640,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3553",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 58720,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6105",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 59102,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5491",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 59944,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6554",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 60014,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3068",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 60557,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3428",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 60557,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6298",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 60831,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4103",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 60919,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3299",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 60919,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5255",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 61476,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5480",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 62146,
+    "empty_official_records_in_domain": 1,
+    "security_id": "1566",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 62163,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4180",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS",
+    "domain_exhausted": true,
+    "domain_locators": 62407,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5317",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 62756,
+    "empty_official_records_in_domain": 1,
+    "security_id": "1787",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 63001,
+    "empty_official_records_in_domain": 1,
+    "security_id": "8913",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 63178,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3562",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 63545,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4947",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 63628,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6238",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 64272,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5349",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 65617,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4152",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 65677,
+    "empty_official_records_in_domain": 1,
+    "security_id": "2928",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 65936,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3144",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 66339,
+    "empty_official_records_in_domain": 1,
+    "security_id": "8406",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 66440,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4429",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 66572,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5102",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 66944,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5820",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 67164,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6247",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 67302,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6594",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 67967,
+    "empty_official_records_in_domain": 1,
+    "security_id": "5281",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 67971,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4944",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 68271,
+    "empty_official_records_in_domain": 1,
+    "security_id": "8418",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 69224,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6514",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 69411,
+    "empty_official_records_in_domain": 1,
+    "security_id": "8420",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 69506,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6457",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 70570,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4945",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 71017,
+    "empty_official_records_in_domain": 1,
+    "security_id": "6747",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 71820,
+    "empty_official_records_in_domain": 1,
+    "security_id": "4987",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   },
+   {
+    "classification": "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE",
+    "domain_exhausted": true,
+    "domain_locators": 71851,
+    "empty_official_records_in_domain": 1,
+    "security_id": "3426",
+    "unresolved_locators_in_domain": 0,
+    "was_exhausted_in_d6_8_3": false
+   }
+  ]
+ },
+ "U5_verdict": {
+  "body_hash_alone_would_have_been_unsafe": true,
+  "distinct_documents_with_identical_text": 87,
+  "duplicate_indexing_of_same_document": 58,
+  "events_whose_multiplicity_changes": 0,
+  "frozen_rule": {
+   "body_hash_equality_alone_is_sufficient": false,
+   "collapse_requires": [
+    "identical normalized substantive body text",
+    "official document numbers equal or at most one present",
+    "publication dates equal or at most one present",
+    "the set of securities named must not conflict"
+   ],
+   "on_conflict": "the documents are retained separately"
+  },
+  "rerun_required": false,
+  "shared_text_groups": 145
+ },
+ "U8_coverage": {
+  "LOCATORS_RESOLVED": 71961,
+  "OFFICIAL_EMPTY_BODIES": 1,
+  "OFFICIAL_LOCATORS_ENUMERATED": 71961,
+  "READABLE_SUBSTANTIVE_BODIES": 71960,
+  "RETRIEVAL_UNRESOLVED_BODIES": 0,
+  "accounted_for": 71961,
+  "accounting_balances": true,
+  "unresolved_detail": []
+ },
+ "adjudication_basis": {
+  "every_enumerated_locator_resolved": true,
+  "every_event_domain_exhausted": true,
+  "every_resolved_locator_either_readable_or_officially_empty": true,
+  "hard_coded": false
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "closure_sha256": "762e1a8ba770de59fe618a4325c75942caf7c8701cbd2e2d74eb8fc53623fffa",
+ "counts_unchanged_from_d6_8_3": {
+  "FULL_HISTORY_EVENT_DOCUMENT_AMBIGUOUS": 5,
+  "FULL_HISTORY_EVENT_DOCUMENT_UNIQUE": 54
+ },
+ "event_classifications_changed_here": 0,
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "inputs": {
+  "d6_8_3_census_sha256": "ba92e4b856b192cf1aac1bef68b09970c9041489928d214a026c23efd631c350",
+  "linkage_changed": false,
+  "reader_changed": false,
+  "u2_source_state_audit_sha256": "2eafb175c81b5edb083cfac5fcdd67e6f29bad5e231610b5239475a3b2315c64",
+  "u5_document_equivalence_audit_sha256": "611ca5604ba352e5718436d3f36407c90266f89d96982bddb151750e91b87cc2"
+ },
+ "nav_inspected": false,
+ "performance_inspected": false,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_4_ARCHIVE_COMPLETENESS_CLOSURE",
+ "replay_started": false,
+ "states_unchanged": true,
+ "stock_leg_started": false,
+ "successor_side_acquisition": false,
+ "third_party_mirrors_consulted": false
+}

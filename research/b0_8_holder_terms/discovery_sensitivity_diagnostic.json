@@ -1,0 +1,58 @@
+{
+ "applies_to_census_sha256": "6834517bd364474867280ff79eefdf9473efa73e72f12ce72ec5d4839ea16f45",
+ "body_availability": {
+  "bodies_retrieved": 146,
+  "bodies_withheld_by_source": 635,
+  "note": "a withheld body is a refusal, not a transport error; the announcement row it belongs to is still preserved and hash-bound, but a subject line cannot support the dual extraction a later stage would need"
+ },
+ "events_with_a_linking_document_under_the_frozen_rule": 14,
+ "frozen_result": {
+  "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS": 9,
+  "OFFICIAL_EVENT_DOCUMENT_NONE": 144,
+  "OFFICIAL_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+  "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 5
+ },
+ "record": "B0_8_DISCOVERY_SENSITIVITY_DIAGNOSTIC",
+ "relaxation_A_extended_event_markers": {
+  "documents_the_frozen_set_missed": {
+   "核准本公司股票終止": 7,
+   "終止櫃檯買賣": 29
+  },
+  "events_that_would_gain_a_linking_document_from_A_alone": 10,
+  "markers": [
+   "終止櫃檯買賣",
+   "終止有價證券櫃檯買賣",
+   "終止在證券商營業處所買賣",
+   "核准本公司股票終止",
+   "終止其股票上市",
+   "終止其股票櫃檯買賣"
+  ]
+ },
+ "relaxation_B_split_linkage_across_documents": {
+  "events_with_an_event_document_and_a_transaction_document_but_no_single_document_carrying_both": 18,
+  "rule_today": "one document must carry the security, the transaction and the event",
+  "same_with_extended_event_markers": 28
+ },
+ "relaxation_C_market_operator_as_counterparty": {
+  "ambiguous_events_left_with_exactly_one_non_operator_counterparty": 3,
+  "event_ids": [
+   "2809|holder_side_reorganization_exit|2025-09-18",
+   "2823|holder_side_reorganization_exit|2021-12-20",
+   "4110|holder_side_reorganization_exit|2004-09-14"
+  ],
+  "operators_matched_as_counterparties": [
+   "臺灣證券交易所",
+   "台灣證券交易所",
+   "證券櫃檯買賣中心",
+   "臺灣集中保管結算所",
+   "台灣集中保管結算所"
+  ]
+ },
+ "router_sha256": "e04f411171a472a2e459aee61570afdb5cff7f4a626b729dd992e00516dd059b",
+ "status": "DIAGNOSTIC ONLY -- no classification, no census, no data",
+ "what_this_record_does_not_do": [
+  "it does not reclassify any event",
+  "it does not re-freeze any predicate",
+  "it does not touch the CA ledger, the states or any status"
+ ]
+}

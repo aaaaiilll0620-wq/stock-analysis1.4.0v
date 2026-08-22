@@ -1,0 +1,590 @@
+{
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_authoritative_value_acquired": false,
+ "census_sha256": "d2d96cbc3b4e4de80f12b84508afef3c8ac2df99bbe0583629c281910166ee64",
+ "counts": {
+  "AUTHORITATIVE_RECORD_EXISTENCE_NOT_ESTABLISHED": 0,
+  "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED": 14,
+  "PUBLIC_ACCESS_REQUEST_ERROR": 0,
+  "PUBLIC_AUTHORITATIVE_SETTLEMENT_VALUE_ACQUIRED": 0
+ },
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "holder_terms_materialized": false,
+ "n1_premise": {
+  "independently_verified_by_d7_0c": false,
+  "note": "a public search for that document name returns nothing; the premise is carried as an adjudicated input and is labelled wherever it drives a classification",
+  "source": "ADJUDICATION (N1)",
+  "statement": "official TDCC process material establishes the operational record class, including 股款轉換價款支付一覽表"
+ },
+ "n4_registry_sha256": "21c0b9fb9e5d12073841be3245ff80454a17292f7eb1628a5d1d5334bf4bb82f",
+ "n4_surfaces_frozen_before_any_event_query": true,
+ "n4_third_party_mirrors_used_as_canonical": false,
+ "n4_undocumented_endpoints_probed": false,
+ "n5_concepts": [
+  "security_identity",
+  "transaction_identity",
+  "conversion_or_effective_date",
+  "cash_consideration",
+  "cash_settlement_or_payment_date",
+  "account_cancellation_date",
+  "distribution_or_credit_date"
+ ],
+ "n5_incapable_surfaces_not_counted_as_negative_lookups": [
+  "OD-1-1",
+  "OD-1-13",
+  "OD-1-14",
+  "OD-2-5",
+  "OD-2-23"
+ ],
+ "n5_schema_audited_before_event_lookup": true,
+ "nav_inspected": false,
+ "noncanonical_value_known": false,
+ "performance_inspected": false,
+ "population": {
+  "count": 14,
+  "derived_from": "preserved authoritative bytes, field_presence",
+  "expected_by_adjudication": 14,
+  "matches_expected": true,
+  "rule": "D6.6 UNIQUE TPEx events whose authoritative termination body indicates a cash-consideration leg",
+  "selection_did_not_inspect": [
+   "B0 exposure",
+   "claim state",
+   "load-bearing envelope",
+   "8913 identity",
+   "performance"
+  ],
+  "selection_inspected": []
+ },
+ "post_hoc_impact_diagnostic_8913": {
+  "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+  "canonical_event_date": "2020-01-14",
+  "capable_surfaces_covering_this_date": [],
+  "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+  "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+  "matched_rows": [
+   {
+    "row": "42\t8913\t華夏資融\t95.09.16~95.09.30\t95.10.02\t華夏租賃股份有限公司\t華夏資融股份有限公司",
+    "surface": "SM-STK001"
+   },
+   {
+    "row": "98\t8913\t華夏租賃\t94.12.18-95.01.16\t95.01.17\t減資換票(1,000股→79.7股)，含特別股",
+    "surface": "SM-STK002"
+   }
+  ],
+  "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+  "security_id": "8913"
+ },
+ "question": "can event-specific cash settlement/payment dates be obtained from a public, deterministic, first-party TDCC surface with preservable provenance?",
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D7_0C_TDCC_PUBLIC_ACCESS_FEASIBILITY",
+ "replay_started": false,
+ "results": [
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2015-06-05",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "5466|holder_side_reorganization_exit|2015-06-05",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "5466"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2016-11-16",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "3658|holder_side_reorganization_exit|2016-11-16",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "3658"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2017-10-11",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "6105|holder_side_reorganization_exit|2017-10-11",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "6105"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2018-05-24",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "6554|holder_side_reorganization_exit|2018-05-24",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "6554"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2019-11-21",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "1787|holder_side_reorganization_exit|2019-11-21",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "1787"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2020-01-14",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+   "matched_rows": [
+    {
+     "row": "42\t8913\t華夏資融\t95.09.16~95.09.30\t95.10.02\t華夏租賃股份有限公司\t華夏資融股份有限公司",
+     "surface": "SM-STK001"
+    },
+    {
+     "row": "98\t8913\t華夏租賃\t94.12.18-95.01.16\t95.01.17\t減資換票(1,000股→79.7股)，含特別股",
+     "surface": "SM-STK002"
+    }
+   ],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "8913"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2021-09-30",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "4152|holder_side_reorganization_exit|2021-09-30",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "4152"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2021-12-14",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "3144|holder_side_reorganization_exit|2021-12-14",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "3144"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2022-04-21",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "8406|holder_side_reorganization_exit|2022-04-21",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "8406"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2022-05-25",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "4429|holder_side_reorganization_exit|2022-05-25",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "4429"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2024-01-25",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "8418|holder_side_reorganization_exit|2024-01-25",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "8418"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2024-10-09",
+   "capable_surfaces_covering_this_date": [],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "6514|holder_side_reorganization_exit|2024-10-09",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "6514"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2025-11-27",
+   "capable_surfaces_covering_this_date": [
+    "OD-1-7"
+   ],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "6747|holder_side_reorganization_exit|2025-11-27",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "6747"
+  },
+  {
+   "basis": "no public TDCC surface in the frozen registry both represents a cash settlement/payment date AND covers this event's period; record-class existence is carried from the N1 adjudicated premise, not verified by D7.0c",
+   "canonical_event_date": "2026-05-21",
+   "capable_surfaces_covering_this_date": [
+    "OD-1-7"
+   ],
+   "classification": "AUTHORITATIVE_SETTLEMENT_RECORD_EXISTS_BUT_PUBLIC_VALUE_NOT_EXPOSED",
+   "event_id": "4987|holder_side_reorganization_exit|2026-05-21",
+   "matched_rows": [],
+   "record_class_existence_source": "N1_ADJUDICATED_PREMISE",
+   "security_id": "4987"
+  }
+ ],
+ "states_unchanged": true,
+ "surfaces": [
+  {
+   "bytes": 14510367,
+   "capability": {
+    "account_cancellation_date": true,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": true,
+    "distribution_or_credit_date": false,
+    "security_identity": true,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": false,
+   "coverage_note": "AD yyyymmdd tokens observed in the rows",
+   "coverage_range": [
+    "20260820",
+    "20260820"
+   ],
+   "documented_by": "TDCC 開放資料專區 catalogue",
+   "field_schema": [
+    "證券代號",
+    "證券名稱",
+    "市場別",
+    "股務單位",
+    "停止過戶領回",
+    "證券狀態",
+    "無面無實體",
+    "歸戶領回",
+    "限制部分帳簿劃撥功能註記",
+    "發行幣別",
+    "每股面額(元)",
+    "更新日期"
+   ],
+   "http_status": 200,
+   "id": "OD-1-1",
+   "kind": "opendata_csv",
+   "name": "證券基本資料",
+   "reachable": true,
+   "row_count": 144692,
+   "sha256": "3d9058871a593fbb7cb6a206385f56f5be509d34583f17c298f5801153d6d705",
+   "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=1-1"
+  },
+  {
+   "bytes": 30941,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": false,
+    "distribution_or_credit_date": true,
+    "security_identity": true,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": true,
+   "coverage_note": "AD yyyymmdd tokens observed in the rows",
+   "coverage_range": [
+    "20250102",
+    "20260820"
+   ],
+   "documented_by": "TDCC 開放資料專區 catalogue",
+   "field_schema": [
+    "證券代號",
+    "證券名稱",
+    "交付日期",
+    "交付原因"
+   ],
+   "http_status": 200,
+   "id": "OD-1-7",
+   "kind": "opendata_csv",
+   "name": "有價證券帳簿劃撥配發交付日期一覽表",
+   "reachable": true,
+   "row_count": 713,
+   "sha256": "6de7bc0ccc99fd9c4fdd0a543359bb7ba7090e2d5824ef33202ee071a94e9ee8",
+   "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=1-7"
+  },
+  {
+   "bytes": 19977,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": true,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": true,
+    "distribution_or_credit_date": false,
+    "security_identity": true,
+    "transaction_identity": true
+   },
+   "capable_of_settlement_or_credit_date": false,
+   "coverage_note": "AD yyyymmdd tokens observed in the rows",
+   "coverage_range": [
+    "20260819",
+    "20260819"
+   ],
+   "documented_by": "TDCC 開放資料專區 catalogue",
+   "field_schema": [
+    "資料日期",
+    "證券代號",
+    "證券名稱",
+    "轉(交)換價格",
+    "轉(交)換後證券代號",
+    "轉(交)換後證券名稱"
+   ],
+   "http_status": 200,
+   "id": "OD-1-13",
+   "kind": "opendata_csv",
+   "name": "有價證券轉(交)換/認股價格變更資料查詢",
+   "reachable": true,
+   "row_count": 335,
+   "sha256": "ac48b68d68845ce9b2a7228459c49b2ff8fd1a5c26fd0d0469577d5864c7c3bf",
+   "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=1-13"
+  },
+  {
+   "bytes": 97,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": true,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": true,
+    "distribution_or_credit_date": false,
+    "security_identity": true,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": false,
+   "coverage_note": "AD yyyymmdd tokens observed in the rows",
+   "coverage_range": [
+    "20260820",
+    "20260820"
+   ],
+   "documented_by": "TDCC 開放資料專區 catalogue",
+   "field_schema": [
+    "資料日期",
+    "證券代號",
+    "證券名稱",
+    "收購起日",
+    "收購迄日",
+    "收購價格"
+   ],
+   "http_status": 200,
+   "id": "OD-1-14",
+   "kind": "opendata_csv",
+   "name": "有價證券董事收購相關資訊",
+   "reachable": true,
+   "row_count": 1,
+   "sha256": "28d571b1f755265a250926b71f8650712d487decf3f214fd42e18412d95d473a",
+   "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=1-14"
+  },
+  {
+   "bytes": 507,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": false,
+    "distribution_or_credit_date": false,
+    "security_identity": false,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": false,
+   "coverage_range": null,
+   "documented_by": "TDCC 開放資料專區 catalogue",
+   "field_schema": [
+    "資料年月",
+    "簽約家數",
+    "家次",
+    "戶次",
+    "股數"
+   ],
+   "http_status": 200,
+   "id": "OD-2-5",
+   "kind": "opendata_csv",
+   "name": "帳簿劃撥配發新股統計表",
+   "reachable": true,
+   "row_count": 12,
+   "sha256": "bc9a7b59c044eb7076cdee9a0afc24add2790a1f33c690ea6649eae8ca51ce6a",
+   "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=2-5"
+  },
+  {
+   "bytes": 72583,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": false,
+    "distribution_or_credit_date": false,
+    "security_identity": true,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": false,
+   "coverage_range": null,
+   "documented_by": "TDCC 開放資料專區 catalogue",
+   "field_schema": [
+    "資料年月",
+    "股票代號",
+    "股票名稱",
+    "本月底保管千股數",
+    "前月底保管千股數",
+    "增減數額",
+    "增減百分比",
+    "發行千股數",
+    "集保股東戶數"
+   ],
+   "http_status": 200,
+   "id": "OD-2-23",
+   "kind": "opendata_csv",
+   "name": "有價證券集中保管個別股票異動月分析表－上櫃證券",
+   "reachable": true,
+   "row_count": 1008,
+   "sha256": "fa59a29d53b15a677683f169131055860c7a10355f0b5e30e54f9ea5e8d59643",
+   "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=2-23"
+  },
+  {
+   "bytes": 74647,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": true,
+    "distribution_or_credit_date": true,
+    "security_identity": true,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": true,
+   "coverage_range": null,
+   "documented_by": "TDCC 股務資訊服務平台 index",
+   "field_schema": [
+    "項次",
+    "證券代號",
+    "證券名稱",
+    "停止過戶期間",
+    "新股上市(櫃)日期",
+    "變更前公司名稱",
+    "變更後公司名稱"
+   ],
+   "http_status": 200,
+   "id": "SM-STK001",
+   "kind": "workbook",
+   "name": "發行公司名稱變更一覽表",
+   "reachable": true,
+   "row_count": 97,
+   "sha256": "b714f924ed6994ccc53fd5880085eac86412824ec9936e274eb47d3f281adf08",
+   "url": "https://m.tdcc.com.tw/tcdata/sm/stk001.xls",
+   "workbook_title_row": "nan"
+  },
+  {
+   "bytes": 116511,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": true,
+    "distribution_or_credit_date": true,
+    "security_identity": true,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": true,
+   "coverage_range": null,
+   "documented_by": "TDCC 股務資訊服務平台 index",
+   "field_schema": [
+    "項次",
+    "證券代號",
+    "證券名稱",
+    "停止過戶期間",
+    "新股上市(櫃)日期",
+    "換票比率"
+   ],
+   "http_status": 200,
+   "id": "SM-STK002",
+   "kind": "workbook",
+   "name": "發行公司減資換票一覽表",
+   "reachable": true,
+   "row_count": 295,
+   "sha256": "25055bfab45d8f0cf5750096dc0ebce5e341dee1d0d315f8ad822ab6cc798a1f",
+   "url": "https://m.tdcc.com.tw/tcdata/sm/stk002.xls",
+   "workbook_title_row": "nan"
+  },
+  {
+   "bytes": 49264,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": true,
+    "distribution_or_credit_date": true,
+    "security_identity": true,
+    "transaction_identity": true
+   },
+   "capable_of_settlement_or_credit_date": true,
+   "coverage_range": null,
+   "documented_by": "TDCC 股務資訊服務平台 index",
+   "field_schema": [
+    "項次",
+    "證券代號",
+    "證券名稱",
+    "停止過戶期間",
+    "新股上市(櫃)日期",
+    "換票比率",
+    "存續公司(名稱，代號)",
+    "消滅公司",
+    "備註"
+   ],
+   "http_status": 200,
+   "id": "SM-STK003",
+   "kind": "workbook",
+   "name": "發行公司合併換票一覽表",
+   "reachable": true,
+   "row_count": 41,
+   "sha256": "3a0a19421526b0167a041dc09159aedcd752254545ffb089095fd6252c6bd37e",
+   "url": "https://m.tdcc.com.tw/tcdata/sm/stk003.xls",
+   "workbook_title_row": "                   發行公司合併換票一覽表          更新日期：98.12.21"
+  },
+  {
+   "bytes": 63278,
+   "capability": {
+    "account_cancellation_date": false,
+    "cash_consideration": false,
+    "cash_settlement_or_payment_date": false,
+    "conversion_or_effective_date": false,
+    "distribution_or_credit_date": true,
+    "security_identity": true,
+    "transaction_identity": false
+   },
+   "capable_of_settlement_or_credit_date": true,
+   "coverage_range": null,
+   "documented_by": "TDCC 股務資訊服務平台 index",
+   "field_schema": [
+    "證券代號",
+    "證券名稱",
+    "交付日期",
+    "交付原因"
+   ],
+   "form_fields": [
+    "SYNCHRONIZER_TOKEN",
+    "SYNCHRONIZER_URI",
+    "method",
+    "sqlMethod",
+    "stockDate",
+    "stockName",
+    "stockNo"
+   ],
+   "http_status": 200,
+   "id": "PORTAL-QRYPS",
+   "kind": "interactive_form",
+   "name": "有價證券帳簿劃撥配發/交付日期一覽表查詢",
+   "reachable": true,
+   "row_count": 0,
+   "schema_source": "the documented dataset this form queries is OD-1-7; its field schema is audited there",
+   "sha256": "c5f622be3af2e80f0b8fdd81d5200777445506fa140b0e8c6c5429e74b8c8d6f",
+   "url": "https://www.tdcc.com.tw/portal/zh/smWeb/qryPS"
+  }
+ ],
+ "tests_public_accessibility_not_internal_possession": true
+}

@@ -1,0 +1,648 @@
+{
+ "OFFICIAL_BODY_TRANSPORT": "TRANSPORT_UNRESOLVED",
+ "b0_8_state": "WIP, UNSEALED",
+ "bulk_retry_performed": false,
+ "ca_ledger_unchanged": true,
+ "controls": {
+  "bodies_newly_obtained": 0,
+  "explicit_official_refusals": 0,
+  "outcome_by_previous_status": {
+   "BODY_RETRIEVED": {
+    "TRANSPORT_UNRESOLVED": 2
+   },
+   "BODY_WITHHELD_BY_SOURCE": {
+    "TRANSPORT_UNRESOLVED": 2
+   }
+  },
+  "previously_available_tested": 2,
+  "previously_refused_tested": 2,
+  "previously_unresolved_tested": 0,
+  "route_preserves_known_good_content": false,
+  "transport_failures": 4
+ },
+ "d6_1_preserved_unchanged": {
+  "census_sha256": "b60c4c38948ca39a38688959e6635e67875f497b0d4890a6bfd42c8074607a18",
+  "counts": {
+   "OFFICIAL_EVENT_DOCUMENT_AMBIGUOUS": 25,
+   "OFFICIAL_EVENT_DOCUMENT_NONE": 116,
+   "OFFICIAL_EVENT_DOCUMENT_REQUEST_ERROR": 0,
+   "OFFICIAL_EVENT_DOCUMENT_UNIQUE": 17
+  },
+  "none_decomposition": {
+   "NONE_DISCOVERED_BUT_LINKAGE_NOT_ESTABLISHED": 109,
+   "NONE_NO_DOCUMENT_DISCOVERED": 7
+  },
+  "router_sha256": "21562aa95dc9695b3a2e950fa19126b7d30921f149fae2da779baa4033f3f3e8"
+ },
+ "dual_extraction_performed": false,
+ "event_classifications_changed": false,
+ "gates_evaluated": false,
+ "holder_terms_materialized": false,
+ "nav_computed": false,
+ "performance_inspected": false,
+ "protocol_path": "research/b0_8_holder_terms/transport_protocol_freeze_d6_2.json",
+ "protocol_sha256": "f0f82a4b3278c9900d0b06730fd58654d8f9696d889eaead3ed186a591574b67",
+ "record": "B0_8_D6_2_AUTHORITATIVE_BODY_TRANSPORT_FEASIBILITY",
+ "record_sha256": "d0f4b0b27c8f4bf9d7282d4a10971aed0c0cdf33f224ee9d67bad863221ba555",
+ "replay_started": false,
+ "results": [
+  {
+   "attempts": [
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "GET",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080602_141947_3.P4.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d90"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "POST",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080602_141947_3.P5.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d"
+    }
+   ],
+   "detail_parameters": {
+    "companyId": "9101",
+    "enterDate": "970602",
+    "marketKind": "sii",
+    "serialNumber": "3"
+   },
+   "document_id": "MOPS-T05ST01:9101:20080602:141947:3",
+   "flow_log": [
+    {
+     "bytes": 942,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:08.472285+00:00",
+     "method": "GET",
+     "raw_sha256": "32d5547a1840e13f3718a2b7c5475be4a7289a547ac1e37920e43b53fd4f0dbc",
+     "step": "P0",
+     "url": "https://mops.twse.com.tw/mops/"
+    },
+    {
+     "bytes": 33381,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:09.561400+00:00",
+     "method": "POST",
+     "raw_sha256": "a6fc717d620bebae7a3ea16e8aade1145a579e60ab400b72479f9d73a74f6c62",
+     "step": "P1",
+     "url": "https://mops.twse.com.tw/mops/api/t05st01"
+    },
+    {
+     "bytes": 311,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:10.972667+00:00",
+     "method": "POST",
+     "raw_sha256": "f01b3edff092438b70df400c9aaafa3f34f48fdee3a4901b8ac21eb88fc84dc7",
+     "step": "P2",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:11:11.049544+00:00",
+     "method": "GET",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d90301b3d44e16aa36fed0f"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:12.125065+00:00",
+     "method": "GET",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d90301b3d44e16aa36fed0f"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:13.615977+00:00",
+     "method": "POST",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": 311,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:22.828239+00:00",
+     "method": "POST",
+     "raw_sha256": "5c5966c646c265609d0b9f04b8d471f1b288bf7b8081deb8b09af0ee24c89f7a",
+     "step": "P6",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:11:22.911799+00:00",
+     "method": "GET",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d90301b3d44e16aa36fed0f"
+    }
+   ],
+   "identity_sha256": "05907713c2f6591e36b0f8f6d9111941020ae1465123e739e7abb0a54b80caaa",
+   "previous_body_status": "BODY_RETRIEVED",
+   "publication_date": "2008-06-02",
+   "resulting_body_preserved_at": null,
+   "resulting_body_status": "TRANSPORT_UNRESOLVED",
+   "resulting_response_sha256": null,
+   "security_id": "9101",
+   "session_context": [],
+   "signed_urls": [
+    {
+     "issued_at": "2026-08-20T12:11:11.049478+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080602_141947_3.P2_redirect.json",
+     "redirect_raw_sha256": "f01b3edff092438b70df400c9aaafa3f34f48fdee3a4901b8ac21eb88fc84dc7",
+     "step": "P2",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d90301b3d44e16aa36fed0f"
+    },
+    {
+     "issued_at": "2026-08-20T12:11:22.911751+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080602_141947_3.P6_redirect.json",
+     "redirect_raw_sha256": "5c5966c646c265609d0b9f04b8d471f1b288bf7b8081deb8b09af0ee24c89f7a",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc2873779388ed703276389c5d2d2c4ec7e7a81a5d70306e2b6a6682911fe1498a9e66199456c23b8620f0da94e48ce34451f7e357d1d90301b3d44e16aa36fed0f",
+     "url_identical_to_P2": true
+    }
+   ],
+   "stratum": "BODY_AVAILABLE",
+   "subject": "新加坡福雷電子股份有限公司協議計畫生效-更正公告",
+   "transport_attempted": true
+  },
+  {
+   "attempts": [
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "GET",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080506_084824_1.P4.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d90"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "POST",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080506_084824_1.P5.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d"
+    }
+   ],
+   "detail_parameters": {
+    "companyId": "9101",
+    "enterDate": "970506",
+    "marketKind": "sii",
+    "serialNumber": "1"
+   },
+   "document_id": "MOPS-T05ST01:9101:20080506:084824:1",
+   "flow_log": [
+    {
+     "bytes": 942,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:22.993826+00:00",
+     "method": "GET",
+     "raw_sha256": "32d5547a1840e13f3718a2b7c5475be4a7289a547ac1e37920e43b53fd4f0dbc",
+     "step": "P0",
+     "url": "https://mops.twse.com.tw/mops/"
+    },
+    {
+     "bytes": 33381,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:24.061235+00:00",
+     "method": "POST",
+     "raw_sha256": "593143a5f29d14ecc0b01f650322063deb7077b7d5f49928c394efbe31eb8e84",
+     "step": "P1",
+     "url": "https://mops.twse.com.tw/mops/api/t05st01"
+    },
+    {
+     "bytes": 311,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:25.397900+00:00",
+     "method": "POST",
+     "raw_sha256": "afd3337a76b427daeb46b77096b72b5637cf261d2c1c7d3c04edcc9b91fa04b3",
+     "step": "P2",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:11:25.472462+00:00",
+     "method": "GET",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d90301b3d44e16aa36fed0f"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:26.535181+00:00",
+     "method": "GET",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d90301b3d44e16aa36fed0f"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:27.852824+00:00",
+     "method": "POST",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": 311,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:40.348016+00:00",
+     "method": "POST",
+     "raw_sha256": "f74ef63e640997b33617c08dff69ce3a2dce346785221d62fc52d861c60a3392",
+     "step": "P6",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:11:41.468292+00:00",
+     "method": "GET",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d90301b3d44e16aa36fed0f"
+    }
+   ],
+   "identity_sha256": "0badd257c7279e1375841eb8de604aec6673411ccd3eb1ff2752bd33d9c86447",
+   "previous_body_status": "BODY_RETRIEVED",
+   "publication_date": "2008-05-06",
+   "resulting_body_preserved_at": null,
+   "resulting_body_status": "TRANSPORT_UNRESOLVED",
+   "resulting_response_sha256": null,
+   "security_id": "9101",
+   "session_context": [],
+   "signed_urls": [
+    {
+     "issued_at": "2026-08-20T12:11:25.472411+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080506_084824_1.P2_redirect.json",
+     "redirect_raw_sha256": "afd3337a76b427daeb46b77096b72b5637cf261d2c1c7d3c04edcc9b91fa04b3",
+     "step": "P2",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d90301b3d44e16aa36fed0f"
+    },
+    {
+     "issued_at": "2026-08-20T12:11:41.468240+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_9101_20080506_084824_1.P6_redirect.json",
+     "redirect_raw_sha256": "f74ef63e640997b33617c08dff69ce3a2dce346785221d62fc52d861c60a3392",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=3b9179c3b2c196b15a446b32f0d85dc227da55109b12f00f3a12193c026e49cb7a81a5d70306e2b6a6682911fe1498a933739a748afc3d252d22b6656fcba1da1f7e357d1d90301b3d44e16aa36fed0f",
+     "url_identical_to_P2": true
+    }
+   ],
+   "stratum": "BODY_AVAILABLE",
+   "subject": "申報新加坡福雷電子臺灣存託憑證表彰股票所屬國交易市場每日 收盤價",
+   "transport_attempted": true
+  },
+  {
+   "attempts": [
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "GET",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_4733_20160721_155719_2.P4.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb46"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "POST",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_4733_20160721_155719_2.P5.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb"
+    }
+   ],
+   "detail_parameters": {
+    "companyId": "4733",
+    "enterDate": "1050721",
+    "marketKind": "pub",
+    "serialNumber": "2"
+   },
+   "document_id": "MOPS-T05ST01:4733:20160721:155719:2",
+   "flow_log": [
+    {
+     "bytes": 942,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:41.564762+00:00",
+     "method": "GET",
+     "raw_sha256": "32d5547a1840e13f3718a2b7c5475be4a7289a547ac1e37920e43b53fd4f0dbc",
+     "step": "P0",
+     "url": "https://mops.twse.com.tw/mops/"
+    },
+    {
+     "bytes": 26027,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:42.658571+00:00",
+     "method": "POST",
+     "raw_sha256": "83d2278458eff47c41350958e3f5012b4fc64ef8337230120a46cd230c7fc631",
+     "step": "P1",
+     "url": "https://mops.twse.com.tw/mops/api/t05st01"
+    },
+    {
+     "bytes": 343,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:44.386261+00:00",
+     "method": "POST",
+     "raw_sha256": "6947cea6c2d4717b96ffc1ca651336d6841558d8aa7ba8820052ee1df35bf0c4",
+     "step": "P2",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:11:44.475093+00:00",
+     "method": "GET",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:45.631241+00:00",
+     "method": "GET",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:47.889658+00:00",
+     "method": "POST",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": 343,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:57.117682+00:00",
+     "method": "POST",
+     "raw_sha256": "5f1d39af452cf4ae641a9e02b03e21842cd555f566643537294511733f8b9702",
+     "step": "P6",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:11:57.203939+00:00",
+     "method": "GET",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    }
+   ],
+   "identity_sha256": "008e1c0a67edd6a797f4735f8a0a3dd2ca9a240f46af6c9b60a8af1b25d147d0",
+   "previous_body_status": "BODY_WITHHELD_BY_SOURCE",
+   "publication_date": "2016-07-21",
+   "resulting_body_preserved_at": null,
+   "resulting_body_status": "TRANSPORT_UNRESOLVED",
+   "resulting_response_sha256": null,
+   "security_id": "4733",
+   "session_context": [],
+   "signed_urls": [
+    {
+     "issued_at": "2026-08-20T12:11:44.475043+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_4733_20160721_155719_2.P2_redirect.json",
+     "redirect_raw_sha256": "6947cea6c2d4717b96ffc1ca651336d6841558d8aa7ba8820052ee1df35bf0c4",
+     "step": "P2",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    },
+    {
+     "issued_at": "2026-08-20T12:11:57.203892+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_4733_20160721_155719_2.P6_redirect.json",
+     "redirect_raw_sha256": "5f1d39af452cf4ae641a9e02b03e21842cd555f566643537294511733f8b9702",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e5b56aec49a2b497732c86a664afe2d789c02150875f5a112fe79b7223a914b937ea1664239d03bd5d208ecf5212554e622c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18",
+     "url_identical_to_P2": true
+    }
+   ],
+   "stratum": "BODY_REFUSED",
+   "subject": "公告取得臺灣證券交易所股份有限公司同意本公司終止上市 暨上緯國際投資控股股份有限公司上市。",
+   "transport_attempted": true
+  },
+  {
+   "attempts": [
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "GET",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_6105_20170912_194209_6.P4.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb46"
+    },
+    {
+     "bytes": 65,
+     "evidence": "empty body (65 bytes)",
+     "method": "POST",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_6105_20170912_194209_6.P5.html",
+     "response_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": null,
+     "evidence": "no response obtained: RemoteDisconnected: Remote end closed connection without response",
+     "method": "GET",
+     "response_sha256": null,
+     "state": "TRANSPORT_UNRESOLVED",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb"
+    }
+   ],
+   "detail_parameters": {
+    "companyId": "6105",
+    "enterDate": "1060912",
+    "marketKind": "pub",
+    "serialNumber": "6"
+   },
+   "document_id": "MOPS-T05ST01:6105:20170912:194209:6",
+   "flow_log": [
+    {
+     "bytes": 942,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:57.289910+00:00",
+     "method": "GET",
+     "raw_sha256": "32d5547a1840e13f3718a2b7c5475be4a7289a547ac1e37920e43b53fd4f0dbc",
+     "step": "P0",
+     "url": "https://mops.twse.com.tw/mops/"
+    },
+    {
+     "bytes": 7466,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:11:58.379854+00:00",
+     "method": "POST",
+     "raw_sha256": "3a8617f2afe22d891e9e19946e708bb52a46f3151c904d624cf64518e2cb1c8b",
+     "step": "P1",
+     "url": "https://mops.twse.com.tw/mops/api/t05st01"
+    },
+    {
+     "bytes": 343,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:12:01.854896+00:00",
+     "method": "POST",
+     "raw_sha256": "f90ec1ce2ca53344b641c758f219cbb6539a0cea66dfe8ab56d41c70b4ae1b52",
+     "step": "P2",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:12:01.925528+00:00",
+     "method": "GET",
+     "step": "P3",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:12:02.993313+00:00",
+     "method": "GET",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P4",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    },
+    {
+     "bytes": 65,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:12:04.245283+00:00",
+     "method": "POST",
+     "raw_sha256": "e14e470907e8e9f629d5725cd5d9abf8a56dd0403d321d456e5a3fc56913a7a6",
+     "step": "P5",
+     "url": "https://mops.twse.com.tw/mops/web/t05st01_detail"
+    },
+    {
+     "bytes": 343,
+     "http_status": 200,
+     "issued_at": "2026-08-20T12:12:13.472833+00:00",
+     "method": "POST",
+     "raw_sha256": "56d38526e73eca13d9df3f2e4463ddbeb94837201f7f83b8c91d2861df4aef65",
+     "step": "P6",
+     "url": "https://mops.twse.com.tw/mops/api/redirectToOld"
+    },
+    {
+     "error": "RemoteDisconnected: Remote end closed connection without response",
+     "issued_at": "2026-08-20T12:12:13.557681+00:00",
+     "method": "GET",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    }
+   ],
+   "identity_sha256": "00d99421f58d9a55b10f6fa5d10b1070cadacdd6b6aeb934dd8c47df235c56e4",
+   "previous_body_status": "BODY_WITHHELD_BY_SOURCE",
+   "publication_date": "2017-09-12",
+   "resulting_body_preserved_at": null,
+   "resulting_body_status": "TRANSPORT_UNRESOLVED",
+   "resulting_response_sha256": null,
+   "security_id": "6105",
+   "session_context": [],
+   "signed_urls": [
+    {
+     "issued_at": "2026-08-20T12:12:01.925472+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_6105_20170912_194209_6.P2_redirect.json",
+     "redirect_raw_sha256": "f90ec1ce2ca53344b641c758f219cbb6539a0cea66dfe8ab56d41c70b4ae1b52",
+     "step": "P2",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18"
+    },
+    {
+     "issued_at": "2026-08-20T12:12:13.557650+00:00",
+     "preserved_at": "artifacts/b0_8_holder_terms/d6_2_transport_raw/MOPS-T05ST01_6105_20170912_194209_6.P6_redirect.json",
+     "redirect_raw_sha256": "56d38526e73eca13d9df3f2e4463ddbeb94837201f7f83b8c91d2861df4aef65",
+     "step": "P6",
+     "url": "https://mopsov.twse.com.tw/mops/web/t05st01_detail?parameters=59d8fa7c96d5a22d08787de7de752b7e2d2710cc93f0974632b4ce26a6a0f06d37c7c24ed13874215ce34472cc4f8bafef3cfb02c16641fcb0c7719888c5a7f422c748bdfb46e7c0f11330daf28306261ae4c366c606585b191b34a304e02b18",
+     "url_identical_to_P2": true
+    }
+   ],
+   "stratum": "BODY_REFUSED",
+   "subject": "公告本公司辦理第四次庫藏股註銷減資變更登記完成",
+   "transport_attempted": true
+  }
+ ],
+ "sample_shortfall_reason": "BODY_TRANSPORT_UNRESOLVED_OR_UNAVAILABLE is empty: TRANSPORT_UNRESOLVED is a property of route R4, not of any document in the register. F3 forbids topping up from another stratum.",
+ "sample_size": 4,
+ "sample_size_intended": 6,
+ "semantic_expansion_performed": false,
+ "states_unchanged": true,
+ "strata_populations": {
+  "BODY_AVAILABLE": 146,
+  "BODY_REFUSED": 635,
+  "BODY_TRANSPORT_UNRESOLVED_OR_UNAVAILABLE": 0
+ }
+}

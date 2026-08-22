@@ -1,0 +1,219 @@
+{
+ "applies_to_census_sha256": "f55af917a73ea7fc81dc63b1d1518f7c0f77193c6de5f0e5b7dadc1821e4e497",
+ "cap_limited_coverage_incomplete": {
+  "count": 15,
+  "events": [
+   {
+    "candidates": 0,
+    "date": "2004-07-21",
+    "fallback_pool": 1494,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 10.0,
+    "rows_in_window": 1494,
+    "security_id": "6157"
+   },
+   {
+    "candidates": 0,
+    "date": "2004-09-14",
+    "fallback_pool": 1234,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 12.2,
+    "rows_in_window": 1234,
+    "security_id": "4110"
+   },
+   {
+    "candidates": 0,
+    "date": "2004-10-13",
+    "fallback_pool": 1063,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 14.1,
+    "rows_in_window": 1063,
+    "security_id": "6017"
+   },
+   {
+    "candidates": 0,
+    "date": "2006-06-07",
+    "fallback_pool": 938,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 16.0,
+    "rows_in_window": 938,
+    "security_id": "5494"
+   },
+   {
+    "candidates": 0,
+    "date": "2006-09-28",
+    "fallback_pool": 1225,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 12.2,
+    "rows_in_window": 1225,
+    "security_id": "6178"
+   },
+   {
+    "candidates": 0,
+    "date": "2007-11-23",
+    "fallback_pool": 1120,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 13.4,
+    "rows_in_window": 1120,
+    "security_id": "5818"
+   },
+   {
+    "candidates": 0,
+    "date": "2014-12-25",
+    "fallback_pool": 390,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 38.5,
+    "rows_in_window": 577,
+    "security_id": "3582"
+   },
+   {
+    "candidates": 0,
+    "date": "2016-08-25",
+    "fallback_pool": 306,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 49.0,
+    "rows_in_window": 455,
+    "security_id": "8079"
+   },
+   {
+    "candidates": 0,
+    "date": "2016-11-09",
+    "fallback_pool": 265,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 56.6,
+    "rows_in_window": 398,
+    "security_id": "8266"
+   },
+   {
+    "candidates": 0,
+    "date": "2017-08-22",
+    "fallback_pool": 306,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 49.0,
+    "rows_in_window": 473,
+    "security_id": "6022"
+   },
+   {
+    "candidates": 0,
+    "date": "2017-09-25",
+    "fallback_pool": 294,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 51.0,
+    "rows_in_window": 422,
+    "security_id": "3553"
+   },
+   {
+    "candidates": 0,
+    "date": "2018-11-07",
+    "fallback_pool": 247,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 60.7,
+    "rows_in_window": 347,
+    "security_id": "4103"
+   },
+   {
+    "candidates": 0,
+    "date": "2019-03-21",
+    "fallback_pool": 268,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 56.0,
+    "rows_in_window": 365,
+    "security_id": "5480"
+   },
+   {
+    "candidates": 1,
+    "date": "2020-05-21",
+    "fallback_pool": 203,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 73.9,
+    "rows_in_window": 283,
+    "security_id": "4947"
+   },
+   {
+    "candidates": 0,
+    "date": "2026-06-02",
+    "fallback_pool": 243,
+    "fallback_probed": 150,
+    "pool_coverage_pct": 61.7,
+    "rows_in_window": 360,
+    "security_id": "3426"
+   }
+  ],
+  "reading": "the probe cap was reached while candidate rows remained unexamined; absence is NOT established"
+ },
+ "headline": "every one of the 20 NONE events fell to the BODY_FALLBACK route: no index subject in their window named the security by code. The fallback is capped at 150 annDetail probes, so for most of them NONE means 'not found within the probed fraction', NOT 'absent from the archive'.",
+ "identity_route_reliability": {
+  "BODY_FALLBACK": {
+   "ambiguous": 1,
+   "events": 24,
+   "none": 20,
+   "unique": 3
+  },
+  "PRIMARY_SUBJECT": {
+   "events": 35,
+   "reading": "where the index subject names the code, discovery succeeded every time",
+   "unique": 35
+  }
+ },
+ "none_total": 20,
+ "not_done": [
+  "router re-freezing",
+  "cap increase",
+  "reclassification",
+  "corpus scaling"
+ ],
+ "pool_exhausted_within_frozen_window": {
+  "count": 5,
+  "events": [
+   {
+    "candidates": 0,
+    "date": "2022-07-07",
+    "fallback_pool": 131,
+    "fallback_probed": 131,
+    "pool_coverage_pct": 100.0,
+    "rows_in_window": 213,
+    "security_id": "5102"
+   },
+   {
+    "candidates": 1,
+    "date": "2022-11-01",
+    "fallback_pool": 108,
+    "fallback_probed": 108,
+    "pool_coverage_pct": 100.0,
+    "rows_in_window": 190,
+    "security_id": "5820"
+   },
+   {
+    "candidates": 0,
+    "date": "2023-02-02",
+    "fallback_pool": 83,
+    "fallback_probed": 83,
+    "pool_coverage_pct": 100.0,
+    "rows_in_window": 148,
+    "security_id": "6247"
+   },
+   {
+    "candidates": 0,
+    "date": "2023-10-25",
+    "fallback_pool": 128,
+    "fallback_probed": 128,
+    "pool_coverage_pct": 100.0,
+    "rows_in_window": 224,
+    "security_id": "5281"
+   },
+   {
+    "candidates": 0,
+    "date": "2023-10-26",
+    "fallback_pool": 128,
+    "fallback_probed": 128,
+    "pool_coverage_pct": 100.0,
+    "rows_in_window": 225,
+    "security_id": "4944"
+   }
+  ],
+  "reading": "every candidate row in the frozen window was body-checked and none named the security; absence within THIS window is established, absence from the archive is not"
+ },
+ "record": "B0_8_D6_5_NONE_COVERAGE_DIAGNOSTIC",
+ "router_sha256": "fa39464f73ba23b525ae001bc8d39a0265a3276532dfa99ef03c8ad12b1ab3eb",
+ "status": "DIAGNOSTIC ONLY -- the frozen router was not tuned, no classification changed"
+}

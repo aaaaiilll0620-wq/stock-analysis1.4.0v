@@ -1,0 +1,362 @@
+{
+ "AA11_final_denominator": {
+  "CONSIDERATION_NOT_APPLICABLE": 0,
+  "FINAL_CASH_ONLY": 22,
+  "FINAL_CONFIRMED_STOCK_BEARING": 30,
+  "FINAL_MIXED": 3,
+  "FINAL_STOCK_ONLY": 27,
+  "PUBLIC_AUTHORITATIVE_BOUNDARY": 1,
+  "REMAINING_TRUE_UNKNOWN": 6,
+  "denominator_closed": false,
+  "reading": "NOT closed: 6 events remain source-family-not-exhausted (the 3 投控 prospectus family + 3 unlisted-survivor formal-filing family). 1 genuine foreign boundary (6514). Confirmed stock-bearing lower bound 30; upper range +6 if the unexhausted resolve to stock/mixed"
+ },
+ "AA3_6178_event_class_audit": {
+  "earlier_not_applicable_hypothesis": "REFUTED_BY_STK003",
+  "finding": "the sparse termination notice named no counterparty, but TDCC STK003 records a share exchange into 詮鼎科技(6159); 6178 is a genuine share-conversion merger and correctly belongs in the holder-side reorganization corpus",
+  "membership_conflict": false,
+  "verdict": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION"
+ },
+ "AA4_rename_lineage": {
+  "6008": {
+   "current": "凱基金融控股股份有限公司",
+   "first_party_proof": "MOPS t05st03 前名稱 field",
+   "fuzzy_matching_used": false,
+   "old_name": "中華開發金融控股股份有限公司",
+   "security_id": "2883"
+  }
+ },
+ "AA5_source_families": [
+  "TDCC_STK003_MERGER_EXCHANGE_TABLE",
+  "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT",
+  "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE",
+  "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT",
+  "FOREIGN_ISSUER_PUBLIC_DISCLOSURE"
+ ],
+ "AA6_source_family_matrix": {
+  "2921": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_APPLICABLE",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "APPLICABLE_AND_TESTED",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+  },
+  "3562": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+  },
+  "3582": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "ROUTING_UNRESOLVED"
+  },
+  "5384": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+  },
+  "5491": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+  },
+  "5818": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_GAP_WITHIN_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "ROUTING_UNRESOLVED"
+  },
+  "6008": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_REACHED_RESOLVED_EARLIER",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+  },
+  "6178": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_APPLICABLE",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_REACHED_RESOLVED_EARLIER",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "APPLICABLE_AND_TESTED",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+  },
+  "6514": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "SOURCE_PUBLICLY_UNAVAILABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_APPLICABLE",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "NOT_APPLICABLE"
+  },
+  "8705": {
+   "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+   "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+   "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+   "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+   "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "ROUTING_UNRESOLVED"
+  }
+ },
+ "AA9_residual_results": {
+  "CASH_ONLY_ESTABLISHED": [],
+  "CONSIDERATION_NOT_APPLICABLE": [],
+  "CONSIDERATION_PUBLIC_AUTHORITATIVE_BOUNDARY": [
+   "6514"
+  ],
+  "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED": [
+   "5818",
+   "8705",
+   "3582",
+   "5384",
+   "5491",
+   "3562"
+  ],
+  "EVENT_CLASS_MEMBERSHIP_UNRESOLVED": [],
+  "MIXED_ESTABLISHED": [],
+  "STOCK_ONLY_ESTABLISHED": [
+   "6178",
+   "2921",
+   "6008"
+  ],
+  "counts": {
+   "CONSIDERATION_PUBLIC_AUTHORITATIVE_BOUNDARY": 1,
+   "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED": 6,
+   "STOCK_ONLY_ESTABLISHED": 3
+  },
+  "population": 10
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_materialized": false,
+ "cash_settlement_hunting": false,
+ "closure_sha256": "91bd77b861ebe812cdc129a9757a1150878c566665daef4461a01a9ab56dcc23",
+ "consideration_grammar_changed": false,
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "inputs": {
+  "d7_3_closure_sha256": "2366c34594cdd3e8c4c3250deca3ae96516ac9c11f83b5e3d07bfe4d17f5d9ec"
+ },
+ "per_event": [
+  {
+   "disappearing": "振遠科技",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "STK003 換票比率: 股份轉換為詮鼎科技，每1.33股振遠換詮鼎1股",
+   "evidence_family": "TDCC_STK003_MERGER_EXCHANGE_TABLE",
+   "holder_cash": false,
+   "holder_security": true,
+   "issuer_status": "PUBLIC_SECURITY_ID_ESTABLISHED",
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_APPLICABLE",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_REACHED_RESOLVED_EARLIER",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "APPLICABLE_AND_TESTED",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+   },
+   "result": "STOCK_ONLY_ESTABLISHED",
+   "security_id": "6178",
+   "survivor": "詮鼎科技",
+   "survivor_code": "6159"
+  },
+  {
+   "disappearing": "華僑商業銀行",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "survivor unlisted (Citibank Taiwan); successor MOPS N/A; STK003 does not cover this bank merger; banking-regulator/formal-filing family untested",
+   "holder_cash": null,
+   "holder_security": null,
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_GAP_WITHIN_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "ROUTING_UNRESOLVED"
+   },
+   "result": "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED",
+   "security_id": "5818",
+   "survivor": "花旗(台灣)商業銀行",
+   "survivor_code": null
+  },
+  {
+   "disappearing": "特力和樂",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "STK003 換票比率: 轉換為特力屋 (未上市興櫃公司); listing_date NOT_APPLICABLE, holder still receives a security",
+   "evidence_family": "TDCC_STK003_MERGER_EXCHANGE_TABLE",
+   "holder_cash": false,
+   "holder_security": true,
+   "issuer_status": "NONPUBLIC_SECURITY_ISSUER",
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_APPLICABLE",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "APPLICABLE_AND_TESTED",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+   },
+   "result": "STOCK_ONLY_ESTABLISHED",
+   "security_id": "2921",
+   "survivor": "特力屋",
+   "survivor_code": null
+  },
+  {
+   "disappearing": "東隆五金",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "survivor unlisted; successor MOPS N/A; STK003 outside vintage; surviving-issuer formal-filing family untested",
+   "holder_cash": null,
+   "holder_security": null,
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "ROUTING_UNRESOLVED"
+   },
+   "result": "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED",
+   "security_id": "8705",
+   "survivor": "台灣史丹利安防系統",
+   "survivor_code": null
+  },
+  {
+   "disappearing": "凱基證券",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "MOPS t05st03 前名稱=中華開發金融控股 (code 2883); 2883 filing: 股份轉換 每1股凱基證券換發本公司1.2股 (STOCK). Precursor 公開收購 每股10元現金 is a tender, not the exit consideration",
+   "evidence_family": "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT",
+   "holder_cash": false,
+   "holder_security": true,
+   "issuer_status": "PUBLIC_SECURITY_ID_ESTABLISHED_VIA_RENAME_LINEAGE",
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_REACHED_RESOLVED_EARLIER",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+   },
+   "result": "STOCK_ONLY_ESTABLISHED",
+   "security_id": "6008",
+   "survivor": "中華開發金控→凱基金控",
+   "survivor_code": "2883"
+  },
+  {
+   "disappearing": "凌耀科技",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "survivor unlisted; successor MOPS N/A; STK003 outside vintage; surviving-issuer formal-filing family untested",
+   "holder_cash": null,
+   "holder_security": null,
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "ROUTING_UNRESOLVED"
+   },
+   "result": "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED",
+   "security_id": "3582",
+   "survivor": "台灣威世光電",
+   "survivor_code": null
+  },
+  {
+   "disappearing": "捷元",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "successor 重大訊息 tested: only post-formation admin notices, no 換股比例; op-co MOPS refused; prospectus/annual-report family applicable but untested (PDF)",
+   "holder_cash": null,
+   "holder_security": null,
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+   },
+   "result": "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED",
+   "security_id": "5384",
+   "survivor": "鑫聯大投控",
+   "survivor_code": "3709"
+  },
+  {
+   "disappearing": "連展",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "successor 重大訊息 tested (only setup/admin notices); prospectus/annual-report family applicable but untested",
+   "holder_cash": null,
+   "holder_security": null,
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+   },
+   "result": "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED",
+   "security_id": "5491",
+   "survivor": "連展投控",
+   "survivor_code": "3710"
+  },
+  {
+   "disappearing": "頂晶",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "successor 重大訊息 tested (only setup/admin notices); prospectus/annual-report family applicable but untested",
+   "holder_cash": null,
+   "holder_security": null,
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "NOT_APPLICABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "APPLICABLE_NOT_YET_TESTED",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "APPLICABLE_AND_TESTED",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "APPLICABLE_AND_TESTED"
+   },
+   "result": "CONSIDERATION_SOURCE_FAMILY_NOT_EXHAUSTED",
+   "security_id": "3562",
+   "survivor": "新晶投控",
+   "survivor_code": "3713"
+  },
+  {
+   "disappearing": "芮特-KY",
+   "event_class": "HOLDER_SIDE_REORGANIZATION_WITH_CONSIDERATION",
+   "evidence": "survivor is a foreign (Samoa/Cayman) holding company; every applicable TW first-party family is NOT_APPLICABLE or unavailable (op-co -KY MOPS refused; STK003 outside vintage; no domestic successor; foreign disclosure not publicly authoritative on any accessible TW surface)",
+   "holder_cash": null,
+   "holder_security": null,
+   "matrix": {
+    "FOREIGN_ISSUER_PUBLIC_DISCLOSURE": "SOURCE_PUBLICLY_UNAVAILABLE",
+    "SUCCESSOR_PROSPECTUS_OR_ANNUAL_REPORT": "NOT_APPLICABLE",
+    "SUCCESSOR_SIDE_MOPS_MATERIAL_ANNOUNCEMENT": "NOT_APPLICABLE",
+    "TDCC_STK003_MERGER_EXCHANGE_TABLE": "COVERAGE_OUTSIDE_EVENT_VINTAGE",
+    "TWSE_TPEX_DIRECTORY_AND_RENAME_LINEAGE": "NOT_APPLICABLE"
+   },
+   "result": "CONSIDERATION_PUBLIC_AUTHORITATIVE_BOUNDARY",
+   "security_id": "6514",
+   "survivor": "UMT Holdings (Samoa)",
+   "survivor_code": null
+  }
+ ],
+ "population_reconciliation": {
+  "CASH_ONLY": 22,
+  "MIXED": 3,
+  "PUBLIC_AUTHORITATIVE_BOUNDARY": 1,
+  "SOURCE_FAMILY_NOT_EXHAUSTED": 6,
+  "STOCK_ONLY": 27,
+  "total": 59
+ },
+ "prior_artefacts_rewritten": 0,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_unchanged": true,
+ "record": "B0_8_D7_4_RESIDUAL_CONSIDERATION_CLOSURE",
+ "replay_started": false,
+ "states_unchanged": true,
+ "stk003_first_party_confirmation": {
+  "2921": {
+   "exchange_ratio": "轉換為特力屋",
+   "in_stk003": true,
+   "survivor_raw": "未上市（興）櫃公司特力屋"
+  },
+  "6178": {
+   "exchange_ratio": "股份轉換為詮鼎科技公司，每1.33股振遠科技換詮鼎科技公司1股",
+   "in_stk003": true,
+   "survivor_raw": "6159詮鼎科技股份有限公司"
+  }
+ },
+ "termination_discovery_branch_reopened": false,
+ "third_party_mirrors_consulted": false
+}

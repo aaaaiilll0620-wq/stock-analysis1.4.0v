@@ -1,0 +1,124 @@
+{
+ "category_filter": "never sent -- all categories searched",
+ "category_role": "diagnostic metadata only, recovered after matching",
+ "classes": [
+  "STATIC_EVENT_DOCUMENT_UNIQUE",
+  "STATIC_EVENT_DOCUMENT_NONE",
+  "STATIC_EVENT_DOCUMENT_AMBIGUOUS",
+  "STATIC_EVENT_DOCUMENT_REQUEST_ERROR"
+ ],
+ "d6_4_router_preserved_historically": true,
+ "date_format": "AD YYYY/MM/DD",
+ "detail_surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/annDetail",
+ "fallback_inputs_forbidden": [
+  "TEJ narrative",
+  "company-name inference",
+  "counterparty name",
+  "holder terms"
+ ],
+ "field_presence_is_metadata_only": true,
+ "field_presence_markers": {
+  "cash_consideration": [
+   "現金",
+   "現金對價",
+   "每股現金",
+   "價款",
+   "收購價格",
+   "現金補償"
+  ],
+  "fractional_treatment": [
+   "不足一股",
+   "畸零股",
+   "零股",
+   "尾數",
+   "現金補償"
+  ],
+  "holder_effective_or_conversion_date": [
+   "基準日",
+   "合併基準日",
+   "股份轉換基準日",
+   "換股基準日",
+   "停止櫃檯買賣",
+   "最後交易日"
+  ],
+  "payment_or_credit_date": [
+   "發放",
+   "撥付",
+   "給付",
+   "領取",
+   "交付",
+   "開始換發",
+   "換發日期",
+   "上市買賣日"
+  ],
+  "stock_consideration": [
+   "換股比例",
+   "股份轉換比例",
+   "轉換比例",
+   "換發",
+   "每一股換發",
+   "配發",
+   "換發新股"
+  ],
+  "transaction_party": [
+   "合併",
+   "股份轉換",
+   "存續公司",
+   "消滅公司",
+   "控股公司",
+   "概括讓與",
+   "概括承受",
+   "股份有限公司"
+  ]
+ },
+ "frozen_before_corpus_requests": true,
+ "identity_fallback": "official body bytes, for rows whose subject is empty or carries no code at all; ordered by issuing unit 證櫃監字 first, then date and document number; cap 150",
+ "identity_primary": "security code present in the official index subject",
+ "j1_correction": {
+  "falsified_by": {
+   "3299": "證櫃監字第10702101681號 -- stock conversion consideration",
+   "8913": "證櫃監字第10800136464號 -- cash consideration"
+  },
+  "holder_values_materialized_in_d6_5": false,
+  "recorded": "TPEX_TERMINATION_BULLETIN_HOLDER_TERM_COVERAGE = UNKNOWN_CORPUS_WIDE",
+  "withdrawn": "TPEx termination bulletins do not carry holder terms"
+ },
+ "j2_d6_4_defects": {
+  "cate_4_as_mandatory_discovery_filter": "UNDERINCLUSIVE",
+  "evidence": "6514 -- bulletin exists in window, names the code, states the canonical stop date, not filed under cate=4",
+  "receiver_empty_returns_zero_rows": "CLIENT_REQUEST_CONFORMANCE_DEFECT"
+ },
+ "official_body_decoding": "declared charset first, then utf-8, big5, cp950 -- older eb_data documents are Big5 and .htm; decoding them as utf-8 made real bodies unmatchable and scored them NONE",
+ "population": "all 59 TPEx-lineage register events, no sampling",
+ "prohibited": [
+  "value extraction",
+  "canonicalization",
+  "RECONSTRUCTIBLE classification",
+  "CA rebuild",
+  "state rebuild",
+  "replay",
+  "NAV",
+  "performance",
+  "gates",
+  "dual extraction"
+ ],
+ "receiver_parameter": "never sent",
+ "record": "B0_8_D6_5_TPEX_STATIC_ARCHIVE_ROUTER",
+ "router_sha256": "fa39464f73ba23b525ae001bc8d39a0265a3276532dfa99ef03c8ad12b1ab3eb",
+ "selection_blind_to": [
+  "B0 holdings",
+  "claim exposure",
+  "8913",
+  "3299",
+  "expected terms",
+  "consideration type",
+  "replay usefulness",
+  "performance"
+ ],
+ "static_root": "https://www.tpex.org.tw/storage/eb_data/",
+ "supersedes_for_discovery_only": "f6fccd7e82085b931e87188bc8e414d88ae522cdd95258671c909540649a83ca",
+ "surface": "https://www.tpex.org.tw/www/zh-tw/bulletin/announcement",
+ "unique_rule": "the FETCHED body must establish the security and a termination/reorganization event; two qualifying bodies with different document numbers make the event AMBIGUOUS",
+ "window_back_days": 30,
+ "window_forward_days": 40
+}

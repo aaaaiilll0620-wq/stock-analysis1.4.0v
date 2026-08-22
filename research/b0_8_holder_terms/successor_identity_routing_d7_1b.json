@@ -1,0 +1,1019 @@
+{
+ "V10_positive_control": {
+  "agreements": 6,
+  "disagreements": [],
+  "is_not": "SUCCESSOR_DELIVERY_OR_CREDIT_DATE",
+  "its_date_field_is": "新股上市(櫃)日期 -> SUCCESSOR_TRADABLE_OR_LISTING_DATE",
+  "population_events_covered": 6,
+  "post_2009_equivalent_inferred": false,
+  "rows": 40,
+  "source": "TDCC 發行公司合併換票一覽表 (SM-STK003), ROC 93-97",
+  "used_as_identity_source": false
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_leg_source_hunting": false,
+ "code_resolution": {
+  "directories": [
+   "first-party TPEx code-to-legal-name bindings",
+   "MOPS company directory (ajax_autoComplete)"
+  ],
+  "forbidden": [
+   "TEJ",
+   "price history",
+   "market outcome",
+   "fuzzy name similarity"
+  ],
+  "mops_lookups_performed": 12,
+  "tpex_index_codes": 2416
+ },
+ "dual_extraction_started": false,
+ "extraction_rule": {
+  "anchored_on": "the document's own transaction-relation vocabulary",
+  "linkage_semantics_changed": false,
+  "name_boundary_from": "the relation construction, not a guess",
+  "relations": [
+   "ABSORBED_BY",
+   "BECOMES",
+   "MERGED_WITH",
+   "RECEIVES_SHARES",
+   "SHARES_EXCHANGED_FOR",
+   "SHARE_CONVERSION",
+   "SHARE_CONVERSION_BY",
+   "SHARE_CONVERSION_WITH",
+   "SURVIVOR_NAMED",
+   "TRANSFERRED_TO"
+  ],
+  "role_noise_blocklist": [
+   "股務代理",
+   "證券金融",
+   "證券集中保管",
+   "期貨交易所",
+   "櫃檯買賣中心",
+   "證券交易所",
+   "存託",
+   "簽證"
+  ],
+  "scope_order": [
+   "LINKED_BUNDLE",
+   "GATE_I_ESTABLISHED_CANDIDATES"
+  ]
+ },
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "nav_inspected": false,
+ "performance_inspected": false,
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D7_1B_SUCCESSOR_IDENTITY_ROUTING",
+ "replay_started": false,
+ "results": [
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "一等高科技股份有限公司",
+   "extraction_scope": "GATE_I_ESTABLISHED_CANDIDATES",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "華新科技股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "6157",
+   "security_id_established": false,
+   "stk003_agrees": true,
+   "stk003_control": {
+    "exchange_ratio": "每1000股換423.72股",
+    "new_share_listing_date": "93.08.06",
+    "survivor_code": "2492",
+    "survivor_name": "華新科技股份有限公司",
+    "survivor_raw": "2492華新科技股份有限公司"
+   },
+   "successor_candidates": [
+    "華新科技股份有限公司"
+   ],
+   "successor_legal_entity": "華新科技股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "MOPS_COMPANY_DIRECTORY",
+   "disappearing_entity": "博登股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [
+    {
+     "code": "1731",
+     "name": "美吾華"
+    }
+   ],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "美吾華股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "4110",
+   "security_id_established": true,
+   "stk003_agrees": true,
+   "stk003_control": {
+    "exchange_ratio": "每1000股換1000股",
+    "new_share_listing_date": "93.09.24",
+    "survivor_code": "1731",
+    "survivor_name": "美吾華股份有限公司",
+    "survivor_raw": "1731美吾華股份有限公司"
+   },
+   "successor_candidates": [
+    "美吾華股份有限公司"
+   ],
+   "successor_legal_entity": "美吾華股份有限公司",
+   "successor_security_id": "1731",
+   "successor_security_id_candidates": [
+    "1731"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "TPEX_CORPUS_BINDING",
+   "disappearing_entity": "亞洲證券股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "元大京華證券股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "6017",
+   "security_id_established": false,
+   "stk003_agrees": true,
+   "stk003_control": {
+    "exchange_ratio": "每1000股換434.7826股",
+    "new_share_listing_date": "93.10.28",
+    "survivor_code": "6004",
+    "survivor_name": "元大京華證券股份有限公司",
+    "survivor_raw": "6004元大京華證券股份有限公司"
+   },
+   "successor_candidates": [
+    "元大京華證券股份有限公司"
+   ],
+   "successor_legal_entity": "元大京華證券股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [
+    "6004",
+    "9826"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "廣大興業股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "鼎大興業股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5528",
+   "security_id_established": false,
+   "stk003_agrees": true,
+   "stk003_control": {
+    "exchange_ratio": "每1000股換560股",
+    "new_share_listing_date": "94.03.21",
+    "survivor_code": "2410",
+    "survivor_name": "鼎大興業股份有限公司",
+    "survivor_raw": "2410鼎大興業股份有限公司"
+   },
+   "successor_candidates": [
+    "鼎大興業股份有限公司"
+   ],
+   "successor_legal_entity": "鼎大興業股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "TPEX_CORPUS_BINDING",
+   "disappearing_entity": "立生半導體股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "敦南科技股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5436",
+   "security_id_established": true,
+   "stk003_agrees": true,
+   "stk003_control": {
+    "exchange_ratio": "每1000股換222股",
+    "new_share_listing_date": "94.06.01",
+    "survivor_code": "5305",
+    "survivor_name": "敦南科技股份有限公司",
+    "survivor_raw": "5305敦南科技股份有限公司"
+   },
+   "successor_candidates": [
+    "敦南科技股份有限公司"
+   ],
+   "successor_legal_entity": "敦南科技股份有限公司",
+   "successor_security_id": "5305",
+   "successor_security_id_candidates": [
+    "5305"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "TPEX_CORPUS_BINDING",
+   "disappearing_entity": "德鑫科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "致伸科技股份有限公司": [
+     "MERGED_WITH",
+     "SHARES_EXCHANGED_FOR"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5494",
+   "security_id_established": true,
+   "stk003_agrees": true,
+   "stk003_control": {
+    "exchange_ratio": "每1股德鑫公司換現金7.6667元及致伸科技公司0.4467股",
+    "new_share_listing_date": "95.06.19",
+    "survivor_code": "2336",
+    "survivor_name": "致伸科技股份有限公司",
+    "survivor_raw": "2336致伸科技股份有限公司"
+   },
+   "successor_candidates": [
+    "致伸科技股份有限公司"
+   ],
+   "successor_legal_entity": "致伸科技股份有限公司",
+   "successor_security_id": "4915",
+   "successor_security_id_candidates": [
+    "4915"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "泰林科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "南茂科技股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5466",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "南茂科技股份有限公司"
+   ],
+   "successor_legal_entity": "南茂科技股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "中日新科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "台灣顯示器股份有限公司": [
+     "ABSORBED_BY"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "8266",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "台灣顯示器股份有限公司"
+   ],
+   "successor_legal_entity": "台灣顯示器股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "TPEX_CORPUS_BINDING",
+   "disappearing_entity": "大眾綜合證券股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "台新綜合證券股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "6022",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "台新綜合證券股份有限公司"
+   ],
+   "successor_legal_entity": "台新綜合證券股份有限公司",
+   "successor_security_id": "8159",
+   "successor_security_id_candidates": [
+    "8159"
+   ],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "TPEX_CORPUS_BINDING",
+   "disappearing_entity": "力積電子股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "愛普科技股份有限公司": [
+     "ABSORBED_BY"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "3553",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "愛普科技股份有限公司"
+   ],
+   "successor_legal_entity": "愛普科技股份有限公司",
+   "successor_security_id": "6531",
+   "successor_security_id_candidates": [
+    "6531"
+   ],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "TPEX_CORPUS_BINDING",
+   "disappearing_entity": "瑞傳科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "振樺電子股份有限公司": [
+     "SHARE_CONVERSION_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "6105",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "振樺電子股份有限公司"
+   ],
+   "successor_legal_entity": "振樺電子股份有限公司",
+   "successor_security_id": "8114",
+   "successor_security_id_candidates": [
+    "8114"
+   ],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "光燿科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "永崴投資控股股份有限公司": [
+     "BECOMES",
+     "SHARES_EXCHANGED_FOR"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "3428",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "永崴投資控股股份有限公司"
+   ],
+   "successor_legal_entity": "永崴投資控股股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "崴強科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "永崴投資控股股份有限公司": [
+     "BECOMES",
+     "SHARES_EXCHANGED_FOR"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "6298",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "永崴投資控股股份有限公司"
+   ],
+   "successor_legal_entity": "永崴投資控股股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "百略醫學科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "滿得投資股份有限公司": [
+     "ABSORBED_BY"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "4103",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "滿得投資股份有限公司"
+   ],
+   "successor_legal_entity": "滿得投資股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "TPEX_CORPUS_BINDING",
+   "disappearing_entity": "帛漢股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "凱美電機股份有限公司": [
+     "BECOMES",
+     "SHARES_EXCHANGED_FOR"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "3299",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "凱美電機股份有限公司"
+   ],
+   "successor_legal_entity": "凱美電機股份有限公司",
+   "successor_security_id": "5317",
+   "successor_security_id_candidates": [
+    "5317"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "美桀科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "奇力新電子股份有限公司": [
+     "ABSORBED_BY"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5255",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "奇力新電子股份有限公司"
+   ],
+   "successor_legal_entity": "奇力新電子股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "捷邦國際科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "5392"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "應華精密科技股份有限公司": [
+     "BECOMES",
+     "SHARES_EXCHANGED_FOR"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "1566",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "應華精密科技股份有限公司"
+   ],
+   "successor_legal_entity": "應華精密科技股份有限公司",
+   "successor_security_id": "5392",
+   "successor_security_id_candidates": [
+    "5392"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "安成國際藥業股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "加陳國際藥業股份有限公司": [
+     "SHARE_CONVERSION_BY"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "4180",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "加陳國際藥業股份有限公司"
+   ],
+   "successor_legal_entity": "加陳國際藥業股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "凱美電機股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "2375"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "智寶電子股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5317",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "智寶電子股份有限公司"
+   ],
+   "successor_legal_entity": "智寶電子股份有限公司",
+   "successor_security_id": "2375",
+   "successor_security_id_candidates": [
+    "2375"
+   ],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "全銓租賃股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "宏育管理顧問股份有限公司": [
+     "ABSORBED_BY"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "8913",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "宏育管理顧問股份有限公司"
+   ],
+   "successor_legal_entity": "宏育管理顧問股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "昂寶電子股份有限公司",
+   "extraction_scope": null,
+   "identity_established": false,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {},
+   "role_noise_rejected": [],
+   "security_id": "4947",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [],
+   "successor_legal_entity": null,
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": null,
+   "disappearing_entity": "台灣微脂體股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [],
+   "mops_directory_error": null,
+   "mops_directory_hits": [],
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "森投資股份有限公司": [
+     "SHARE_CONVERSION_BY"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "4152",
+   "security_id_established": false,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "森投資股份有限公司"
+   ],
+   "successor_legal_entity": "森投資股份有限公司",
+   "successor_security_id": null,
+   "successor_security_id_candidates": [],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "聚紡股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "4433"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "興采實業股份有限公司": [
+     "BECOMES"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "4429",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "興采實業股份有限公司"
+   ],
+   "successor_legal_entity": "興采實業股份有限公司",
+   "successor_security_id": "4433",
+   "successor_security_id_candidates": [
+    "4433"
+   ],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "日盛金融控股股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "2881"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "富邦金融控股股份有限公司": [
+     "MERGED_WITH"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5820",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "富邦金融控股股份有限公司"
+   ],
+   "successor_legal_entity": "富邦金融控股股份有限公司",
+   "successor_security_id": "2881",
+   "successor_security_id_candidates": [
+    "2881"
+   ],
+   "transaction_leg": "MIXED_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "展匯科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "6684"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "安格科技股份有限公司": [
+     "BECOMES"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "6594",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "安格科技股份有限公司"
+   ],
+   "successor_legal_entity": "安格科技股份有限公司",
+   "successor_security_id": "6684",
+   "successor_security_id_candidates": [
+    "6684"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "大峽谷半導體照明系統(開曼)股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "4972"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "湯石照明科技股份有限公司": [
+     "RECEIVES_SHARES"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "5281",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "湯石照明科技股份有限公司"
+   ],
+   "successor_legal_entity": "湯石照明科技股份有限公司",
+   "successor_security_id": "4972",
+   "successor_security_id_candidates": [
+    "4972"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "兆遠科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "6488"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "環球晶圓股份有限公司": [
+     "BECOMES"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "4944",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "環球晶圓股份有限公司"
+   ],
+   "successor_legal_entity": "環球晶圓股份有限公司",
+   "successor_security_id": "6488",
+   "successor_security_id_candidates": [
+    "6488"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "明揚國際科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "8938"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "明安國際企業股份有限公司": [
+     "BECOMES"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "8420",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "明安國際企業股份有限公司"
+   ],
+   "successor_legal_entity": "明安國際企業股份有限公司",
+   "successor_security_id": "8938",
+   "successor_security_id_candidates": [
+    "8938"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "紘康科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "2363"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "矽統科技股份有限公司": [
+     "BECOMES"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "6457",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "矽統科技股份有限公司"
+   ],
+   "successor_legal_entity": "矽統科技股份有限公司",
+   "successor_security_id": "2363",
+   "successor_security_id_candidates": [
+    "2363"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  },
+  {
+   "code_resolution_source": "IN_DOCUMENT_CODE_LABEL",
+   "disappearing_entity": "陞達科技股份有限公司",
+   "extraction_scope": "LINKED_BUNDLE",
+   "identity_established": true,
+   "in_document_successor_codes": [
+    "2436"
+   ],
+   "mops_directory_error": null,
+   "mops_directory_hits": null,
+   "provenance": "DISCOVERY_METADATA_ONLY",
+   "relations_found": {
+    "偉詮電子股份有限公司": [
+     "BECOMES"
+    ]
+   },
+   "role_noise_rejected": [],
+   "security_id": "4945",
+   "security_id_established": true,
+   "stk003_agrees": null,
+   "stk003_control": null,
+   "successor_candidates": [
+    "偉詮電子股份有限公司"
+   ],
+   "successor_legal_entity": "偉詮電子股份有限公司",
+   "successor_security_id": "2436",
+   "successor_security_id_candidates": [
+    "2436"
+   ],
+   "transaction_leg": "STOCK_LEG_PRESENT"
+  }
+ ],
+ "routing_sha256": "5b8252d70c38fd0587a59578aa88e06eda3c9df219932ac0a8f3c932ae260c53",
+ "states_unchanged": true,
+ "summary": {
+  "identity": {
+   "ESTABLISHED": 29,
+   "UNRESOLVED": 1
+  },
+  "identity_but_no_code": [
+   "3428",
+   "4103",
+   "4152",
+   "4180",
+   "5255",
+   "5466",
+   "5528",
+   "6017",
+   "6157",
+   "6298",
+   "8266",
+   "8913"
+  ],
+  "population": 30,
+  "security_id": {
+   "ESTABLISHED": 17,
+   "UNRESOLVED": 13
+  },
+  "unresolved_identity": [
+   "4947"
+  ]
+ },
+ "supersedes": {
+  "artefact": "stock_leg_population_d7_1a.json",
+  "block": "V3_successor_routing only",
+  "d7_1a_census_sha256": "227500e66df0b56c28888e742887358b69f28436abc1aa9e664eaa03d5b729d5",
+  "defect_in_d7_1a": "successor was taken as 'all validated entities minus the disappearing lineage', which returns registrars, the central depository and securities-finance companies, and inherited the leading-noise problem of open-ended name extraction",
+  "v2_leg_census_unaffected": true
+ },
+ "termination_discovery_branch_reopened": false
+}

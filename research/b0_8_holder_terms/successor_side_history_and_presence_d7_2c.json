@@ -1,0 +1,2947 @@
+{
+ "X6_enumeration": {
+  "candidate_vocabulary": [
+   "合併",
+   "股份轉換",
+   "概括承受",
+   "受讓",
+   "讓與",
+   "收購",
+   "存續",
+   "消滅",
+   "換股",
+   "換發",
+   "轉換股份"
+  ],
+  "distinct_survivors_enumerated": 22,
+  "domestic_coded_but_history_unavailable": [
+   "6017",
+   "5528",
+   "3299"
+  ],
+  "events_with_route_actually_tested": 20,
+  "history_unavailable_reason": "survivor later ceased public issuance / delisted; MOPS returns 不繼續公開發行, the survivor-side analogue of D7.0b-2's disappearing-issuer refusal",
+  "no_silent_cap": "every candidate body was fetched; none dropped",
+  "range_is_uniform_not_windowed_on_event_date": true,
+  "roc_year_range": [
+   90,
+   113
+  ],
+  "surface": "MOPS 歷史重大訊息 ajax_t05st01 (survivor issuer)",
+  "total_index_rows_enumerated": 19778
+ },
+ "X7_linkage_rule": {
+  "insufficient_alone": [
+   "same successor issuer",
+   "generic 新股/換股",
+   "nearby date",
+   "plausible ratio",
+   "market outcome"
+  ],
+  "sufficient": [
+   "disappearing issuer full legal name in body",
+   "distinctive stem of disappearing legal name in body",
+   "disappearing security code labelled in body"
+  ]
+ },
+ "X8_presence_rule": {
+  "credit_vs_listing_kept_separate": true,
+  "fields": [
+   "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD",
+   "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD",
+   "STOCK_CONVERSION_RATIO_FIELD",
+   "TRANSACTION_EFFECTIVE_DATE_FIELD",
+   "FRACTIONAL_SHARE_TREATMENT_FIELD"
+  ],
+  "values_materialised": false
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_term_values_extracted": false,
+ "canonical_holder_terms_materialized": false,
+ "cash_leg_source_hunting": false,
+ "dual_extraction_started": false,
+ "gates_evaluated": false,
+ "inputs": {
+  "d7_2b_routing_sha256": "0fe8e9c82aafdbe99a5ef79eca860442ff1211009b1a5027fa3cd6ef7616b475"
+ },
+ "network_requests_made": 301,
+ "per_event": [
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 26,
+   "disappearing_entity": "一等高科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 1,
+   "mops_full_history_index_rows": 924,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "db17593bf1ef1624d92949928124a9feaafe90832aa3f16ba2c79d936c401d8e",
+     "date": "93/02/11",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20040211",
+     "subject": "華新科技與一等高科技合併案"
+    }
+   ],
+   "security_id": "6157",
+   "successor_legal_entity": "華新科技股份有限公司",
+   "successor_security_id": "2492",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 26
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 7,
+   "disappearing_entity": "博登股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 3,
+   "mops_full_history_index_rows": 549,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "7e1b12bfbc58bbf9f0c1c427a2c8786eb0beeea03073e444060e54de78b2187c",
+     "date": "93/04/22",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20040422",
+     "subject": "本公司董事會決議通過與博登股份有限公司合併案"
+    },
+    {
+     "body_sha256": "a2ab7a9d95f9b36b5290449467db25b4ae2f839f3bd83bc1b3e64a40a2f5ed38",
+     "date": "93/08/25",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20040825",
+     "subject": "公告本公司董事會決議通過與博登股份有限公司之合併基準日"
+    },
+    {
+     "body_sha256": "723fe0d924039561611810b220fcfd7a6babb9a9071d907efa5434b464c8a925",
+     "date": "97/06/13",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": true,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [
+        "上市(櫃)日期"
+       ],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "7",
+     "spoke_date": "20080613",
+     "subject": "本公司董事會通過與「博登公司」合併案。"
+    }
+   ],
+   "security_id": "4110",
+   "successor_legal_entity": "美吾華股份有限公司",
+   "successor_security_id": "1731",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "SUCCESSOR_TRADABLE_FIELD_PRESENT_ONLY",
+   "transaction_vocab_candidates": 7
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 0,
+   "disappearing_entity": "亞洲證券股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "6017",
+   "successor_legal_entity": "元大京華證券股份有限公司",
+   "successor_security_id": "6004",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": false,
+   "taxonomy": "SUCCESSOR_SIDE_MOPS_HISTORY_UNAVAILABLE_ISSUER_NO_LONGER_PUBLIC",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 0,
+   "disappearing_entity": "廣大興業股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "5528",
+   "successor_legal_entity": "鼎大興業股份有限公司",
+   "successor_security_id": "2410",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": false,
+   "taxonomy": "SUCCESSOR_SIDE_MOPS_HISTORY_UNAVAILABLE_ISSUER_NO_LONGER_PUBLIC",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 0,
+   "disappearing_entity": "立生半導體股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 0,
+   "route_tested": true,
+   "same_transaction_linked_docs": [],
+   "security_id": "5436",
+   "successor_legal_entity": "敦南科技股份有限公司",
+   "successor_security_id": "5305",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_NOT_FOUND_ON_TESTED_AUTHORITATIVE_ROUTE",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 2,
+   "disappearing_entity": "德鑫科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 943,
+   "route_tested": true,
+   "same_transaction_linked_docs": [],
+   "security_id": "5494",
+   "successor_legal_entity": "致伸科技股份有限公司",
+   "successor_security_id": "4915",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_NOT_FOUND_ON_TESTED_AUTHORITATIVE_ROUTE",
+   "transaction_vocab_candidates": 2
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 17,
+   "disappearing_entity": "泰林科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 2,
+   "mops_full_history_index_rows": 565,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "1606bf62c35a81500871a27b31d53897a6ab2fd9e4769ee59c1e89365adcec64",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": true,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [
+        "上櫃日期"
+       ],
+       "ratio": [
+        "合併換股比例",
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "8",
+     "spoke_date": "20141112",
+     "subject": "公告本公司董事會決議通過與泰林科技股份有限公司合併案"
+    },
+    {
+     "body_sha256": "65fcab9880359d6f35d2cf6173e0bc30535137b5623617d4f9fcb0505a78069d",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20141230",
+     "subject": "本公司股東臨時會通過與泰林科技股份有限公司合併案，\n特對債權人公告。"
+    }
+   ],
+   "security_id": "5466",
+   "successor_legal_entity": "南茂科技股份有限公司",
+   "successor_security_id": "8150",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "SUCCESSOR_TRADABLE_FIELD_PRESENT_ONLY",
+   "transaction_vocab_candidates": 17
+  },
+  {
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "8266",
+   "successor_legal_entity": "台灣顯示器股份有限公司",
+   "successor_security_id": null,
+   "successor_security_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "taxonomy": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 0,
+   "disappearing_entity": "大眾綜合證券股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 0,
+   "route_tested": true,
+   "same_transaction_linked_docs": [],
+   "security_id": "6022",
+   "successor_legal_entity": "台新綜合證券股份有限公司",
+   "successor_security_id": "8159",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_NOT_FOUND_ON_TESTED_AUTHORITATIVE_ROUTE",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 9,
+   "disappearing_entity": "力積電子股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 6,
+   "mops_full_history_index_rows": 436,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "3be998292c225491b695d66a003aa2fc4ba74ff8a1b02bf49bbb748a28560220",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20160902",
+     "subject": "本公司公開收購力積電子股份有限公司普通股股份"
+    },
+    {
+     "body_sha256": "cfeec3f42550071427885ad24ba5a6a4485143e9ed011b598fd847dde5b73028",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20160902",
+     "subject": "公告本公司董事會決議通過公開收購力積電子股份有限公司之普通股股份"
+    },
+    {
+     "body_sha256": "f3b3c4e72ab3578170f91d94cf31cd99cc7a3f713aff4deabb0f7a3a63f04488",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20160907",
+     "subject": "本公司公開收購力積電子股份有限公司普通股股份補充說明"
+    },
+    {
+     "body_sha256": "173555944334279eac43443e174155b87d20f024484b0983189066fbc81a4766",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME",
+      "DISAPPEARING_SECURITY_CODE"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20161025",
+     "subject": "公告本公司公開收購力積電子股份有限公司普通股，公開收購條件已成就"
+    },
+    {
+     "body_sha256": "0e85771c3a632731eb2ca8b107b48c46be1d631368842c5fed00069888f18f0d",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": [
+        "撥入"
+       ]
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20161025",
+     "subject": "公告本公司公開收購力積電子股份有限公司普通股之公開收購期間屆滿"
+    },
+    {
+     "body_sha256": "d4d085addc66a0cff777375f3e55c6cb438fcb6dfc32854836511c4e0f17ad2a",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20170316",
+     "subject": "本公司擬進行以現金為對價之股份轉換方式，取得力積電子股份\n有限公司百分之百股份案"
+    }
+   ],
+   "security_id": "3553",
+   "successor_legal_entity": "愛普科技股份有限公司",
+   "successor_security_id": "6531",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 9
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 3,
+   "disappearing_entity": "瑞傳科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 2,
+   "mops_full_history_index_rows": 624,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "58055847852ae9b04242c393e7da6a9300de7614d404649d44b1499383e35b9e",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "4",
+     "spoke_date": "20170714",
+     "subject": "公告本公司與瑞傳科技股份有限公司之股份轉換案"
+    },
+    {
+     "body_sha256": "200711fa6e868e24896ae8a993b5b21e6abbb131b907b1278cbc65e514ef8e56",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME",
+      "DISAPPEARING_SECURITY_CODE"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": true,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [
+        "掛牌"
+       ],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "3",
+     "spoke_date": "20170714",
+     "subject": "本公司與瑞傳科技股份有限公司進行股份轉換之重大訊息\n說明記者會主要內容"
+    }
+   ],
+   "security_id": "6105",
+   "successor_legal_entity": "振樺電子股份有限公司",
+   "successor_security_id": "8114",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "SUCCESSOR_TRADABLE_FIELD_PRESENT_ONLY",
+   "transaction_vocab_candidates": 3
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 5,
+   "disappearing_entity": "光燿科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 392,
+   "route_tested": true,
+   "same_transaction_linked_docs": [],
+   "security_id": "3428",
+   "successor_legal_entity": "永崴投資控股股份有限公司",
+   "successor_security_id": "3712",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_NOT_FOUND_ON_TESTED_AUTHORITATIVE_ROUTE",
+   "transaction_vocab_candidates": 5
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 5,
+   "disappearing_entity": "崴強科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 2,
+   "mops_full_history_index_rows": 392,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "0227d82cafe221a4af43d11dc17e20eee02b4b4fda4b921e401f1462cf9d9041",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_NAME_STEM"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20191213",
+     "subject": "代子公司崴強科技(股)公司100%持股之AIT、GIT、GS及GOI\n等4家子公司公告董事會決議進行合併"
+    },
+    {
+     "body_sha256": "03cdd74d71d63f98eb588af2f55d8d4a24afa06c26f9dc773db4d19aab9cbb73",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "5",
+     "spoke_date": "20191216",
+     "subject": "代子公司崴強科技股份有限公司100%持股之AIT、GIT、GS及\nGOI等4家子公司公告股東會決議合併案\n事項"
+    }
+   ],
+   "security_id": "6298",
+   "successor_legal_entity": "永崴投資控股股份有限公司",
+   "successor_security_id": "3712",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 5
+  },
+  {
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "4103",
+   "successor_legal_entity": "滿得投資股份有限公司",
+   "successor_security_id": null,
+   "successor_security_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "taxonomy": "DOMESTIC_NON_ISSUER_NO_SUCCESSOR_SIDE_SECURITY_ROUTE",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 0,
+   "disappearing_entity": "帛漢股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "3299",
+   "successor_legal_entity": "凱美電機股份有限公司",
+   "successor_security_id": "5317",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": false,
+   "taxonomy": "SUCCESSOR_SIDE_MOPS_HISTORY_UNAVAILABLE_ISSUER_NO_LONGER_PUBLIC",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "5255",
+   "successor_legal_entity": "奇力新電子股份有限公司",
+   "successor_security_id": null,
+   "successor_security_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "taxonomy": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 17,
+   "disappearing_entity": "捷邦國際科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 4,
+   "mops_full_history_index_rows": 843,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "f7386fde4b8d7a21f22658be539eefaabe3ca367dda9f6c523fa1656883facb2",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": true,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [
+        "掛牌"
+       ],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20190128",
+     "subject": "應華精密科技股份有限公司與捷邦國際科技股份有限公司\n股份轉換案"
+    },
+    {
+     "body_sha256": "8353d49ebb3a4954b6bddcd370975bb20e23a8be326d11dc941fca299f346703",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": true,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [
+        "掛牌"
+       ],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "6",
+     "spoke_date": "20190128",
+     "subject": "補充說明-\n應華精密科技股份有限公司與捷邦國際科技股份有限公司\n股份轉換案"
+    },
+    {
+     "body_sha256": "40ef8b6a4108297947e85b3557ed3dd46c91c74fafd3b9c7f2ae4c37f144cf9d",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20190613",
+     "subject": "公告本公司與捷邦國際科技股份有限公司股份轉換案之\n股份轉換基準日相關事宜。"
+    },
+    {
+     "body_sha256": "9a458f480ba3114100d4d2203d684c50873fb46f5fa902238660044f812a10d3",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": true,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [
+        "上櫃日期"
+       ],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20190613",
+     "subject": "本公司與捷邦國際科技股份有限公司股份轉換案調整增資發行股數"
+    }
+   ],
+   "security_id": "1566",
+   "successor_legal_entity": "應華精密科技股份有限公司",
+   "successor_security_id": "5392",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "SUCCESSOR_TRADABLE_FIELD_PRESENT_ONLY",
+   "transaction_vocab_candidates": 17
+  },
+  {
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "4180",
+   "successor_legal_entity": "加陳國際藥業股份有限公司",
+   "successor_security_id": null,
+   "successor_security_status": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "taxonomy": "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 15,
+   "disappearing_entity": "凱美電機股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 0,
+   "mops_full_history_index_rows": 845,
+   "route_tested": true,
+   "same_transaction_linked_docs": [],
+   "security_id": "5317",
+   "successor_legal_entity": "智寶電子股份有限公司",
+   "successor_security_id": "2375",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_NOT_FOUND_ON_TESTED_AUTHORITATIVE_ROUTE",
+   "transaction_vocab_candidates": 15
+  },
+  {
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "8913",
+   "successor_legal_entity": "宏育管理顧問股份有限公司",
+   "successor_security_id": null,
+   "successor_security_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "taxonomy": "DOMESTIC_NON_ISSUER_NO_SUCCESSOR_SIDE_SECURITY_ROUTE",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "4947",
+   "successor_legal_entity": null,
+   "successor_security_id": null,
+   "successor_security_status": "FOREIGN_OR_NON_ROC_SUCCESSOR",
+   "taxonomy": "FOREIGN_SUCCESSOR_ROUTE_REQUIRED",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "mops_full_history_index_rows": 0,
+   "route_tested": false,
+   "same_transaction_linked_docs": [],
+   "security_id": "4152",
+   "successor_legal_entity": "森投資股份有限公司",
+   "successor_security_id": null,
+   "successor_security_status": "DOMESTIC_ENTITY_NO_PUBLIC_SECURITY",
+   "taxonomy": "DOMESTIC_NON_ISSUER_NO_SUCCESSOR_SIDE_SECURITY_ROUTE",
+   "transaction_vocab_candidates": 0
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 16,
+   "disappearing_entity": "聚紡股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 15,
+   "mops_full_history_index_rows": 293,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "b10ef706fba40d240ff3f161e2084b3f31d7b13f67f2dc749e43805c9ceb8a14",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_NAME_STEM",
+      "DISAPPEARING_SECURITY_CODE"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20200320",
+     "subject": "興采董事會決議通過公開收購聚紡40%股權"
+    },
+    {
+     "body_sha256": "c37b6bf0c2f60255430dc63b2079db11d9dc2de44d5471392110c58858c058c9",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "4",
+     "spoke_date": "20200320",
+     "subject": "本公司公開收購聚紡股份有限公司之普通股股份。"
+    },
+    {
+     "body_sha256": "6b2e9e3ea55592bb5bb181330a2eaa81aceaef85e42a41b4eb2ee7ee5588af59",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "撥付",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": [
+        "帳簿劃撥"
+       ]
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20200323",
+     "subject": "公告本公司公開收購聚紡股份有限公司之普通股股份"
+    },
+    {
+     "body_sha256": "55d9e1138525f233ec93ca57c6717f261e92914459ef7f7fc879bdcfc992707c",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20200323",
+     "subject": "公告本公司公開收購聚紡股份有限公司普通股之預定總收購價金已匯入受委\n任機構名下之公開收購專戶"
+    },
+    {
+     "body_sha256": "a89bed711d462a0f4b6a4dcac6be4aeebe6d1c081f5aa52749b3b38c1b93be3f",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME",
+      "DISAPPEARING_SECURITY_CODE"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20200325",
+     "subject": "公告本公司公開收購聚紡股份有限公司普通股，已達最低收購數量，公開收購條\n件已成就。"
+    },
+    {
+     "body_sha256": "9bcfcfaf40fbffd4c34b11a7c652e9a516e660da2289a5707acb8fcfaa67309f",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME",
+      "DISAPPEARING_SECURITY_CODE"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20200408",
+     "subject": "公告本公司公開收購聚紡股份有限公司普通股，公開收購條件已成就，且　 \n應賣有價證券數量超過預定收購最高數量。"
+    },
+    {
+     "body_sha256": "65722582a381fd80264cf6366823c9b110945edae34ac82ef6c9a1e3c8953c91",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "撥付",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20200413",
+     "subject": "公告公開收購人公開收購聚紡股份有限公司普通股之公開收購期間屆滿(更新版)"
+    },
+    {
+     "body_sha256": "1fd1cf64e15a7edf58b4c52a49576fa77a0fd1cb84ef4af591a9cb86d4cfd176",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "3",
+     "spoke_date": "20211027",
+     "subject": "本公司董事會決議通過與聚紡股份有限公司股份轉換案，\n擬發行新股"
+    },
+    {
+     "body_sha256": "52941acd7021db65e6ae8bb2737c1b6f4f18ef74107bfc1e80f6484f1ded17eb",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例",
+        "股份轉換比例",
+        "轉換比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "7",
+     "spoke_date": "20211027",
+     "subject": "本公司董事會決議通過股份轉換案與簽署股份轉換契約"
+    },
+    {
+     "body_sha256": "af3a4a7775e1eef6da562efeafe11a171805853b147f46a11e8c266835f96070",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "3",
+     "spoke_date": "20211110",
+     "subject": "公告本公司董事會決議變更與聚紡股份有限公司\n股份轉換案之時程並取消召集110年第一次股東臨時會"
+    },
+    {
+     "body_sha256": "78174ee2ecdd42677bbc4243a4a879836e2a03292c244f7eb3674cfeca2eb0d2",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220112",
+     "subject": "本公司董事會決議通過與聚紡股份有限公司股份轉換案，\n擬發行新股(補充說明111/1/12董事會再次決議結果)"
+    },
+    {
+     "body_sha256": "96c12cfecdd81c82647e9b05b0cc37cd99690971a23a9fa7330ae7cb8c4e593c",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "3",
+     "spoke_date": "20220112",
+     "subject": "本公司董事會再次決議通過股份轉換案"
+    },
+    {
+     "body_sha256": "c70d7f1df34e3992104e40418c5ab40f4f5a0235e50e74a2608856846f3b94e9",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20220301",
+     "subject": "本公司董事會再次決議通過股份轉換案(補充說明本股份\n轉換案業經111年3月1日股東臨時會決議通過)"
+    },
+    {
+     "body_sha256": "9226161c56cc6f0fd6726922f53c5f466f0e4f124d96f8e7def1604aa51a9d77",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220426",
+     "subject": "與聚紡公司股份轉換案，暫定111/5/31為股份轉換基準日"
+    },
+    {
+     "body_sha256": "b75e0ff0c49382694d759dd10e4d2717631c37fd995da9acbe488aae5e8d0e37",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": true,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [
+        "上櫃日期"
+       ],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20220520",
+     "subject": "公告本公司與聚紡股份有限公司股份轉換案\n調整增資發行股數"
+    }
+   ],
+   "security_id": "4429",
+   "successor_legal_entity": "興采實業股份有限公司",
+   "successor_security_id": "4433",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "SUCCESSOR_TRADABLE_FIELD_PRESENT_ONLY",
+   "transaction_vocab_candidates": 16
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 102,
+   "disappearing_entity": "日盛金融控股股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 12,
+   "mops_full_history_index_rows": 10172,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "b25109dfc01d86dfc50669a3520bce395df1e670037ac73f3c3c10f8d7d43537",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "撥付"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "8",
+     "spoke_date": "20201218",
+     "subject": "本公司董事會決議通過公開收購日盛金融控股股份有限公司\n普通股股份"
+    },
+    {
+     "body_sha256": "0366254042fd76ba4d888091e642fbc446ceffe02b0e22b28a3e08c08f1891c7",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "9",
+     "spoke_date": "20201218",
+     "subject": "富邦金控公開收購日盛金融控股股份有限公司普通股股份之說明"
+    },
+    {
+     "body_sha256": "cfba9c3e9033b67b182767484fec2efcbe302bb32c937379e31352f8b0742ccf",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "撥付"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20201219",
+     "subject": "本公司公告公開收購日盛金融控股股份有限公司普通股"
+    },
+    {
+     "body_sha256": "2c27506f867945f71963d3cd9af1e391fa3b5cb3f03a2a89dcd19f2d63711cf4",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20210112",
+     "subject": "公告本公司公開收購日盛金融控股股份有限公司普通股之公\n開收購說明書(修正)上傳事宜"
+    },
+    {
+     "body_sha256": "52643587fc176ecbd098cfde7f43e43921ea9b41bdca394d86bb151e82f740b2",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "3",
+     "spoke_date": "20210129",
+     "subject": "公告本公司延長公開收購日盛金融控股股份有限公司普通股之期間"
+    },
+    {
+     "body_sha256": "f79163f8144a764e18fe7047f70881385b68a784c78c1607b5f6519670ce2b63",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "6",
+     "spoke_date": "20210323",
+     "subject": "公告本公司公開收購日盛金融控股股份有限公司普通股，公開收購條件均已成就"
+    },
+    {
+     "body_sha256": "d3d80bcb20d850df939c57e167ea924ff38a2eba010adf0795d4a1cbbda1f3f4",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "撥付",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": [
+        "撥入"
+       ]
+      }
+     },
+     "seq_no": "7",
+     "spoke_date": "20210323",
+     "subject": "公告本公司公開收購日盛金融控股股份有限公司普通股之公開收購期間屆滿"
+    },
+    {
+     "body_sha256": "8b61f1bec7f8a5228776a320c30367027377ffbc5129ccab8c92f45d8a7f05c5",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20210324",
+     "subject": "公告本公司公開收購日盛金融控股股份有限公司普通股，本次收購對價已匯入受委任\n機構名下之公開收購專戶"
+    },
+    {
+     "body_sha256": "a9b3bcb9642acca0b0fe34017490d946d3e0678192d128bcae0e45e83805370b",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "5",
+     "spoke_date": "20210916",
+     "subject": "本公司董事會決議吸收合併日盛金融控股股份有限公司"
+    },
+    {
+     "body_sha256": "7a4b8bf78edaa529a6506c3bb31ef56feb8a5f1a70e617120f8dc7f71abeb1a6",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "8",
+     "spoke_date": "20220505",
+     "subject": "本公司董事會決議吸收合併日盛金融控股股份有限公司\n（補充110/9/16公告）"
+    },
+    {
+     "body_sha256": "1c2e5796e754dd5b589b0ab2c186723206d988a357e94a12695603b4e7554ec0",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "4",
+     "spoke_date": "20220920",
+     "subject": "富邦金控公告金融監督管理委員會銀行局核准本公司吸\n收合併日盛金融控股股份有限公司"
+    },
+    {
+     "body_sha256": "cacb96a52f4e06e927c2b33a23614cf20c2152c5ecb4b092a625d2e5b69c39d1",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "合併基準日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220922",
+     "subject": "本公司公告訂定與日盛金融控股股份有限公司合併基準日"
+    }
+   ],
+   "security_id": "5820",
+   "successor_legal_entity": "富邦金融控股股份有限公司",
+   "successor_security_id": "2881",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 102
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 5,
+   "disappearing_entity": "展匯科技股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 4,
+   "mops_full_history_index_rows": 218,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "7dc8f85b63b5ada6663bbe501bf3919cfcca93b1b9ae14750ca8896ab364b991",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "5",
+     "spoke_date": "20220824",
+     "subject": "本公司董事會決議通過與展匯科技股份有限公司股份轉換案，\n擬發行新股"
+    },
+    {
+     "body_sha256": "8e1751cfada370e83349760b257434251932a4f6f57901f3684cbf9cc1c52c08",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例",
+        "股份轉換比例",
+        "轉換比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "6",
+     "spoke_date": "20220824",
+     "subject": "本公司董事會決議發行新股與展匯科技股份有限公司進行\n股份轉換案"
+    },
+    {
+     "body_sha256": "c5530600685c59b34380464d3a506c4a6dadb849c199bccdab9ddf2b30f8b0c7",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20230113",
+     "subject": "公告本公司與展匯科技股份有限公司股份轉換案之股份轉換基準日"
+    },
+    {
+     "body_sha256": "7fd60f03dccd10235c98c40f4ee5de71f5ed448757f2a33a70f46b7d543c01a6",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20230317",
+     "subject": "公告本公司與展匯科技股份有限公司股份轉換案調整增資發行股數"
+    }
+   ],
+   "security_id": "6594",
+   "successor_legal_entity": "安格科技股份有限公司",
+   "successor_security_id": "6684",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 5
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 4,
+   "disappearing_entity": "大峽谷半導體照明系統(開曼)股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 2,
+   "mops_full_history_index_rows": 344,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "927c41db4e62a4fb8717977a4c6f46adc6cd0ede71bde2e98bb30dfe34cd6176",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例",
+        "股份轉換比例",
+        "轉換比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "6",
+     "spoke_date": "20230407",
+     "subject": "董事會決議與KY大峽谷進行併購暨股份轉換公告"
+    },
+    {
+     "body_sha256": "c3a6b3177cf1674d94428d884fad6ca24b44cce0944fe0363922ffa50215e2f6",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例",
+        "股份轉換比例",
+        "轉換比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "7",
+     "spoke_date": "20230407",
+     "subject": "代子公司TONS LIGHTOLOGY (CAYMAN) INC. \n(湯石照明100%子公司)公告董事會決議與KY大峽谷進行合併"
+    }
+   ],
+   "security_id": "5281",
+   "successor_legal_entity": "湯石照明科技股份有限公司",
+   "successor_security_id": "4972",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 4
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 27,
+   "disappearing_entity": "兆遠科技股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 4,
+   "mops_full_history_index_rows": 583,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "6de08e649d29c1816801f818232d3e3192824d968ca13774b8843d49387abab9",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例",
+        "股份轉換比例",
+        "轉換比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20230502",
+     "subject": "本公司董事會決議發行新股與兆遠科技股份有限公司\n進行股份轉換案"
+    },
+    {
+     "body_sha256": "4d2af1c51cc01c407f99b4f06a7c81e74b1d2c453fa6c7583737cb663e181ef1",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "3",
+     "spoke_date": "20230502",
+     "subject": "本公司董事會決議通過與兆遠科技股份有限公司\n股份轉換案，擬發行新股"
+    },
+    {
+     "body_sha256": "257a8632ff1fb7f0c838e1d722437e225ed5dca3aa80f77af4e2213bf5a241fb",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "4",
+     "spoke_date": "20230502",
+     "subject": "環球晶圓發行新股與兆遠科技進行股份轉換"
+    },
+    {
+     "body_sha256": "3e2f743fac910babb978a003b2e5570f35bfbd2dfc1f4702d6d116e1080601c3",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "不足一股",
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20230908",
+     "subject": "公告本公司與兆遠科技股份有限公司股份轉換案調整增資發行股數"
+    }
+   ],
+   "security_id": "4944",
+   "successor_legal_entity": "環球晶圓股份有限公司",
+   "successor_security_id": "6488",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 27
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 12,
+   "disappearing_entity": "明揚國際科技股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 5,
+   "mops_full_history_index_rows": 559,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "00dffdd719b20c9b3ca1a67629bfde92dead90f4c0669be39e96db0fabae300e",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "4",
+     "spoke_date": "20240415",
+     "subject": "公告本公司董事會決議通過與明揚國際科技股份\n有限公司股份轉換案"
+    },
+    {
+     "body_sha256": "b5563dd6c32b2aa74520983abcba564ee1beb0574aee208d87569c3e96d108c4",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "5",
+     "spoke_date": "20240415",
+     "subject": "公告本公司董事會決議通過以增資發行新股與明揚國際\n科技股份有限公司進行股份轉換案"
+    },
+    {
+     "body_sha256": "2925b0e2077eb7cb549d08499a07bd27f4850cd931f3a57b8263913123454557",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "4",
+     "spoke_date": "20240802",
+     "subject": "公告變更本公司與明揚國際科技股份有限公司股份轉換案\n之股份轉換基準日"
+    },
+    {
+     "body_sha256": "8bbfc62bd19c1d946283e170fd8e46ff5ef3d8fb3bab550d4713451c0ebe08cd",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20241008",
+     "subject": "公告變更本公司與明揚國際科技股份有限公司股份轉換案\n之股份轉換基準日為113年11月29日"
+    },
+    {
+     "body_sha256": "b387cd53e7f89356aa57c44e60cc54d7713aba1f15db59c31e59c81eb96928ec",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": true,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "股份轉換基準日",
+        "轉換基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": [
+        "帳簿劃撥",
+        "撥入"
+       ]
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20241101",
+     "subject": "公告本公司與明揚國際科技股份有限公司於股份轉換\n基準日後，明揚國際科技股份有限公司發行之國內第一次\n無擔保轉換公司債請求轉換程序"
+    }
+   ],
+   "security_id": "8420",
+   "successor_legal_entity": "明安國際企業股份有限公司",
+   "successor_security_id": "8938",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "SUCCESSOR_CREDIT_FIELD_PRESENT",
+   "transaction_vocab_candidates": 12
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 18,
+   "disappearing_entity": "紘康科技股份有限公司",
+   "holder_consideration_appears_cash_tender": false,
+   "linked_doc_count": 1,
+   "mops_full_history_index_rows": 731,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "eae7d8061dac7087c432b4ff2b2bca3515b8ad08695f15c4d73f3247ff30360a",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_NAME_STEM"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": false,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": true,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "SHARE_EXCHANGE",
+      "_labels_seen": {
+       "cash_disbursement": [],
+       "effective": [
+        "事實發生日",
+        "基準日",
+        "轉換基準日"
+       ],
+       "fractional": [
+        "畸零股",
+        "零股"
+       ],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20240806",
+     "subject": "公告本公司董事會決議通過以增資發行新股與紘康科技股份\n有限公司進行股份轉換案"
+    }
+   ],
+   "security_id": "6457",
+   "successor_legal_entity": "矽統科技股份有限公司",
+   "successor_security_id": "2363",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 18
+  },
+  {
+   "acquisition_error": null,
+   "candidate_bodies_fetched": 11,
+   "disappearing_entity": "陞達科技股份有限公司",
+   "holder_consideration_appears_cash_tender": true,
+   "linked_doc_count": 6,
+   "mops_full_history_index_rows": 365,
+   "route_tested": true,
+   "same_transaction_linked_docs": [
+    {
+     "body_sha256": "13c883818b6586a4bf6ad05972ea45708cd5678cdbfc4c61787a44b9fb3ff4bd",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "撥付",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220727",
+     "subject": "公告本公司董事會決議通過公開收購陞達科技股份有限公司普通股"
+    },
+    {
+     "body_sha256": "f779c13c8fa6c018f220f970813074535d7cd8e6b6682fbb2411bdd3cce226c2",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": true,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價",
+        "撥付",
+        "收購價款",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日",
+        "基準日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [
+        "換股比例"
+       ],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220728",
+     "subject": "公告本公司公開收購陞達科技股份有限公司之普通股股份"
+    },
+    {
+     "body_sha256": "1124d4ae6832347a76481cab7cddd2becc53e7906743e379eb3d30c096b4db65",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME",
+      "DISAPPEARING_SECURITY_CODE"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220810",
+     "subject": "公告本公司公開收購陞達科技股份有限公司普通股，公開收購條件均已成就"
+    },
+    {
+     "body_sha256": "5741397647f428f01e83c0093672f3cb335340f94b9c4a42f6b95528b1bfd384",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME",
+      "DISAPPEARING_SECURITY_CODE"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "2",
+     "spoke_date": "20220810",
+     "subject": "公告本公司公開收購陞達科技股份有限公司普通股，\n公開收購條件均已成就，且應賣有價證券數量達預定\n收購最高數量"
+    },
+    {
+     "body_sha256": "1abf9285bae184e308e51ea02c9536de86218cd8b572236062f84d643ba709d6",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "撥付",
+        "收購價款",
+        "現金對價"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": [
+        "撥入"
+       ]
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220817",
+     "subject": "公告本公司公開收購陞達科技股份有限公司普通股之公開收購期間屆滿"
+    },
+    {
+     "body_sha256": "74daf116adaf56d65717e507d0f119311c00d5761c4f18a98d2e039f4f430bfa",
+     "date": "",
+     "linkage_evidence": [
+      "DISAPPEARING_LEGAL_NAME"
+     ],
+     "presence": {
+      "CASH_CONSIDERATION_DISBURSEMENT_FIELD_cash_leg": true,
+      "FRACTIONAL_SHARE_TREATMENT_FIELD": false,
+      "STOCK_CONVERSION_RATIO_FIELD": false,
+      "SUCCESSOR_DELIVERY_OR_CREDIT_DATE_FIELD": false,
+      "SUCCESSOR_TRADABLE_OR_LISTING_DATE_FIELD": false,
+      "TRANSACTION_EFFECTIVE_DATE_FIELD": true,
+      "_doc_type": "TENDER_OFFER",
+      "_labels_seen": {
+       "cash_disbursement": [
+        "匯入",
+        "對價",
+        "撥付"
+       ],
+       "effective": [
+        "事實發生日"
+       ],
+       "fractional": [],
+       "listing": [],
+       "ratio": [],
+       "share_delivery": []
+      }
+     },
+     "seq_no": "1",
+     "spoke_date": "20220818",
+     "subject": "公告本公司公開收購陞達科技股份有限公司普通股，本次收購對\n價已匯入受委任機構名下之公開收購專戶"
+    }
+   ],
+   "security_id": "4945",
+   "successor_legal_entity": "偉詮電子股份有限公司",
+   "successor_security_id": "2436",
+   "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+   "successor_side_mops_history_available": true,
+   "taxonomy": "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD",
+   "transaction_vocab_candidates": 11
+  }
+ ],
+ "presence_sha256": "c33dcfdbf83d10c99c31d5bb73beda362a74e86dd37697bb938d83c4e336f9d7",
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D7_2C_SUCCESSOR_SIDE_HISTORY_LINKAGE_PRESENCE",
+ "replay_started": false,
+ "states_unchanged": true,
+ "successor_identity_is": "DISCOVERY_METADATA_ONLY",
+ "taxonomy_counts": {
+  "DOMESTIC_NON_ISSUER_NO_SUCCESSOR_SIDE_SECURITY_ROUTE": 3,
+  "EVENT_LINKED_SUCCESSOR_DOCS_NOT_FOUND_ON_TESTED_AUTHORITATIVE_ROUTE": 5,
+  "EVENT_LINKED_SUCCESSOR_DOCS_PRESENT_NO_RELEVANT_DATE_FIELD": 9,
+  "FOREIGN_SUCCESSOR_ROUTE_REQUIRED": 1,
+  "SUCCESSOR_CREDIT_FIELD_PRESENT": 1,
+  "SUCCESSOR_SECURITY_ROUTING_UNRESOLVED": 3,
+  "SUCCESSOR_SIDE_MOPS_HISTORY_UNAVAILABLE_ISSUER_NO_LONGER_PUBLIC": 3,
+  "SUCCESSOR_TRADABLE_FIELD_PRESENT_ONLY": 5
+ },
+ "termination_discovery_branch_reopened": false,
+ "total_candidate_bodies_fetched": 301
+}

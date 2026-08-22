@@ -1,0 +1,54 @@
+{
+ "PRE_2005_CORPUS_READABLE_BY_INHERITED_PREDICATES": false,
+ "acquisition_sha256": "b27aba12a79a264ca1d9f845e2e1d58c049bd9be121c7f36c83b5f48815c4128",
+ "annDetail_pointer_state": {
+  "measured_from_bytes": true,
+  "pre_2005_locators": 13798,
+  "with_empty_structured_text": 13798,
+  "with_resolvable_downHtml": 13793
+ },
+ "artefacts_rewritten": 0,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "canonical_holder_terms_materialized": false,
+ "cash_settlement_acquisition": false,
+ "corrects": {
+  "acquisition_sha256": "9f805bd440eaf3c559969e498dbaa4369bac1314ac276c14d4ddea61a929481c",
+  "artefact": "pre2005_locator_acquisition_d6_8_2.json",
+  "claim_withdrawn": "ARCHIVE_COMPLETE = True",
+  "rewritten": false,
+  "why": "that pass acquired annDetail responses; for the pre-2005 population every one is a pointer with all structured fields empty. Requests returning is not a body being acquired (S7)"
+ },
+ "gates_evaluated": false,
+ "holder_term_values_extracted": false,
+ "next_decision_belongs_to_adjudication": "whether to extend the code predicate and the ROC-date extractor to Chinese numerals across all 71,961 documents, which changes what the whole corpus means and must be applied uniformly",
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D6_8_2_S6B_PRE2005_STATIC_BODY_ACQUISITION",
+ "replay_started": false,
+ "script_representation": {
+  "bodies_containing_arabic_digits": 6630,
+  "bodies_containing_cjk_numerals": 13778,
+  "note": "pre-2005 official text writes security codes and ROC dates in Chinese numerals; the inherited code predicate and the D6.7 role extractor read Arabic only",
+  "predicates_changed_here": false
+ },
+ "states_unchanged": true,
+ "static_body_acquisition": {
+  "acquired": 13792,
+  "bodies_with_empty_text": 1,
+  "error_detail": [
+   {
+    "doc_id": "OTIwMjAxMw==",
+    "error": "InvalidURL: URL can't contain control characters. '/storage/eb_data/9202/02920 .htm' (found at least ' ')",
+    "path": "/storage/eb_data/9202/02920 .htm"
+   }
+  ],
+  "errors_after_retry": 1,
+  "requested": 13793,
+  "text_length_max": 21151,
+  "text_length_median": 499,
+  "text_length_min": 0
+ },
+ "successor_side_acquisition": false,
+ "third_party_mirrors_consulted": false
+}

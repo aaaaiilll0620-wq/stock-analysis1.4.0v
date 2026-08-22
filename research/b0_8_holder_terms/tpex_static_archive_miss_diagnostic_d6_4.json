@@ -1,0 +1,39 @@
+{
+ "applies_to_router_sha256": "f6fccd7e82085b931e87188bc8e414d88ae522cdd95258671c909540649a83ca",
+ "misses": [
+  {
+   "canonical_event_date": "2024-10-09",
+   "cause": "FROZEN_CATEGORY_FILTER_TOO_NARROW",
+   "evidence": {
+    "document_number": "證櫃監字第11300087701號",
+    "found_in_cate_1_2_15": false,
+    "found_in_cate_4": false,
+    "found_with_cate_unset": true,
+    "publication_date_roc": "113/09/25",
+    "subject_excerpt": "公告芮特科技股份有限公司上櫃有價證券（股票代號：6514，下稱芮特-KY）應自113年10月9日起停止櫃檯買賣，並自113年10月18日起終..."
+   },
+   "reading": "the bulletin exists, sits inside the frozen window, names the security by code and states the exact canonical stop date -- but TPEx did not file it under cate=4 (變更交易方法、停止買賣、終止上櫃(股票)). The frozen category filter, not the archive, is what missed it.",
+   "security_id": "6514"
+  },
+  {
+   "canonical_event_date": "2017-09-25",
+   "cause": "NO_SUBJECT_LEVEL_CODE_MATCH_IN_WINDOW_IN_ANY_CATEGORY",
+   "evidence": {
+    "body_probing_beyond_cate_4": "NOT PERFORMED",
+    "found_in_cate_1_2_4_15": false,
+    "found_with_cate_unset": false
+   },
+   "reading": "no bulletin in the frozen window names 3553 by code in its subject, in any category. Whether the announcement lies outside the ±30/+40 window, or exists with a subject that omits the code, is NOT established: the body fallback probed only the 8 cate=4 rows, so an all-category body probe was never run. This is an open question, not a finding of absence.",
+   "security_id": "3553"
+  }
+ ],
+ "not_done": [
+  "router re-freezing",
+  "sample replacement",
+  "verdict change",
+  "scaling to other TPEx events"
+ ],
+ "record": "B0_8_D6_4_PRIMARY_MISS_DIAGNOSTIC",
+ "status": "DIAGNOSTIC ONLY -- the frozen router was NOT tuned and no verdict changed",
+ "why_this_exists": "H4 forbids replacement based on outcome, so the two primary misses stand. Their CAUSES are different, and adjudication needs that distinction to decide whether the router is under-inclusive or the record is silent."
+}

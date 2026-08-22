@@ -1,0 +1,2943 @@
+{
+ "ambiguous_reported_separately": 2,
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "cached_bodies_decoded": 10298,
+ "census_sha256": "50d9205ba2f2bcb59d83960f243024a4b6f0c7bf9559050c8c73580454def483",
+ "corpus_wide": {
+  "events_gaining_the_leg_from_the_cached_bundle": 0,
+  "events_with_a_settlement_marker_on_unestablished_doc": 4,
+  "events_with_any_cached_related_document": 29,
+  "reading": "coverage is unchanged. Markers were found on cached documents, but none has established same-transaction provenance and the temporal evidence contradicts it: the cached related documents sit a median of ~2,280 days BEFORE C and only one of 108 falls after C. They are earlier, unrelated transactions of the same issuer, cached because they sat in ANOTHER event's candidate pool. D7.0b acquisition is required.",
+  "related_documents_total": 105,
+  "settlement_leg_coverage_after_cached_bundle": 2,
+  "settlement_leg_coverage_before_bundle": 2,
+  "unique_events": 39,
+  "verdict": "CACHE_DOES_NOT_DEMONSTRATE_THE_BUNDLE_ROUTE",
+  "what_the_cache_DOES_establish": "the settlement document CLASS exists and TPEx publishes it. Cached subjects include 「…暨新股票開始換發及開始櫃檯買賣日期」 and 「…股款繳納憑證開始櫃檯買賣日期」 -- successor credit and tradability announcements filed separately from the termination bulletin. That is institutional evidence D7.0b can design a document-class window from, without reference to where any particular payment announcement was found."
+ },
+ "d6_6_census_sha256": "afe5bff9e409c4b92855b45a02f04f5d9f22ad436741530ce78a224a3c9cc347",
+ "dual_extraction_started": false,
+ "holder_terms_materialized": false,
+ "network_requests_issued": 0,
+ "population": "39/39 D6.6 UNIQUE events, uniform, no sampling",
+ "post_hoc_impact_diagnostic_8913": {
+  "bundle_coverage_gained": false,
+  "cached_documents_naming_it": 5,
+  "note": "reported after the corpus-wide result and used to select nothing; 8913 entered this census as one of 39",
+  "related_documents": 4,
+  "related_documents_with_settlement_leg": 1,
+  "security_id": "8913",
+  "why_not": "the marker-bearing cached document for 8913 is 證櫃監字第0950022728號, a 2006 name-change share re-issue, thirteen years before the 2020-01-14 boundary and a different transaction"
+ },
+ "reads_only_bytes_already_fetched_by": [
+  "D6.4",
+  "D6.5",
+  "D6.6"
+ ],
+ "reconstruction_classifications_changed": 0,
+ "reconstruction_schema_relaxed": false,
+ "record": "B0_8_D7_0A_CACHED_RELATED_DOCUMENT_CENSUS",
+ "replay_started": false,
+ "results": [
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2005-05-20",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "5436|holder_side_reorganization_exit|2005-05-20",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5436",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 4,
+   "canonical_event_date": "2006-09-28",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6178|holder_side_reorganization_exit|2006-09-28",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -553,
+     "document_number": "證櫃監字第0940006788號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月24日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告振遠科技股份有限公司（上櫃證券代號：6178）定期停止股東名簿記載之變更【即暫停股票（含債券換股權利證書）過戶】暨第二次國內無擔保可轉換公司債（上櫃證券代號：61782）停止轉換登記，請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -16,
+     "document_number": "證櫃監字第0950024036號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月12日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告振遠科技股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -14,
+     "document_number": "證櫃監字第0950203434號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月14日",
+     "publication_year": 2006,
+     "reorganization_markers": [
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告振遠科技股份有限公司（證券代號：6178）定期停止股東名簿記載之變更（即暫停股票過戶及暫停受理轉換公司債轉換）。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 3,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6178",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 10,
+   "canonical_event_date": "2008-09-19",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3298|holder_side_reorganization_exit|2008-09-19",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1277,
+     "document_number": "證櫃監字第0940006623號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月22日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告圓創科技股份有限公司（興櫃證券代號：3298）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1271,
+     "document_number": "證櫃監字第0940007393號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月28日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告大展證券股份有限公司自94年3月30日起開始新增為圓創科技股份有限公司（證券代號：3298）之興櫃股票推薦證券商。請　查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1291,
+     "document_number": "證櫃監字第0940005429號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月8日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告一銀證券股份有限公司自94年3月10日起開始新增為圓創科技股份有限公司（證券代號：3298）之興櫃股票推薦證券商。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1239,
+     "document_number": "證櫃監字第0940010669號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月29日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告日盛證券股份有限公司自94年5月5日起開始新增為圓創科技股份有限公司（證券代號：3298）之興櫃股票推薦證券商，請 查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1199,
+     "document_number": "證櫃交字第0940300471號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年6月8日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告證券商受託申購圓創科技股份有限公司初次上櫃普通股股票應行辦理事項。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -822,
+     "document_number": "證櫃監字第0950201791號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年6月20日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告圓創科技股份有限公司93年第1次員工認股權憑證首次換發之普通股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -731,
+     "document_number": "證櫃監字第0950203506號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月19日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告圓創科技股份有限公司95年度增資新股開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -23,
+     "document_number": "證櫃監字第0970201658號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年8月27日",
+     "publication_year": 2008,
+     "reorganization_markers": [
+      "合併",
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告圓創科技股份有限公司（證券代號：3298）定期停止股東名簿記載之變更（即暫停股票過戶）。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -15,
+     "document_number": "證櫃監字第0970024142號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月4日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "更正公告圓創科技股份有限公司（證券代號：3298）停止股東名簿記載變更起訖日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 9,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "3298",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 9,
+   "canonical_event_date": "2009-12-24",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "2921|holder_side_reorganization_exit|2009-12-24",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": true,
+     "days_from_canonical_event_date": -1743,
+     "document_number": "證櫃監字第0940006093號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": true,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月17日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告特力和樂股份有限公司（上櫃證券代號：2921）減資換發新股停止股東名簿記載之變更（即暫停股票過戶）、舊股票停止櫃檯買賣、暨新股票開始換發及開始櫃檯買賣日期。",
+     "termination_markers": [
+      "停止櫃檯買賣"
+     ]
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1739,
+     "document_number": "證櫃監字第0940006502號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月21日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告特力和樂股份有限公司（興櫃證券代號：2921）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1737,
+     "document_number": "證櫃監字第0940007086號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月23日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告台証綜合證券股份有限公司自94年3月25日起開始新增為特力和樂股份有限公司（證券代號：2921）之興櫃股票推薦證券商。請　查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1717,
+     "document_number": "證櫃監字94字0008957號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月12日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告特力和樂股份有限公司減資全面換發之普通股股票興櫃開始買賣日期。請　查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1662,
+     "document_number": "證櫃監字第0940200402號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年6月6日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告復華綜合證券股份有限公司自94年6月8日起開始新增為特力和樂股份有限公司（證券代號：2921）之興櫃股票推薦證券商，請 查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1213,
+     "document_number": "證櫃監字第0950022756號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年8月29日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告特力和樂股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -455,
+     "document_number": "證櫃監字第0970025936號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月25日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告特力和樂股份有限公司（股票代號：2921）97年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -6,
+     "document_number": "證櫃監字第0980202023號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國98年12月18日",
+     "publication_year": 2009,
+     "reorganization_markers": [
+      "合併"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告特力和樂股份有限公司（證券代號：2921）定期停止股東名簿記載之變更（即暫停股票過戶）。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 8,
+   "related_documents_carrying_a_settlement_marker": 1,
+   "security_id": "2921",
+   "settlement_marker_found_on_unestablished_provenance": true,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 6,
+   "canonical_event_date": "2012-01-17",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3389|holder_side_reorganization_exit|2012-01-17",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -18,
+     "document_number": "證櫃監字第1000034552號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國100年12月30日",
+     "publication_year": 2011,
+     "reorganization_markers": [
+      "合併",
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告志遠電子股份有限公司公司（證券代號：3389）停止股東名簿記載之變更（即暫停股票過戶）。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1181,
+     "document_number": "證櫃監字第0970028012號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年10月23日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告志遠電子股份有限公司（股票代號：3389）97年增資股股票開始櫃檯買賣日期。",
+     "termination_markers": [
+      "終止"
+     ]
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1204,
+     "document_number": "證櫃審字第0970101652號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月30日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告志遠電子股份有限公司初次申請上櫃普通股股票45,737,500股、97年度盈餘轉增資發行新股7,978,250股暨97年度現金增資股款繳納憑證5,331,000股，以一般類股開始櫃檯買賣日期，並自同日起終止該興櫃股票53,715,750股之櫃檯買賣。",
+     "termination_markers": [
+      "終止"
+     ]
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1229,
+     "document_number": "證櫃審字第0970101502號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月5日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告志遠電子股份有限公司（股票代號：3389）97年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": true,
+     "days_from_canonical_event_date": -715,
+     "document_number": "證櫃監字第0990002989號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": true,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國99年2月1日",
+     "publication_year": 2010,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告志遠電子股份有限公司（股票代號：3389）98年度現金增資股款繳納憑證開始櫃檯買賣日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 5,
+   "related_documents_carrying_a_settlement_marker": 1,
+   "security_id": "3389",
+   "settlement_marker_found_on_unestablished_provenance": true,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 6,
+   "canonical_event_date": "2012-12-26",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "8705|holder_side_reorganization_exit|2012-12-26",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2821,
+     "document_number": "證櫃監字第0940007968號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月6日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告東隆五金工業股份有限公司（上櫃證券代號：8705）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2277,
+     "document_number": "證櫃交字第0950303009號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年10月2日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "上櫃股票東隆（證券代號：8705），自95年10月3日起得為融資融券交易。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2280,
+     "document_number": "證櫃監字第0950026469號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月29日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告東隆五金工業股份有限公司95年度增資新股開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1545,
+     "document_number": "證櫃監字第0970026362號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年10月3日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告東隆五金工業股份有限公司（股票代號：8705）97年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1107,
+     "document_number": "證櫃監字第0980030273號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國98年12月15日",
+     "publication_year": 2009,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告建台水泥股份有限公司（公司代號：1107）等82家上（興）櫃公司（如下列公司）股務事項自98年12月19日起，由原委託台証綜合證券股份有限公司代理，改為委託台新國際商業銀行股份有限公司股務代理部（地址：台北市建國北路一段96號B1，電話02-25048125）代理。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 5,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "8705",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 6,
+   "canonical_event_date": "2013-01-08",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6008|holder_side_reorganization_exit|2013-01-08",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -27,
+     "document_number": "證櫃監字第1010201088號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國101年12月12日",
+     "publication_year": 2012,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告凱基證券股份有限公司（股票代號：6008）股務事項自101年12月17日起，由原自辦股務事務，改為委託大華證券股份有限公司（地址：台北市重慶南路一段2號5樓）代理。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2843,
+     "document_number": "證櫃監字第0940007208號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月28日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告中信證券股份有限公司（上櫃證券代號：6008）定期停止股東名簿記載之變更【即暫停股票（含債券換股權利證書）過戶】暨第一次海外無擔保可轉換公司債停止轉換登記，請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2302,
+     "document_number": "證櫃監字第0950025570號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月20日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告中信證券股份有限公司註銷買回股票完成日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1576,
+     "document_number": "證櫃監字第0970024627號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月15日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告凱基證券股份有限公司（證券代號：6008；原名：中信證券股份有限公司）更名全面換發股票後之普通股股票2,538,086,216股自97年9月17日起在證券商營業處所買賣。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1574,
+     "document_number": "證櫃監字第0970201868號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月17日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "更正公告本中心97年9月15日證櫃監字第0970024627號有關凱基證券股份有限公司（證券代號：6008；原名：中信證券股份有限公司）更名全面換發股票乙案，其上櫃股票類別應更正為「金融業類」。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 5,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6008",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 6,
+   "canonical_event_date": "2015-06-05",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "5466|holder_side_reorganization_exit|2015-06-05",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3731,
+     "document_number": "證櫃監字第0940006088號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月18日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告泰林科技股份有限公司（上櫃證券代號：5466）定期停止股東名簿記載之變更【即暫停股票（含債券換股權利證書）過戶】暨第二次國內有擔保可轉換公司債（上櫃證券代號：54662）停止轉換登記，請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3662,
+     "document_number": "證櫃交字第0940300379號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年5月26日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "上櫃股票世界（證券代號：5347）、茂德（證券代號：5387）、泰林（證券代號：5466）、合晶（證券代號：6182）、胡連（證券代號：6279），自94年5月27日起得為融資融券交易。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3192,
+     "document_number": "證櫃監字第0950203334號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月8日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告泰林科技股份有限公司92年度私募增資股股票補辦公開發行後開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2747,
+     "document_number": "證櫃監字第0960035265號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國96年11月27日",
+     "publication_year": 2007,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告泰林科技股份有限公司註銷買回股票完成日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2424,
+     "document_number": "證櫃監字第0970027515號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年10月15日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告泰林科技股份有限公司註銷買回股票完成日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 5,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5466",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 3,
+   "canonical_event_date": "2016-11-16",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3658|holder_side_reorganization_exit|2016-11-16",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -28,
+     "document_number": "證櫃交字第10503010471號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國105年10月19日",
+     "publication_year": 2016,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "本中心櫃買「富櫃五十指數」成分股異動。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2,
+     "document_number": "證櫃交字第10503011321號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國105年11月14日",
+     "publication_year": 2016,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "本中心櫃買「富櫃五十指數」成分股異動。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 2,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "3658",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 4,
+   "canonical_event_date": "2017-08-22",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "5384|holder_side_reorganization_exit|2017-08-22",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -8,
+     "document_number": "證櫃監字第10602008821號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國106年8月14日",
+     "publication_year": 2017,
+     "reorganization_markers": [
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "更正本中心106年8月11日證櫃監字第10600220621號公告有關捷元股份有限公司（證券代號：5384）依據企業併購法規定股份轉換為鑫聯大投資控股股份有限公司子公司之相關事宜。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4555,
+     "document_number": "證櫃監字第0940004614號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月3日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告捷元股份有限公司（上櫃證券代號：5384）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4080,
+     "document_number": "證櫃監字第0950014777號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年6月21日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告捷元股份有限公司註銷買回股票完成日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 3,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5384",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 5,
+   "canonical_event_date": "2017-10-11",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6105|holder_side_reorganization_exit|2017-10-11",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4612,
+     "document_number": "證櫃債字第0940004327號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年2月24日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告瑞傳科技股份有限公司國內第二次無擔保轉換公司債(簡稱：瑞傳二;代碼：61052)首次換發之普通股股票開始上櫃買賣日期，請　查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4571,
+     "document_number": "證櫃監字94字0007729號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月6日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告瑞傳科技股份有限公司（上櫃證券代號：6105）定期停止股東名簿記載之變更【即暫停股票（含債券換股權利證書）過戶】暨第二次國內無擔保可轉換公司債（上櫃證券代號：61052）停止轉換登記，請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4046,
+     "document_number": "證櫃監字第0950024705號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月13日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告瑞傳科技股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3320,
+     "document_number": "證櫃監字第0970201779號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月8日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告瑞傳科技股份有限公司（股票代號：6105）97年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 4,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6105",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 5,
+   "canonical_event_date": "2017-12-19",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "5491|holder_side_reorganization_exit|2017-12-19",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4646,
+     "document_number": "證櫃監字第0940007458號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月31日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告連展科技股份有限公司（上櫃證券代號：5491）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4183,
+     "document_number": "證櫃交字第0950017430號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年7月7日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告證券商受託申購連展科技股份有限公司95年度現金增資普通股股票應行辦理事項。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4102,
+     "document_number": "證櫃監字第0950025985號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月26日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告連展科技股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3367,
+     "document_number": "證櫃監字第0970202028號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月30日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告連展科技股份有限公司（股票代號：5491）97年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 4,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5491",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 2,
+   "canonical_event_date": "2018-05-24",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6554|holder_side_reorganization_exit|2018-05-24",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -531,
+     "document_number": "證櫃審字第10500349191號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國105年12月9日",
+     "publication_year": 2016,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "外國發行人中美冠科生物技術股份有限公司(Crown Bioscience International)初次申請上櫃普通股股票131,381,992股、員工認股權憑證轉換發行新股470,325股及現金增資發行新股13,120,000股，合計144,972,317股，以一般類股開始櫃檯買賣日期，並自同日起終止該興櫃股票131,852,317股之櫃檯買賣。",
+     "termination_markers": [
+      "終止"
+     ]
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6554",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 6,
+   "canonical_event_date": "2018-06-07",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3068|holder_side_reorganization_exit|2018-06-07",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -10,
+     "document_number": "證櫃交字第10700135221號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國107年5月28日",
+     "publication_year": 2018,
+     "reorganization_markers": [
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告香港商麥格理資本股份有限公司等5家發行人發行以美磊科技股份有限公司（以下簡稱美磊公司）普通股股票（股票代號：3068）為標的之8檔認購權證，自107年6月7日起停止交易，並於107年6月13日恢復交易，相關內容如公告事項。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4803,
+     "document_number": "證櫃監字第0940008818號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月13日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告美磊科技股份有限公司（興櫃證券代號：3068）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4243,
+     "document_number": "證櫃監字第0950204120號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年10月25日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告兆豐證券股份有限公司自95年10月27日起開始新增為美磊科技股份有限公司（證券代號：3068）之興櫃股票推薦證券商。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4395,
+     "document_number": "證櫃監字第0950201540號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年5月26日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告一銀證券股份有限公司自95年5月30日起開始新增為美磊科技股份有限公司（證券代號：3068）之興櫃股票推薦證券商。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3075,
+     "document_number": "證櫃監字第0990200002號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國99年1月5日",
+     "publication_year": 2010,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告美磊科技股份有限公司員工認股權憑證首次換發之普通股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 5,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "3068",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 2,
+   "canonical_event_date": "2018-09-18",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3428|holder_side_reorganization_exit|2018-09-18",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -7,
+     "document_number": "證櫃交字第10700257101號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國107年9月11日",
+     "publication_year": 2018,
+     "reorganization_markers": [
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告第一金證券股份有限公司等7家發行人發行以光燿科技股份有限公司（以下簡稱光燿公司）普通股股票（上櫃股票代號：3428）為標的之17檔認購權證，自107年9月18日起停止交易，並於107年10月1日恢復交易，相關內容如公告事項。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "3428",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 8,
+   "canonical_event_date": "2018-09-18",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6298|holder_side_reorganization_exit|2018-09-18",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -7,
+     "document_number": "證櫃交字第10700257103號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國107年9月11日",
+     "publication_year": 2018,
+     "reorganization_markers": [
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告康和綜合證券股份有限公司等4家發行人發行以崴強科技股份有限公司（以下簡稱崴強公司）普通股股票（上櫃股票代號：6298）為標的之4檔認購權證，自107年9月18日起停止交易，並於107年10月1日恢復交易，相關內容如公告事項。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4934,
+     "document_number": "證櫃監字第0940005935號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月16日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告崴強科技股份有限公司（興櫃證券代號：6298）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4932,
+     "document_number": "證櫃監字第0940006595號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月18日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告寶來證券股份有限公司自94年3月21日起開始新增為崴強科技股份有限公司（證券代號：6298）之興櫃股票推薦證券商。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4381,
+     "document_number": "證櫃交字第0950302909號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月20日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "上櫃股票崴強（證券代號：6298），自95年9月21日起得為融資融券交易。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": true,
+     "days_from_canonical_event_date": -4393,
+     "document_number": "證櫃監字第0950203296號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": true,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月8日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告崴強科技股份有限公司92年度員工認股權憑證轉換發之股款繳納憑證開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4393,
+     "document_number": "證櫃監字第0950203299號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月8日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告崴強科技股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3654,
+     "document_number": "證櫃監字第0970201845號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月16日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告崴強科技股份有限公司（股票代號：6298）97年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 7,
+   "related_documents_carrying_a_settlement_marker": 1,
+   "security_id": "6298",
+   "settlement_marker_found_on_unestablished_provenance": true,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 6,
+   "canonical_event_date": "2018-11-22",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3299|holder_side_reorganization_exit|2018-11-22",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -15,
+     "document_number": "證櫃交字第10700523261號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國107年11月07日",
+     "publication_year": 2018,
+     "reorganization_markers": [
+      "股份轉換"
+     ],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告凱基證券股份有限公司等2家發行人發行以帛漢股份有限公司（以下簡稱帛漢公司）普通股股票（股票代號：3299）為標的之2檔認購（售）權證，自107年11月22日起停止交易，並於107年11月29日恢復交易，相關內容如公告事項。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4966,
+     "document_number": "證櫃監字第0940009277號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月18日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告帛漢股份有限公司（興櫃證券代號：3299）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4556,
+     "document_number": "證櫃交字第0950301547號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年6月2日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "上櫃股票帛漢（證券代號：3299），自95年6月5日起得為融資融券交易。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4445,
+     "document_number": "證櫃監字第0950203569號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月21日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告帛漢股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4003,
+     "document_number": "證櫃監字第0960203754號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國96年12月7日",
+     "publication_year": 2007,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告帛漢股份有限公司93年度員工認股權憑證首次換發之普通股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 5,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "3299",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 2,
+   "canonical_event_date": "2018-11-22",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "5255|holder_side_reorganization_exit|2018-11-22",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -8,
+     "document_number": "證櫃監字第10700315291號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國107年11月14日",
+     "publication_year": 2018,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "美桀科技股份有限公司（公司代號：5255）股務事項自108年1月10日起，由原委託台新國際商業銀行股份有限公司代理，改為委託元富證券股份有限公司（地址：台北市復興南路一段二0九號一至三樓）代理。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5255",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 4,
+   "canonical_event_date": "2019-07-25",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "1566|holder_side_reorganization_exit|2019-07-25",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -5215,
+     "document_number": "證櫃監字94字0009101號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月14日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告毅金工業股份有限公司（興櫃證券代號：1566）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4676,
+     "document_number": "證櫃監字第0950203771號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年10月5日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告毅金工業股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -3468,
+     "document_number": "證櫃審字第0990100121號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國99年1月25日",
+     "publication_year": 2010,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告中國信託綜合證券股份有限公司自99年1月26日起開始新增為毅金工業股份有限公司（證券代號：1566）之興櫃股票推薦證券商。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 3,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "1566",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2019-07-30",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "4180|holder_side_reorganization_exit|2019-07-30",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "4180",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 4,
+   "canonical_event_date": "2019-09-18",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "5317|holder_side_reorganization_exit|2019-09-18",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -342,
+     "document_number": "證櫃交字第10703100201號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國107年10月11日",
+     "publication_year": 2018,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "本中心櫃買「富櫃五十指數」107年10月份季度審核結果。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -5283,
+     "document_number": "證櫃監字第0940007770號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月1日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告凱美電機股份有限公司（上櫃證券代號：5317）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4012,
+     "document_number": "證櫃監字第0970025469號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月23日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告凱美電機股份有限公司（股票代號：5317）97年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 3,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5317",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 6,
+   "canonical_event_date": "2019-11-21",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "1787|holder_side_reorganization_exit|2019-11-21",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -5356,
+     "document_number": "證櫃交字第0940006984號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": true,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月23日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告證券商受託申購福盈科技化學股份有限公司初次上櫃普通股股票應行辦理事項。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -5347,
+     "document_number": "證櫃監字第0940007768號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月1日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告福盈科技化學股份有限公司（興櫃證券代號：1787）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4804,
+     "document_number": "證櫃監字第0950025901號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月26日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告福盈科技化學股份有限公司95年度增資股股票開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4826,
+     "document_number": "證櫃交字第0950302721號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年9月4日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "上櫃股票福盈科（證券代號：1787），自95年9月5日起得為融資融券交易。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4397,
+     "document_number": "證櫃監字第0960033717號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國96年11月7日",
+     "publication_year": 2007,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告福盈科技化學股份有限公司（股票代號：1787）96年增資股股票開始櫃檯買賣日期。",
+     "termination_markers": [
+      "終止"
+     ]
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 5,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "1787",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": true
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 5,
+   "canonical_event_date": "2020-01-14",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "8913|holder_side_reorganization_exit|2020-01-14",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -5391,
+     "document_number": "證櫃監字94字0008375號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月11日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告華夏租賃股份有限公司（上櫃證券代號：8913）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4989,
+     "document_number": "證櫃交字第0950301368號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年5月18日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告茂迪、元隆電子、華夏租賃股份有限公司股票處置措施及期間。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": true,
+     "days_from_canonical_event_date": -4886,
+     "document_number": "證櫃監字第0950022728號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": true,
+      "payment_or_credit_date": true,
+      "stock_consideration": true,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國95年8月29日",
+     "publication_year": 2006,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告華夏資融股份有限公司公司（上櫃證券代號：8913；原名華夏租賃股份有限公司）因更名全面換發新股，停止股東名簿記載之變更（即暫停股票過戶），暨新股票開始換發及開始櫃檯買賣日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4123,
+     "document_number": "證櫃交字第0970303441號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國97年9月30日",
+     "publication_year": 2008,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告東浦(證券代號：3290）、立衛(證券代號：5344)、國眾(證券代號：5410)、華夏租(證券代號：8913)等4種上櫃有價證券，自97年10月2日起恢復融資融券交易。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 4,
+   "related_documents_carrying_a_settlement_marker": 1,
+   "security_id": "8913",
+   "settlement_marker_found_on_unestablished_provenance": true,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2020-02-17",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3562|holder_side_reorganization_exit|2020-02-17",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "3562",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 8,
+   "canonical_event_date": "2020-06-11",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6238|holder_side_reorganization_exit|2020-06-11",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1360,
+     "document_number": "證櫃視字第10512016621號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國105年9月20日",
+     "publication_year": 2016,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告倚強科技股份有限公司股票、勝麗國際股份有限公司股票勝麗國際國內第三次有擔保轉換公司債及勝麗國際國內第四次無擔保轉換公司債處置措施及期間。",
+     "termination_markers": [
+      "停止買賣"
+     ]
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -20,
+     "document_number": "證櫃交字第10903005361號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國109年05月22日",
+     "publication_year": 2020,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "有關櫃買「富櫃200指數」成分股異動。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -20,
+     "document_number": "證櫃交字第10903005362號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國109年05月22日",
+     "publication_year": 2020,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "有關櫃買「富櫃50指數」成分股異動。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2,
+     "document_number": "證櫃交字第10903006381號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國109年06月09日",
+     "publication_year": 2020,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "有關櫃買「富櫃50指數」成分股異動。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -5533,
+     "document_number": "證櫃監字第0940009214號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月18日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告巨圖科技股份有限公司（上櫃證券代號：6238）定期停止股東名簿記載之變更【即暫停股票（含債券換股權利證書）過戶】暨第一次國內有擔保可轉換公司債（上櫃證券代號：62381）停止轉換登記，請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4609,
+     "document_number": "證櫃監字第0960032306號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國96年10月29日",
+     "publication_year": 2007,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告巨圖科技股份有限公司註銷買回股票完成日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4606,
+     "document_number": "證櫃監字第0960203510號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國96年11月1日",
+     "publication_year": 2007,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告普揚聯合科技股份有限公司等3家公司之有價證券變更交易方法及天剛資訊股份有限公司等15家公司之有價證券繼續變更交易方法並採每30分鐘撮合1次之分盤方式交易，自96年11月5日起實施。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 7,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6238",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 2,
+   "canonical_event_date": "2020-10-29",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "5349|holder_side_reorganization_exit|2020-10-29",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -5680,
+     "document_number": "證櫃監字94字0008604號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月11日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告先豐通訊股份有限公司（上櫃證券代號：5349）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5349",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 3,
+   "canonical_event_date": "2021-09-30",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "4152|holder_side_reorganization_exit|2021-09-30",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -2488,
+     "document_number": "證櫃視字第10312014171號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國103年12月8日",
+     "publication_year": 2014,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告台灣微脂體股份有限公司股票、百徽國內第二次有擔保轉換公司債處置措施及期間。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -463,
+     "document_number": "證櫃視字第10912018381號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國109年06月24日",
+     "publication_year": 2020,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告台灣微脂體股份有限公司股票、崇佑股份有限公司股票、安國國際科技股份有限公司股票處置措施及期間。",
+     "termination_markers": [
+      "停止買賣"
+     ]
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 2,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "4152",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2021-10-14",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "2928|holder_side_reorganization_exit|2021-10-14",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "2928",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 3,
+   "canonical_event_date": "2021-12-14",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "3144|holder_side_reorganization_exit|2021-12-14",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -6129,
+     "document_number": "證櫃監字第0940004874號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月4日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告新揚科技股份有限公司（上櫃證券代號：3144）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -6012,
+     "document_number": "證櫃交字第0940300691號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年6月29日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "上櫃股票協禧（證券代號：3071）、新揚科（證券代號：3144），自94年6月30日起得為融資融券交易。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 2,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "3144",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": true
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2022-04-21",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "8406|holder_side_reorganization_exit|2022-04-21",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "8406",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 2,
+   "canonical_event_date": "2022-05-25",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "4429|holder_side_reorganization_exit|2022-05-25",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -4544,
+     "document_number": "證櫃監字第0980030273號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國98年12月15日",
+     "publication_year": 2009,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告建台水泥股份有限公司（公司代號：1107）等82家上（興）櫃公司（如下列公司）股務事項自98年12月19日起，由原委託台証綜合證券股份有限公司代理，改為委託台新國際商業銀行股份有限公司股務代理部（地址：台北市建國北路一段96號B1，電話02-25048125）代理。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "4429",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 2,
+   "canonical_event_date": "2023-03-24",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6594|holder_side_reorganization_exit|2023-03-24",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -1044,
+     "document_number": "證櫃視字第10912012631號",
+     "establishes_termination": true,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國109年05月14日",
+     "publication_year": 2020,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告精確實業股份有限公司股票、同致電子企業股份有限公司股票、撼訊科技股份有限公司股票、撼訊科技股份有限公司國內第四次無擔保轉換公司債、展匯科技股份有限公司股票處置措施及期間。",
+     "termination_markers": [
+      "停止買賣"
+     ]
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6594",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2024-01-25",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "8418|holder_side_reorganization_exit|2024-01-25",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "8418",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2024-10-09",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6514|holder_side_reorganization_exit|2024-10-09",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6514",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 3,
+   "canonical_event_date": "2024-11-21",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "8420|holder_side_reorganization_exit|2024-11-21",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -422,
+     "document_number": "證櫃監字第11202026241號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國112年09月26日",
+     "publication_year": 2023,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告明揚國際科技股份有限公司（下稱明揚公司）上櫃之有價證券，自112年9月28日起證券經紀商於接受委託買賣時，應先收足款券始得辦理買賣，其普通股股票並自同日起暫停融資融券交易，惟了結交易不在此限。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -24,
+     "document_number": "證櫃監字第11300096091號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國113年10月28日",
+     "publication_year": 2024,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告明揚國際科技股份有限公司（股票代號：8420）股務事項自113年11月18日起，由原委託台新綜合證券股份有限公司代理，改為委託凱基證券股份有限公司（地址：台北市重慶南路一段2號5樓）代理。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 2,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "8420",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 2,
+   "canonical_event_date": "2024-12-26",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6457|holder_side_reorganization_exit|2024-12-26",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -903,
+     "document_number": "證櫃交字第11103011431號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": false
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國111年07月07日",
+     "publication_year": 2022,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告櫃買「富櫃50指數」、「富櫃200指數」及「半導體領航報酬指數」111年7月份季度審核結果。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6457",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2025-09-02",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "4945|holder_side_reorganization_exit|2025-09-02",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "4945",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2025-11-27",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "6747|holder_side_reorganization_exit|2025-11-27",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "6747",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 1,
+   "canonical_event_date": "2026-05-21",
+   "classification": "STATIC_EVENT_DOCUMENT_UNIQUE",
+   "event_id": "4987|holder_side_reorganization_exit|2026-05-21",
+   "related_document_summaries": [],
+   "related_documents_beyond_the_bulletin": 0,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "4987",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 3,
+   "canonical_event_date": "2005-03-09",
+   "classification": "STATIC_EVENT_DOCUMENT_AMBIGUOUS",
+   "event_id": "5528|holder_side_reorganization_exit|2005-03-09",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": 2,
+     "document_number": "證櫃監字第0940005887號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月11日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "更正本中心前於94年3月7日以證櫃監字第0940005395號公告廣大興業股份有限公司（上櫃證券代號：5528）定期停止股東名簿記載之變更（即暫停股票過戶）公告事項內容，請　查照。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 1,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5528",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  },
+  {
+   "bundle_coverage_gained": false,
+   "cached_documents_naming_this_security": 4,
+   "canonical_event_date": "2006-06-07",
+   "classification": "STATIC_EVENT_DOCUMENT_AMBIGUOUS",
+   "event_id": "5494|holder_side_reorganization_exit|2006-06-07",
+   "related_document_summaries": [
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -446,
+     "document_number": "證櫃監字第0940006536號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年3月18日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告德鑫科技股份有限公司註銷買回股票完成日期。",
+     "termination_markers": []
+    },
+    {
+     "carries_settlement_leg_marker": false,
+     "days_from_canonical_event_date": -422,
+     "document_number": "證櫃監字94字0008725號",
+     "establishes_termination": false,
+     "field_presence": {
+      "cash_consideration": false,
+      "fractional_treatment": false,
+      "holder_effective_or_conversion_date": false,
+      "payment_or_credit_date": false,
+      "stock_consideration": false,
+      "transaction_party": true
+     },
+     "is_the_discovered_termination_bulletin": false,
+     "publication_date": "中華民國94年4月11日",
+     "publication_year": 2005,
+     "reorganization_markers": [],
+     "same_transaction_provenance": "UNESTABLISHED",
+     "subject": "公告德鑫科技股份有限公司（上櫃證券代號：5494）定期停止股東名簿記載之變更（即暫停股票過戶），請  查照。",
+     "termination_markers": []
+    }
+   ],
+   "related_documents_beyond_the_bulletin": 2,
+   "related_documents_carrying_a_settlement_marker": 0,
+   "security_id": "5494",
+   "settlement_marker_found_on_unestablished_provenance": false,
+   "termination_bulletin_carries_the_settlement_leg": false
+  }
+ ],
+ "settlement_leg_sources_found": [
+  {
+   "document_number": "證櫃監字第0940006093號",
+   "publication_date": "中華民國94年3月17日",
+   "security_id": "2921",
+   "subject": "公告特力和樂股份有限公司（上櫃證券代號：2921）減資換發新股停止股東名簿記載之變更（即暫停股票過戶）、舊股票停止櫃檯買賣、暨新股票開始換發及開始櫃檯買賣日期。"
+  },
+  {
+   "document_number": "證櫃監字第0990002989號",
+   "publication_date": "中華民國99年2月1日",
+   "security_id": "3389",
+   "subject": "公告志遠電子股份有限公司（股票代號：3389）98年度現金增資股款繳納憑證開始櫃檯買賣日期。"
+  },
+  {
+   "document_number": "證櫃監字第0950203296號",
+   "publication_date": "中華民國95年9月8日",
+   "security_id": "6298",
+   "subject": "公告崴強科技股份有限公司92年度員工認股權憑證轉換發之股款繳納憑證開始櫃檯買賣日期。"
+  },
+  {
+   "document_number": "證櫃監字第0950022728號",
+   "publication_date": "中華民國95年8月29日",
+   "security_id": "8913",
+   "subject": "公告華夏資融股份有限公司公司（上櫃證券代號：8913；原名華夏租賃股份有限公司）因更名全面換發新股，停止股東名簿記載之變更（即暫停股票過戶），暨新股票開始換發及開始櫃檯買賣日期。"
+  }
+ ],
+ "settlement_leg_under_test": "payment_or_credit_date",
+ "states_unchanged": true,
+ "values_extracted": false,
+ "window_defined_or_changed": false,
+ "window_note": "the cache is whatever the frozen [C-30d, C+40d] termination-document window happened to reach; any RELATED_SETTLEMENT_DOCUMENT_WINDOW is D7.0b's to derive from document-class timing, not from where a particular payment announcement was found"
+}

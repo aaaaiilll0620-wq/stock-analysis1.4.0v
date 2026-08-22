@@ -1,0 +1,463 @@
+{
+ "3582_6514_fetched": false,
+ "accounting_reconciliation": {
+  "EVENT_FAMILY_RECORDS_BY_CONSIDERATION_CLASS": {
+   "ADMISSIBLE_NEGATIVE_EVIDENCE": 43,
+   "NON_DIAGNOSTIC_CONSIDERATION_UNKNOWN": 8,
+   "NON_DIAGNOSTIC_NON_STOCK": 11,
+   "SCHEMA_OR_EVENT_CLASS_CONFLICT": 1
+  },
+  "UNIQUE_EVENTS_BY_CONSIDERATION_CLASS": {
+   "CONFIRMED_NON_STOCK": 11,
+   "CONFIRMED_STOCK_BEARING": 32,
+   "CONSIDERATION_UNKNOWN": 5,
+   "SCHEMA_OR_EVENT_CLASS_CONFLICT": 1
+  },
+  "disappearing_side_mops_correction": {
+   "corrected_disposition": "ROUTE_ERROR_OR_ACCESS_LIMITATION",
+   "prior_disposition_d8_2b_r1_r2": "SOURCE_FAMILY_OR_ROUTE_NOT_ESTABLISHED",
+   "reason": "the MOPS material-announcement family is well-established and D7.0b-2 documents 3 distinct attempted routes (R1 legacy ajax_t05st01, R3 v2 detail API, R4 signed redirect), all refused/dead for this population -- this is an access/coverage failure on an established family, not an unidentified route"
+  },
+  "event_family_records_detail": {
+   "ADMISSIBLE_NEGATIVE_EVIDENCE": [
+    "4110",
+    "6008",
+    "1566",
+    "4429",
+    "1311",
+    "5436",
+    "3299",
+    "4944",
+    "2343",
+    "5494",
+    "3428",
+    "4945",
+    "2366",
+    "5528",
+    "5317",
+    "5281",
+    "8420",
+    "5384",
+    "5491",
+    "5436",
+    "6178",
+    "3298",
+    "2921",
+    "3389",
+    "6008",
+    "5466",
+    "5384",
+    "5491",
+    "3068",
+    "3428",
+    "6298",
+    "3299",
+    "5255",
+    "1566",
+    "4180",
+    "5317",
+    "6238",
+    "5349",
+    "4429",
+    "6594",
+    "8420",
+    "6457",
+    "4945"
+   ],
+   "NON_DIAGNOSTIC_CONSIDERATION_UNKNOWN": [
+    "3562",
+    "3582",
+    "5818",
+    "6514",
+    "8705",
+    "8705",
+    "3562",
+    "6514"
+   ],
+   "NON_DIAGNOSTIC_NON_STOCK": [
+    "3658",
+    "6105",
+    "6554",
+    "1787",
+    "8913",
+    "2928",
+    "3144",
+    "8406",
+    "8418",
+    "6747",
+    "4987"
+   ],
+   "SCHEMA_OR_EVENT_CLASS_CONFLICT": [
+    "4152"
+   ]
+  },
+  "reconciled": true,
+  "total_family_records": 63,
+  "unique_events_detail": {
+   "CONFIRMED_NON_STOCK": [
+    "1787",
+    "2928",
+    "3144",
+    "3658",
+    "4987",
+    "6105",
+    "6554",
+    "6747",
+    "8406",
+    "8418",
+    "8913"
+   ],
+   "CONFIRMED_STOCK_BEARING": [
+    "1311",
+    "1566",
+    "2343",
+    "2366",
+    "2921",
+    "3068",
+    "3298",
+    "3299",
+    "3389",
+    "3428",
+    "4110",
+    "4180",
+    "4429",
+    "4944",
+    "4945",
+    "5255",
+    "5281",
+    "5317",
+    "5349",
+    "5384",
+    "5436",
+    "5466",
+    "5491",
+    "5494",
+    "5528",
+    "6008",
+    "6178",
+    "6238",
+    "6298",
+    "6457",
+    "6594",
+    "8420"
+   ],
+   "CONSIDERATION_UNKNOWN": [
+    "3562",
+    "3582",
+    "5818",
+    "6514",
+    "8705"
+   ],
+   "SCHEMA_OR_EVENT_CLASS_CONFLICT": [
+    "4152"
+   ]
+  }
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "bulk_crawl": false,
+ "ca_ledger_or_states_changed": false,
+ "canonical_values_materialized": false,
+ "closure_sha256": "34963af1589dc9db3a7ef32533cfce678311ef33cd051a6526088a61d8c9f39e",
+ "consumer_modified": false,
+ "d8_3_started": false,
+ "documents_inspected_successfully": [
+  "201709_3709_B07.pdf",
+  "201712_3710_B07.pdf",
+  "5384_2016_5384_20160616F05.pdf",
+  "5384_2017_5384_20170615F05.pdf"
+ ],
+ "documents_unreadable": [
+  "5491_2016_5491_20160615F17.pdf",
+  "5491_2016_5491_20160615F02.pdf",
+  "5491_2016_5491_20160615F05.pdf"
+ ],
+ "documents_unreadable_reasons": {
+  "5491_2016_5491_20160615F02.pdf": "ENCRYPTED_DOCUMENT_NOT_EXTRACTABLE_OFFLINE",
+  "5491_2016_5491_20160615F05.pdf": "ENCRYPTED_DOCUMENT_NOT_EXTRACTABLE_OFFLINE",
+  "5491_2016_5491_20160615F17.pdf": "TEXT_EXTRACTION_UNAVAILABLE"
+ },
+ "dual_extraction_started": false,
+ "encryption_bypassed": false,
+ "event_level_adjudication_admissible": false,
+ "family_by_period_coverage_matrix": {
+  "2004-2009": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [],
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "only 5384/5491 (2015-2019) are CONFIRMED_STOCK_BEARING among the 7 residual events; 3562/3582/5818/6514/8705 removed as CONSIDERATION_UNKNOWN -> NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "no part of this band reaches the OD-1-7/PORTAL-QRYPS window"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "5436",
+     "6178",
+     "3298",
+     "2921"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "ROUTE_ERROR_OR_ACCESS_LIMITATION",
+    "note": "the MOPS material-announcement family is well-established and D7.0b-2 documents 3 distinct attempted routes (R1 legacy ajax_t05st01, R3 v2 detail API, R4 signed redirect), all refused/dead for this population -- this is an access/coverage failure on an established family, not an unidentified route"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "4110",
+     "1311",
+     "5436",
+     "2343",
+     "5494",
+     "2366",
+     "5528"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  },
+  "2010-2014": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [],
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "only 5384/5491 (2015-2019) are CONFIRMED_STOCK_BEARING among the 7 residual events; 3562/3582/5818/6514/8705 removed as CONSIDERATION_UNKNOWN -> NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "no part of this band reaches the OD-1-7/PORTAL-QRYPS window"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "3389",
+     "6008"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "ROUTE_ERROR_OR_ACCESS_LIMITATION",
+    "note": "the MOPS material-announcement family is well-established and D7.0b-2 documents 3 distinct attempted routes (R1 legacy ajax_t05st01, R3 v2 detail API, R4 signed redirect), all refused/dead for this population -- this is an access/coverage failure on an established family, not an unidentified route"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "6008"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  },
+  "2015-2019": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [
+     "5384",
+     "5491"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "no_longer_partial_coverage_reason": "all admissible-event documents for this band are now either read or exhausted (2 encrypted, 1 illegible -- but 5491 was independently resolved via its formal prospectus, so the band closes field-absent rather than partial)",
+    "note": "D8.2C fully resolved both admissible residual events for this band: 5384 via 2017 AGM resolution text (OCR) + its counterparty's prospectus (formal doc), 5491 via its counterparty's prospectus (formal doc); the encrypted/unreadable 5491 e-doc files did not carry the only evidence for 5491 -- the prospectus did"
+   },
+   "TDCC_surfaces": {
+    "disposition": "HISTORICAL_COVERAGE_UNAVAILABLE",
+    "note": "no part of this band reaches the OD-1-7/PORTAL-QRYPS window"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "5466",
+     "5384",
+     "5491",
+     "3068",
+     "3428",
+     "6298",
+     "3299",
+     "5255",
+     "1566",
+     "4180",
+     "5317"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "ROUTE_ERROR_OR_ACCESS_LIMITATION",
+    "note": "the MOPS material-announcement family is well-established and D7.0b-2 documents 3 distinct attempted routes (R1 legacy ajax_t05st01, R3 v2 detail API, R4 signed redirect), all refused/dead for this population -- this is an access/coverage failure on an established family, not an unidentified route"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "1566",
+     "3299",
+     "3428",
+     "5317"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  },
+  "2020-2026": {
+   "MOPS_electronic_document_archive": {
+    "admissible_events": [],
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "only 5384/5491 (2015-2019) are CONFIRMED_STOCK_BEARING among the 7 residual events; 3562/3582/5818/6514/8705 removed as CONSIDERATION_UNKNOWN -> NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE"
+   },
+   "TDCC_surfaces": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "1 confirmed-stock event (4945, 2025-09-02) falls in the observed window; no query run"
+   },
+   "TPEx_same_transaction_records": {
+    "admissible_events": [
+     "6238",
+     "5349",
+     "4429",
+     "6594",
+     "8420",
+     "6457",
+     "4945"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT",
+    "note": "1787/3144 (the only 2 raw field.payment_or_credit_date hits) removed -- both CONFIRMED_NON_STOCK"
+   },
+   "TWSE_same_transaction_records": {
+    "disposition": "SOURCE_FAMILY_DOES_NOT_ENCODE_THIS_SEMANTIC",
+    "note": "unchanged -- identified surface is a listing-status feed regardless of stock-applicability"
+   },
+   "disappearing_side_MOPS_material_announcements": {
+    "disposition": "ROUTE_ERROR_OR_ACCESS_LIMITATION",
+    "note": "the MOPS material-announcement family is well-established and D7.0b-2 documents 3 distinct attempted routes (R1 legacy ajax_t05st01, R3 v2 detail API, R4 signed redirect), all refused/dead for this population -- this is an access/coverage failure on an established family, not an unidentified route"
+   },
+   "issuer_or_surviving_company_formal_transaction_documents": {
+    "disposition": "NOT_EVALUATED_FOR_THIS_FIELD",
+    "note": "unchanged -- includes the newly-identified d7_6_docs_raw cache for 5384/5491's counterparties, not opened in this pass"
+   },
+   "successor_side_MOPS_material_announcements": {
+    "admissible_events": [
+     "4429",
+     "4944",
+     "4945",
+     "5281",
+     "8420"
+    ],
+    "disposition": "TRANSACTION_DOC_PRESENT_FIELD_ABSENT"
+   }
+  }
+ },
+ "formal_document_sidecar_audit": {
+  "201709_3709_B07.pdf": {
+   "confirmed_stock_bearing": true,
+   "counterparty": "鑫聯大投資控股",
+   "credit_date_hits": [],
+   "event_id": "5384",
+   "holder_inbound_direction": "successor/newco's own prospectus, 股份轉換 share-for-share exchange context",
+   "result": "APPLICABLE_DOCUMENT_FIELD_ABSENT",
+   "same_canonical_transaction": true,
+   "same_transaction_term_hits": 109,
+   "sample_linkage_context": "十三、 公司網址： www.TrigoldHoldings.com  \f 鑫聯大投資控股股份有限公司公開說明書摘要  實收資本額：新台幣 795,694,500 元  鑫聯大投資控股股份有限公司  公司地址：",
+   "source_document_identity": "confirmed -- own MOPS t57sb01 e-doc filing, path matches counterparty code (extract.json)"
+  },
+  "201712_3710_B07.pdf": {
+   "confirmed_stock_bearing": true,
+   "counterparty": "連展投資控股",
+   "credit_date_hits": [],
+   "event_id": "5491",
+   "holder_inbound_direction": "successor/newco's own prospectus, 股份轉換 share-for-share exchange context",
+   "result": "APPLICABLE_DOCUMENT_FIELD_ABSENT",
+   "same_canonical_transaction": true,
+   "same_transaction_term_hits": 179,
+   "sample_linkage_context": "選任。  十三、 公司網址：www.acon-holding.com  \f 連展投資控股股份有限公司公開說明書摘要  實收資本額 ： 新台幣2,072,907,210 元  連展投資控股股份有限公司  公司地",
+   "source_document_identity": "confirmed -- own MOPS t57sb01 e-doc filing, path matches counterparty code (extract.json)"
+  }
+ },
+ "frozen_schema_modified": false,
+ "inputs": {
+  "d8_2b_r2_closure_sha256": "3cacb06ce49438c9fe0cc4ce2dd1e86312a482de083fb4669344d13445456f57"
+ },
+ "language_models_fetched": false,
+ "mops_edoc_pdf_processing": {
+  "method": {
+   "cjk_ocr_spacing_note": "the OCR engine emits a space between every recognised CJK character; compound-term matching is performed only after stripping spaces between adjacent CJK characters",
+   "empty_text_layer_files": "pypdf image extraction (already installed) -> Windows.Media.Ocr, zh-Hant-TW (OS-resident language pack, no install/model fetch)",
+   "encrypted_files": "passwordless pypdf decrypt attempt only",
+   "ocr_cache": "artifacts/b0_8_holder_terms/d8_2c_ocr/edoc_ocr_results_utf8.txt"
+  },
+  "per_document": {
+   "5384_2016_5384_20160616F05.pdf": {
+    "credit_date_hits": [],
+    "label": "5384 FY2015 AGM minutes (2016-06-16)",
+    "ocr_chars_total": 23897,
+    "ocr_readable_cjk_chars": 11791,
+    "reason": "27/27 pages OCR'd and read; zero mention of 股份轉換 or the counterparty anywhere -- this is 5384's own prior-year (FY2015) routine annual meeting (dividend distribution, financial/audit reports, R&D status), not the share-conversion transaction",
+    "result": "DIFFERENT_TRANSACTION_OR_CORPORATE_ACTION",
+    "same_transaction_term_hits": 0
+   },
+   "5384_2017_5384_20170615F05.pdf": {
+    "credit_date_hits": [],
+    "label": "5384 FY2016 AGM minutes / 股份轉換 resolution (2017-06-15)",
+    "ocr_chars_total": 76253,
+    "ocr_readable_cjk_chars": 53386,
+    "reason": "66/66 pages OCR'd and read; substantial 股份轉換 board-resolution text confirmed (ratio, effective/base-date clauses, OTC-delisting clause -- all excluded date types per scope) but zero occurrence of any accepted credit/delivery compound term",
+    "result": "APPLICABLE_DOCUMENT_FIELD_ABSENT",
+    "same_transaction_term_hits": 170
+   },
+   "5491_2016_5491_20160615F02.pdf": {
+    "reason": "pypdf attempts passwordless (empty-password) decrypt automatically on read; fails with 'cryptography>=3.1 is required for AES algorithm' -- that package is not installed on this machine and was not installed to fix this. Not a bypass attempt (no password other than empty was tried) and not an OCR failure (no text layer was ever reached).",
+    "result": "ENCRYPTED_DOCUMENT_NOT_EXTRACTABLE_OFFLINE"
+   },
+   "5491_2016_5491_20160615F05.pdf": {
+    "reason": "same as F02 -- AES-encrypted, cryptography package not installed",
+    "result": "ENCRYPTED_DOCUMENT_NOT_EXTRACTABLE_OFFLINE"
+   },
+   "5491_2016_5491_20160615F17.pdf": {
+    "credit_date_hits": [],
+    "label": "5491 attachment F17 (2016-06-15), 1 page",
+    "ocr_chars_total": 36,
+    "ocr_readable_cjk_chars": 4,
+    "reason": "1/1 page OCR'd mechanically without engine error, but output is unreadable noise ('CO、0 C.0 C*D C.O一0543 0B……0') -- no substantive CJK text recovered; likely a seal/signature or graphical cover page, not a text page",
+    "result": "TEXT_EXTRACTION_UNAVAILABLE",
+    "same_transaction_term_hits": 0
+   }
+  }
+ },
+ "network_used": false,
+ "per_document_result": {
+  "201709_3709_B07.pdf": "APPLICABLE_DOCUMENT_FIELD_ABSENT",
+  "201712_3710_B07.pdf": "APPLICABLE_DOCUMENT_FIELD_ABSENT",
+  "5384_2016_5384_20160616F05.pdf": "DIFFERENT_TRANSACTION_OR_CORPORATE_ACTION",
+  "5384_2017_5384_20170615F05.pdf": "APPLICABLE_DOCUMENT_FIELD_ABSENT",
+  "5491_2016_5491_20160615F02.pdf": "ENCRYPTED_DOCUMENT_NOT_EXTRACTABLE_OFFLINE",
+  "5491_2016_5491_20160615F05.pdf": "ENCRYPTED_DOCUMENT_NOT_EXTRACTABLE_OFFLINE",
+  "5491_2016_5491_20160615F17.pdf": "TEXT_EXTRACTION_UNAVAILABLE"
+ },
+ "preserves_unmodified": [
+  "credit_date_representability_gate_d8_2a.json",
+  "successor_credit_source_family_coverage_d8_2b.json",
+  "successor_credit_source_family_coverage_d8_2b_r1.json",
+  "successor_credit_source_family_coverage_d8_2b_r2.json"
+ ],
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_D8_2C_EXACT_OFFLINE_DOCUMENT_AUDIT",
+ "software_installed": false,
+ "source_family_closure_verdict": "CLOSURE_BLOCKED_BY_COVERAGE_OR_ACCESS",
+ "twse_99_bulk_acquisition_started": false,
+ "valid_positives": []
+}

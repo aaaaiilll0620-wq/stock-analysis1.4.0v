@@ -1,0 +1,117 @@
+{
+ "b0_8_state": "WIP, UNSEALED",
+ "ca_ledger_unchanged": true,
+ "consequence": {
+  "mops_body_obtainable_for_this_population": false,
+  "no_fourth_route_exists_in_the_frozen_enumeration": true,
+  "therefore": "the frozen schema's settlement/credit values cannot come from MOPS. Any bundle must be assembled from a surface whose bodies are retrievable, which so far means the TPEx static archive.",
+  "what_mops_still_provides": "the code-keyed v2 index -- subject and publication date -- which names a settlement document but does not carry its date VALUE"
+ },
+ "control_used": {
+  "company": "2330",
+  "market": "sii",
+  "note": "listed, currently and unambiguously publicly offered",
+  "roc_year": "113"
+ },
+ "d6_1_characterisation_refined": "D6.1 called R4 'a transport block on this network path rather than a source refusal' and left it UNTESTED_END_TO_END. The path is not blocked: the same host serves its root, its plain t05st01 page and its legacy ajax endpoint from here, all 200. Only /mops/web/t05st01_detail closes, and it closes for a live blue-chip issuer and for an empty request too. That is a decommissioned endpoint, not a block aimed at this client.",
+ "holder_terms_materialized": false,
+ "population_case_used": {
+  "company": "8913",
+  "enter_date": "1090116",
+  "market": "pub",
+  "note": "the 股份轉換現金對價款發放日 announcement",
+  "roc_year": "109",
+  "role": "one member of the population; every probe against it is paired with the same probe against the control",
+  "serial": "1"
+ },
+ "probes": {
+  "A_host_page": {
+   "bytes": 22717,
+   "carries_refusal_text": true,
+   "http_status": 200,
+   "label": "GET /mops/web/t05st01",
+   "outcome": "RESPONSE",
+   "sha256": "ea516a069b9abdcf2e10484b2fa8716741354eb09a9c7fb8b95a361f4aa327ab"
+  },
+  "A_host_root": {
+   "bytes": 114,
+   "carries_refusal_text": false,
+   "http_status": 200,
+   "label": "GET mopsov /",
+   "outcome": "RESPONSE",
+   "sha256": "b4814e81227c7724c9c439f081f62e67f0ebc52fb6dcfa6f5731df34110c4013"
+  },
+  "B_r1_control": {
+   "bytes": 2542,
+   "carries_refusal_text": false,
+   "http_status": 200,
+   "label": "R1 LIVE 2330",
+   "outcome": "RESPONSE",
+   "sha256": "9ba42c576372ecec0d4aa6ceaa05731e69e9a3f94314751da1abdd2a42782a27"
+  },
+  "B_r1_population": {
+   "bytes": 2528,
+   "carries_refusal_text": true,
+   "http_status": 200,
+   "label": "R1 delisted 8913",
+   "outcome": "RESPONSE",
+   "sha256": "3406d4640dc56cd47aeecd263b0884e7fb529f0740f35f925067d277b48a3819"
+  },
+  "C_r3_control": {
+   "bytes": 89,
+   "carries_refusal_text": false,
+   "http_status": 200,
+   "label": "R3 LIVE 2330",
+   "outcome": "RESPONSE",
+   "sha256": "40ec1c39440f1d1e5afbb84b01c2ca59b84674eb47839725b547d0650bb6551b"
+  },
+  "C_r3_population": {
+   "bytes": 122,
+   "carries_refusal_text": true,
+   "http_status": 200,
+   "label": "R3 delisted 8913",
+   "outcome": "RESPONSE",
+   "sha256": "c5bb36410ef522a38541a09470353ab384a71047b5d0529a8f443e6bc382bf31"
+  },
+  "D_signed_url": {
+   "control_code": 200,
+   "control_url_issued": true,
+   "population_code": 200,
+   "population_url_issued": true,
+   "urls_are_distinct_per_announcement": true
+  },
+  "E_target_control": {
+   "error": "RemoteDisconnected: Remote end closed connection without response",
+   "label": "FETCH signed url LIVE 2330",
+   "outcome": "NO_RESPONSE"
+  },
+  "E_target_garbage": {
+   "error": "RemoteDisconnected: Remote end closed connection without response",
+   "label": "GET t05st01_detail?parameters=abc",
+   "outcome": "NO_RESPONSE"
+  },
+  "E_target_no_query": {
+   "error": "RemoteDisconnected: Remote end closed connection without response",
+   "label": "GET t05st01_detail (no query)",
+   "outcome": "NO_RESPONSE"
+  },
+  "E_target_population": {
+   "error": "RemoteDisconnected: Remote end closed connection without response",
+   "label": "FETCH signed url 8913",
+   "outcome": "NO_RESPONSE"
+  }
+ },
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_D7_0B_2_MOPS_BODY_ROUTE_CLOSURE",
+ "record_sha256": "5771acc946402356bb906ee5943dfb5cef488b8cbecad9f93a22387794516530",
+ "replay_started": false,
+ "route_status": {
+  "R1_legacy_ajax_t05st01": "SOURCE REFUSAL for this population -- the host answers 200 and returns the 不繼續公開發行 page; the same request against the LIVE control returns a non-refusal page, so the refusal is aimed at deregistered issuers, not at us",
+  "R3_v2_detail_api": "SOURCE REFUSAL for this population -- answers with the same 不繼續公開發行 text",
+  "R4_signed_redirect": "TARGET ENDPOINT DEAD FOR EVERYONE. The signature is issued normally (HTTP 200, distinct per announcement), but mopsov /mops/web/t05st01_detail closes the connection without a response for this population, for the LIVE control, and for a request carrying no query at all. Input-independent and population-independent."
+ },
+ "states_unchanged": true,
+ "supersedes_the_open_question_in": "D6.2 OFFICIAL_BODY_TRANSPORT = TRANSPORT_UNRESOLVED",
+ "values_extracted": false,
+ "verdict": "MOPS_BODY_ROUTES_CLOSED_FOR_THIS_POPULATION"
+}

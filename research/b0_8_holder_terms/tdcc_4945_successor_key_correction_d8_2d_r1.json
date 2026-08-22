@@ -1,0 +1,108 @@
+{
+ "TDCC_CURRENT_WINDOW": null,
+ "b0_8_state": "WIP, UNSEALED",
+ "bulk_acquisition": false,
+ "canonical_schema_consumer_ledger_state_changed": false,
+ "closure_sha256": "811ae3b6feb89b3f8c7250648e90f061114cabc1f3a96d9a48682b971c6aef56",
+ "d8_3_started": false,
+ "excluded_as_substitutes": [
+  "generic issuance",
+  "employee allotment",
+  "dividend",
+  "capital increase",
+  "listing date",
+  "unrelated delivery record",
+  "capital reduction share replacement"
+ ],
+ "inputs": {
+  "d8_2d_closure_sha256": "f85a96546534d1cc9eb2154d6e294284d2fd8cb462f64e36e5fe24b6bde87912"
+ },
+ "mapping_confirmed": true,
+ "mapping_verification": {
+  "disappearing_security_id": "4945",
+  "source": "domestic_security_routing_d7_2b.json (frozen D7.2b routing)",
+  "stock_consideration_issuer": "偉詮電子股份有限公司",
+  "successor_security_id": "2436",
+  "successor_security_status": "DOMESTIC_SECURITY_ID_ESTABLISHED",
+  "transaction_leg": "STOCK_LEG_PRESENT"
+ },
+ "od_1_7_reinspection": {
+  "filter_key": "2436",
+  "matching_rows": [
+   {
+    "_linkage_assessment": {
+     "contains_ambiguous_shared_code": true,
+     "contains_merger_specific_marker": false,
+     "reason_code": "減資/轉換",
+     "same_transaction_established": false,
+     "security_code_alone_sufficient": false
+    },
+    "交付原因": "減資/轉換",
+    "交付日期": "20250908",
+    "證券代號": "2436",
+    "證券名稱": "偉詮電"
+   }
+  ],
+  "route_result": "SUCCESSOR_RECORD_PRESENT_TRANSACTION_LINKAGE_NOT_ESTABLISHED",
+  "source": "cached snapshot from D8.2D (artifacts/b0_8_holder_terms/d8_2d_tdcc_raw/OD-1-7_d8_2d.csv), no redownload"
+ },
+ "od_redownloaded": false,
+ "old_key_interpretation_correction": {
+  "4945_old_security_query": "NON_DIAGNOSTIC_FOR_SUCCESSOR_CREDIT_DATE",
+  "d8_2d_result_not_reinterpreted_as_absence_evidence": true,
+  "no_speculation_on_publication_timing": true,
+  "reason": "delivery of successor shares posts under the SUCCESSOR's own security code, not the disappearing security's code; the D8.2D QUERY_SUCCEEDED_NO_EVENT_RECORD result under 4945 says nothing about whether a credit record exists -- it was never the correct key"
+ },
+ "other_events_or_sources_queried": false,
+ "overall_result": "SUCCESSOR_RECORD_PRESENT_TRANSACTION_LINKAGE_NOT_ESTABLISHED",
+ "per_route_result": {
+  "OD-1-7 (cached, reinspected)": "SUCCESSOR_RECORD_PRESENT_TRANSACTION_LINKAGE_NOT_ESTABLISHED",
+  "PORTAL-QRYPS": "QUERY_SUCCEEDED_NO_SUCCESSOR_SECURITY_RECORD"
+ },
+ "portal_qryps_correction": {
+  "authorized_scope": "one POST using successor_security_id=2436, plus one token/form GET (required -- D8.2D's cached token was not reused/assumed valid)",
+  "requests": [
+   {
+    "error": null,
+    "http_status": 200,
+    "official_endpoint": "https://www.tdcc.com.tw/portal/zh/smWeb/qryPS",
+    "raw_response_path": "artifacts/b0_8_holder_terms/d8_2d_r1_tdcc_raw/PORTAL-QRYPS_form_d8_2d_r1.html",
+    "response_content_sha256": "867eaacfd3ff1ff8106c9d65a7d9f4ce295099fb77c28f6ecfc7138afd8e1bdf",
+    "retrieval_timestamp": "2026-08-22T11:52:27.216636+00:00",
+    "route": "PORTAL-QRYPS (form GET, token refresh)",
+    "tls_verification": "curl default (full verification, no -k)"
+   },
+   {
+    "error": null,
+    "event_linkage_evidence": {
+     "credit_semantics_hits_site_wide": 12,
+     "merger_specific_marker_near_row": false,
+     "no_data_marker_present": true,
+     "row_matches_near_2436": [],
+     "successor_security_id_present_in_response": false
+    },
+    "http_status": 200,
+    "official_endpoint": "https://www.tdcc.com.tw/portal/zh/smWeb/qryPS",
+    "query_parameters": {
+     "sqlMethod": "StockNo",
+     "stockNo": "2436"
+    },
+    "raw_response_path": "artifacts/b0_8_holder_terms/d8_2d_r1_tdcc_raw/PORTAL-QRYPS_result_2436_d8_2d_r1.html",
+    "response_content_sha256": "5f1494d6dad154aa73dea343f2f0148ce71ed548518bec7f79d423ad5efb0683",
+    "retrieval_timestamp": "2026-08-22T11:52:28.595983+00:00",
+    "route": "PORTAL-QRYPS (StockNo=2436 POST)",
+    "schema_field_names_returned": [],
+    "tls_verification": "curl default (full verification, no -k)"
+   }
+  ],
+  "route_result": "QUERY_SUCCEEDED_NO_SUCCESSOR_SECURITY_RECORD"
+ },
+ "positive_semantics_required": [
+  "successor security",
+  "holder-inbound allotment/delivery",
+  "explicit date",
+  "same canonical 4945 transaction"
+ ],
+ "record": "B0_8_D8_2D_R1_SUCCESSOR_QUERY_KEY_CORRECTION",
+ "supersedes": "tdcc_4945_single_event_test_d8_2d.json (unmodified, preserved as-is)"
+}

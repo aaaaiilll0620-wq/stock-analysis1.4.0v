@@ -1,0 +1,206 @@
+{
+ "C0_bookkeeping": {
+  "count": 6,
+  "note": "each applies BY RECONSTRUCTION CLASS; no event requires all six",
+  "per_class": {
+   "RECONSTRUCTIBLE_CASH": [
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "settlement_date"
+   ],
+   "RECONSTRUCTIBLE_MIXED": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "cash_consideration_per_old_share",
+    "holder_effective_boundary",
+    "successor_credit_date",
+    "settlement_date"
+   ],
+   "RECONSTRUCTIBLE_STOCK": [
+    "successor_security_id",
+    "stock_conversion_ratio",
+    "holder_effective_boundary",
+    "successor_credit_date"
+   ]
+  },
+  "unique_unconditional_fields": [
+   "cash_consideration_per_old_share",
+   "holder_effective_boundary",
+   "settlement_date",
+   "stock_conversion_ratio",
+   "successor_credit_date",
+   "successor_security_id"
+  ]
+ },
+ "C1_settlement_control_recount": {
+  "credit_control_event_count": 1,
+  "credit_controls_transaction_scoped_events": [
+   "8420"
+  ],
+  "d8_1_claim_corrected": "settlement_date controls = 34 (document count)",
+  "document_count_is_not_event_count": true,
+  "rejected_as_precursor_or_out_of_scope": [
+   {
+    "leg": "CASH_ONLY",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "3553",
+    "subject": "本公司公開收購力積電子股份有限公司普通股股份"
+   },
+   {
+    "leg": "CASH_ONLY",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "3553",
+    "subject": "公告本公司董事會決議通過公開收購力積電子股份有限公司之普通股股份"
+   },
+   {
+    "leg": "CASH_ONLY",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "3553",
+    "subject": "本公司公開收購力積電子股份有限公司普通股股份補充說明"
+   },
+   {
+    "leg": "CASH_ONLY",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "3553",
+    "subject": "公告本公司公開收購力積電子股份有限公司普通股，公開收購條件已成就"
+   },
+   {
+    "leg": "CASH_ONLY",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "3553",
+    "subject": "公告本公司公開收購力積電子股份有限公司普通股之公開收購期間屆滿"
+   },
+   {
+    "leg": "CASH_ONLY",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "3553",
+    "subject": "本公司擬進行以現金為對價之股份轉換方式，取得力積電子股份\n有限公司百分之百股份案"
+   },
+   {
+    "leg": "MIXED",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "4429",
+    "subject": "本公司公開收購聚紡股份有限公司之普通股股份。"
+   },
+   {
+    "leg": "MIXED",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "4429",
+    "subject": "公告本公司公開收購聚紡股份有限公司之普通股股份"
+   },
+   {
+    "leg": "MIXED",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "4429",
+    "subject": "公告本公司公開收購聚紡股份有限公司普通股之預定總收購價金已匯入受委\n任機構名下之公開收購專戶"
+   },
+   {
+    "leg": "MIXED",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "4429",
+    "subject": "公告本公司公開收購聚紡股份有限公司普通股，已達最低收購數量，公開收購條\n件已成就。"
+   },
+   {
+    "leg": "MIXED",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "4429",
+    "subject": "公告本公司公開收購聚紡股份有限公司普通股，公開收購條件已成就，且　 \n應賣有價證券數量超過預定收購最高數量。"
+   },
+   {
+    "leg": "MIXED",
+    "reason": "tender-offer precursor payment; not shown to be the canonical exit's holder settlement",
+    "security_id": "4429",
+    "subject": "公告公開收購人公開收購聚紡股份有限公司普通股之公開收購期間屆滿(更新版)"
+   }
+  ],
+  "rejected_count": 34,
+  "revised_verdict_settlement_date": "PUBLIC_AUTHORITATIVE_REPRESENTATION_NOT_ESTABLISHED_for_the_canonical_exit_leg",
+  "rule": "a settlement control requires same canonical exit + holder cash consideration + holder payment/settlement semantics",
+  "settlement_control_event_count": 0,
+  "settlement_controls_transaction_scoped_events": []
+ },
+ "C2_mixed_consumer_conformance": {
+  "corporate_action_event_fields": [
+   "stock_id",
+   "kind",
+   "ex_or_effective_date",
+   "reconstructibility",
+   "reason",
+   "credit_tradable_date",
+   "new_shares_thousands",
+   "share_multiplier",
+   "cash_per_share",
+   "cash_payment_date",
+   "zero_day_receivable",
+   "diagnostics",
+   "event_id",
+   "knowledge_ts",
+   "successor_security_id",
+   "stock_ratio"
+  ],
+  "election_related_fields_found": [],
+  "elective_representable": false,
+  "evidence": [
+   "handler: `if successor and ratio and credit:` -> RECONSTRUCTIBLE, carrying cash_per_share as an ADDITIONAL attribute",
+   "transition: `if new_claim > 0:` creates a SecurityReceivable AND, separately, `if event.cash_per_share:` creates a CashReceivable; neither is guarded by any election"
+  ],
+  "identity_changing_kinds": [
+   "holder_side_security_conversion",
+   "holder_side_reorganization_exit"
+  ],
+  "legs_applied": "BOTH_UNCONDITIONALLY_AND_ADDITIVELY",
+  "not_inferred_from_CLASS_REQUIRED_FIELDS": true,
+  "question": "can the frozen consumer represent an elective cash OR stock holder outcome?",
+  "schema_modified": false,
+  "traced_through": [
+   "core/b0_corporate_actions.handle_holder_side_security_conversion",
+   "core/b0_corporate_actions IDENTITY_CHANGING_KINDS transition branch"
+  ],
+  "verdict_4152": "SCHEMA_OR_EVENT_CLASS_CONFLICT",
+  "verdict_4152_basis": "4152 is 現金100元 OR 森公司乙種特別股1股 (holder elects). The frozen consumer would apply BOTH legs, overstating what the holder received. No frozen election mechanism exists to cite"
+ },
+ "b0_8_state": "WIP, UNSEALED",
+ "beyond_C2_material_finding": {
+  "action_taken": "reported only; schema unchanged, no event reclassified in the ledger",
+  "contradiction_with_terms_schema": "CLASS_REQUIRED_FIELDS defines RECONSTRUCTIBLE_CASH (cash_consideration_per_old_share, holder_effective_boundary, settlement_date), but no transition kind can consume it",
+  "count": 22,
+  "finding": "PURE_CASH_HOLDER_EXIT_HAS_NO_CONSUMER_PATH",
+  "materiality_for_d8_2": "acquiring settlement_date for cash-only events cannot by itself make them RECONSTRUCTIBLE under the frozen model; this is a class-level conflict, not an acquisition gap",
+  "tpex_cash_only_events_affected": [
+   "1787",
+   "2928",
+   "3144",
+   "3426",
+   "3553",
+   "3658",
+   "4103",
+   "4947",
+   "4987",
+   "5102",
+   "5480",
+   "5820",
+   "6022",
+   "6105",
+   "6247",
+   "6554",
+   "6747",
+   "8079",
+   "8266",
+   "8406",
+   "8418",
+   "8913"
+  ],
+  "why": "both IDENTITY_CHANGING kinds route through a branch that opens with successor_security_id and stock_ratio, and the handler refuses unless successor AND ratio AND credit are present; a cash-only exit satisfies none of them"
+ },
+ "ca_ledger_unchanged": true,
+ "conformance_sha256": "0c4e4b65d2fdfc5f8f8e6b3ad37a14f7ca1ed6abf4ebe9271e912235129e0a0c",
+ "dual_extraction_started": false,
+ "inputs": {
+  "d8_1_closure_sha256": "60c0e9bc0e6522f1e841393052594e98385f7716b66133096663c73f73907827",
+  "frozen_schema_sha256": "f9b4322a160258f6e11293422626877f0a2f9157bfbe09cac1dac1114e4eb948"
+ },
+ "reconstruction_classifications_changed": 0,
+ "record": "B0_8_C0_C1_C2_CONFORMANCE_CLOSE",
+ "schema_modified": false,
+ "states_unchanged": true
+}
