@@ -20,6 +20,7 @@ import pytest
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "research", "b0_materializer"))
 
+from core.b0_l3_lineage_capture import PURPOSE_DIAGNOSTIC    # noqa: E402
 import build_bonus_shares_leaf as B                              # noqa: E402
 import build_corporate_actions_leaf as CA                        # noqa: E402
 import build_flat_leaves as F                                    # noqa: E402
@@ -95,7 +96,7 @@ def test_a_dependency_pointing_at_a_different_hash_is_caught(tmp_path):
 
     with pytest.raises(ManifestError, match="is not a dependency"):
         assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                           route_seal_id="x",
+                           purpose=PURPOSE_DIAGNOSTIC,
                            required=tuple(sorted(F.FLAT_FAMILIES))
                            + ("corporate_actions",))
 

@@ -222,8 +222,10 @@ def test_the_seal_payload_names_what_is_still_owed():
 
 def test_the_seal_payload_carries_both_halves():
     payload = seal_payload()
-    # 27 -> 28 at v1.34 / C-68: `b0_l3_price_span` is the §19 span producer, and
-    # it is reachable because the spec registry reads its declarations.
-    assert payload["code_closure_size"] == len(payload["code_closure"]) == 28
+    # 27 -> 28 at v1.34 / C-68 (`b0_l3_price_span`, the §19 span producer) and
+    # 28 -> 29 at v1.35 / C-70 (`b0_l3_lineage_capture`, the §20 capture
+    # contract). Both are reachable because the spec registry reads their
+    # declarations.
+    assert payload["code_closure_size"] == len(payload["code_closure"]) == 29
     assert payload["required_dataset_floor"] == list(REQUIRED_DATASET_FLOOR)
     assert set(payload["dataset_families"]) == set(DATASET_FAMILIES)

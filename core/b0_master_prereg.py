@@ -80,6 +80,9 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     # because `price_span[0]` decides `spell_start`, which is a hashed state
     # field — a rule that moves the state hash may not live in a route.
     "core/b0_l3_price_span.py",
+    # v1.35 · C-70 · §20. How a computed floor becomes an irrevocable lineage
+    # fact: identity, immutability, and what a capture binds instead of a seal.
+    "core/b0_l3_lineage_capture.py",
 )
 
 
@@ -1028,6 +1031,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_corporate_actions as ca
     from core import b0_valuation_source as vsrc
     from core import b0_l3_price_span as lsp
+    from core import b0_l3_lineage_capture as lcap
     prereg_modules = NORMATIVE_MODULES
     from core import b0_pit_observability as pit
     from core import b0_state as st
@@ -1242,6 +1246,28 @@ def _spec_registry() -> dict[str, Any]:
         "l3_span_semantic_authority": "master_preregistration_section_19",
         "l3_span_enforcement_sites": (
             "research/b0_l3/l3_assemble.py", "research/b0_l3/l3_snapshot.py"),
+        # v1.35 · C-70 · §20. The capture contract. A floor becomes a lineage
+        # fact exactly once, and the chain that makes it auditable is ONE-WAY:
+        # a capture may not bind the route seal that will bind it.
+        "l3_lineage_capture_contract": lcap.CONTRACT_VERSION,
+        "l3_capture_authority": lcap.CAPTURE_AUTHORITY,
+        "l3_capture_binding_chain": lcap.BINDING_CHAIN,
+        "l3_manifest_purposes": lcap.MANIFEST_PURPOSES,
+        "l3_capture_manifest_may_name_a_route_seal": False,
+        "l3_lineage_basis_fields": lcap.LINEAGE_BASIS_FIELDS,
+        "l3_lineage_id_is_the_full_basis_digest":
+            lcap.CANONICAL_IDENTITY_IS_THE_FULL_DIGEST,
+        "l3_capture_record_location": lcap.CANONICAL_CAPTURE_LOCATION,
+        "l3_capture_leg_summary_fields": lcap.LEG_SUMMARY_FIELDS,
+        "l3_floor_capture_code_closure": lcap.FLOOR_CAPTURE_CODE_CLOSURE,
+        "l3_failed_capture_preservation": lcap.FAILED_CAPTURE_PRESERVATION,
+        "l3_capture_diagnostic_expected_floor_is_normative": False,
+        "l3_route_seal_contract_status": lcap.ROUTE_SEAL_CONTRACT_STATUS,
+        "l3_required_inventory_authority": lcap.RATIFIED_INVENTORY_AUTHORITY,
+        "l3_capture_transaction_entry_point":
+            "core.b0_l3_lineage_capture.capture_lineage_floor",
+        "l3_capture_writer_trusts_its_caller": False,
+        "l3_diagnostic_evidence_class": lcap.DIAGNOSTIC_EVIDENCE_CLASS,
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,

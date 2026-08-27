@@ -471,6 +471,134 @@ def _conform_l3_span_endpoints_are_derived() -> None:
             "hashed — that is not evidence a seal can bind")
 
 
+def _c_l3_capture_binding_chain():
+    from core import b0_l3_lineage_capture as lcap
+    return lcap.BINDING_CHAIN
+
+
+def _c_l3_manifest_purposes():
+    from core import b0_l3_lineage_capture as lcap
+    return lcap.MANIFEST_PURPOSES
+
+
+def _c_l3_lineage_basis_fields():
+    from core import b0_l3_lineage_capture as lcap
+    return lcap.LINEAGE_BASIS_FIELDS
+
+
+def _conform_l3_capture_chain_is_one_way() -> None:
+    """§20: a capture binds the authority; the SEAL binds the capture, not both.
+
+    The deadlock this forbids is easy to reintroduce, because binding the seal
+    from the capture looks like extra rigour rather than a cycle.
+    """
+    from core.b0_l3_lineage_capture import (
+        CAPTURE_AUTHORITY, LineageCaptureError, PURPOSE_CAPTURE,
+        PURPOSE_PRODUCTION, assert_manifest_binding,
+    )
+
+    if assert_manifest_binding(PURPOSE_CAPTURE,
+                               capture_authority=CAPTURE_AUTHORITY) != \
+            PURPOSE_CAPTURE:
+        raise DeclarationConformanceError("§20: a capture manifest must be admissible")
+    for seal in ("PENDING", "L3SEAL-real-looking", ""):
+        try:
+            assert_manifest_binding(PURPOSE_CAPTURE, route_seal_id=seal,
+                                    capture_authority=CAPTURE_AUTHORITY)
+        except LineageCaptureError:
+            continue
+        raise DeclarationConformanceError(
+            "§20: a capture manifest naming route_seal_id %r closes the chain "
+            "into a cycle and must abort" % seal)
+    try:
+        assert_manifest_binding(PURPOSE_PRODUCTION, route_seal_id="PENDING",
+                                lineage_id="L3-" + "0" * 64,
+                                capture_record_sha256="0" * 64)
+    except LineageCaptureError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§20: 'PENDING' is a placeholder, not a route seal; a production "
+            "manifest that accepts it reads as bound in every audit")
+
+
+def _conform_l3_lineage_identity_is_not_circular() -> None:
+    """§20: the id comes from the basis, and the basis may not contain the id."""
+    from core.b0_l3_lineage_capture import (
+        LINEAGE_BASIS_FIELDS, LineageCaptureError, assert_lineage_id,
+        display_alias, lineage_id_from_basis,
+    )
+
+    basis = {f: "x" for f in LINEAGE_BASIS_FIELDS}
+    lid = assert_lineage_id(lineage_id_from_basis(basis))
+    if lineage_id_from_basis(basis) != lid:
+        raise DeclarationConformanceError("§20: the identity must be deterministic")
+    if lineage_id_from_basis({**basis, "lineage_price_floor": "y"}) == lid:
+        raise DeclarationConformanceError(
+            "§20: a different floor must name a different lineage")
+    try:
+        lineage_id_from_basis({**basis, "lineage_id": lid})
+    except LineageCaptureError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§20: folding the id back into the basis makes the identity depend "
+            "on itself; it must abort")
+    alias = display_alias(lid)
+    if len(alias) >= len(lid):
+        raise DeclarationConformanceError("§20: the alias must be shorter than the id")
+    try:
+        assert_lineage_id(alias)
+    except LineageCaptureError:
+        return
+    raise DeclarationConformanceError(
+        "§20: the 16-hex alias is for display; accepting it as an identity is "
+        "how a truncated hash becomes a binding")
+
+
+def _conform_l3_capture_writer_trusts_nobody() -> None:
+    """§20: the low-level writer refuses an inadmissible record it is handed.
+
+    A guard that only runs inside the sanctioned transaction is a comment: the
+    writer is importable, and a record built by hand reached disk before this.
+    """
+    from core.b0_l3_lineage_capture import (
+        CAPTURE_AUTHORITY, DIAGNOSTIC_EXPECTED_FLOOR, LINEAGE_BASIS_FIELDS,
+        LineageCaptureError, RATIFIED_INVENTORY_AUTHORITY,
+        assert_record_is_admissible, build_capture_record,
+    )
+
+    legs = [{"leg": "pre-2019", "entry_count": 2, "inventory_digest": "a" * 64,
+             "leg_floor": "2004-01-02", "quarantine_boundary": "2019-01-01",
+             "rows_dropped_by_quarantine": 1, "admissible_rows": 1},
+            {"leg": "2019+", "entry_count": 2, "inventory_digest": "a" * 64,
+             "leg_floor": "2019-01-02", "quarantine_boundary": "2019-01-01",
+             "rows_dropped_by_quarantine": 0, "admissible_rows": 1}]
+    basis = {f: "a" * 64 for f in LINEAGE_BASIS_FIELDS}
+    basis.update({"capture_authority": CAPTURE_AUTHORITY,
+                  "capture_run_id": "L3-FLOOR-CAPTURE-20260826-A01",
+                  "as_of": "2026-08-26", "master_version": "1.35",
+                  "lineage_price_floor": DIAGNOSTIC_EXPECTED_FLOOR,
+                  "repo_commit_sha": "0" * 40, "leg_summaries": legs})
+    good = build_capture_record(
+        basis, capture_date="2026-08-27",
+        required_datasets_provenance=RATIFIED_INVENTORY_AUTHORITY,
+        tracked_clean=True, untracked_clean=True)
+    assert_record_is_admissible(good)
+    for mutate in ({"lineage_price_floor": "2013-01-01"},
+                   {"capture_run_id": "whatever"},
+                   {"route_seal_id": "L3SEAL-" + "a" * 64},
+                   {"tracked_clean": False},
+                   {"required_datasets_provenance": "PROVISIONAL"}):
+        try:
+            assert_record_is_admissible({**good, **mutate})
+        except LineageCaptureError:
+            continue
+        raise DeclarationConformanceError(
+            "§20: a record with %s was admitted; the writer must not trust its "
+            "caller" % list(mutate))
+
+
 def _conform_permanent_disappearance_not_a_concept() -> None:
     """O-B carries no 'gone forever' observable to be asked about at as_of."""
     from core.b0_pit_observability import PitPriceObservation
@@ -599,6 +727,36 @@ DECLARATION_BINDINGS: tuple[DeclarationBinding, ...] = (
         "price_span / bonus_window / capture_lineage_floor: endpoints are "
         "derived or refused, never defaulted",
         _conform_l3_span_endpoints_are_derived),
+
+    # --- v1.35 · C-70 · §20 · lineage floor capture contract ------------------
+    DeclarationBinding(
+        "l3_capture_binding_chain", IMPLEMENTATION_DERIVED,
+        "core.b0_l3_lineage_capture.BINDING_CHAIN",
+        _derived("l3_capture_binding_chain", _c_l3_capture_binding_chain)),
+    DeclarationBinding(
+        "l3_manifest_purposes", IMPLEMENTATION_DERIVED,
+        "core.b0_l3_lineage_capture.MANIFEST_PURPOSES",
+        _derived("l3_manifest_purposes", _c_l3_manifest_purposes)),
+    DeclarationBinding(
+        "l3_lineage_basis_fields", IMPLEMENTATION_DERIVED,
+        "core.b0_l3_lineage_capture.LINEAGE_BASIS_FIELDS",
+        _derived("l3_lineage_basis_fields", _c_l3_lineage_basis_fields)),
+    DeclarationBinding(
+        "l3_capture_manifest_may_name_a_route_seal", BEHAVIORAL_CONFORMANCE,
+        "assert_manifest_binding: a capture naming any seal aborts; a "
+        "production manifest refuses a placeholder seal",
+        _conform_l3_capture_chain_is_one_way),
+    DeclarationBinding(
+        "l3_capture_writer_trusts_its_caller", BEHAVIORAL_CONFORMANCE,
+        "assert_record_is_admissible / write_capture_record_exclusively: a "
+        "hand-made record with a wrong floor, run id, seal, dirty tree or "
+        "provisional inventory is refused at the writer",
+        _conform_l3_capture_writer_trusts_nobody),
+    DeclarationBinding(
+        "l3_lineage_id_is_the_full_basis_digest", BEHAVIORAL_CONFORMANCE,
+        "lineage_id_from_basis / assert_lineage_id: derived from the basis, "
+        "deterministic, and the display alias is refused as an identity",
+        _conform_l3_lineage_identity_is_not_circular),
 )
 
 # Declarations that decide what the route does. Every one must be bound above.

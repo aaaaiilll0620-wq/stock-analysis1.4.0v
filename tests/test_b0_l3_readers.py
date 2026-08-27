@@ -45,6 +45,9 @@ for _p in (os.path.join(REPO, "research", "b0_materializer"),
            os.path.join(REPO, "research", "b0_l3")):
     sys.path.insert(0, _p)
 
+from core.b0_l3_lineage_capture import (                          # noqa: E402
+    PURPOSE_DIAGNOSTIC,
+)
 import build_bonus_shares_leaf as B                              # noqa: E402
 import build_corporate_actions_leaf as CA                        # noqa: E402
 import build_financials_leaf as FIN                              # noqa: E402
@@ -80,7 +83,7 @@ def run_dir(tmp_path_factory):
         write_leaf(d, mod.build(RUN, AS_OF))
     write_leaf(d, CA.build(RUN, AS_OF, run_dir=d))
     write_aggregate(d, assemble_aggregate(
-        run_dir=d, run_id=RUN, as_of=AS_OF, route_seal_id="PENDING"))
+        run_dir=d, run_id=RUN, as_of=AS_OF, purpose=PURPOSE_DIAGNOSTIC))
     return d
 
 

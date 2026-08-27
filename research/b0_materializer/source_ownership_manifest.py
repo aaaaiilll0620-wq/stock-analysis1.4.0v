@@ -116,8 +116,8 @@ SOURCE_FAMILIES: tuple[str, ...] = ("TEJ", "LIVE")
 AUTHORITY_LEVELS: tuple[str, ...] = ("AUTHORITATIVE", "SUPPLEMENTARY")
 DISPOSITIONS: tuple[str, ...] = ("consumed", "not_consumed")
 REQUIRED_AGGREGATE_FIELDS: tuple[str, ...] = (
-    "schema_version", "contract_version", "run_id", "as_of", "route_seal_id",
-    "required_datasets", "leaves", "readiness",
+    "schema_version", "contract_version", "run_id", "as_of", "purpose",
+    "route_seal_id", "required_datasets", "leaves", "readiness",
 )
 
 
@@ -487,18 +487,44 @@ def write_leaf(run_dir: str, leaf: dict) -> dict:
 # --- aggregate -----------------------------------------------------------------
 
 def assemble_aggregate(*, run_dir: str, run_id: str, as_of: str,
-                       route_seal_id: str, required=REQUIRED_DATASETS) -> dict:
+                       purpose: str, route_seal_id=None,
+                       capture_authority=None,
+                       required=REQUIRED_DATASETS) -> dict:
     """Index every leaf present in `run_dir` and state readiness honestly.
 
     `required` exists for tests, not for callers narrowing the floor: a run that
     could shorten its own requirement could omit a source and still look
     complete. Production callers take the module constant.
+
+    §20 / C-70 · TWO PURPOSES, TWO BINDINGS. `purpose` is required because the
+    two runs that read these sources answer to different authorities:
+
+        LINEAGE_FLOOR_CAPTURE   binds the C-70 capture authority and may NOT
+                                name a route seal — the seal will bind the
+                                capture record, and binding both ways is a cycle.
+        PRODUCTION_RUN          binds a REAL route seal. A placeholder like
+                                "PENDING" is refused: it reads as bound in every
+                                audit that only checks the field is present.
     """
-    if not run_id or not as_of or not route_seal_id:
+    from core.b0_l3_lineage_capture import (                       # noqa: E402
+        PURPOSE_CAPTURE, RATIFIED_INVENTORY_AUTHORITY, LineageCaptureError,
+        assert_manifest_binding,
+    )
+
+    if purpose == PURPOSE_CAPTURE and tuple(sorted(required)) != \
+            tuple(sorted(REQUIRED_DATASETS)):
         raise ManifestError(
-            "abort: an aggregate must name run_id, as_of and route_seal_id. "
-            "Without route_seal_id the source set is not tied to the route that "
-            "consumed it.")
+            "abort: a %s run must read the FULL ratified inventory. It declared "
+            "%d families, the W4/A2 floor is %d. A floor captured from a "
+            "narrowed source set freezes an accident (§20.8)."
+            % (PURPOSE_CAPTURE, len(set(required)), len(set(REQUIRED_DATASETS))))
+    if not run_id or not as_of:
+        raise ManifestError("abort: an aggregate must name run_id and as_of.")
+    try:
+        assert_manifest_binding(purpose, route_seal_id=route_seal_id,
+                                capture_authority=capture_authority)
+    except LineageCaptureError as exc:
+        raise ManifestError(str(exc))
 
     leaves, missing = {}, []
     for dataset in sorted(required):
@@ -559,15 +585,21 @@ def assemble_aggregate(*, run_dir: str, run_id: str, as_of: str,
         "contract_version": L3_CONTRACT_VERSION,
         "run_id": run_id,
         "as_of": as_of,
+        "purpose": purpose,
         "route_seal_id": route_seal_id,
+        "capture_authority": capture_authority,
         "required_datasets": sorted(required),
         "leaves": leaves,
         "readiness": NOT_READY if missing else READY,
         "missing_datasets": missing,
-        "required_datasets_provenance": (
-            "PROVISIONAL — owed by W4/A2 production-route transitive source "
-            "inventory. Replaced wholesale when published, never merged with a "
-            "caller's shorter list."),
+        # v1.35 · C-70 · §20.8. This used to say PROVISIONAL — owed by W4/A2.
+        # The inventory it was owed by now EXISTS: `REQUIRED_DATASET_FLOOR` is
+        # derived from `route_closure.DATASET_FAMILIES`, the production-route
+        # transitive inventory, and `assert_inventories_agree()` checks it
+        # against what the retrospective materializer actually loads. A capture
+        # refuses a provisional inventory, so leaving the stale sentence here
+        # would have blocked every capture for a reason that stopped being true.
+        "required_datasets_provenance": RATIFIED_INVENTORY_AUTHORITY,
     }
 
 

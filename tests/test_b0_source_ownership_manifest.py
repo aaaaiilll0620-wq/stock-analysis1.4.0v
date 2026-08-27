@@ -23,6 +23,9 @@ import pytest
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "research", "b0_materializer"))
 
+from core.b0_l3_lineage_capture import (                          # noqa: E402
+    PURPOSE_DIAGNOSTIC, PURPOSE_PRODUCTION,
+)        # noqa: E402
 from source_ownership_manifest import (                          # noqa: E402
     AGGREGATE_FILENAME,
     L3_CONTRACT_VERSION,
@@ -174,7 +177,7 @@ def test_the_self_hash_excludes_itself(tmp_path):
 def test_a_complete_run_is_ready_and_binds_every_leaf(tmp_path):
     run_dir = _full_run(tmp_path)
     agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                             route_seal_id=SEAL)
+                             purpose=PURPOSE_DIAGNOSTIC)
     assert agg["readiness"] == READY
     assert set(agg["leaves"]) == set(REQUIRED_DATASETS)
     for rec in agg["leaves"].values():
@@ -188,7 +191,7 @@ def test_NEGATIVE_a_missing_leaf_reports_not_ready(tmp_path):
     run_dir = _full_run(tmp_path, partial)
 
     agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                             route_seal_id=SEAL)
+                             purpose=PURPOSE_DIAGNOSTIC)
     assert agg["readiness"] == NOT_READY
     assert agg["missing_datasets"] == ["prices"]
     with pytest.raises(ManifestError, match=NOT_READY):
@@ -198,7 +201,7 @@ def test_NEGATIVE_a_missing_leaf_reports_not_ready(tmp_path):
 def test_NEGATIVE_a_leaf_changed_after_indexing_is_detected(tmp_path):
     run_dir = _full_run(tmp_path)
     write_aggregate(run_dir, assemble_aggregate(
-        run_dir=run_dir, run_id=RUN, as_of=AS_OF, route_seal_id=SEAL))
+        run_dir=run_dir, run_id=RUN, as_of=AS_OF, purpose=PURPOSE_DIAGNOSTIC))
 
     p = os.path.join(run_dir, LEAF_FILENAME % "financials")
     body = open(p, "rb").read()
@@ -215,7 +218,7 @@ def test_NEGATIVE_a_leaf_from_another_run_is_refused(tmp_path):
 
     with pytest.raises(ManifestError, match="belongs to run"):
         assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                           route_seal_id=SEAL)
+                           purpose=PURPOSE_DIAGNOSTIC)
 
 
 def test_NEGATIVE_a_leaf_with_a_different_as_of_is_refused(tmp_path):
@@ -226,7 +229,7 @@ def test_NEGATIVE_a_leaf_with_a_different_as_of_is_refused(tmp_path):
 
     with pytest.raises(ManifestError, match="as of"):
         assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                           route_seal_id=SEAL)
+                           purpose=PURPOSE_DIAGNOSTIC)
 
 
 def test_NEGATIVE_an_undeclared_source_manifest_is_refused(tmp_path):
@@ -235,7 +238,7 @@ def test_NEGATIVE_an_undeclared_source_manifest_is_refused(tmp_path):
 
     with pytest.raises(ManifestError, match="not in REQUIRED_DATASETS"):
         assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                           route_seal_id=SEAL)
+                           purpose=PURPOSE_DIAGNOSTIC)
 
 
 # --- the floor is not the caller's to lower ------------------------------------
@@ -248,19 +251,39 @@ def test_the_required_floor_covers_the_decision_shaping_sources():
         assert dataset in REQUIRED_DATASETS
 
 
-def test_the_floor_is_marked_provisional_until_W4_publishes_the_inventory(tmp_path):
+def test_the_floor_now_names_the_ratified_W4_A2_inventory(tmp_path):
+    """v1.35 / C-70 / §20.8. This used to assert PROVISIONAL. The inventory it
+    was owed by exists: the floor IS `route_closure.REQUIRED_DATASET_FLOOR`, and
+    a capture refuses a provenance that still calls itself provisional."""
+    from core.b0_l3_lineage_capture import (
+        RATIFIED_INVENTORY_AUTHORITY, assert_inventory_is_ratified,
+    )
+    sys.path.insert(0, os.path.join(REPO, "research", "b0_l3"))
+    from route_closure import REQUIRED_DATASET_FLOOR
+
     run_dir = _full_run(tmp_path)
     agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                             route_seal_id=SEAL)
-    assert "PROVISIONAL" in agg["required_datasets_provenance"]
-    assert "W4" in agg["required_datasets_provenance"]
+                             purpose=PURPOSE_DIAGNOSTIC)
+    assert agg["required_datasets_provenance"] == RATIFIED_INVENTORY_AUTHORITY
+    assert_inventory_is_ratified(agg["required_datasets_provenance"])
+    assert "W4/A2" in agg["required_datasets_provenance"]
+    assert set(agg["required_datasets"]) == set(REQUIRED_DATASET_FLOOR)
+    assert set(REQUIRED_DATASETS) == set(REQUIRED_DATASET_FLOOR)
 
 
 def test_an_aggregate_needs_the_route_seal_it_was_consumed_by(tmp_path):
+    """§20.3 (C-70): a production run binds a REAL seal. An empty string and
+    'PENDING' are placeholders — they read as bound in every audit that only
+    checks the field is present."""
     run_dir = _full_run(tmp_path)
-    with pytest.raises(ManifestError, match="route_seal_id"):
+    for placeholder in ("", "PENDING"):
+        with pytest.raises(ManifestError, match="placeholder"):
+            assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
+                               purpose=PURPOSE_PRODUCTION,
+                               route_seal_id=placeholder)
+    with pytest.raises(ManifestError, match="purpose"):
         assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                           route_seal_id="")
+                           purpose="WHATEVER", route_seal_id=SEAL)
 
 
 # --- what W6b will bind --------------------------------------------------------
@@ -268,7 +291,7 @@ def test_an_aggregate_needs_the_route_seal_it_was_consumed_by(tmp_path):
 def test_one_aggregate_hash_covers_every_source_transitively(tmp_path):
     run_dir = _full_run(tmp_path)
     _, raw = write_aggregate(run_dir, assemble_aggregate(
-        run_dir=run_dir, run_id=RUN, as_of=AS_OF, route_seal_id=SEAL))
+        run_dir=run_dir, run_id=RUN, as_of=AS_OF, purpose=PURPOSE_DIAGNOSTIC))
 
     # A receipt binds `raw`. Re-checking it re-checks every leaf.
     agg = load_aggregate(os.path.join(run_dir, AGGREGATE_FILENAME))
@@ -281,7 +304,7 @@ def test_a_not_ready_aggregate_is_still_written_but_never_consumed(tmp_path):
     """The incomplete state is a fact worth preserving; it just may not run."""
     run_dir = _full_run(tmp_path, tuple(REQUIRED_DATASETS[:2]))
     agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                             route_seal_id=SEAL)
+                             purpose=PURPOSE_DIAGNOSTIC)
     write_aggregate(run_dir, agg)
     assert os.path.isfile(os.path.join(run_dir, AGGREGATE_FILENAME))
     with pytest.raises(ManifestError):
@@ -291,7 +314,7 @@ def test_a_not_ready_aggregate_is_still_written_but_never_consumed(tmp_path):
 def test_an_aggregate_cannot_be_overwritten(tmp_path):
     run_dir = _full_run(tmp_path)
     agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
-                             route_seal_id=SEAL)
+                             purpose=PURPOSE_DIAGNOSTIC)
     write_aggregate(run_dir, agg)
     with pytest.raises(ManifestError, match="immutable"):
         write_aggregate(run_dir, agg)

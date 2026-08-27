@@ -23,6 +23,9 @@ for _p in (os.path.join(REPO, "research", "b0_materializer"),
            os.path.join(REPO, "research", "b0_l3")):
     sys.path.insert(0, _p)
 
+from core.b0_l3_lineage_capture import (                          # noqa: E402
+    PURPOSE_DIAGNOSTIC,
+)
 import build_bonus_shares_leaf as B                              # noqa: E402
 import build_corporate_actions_leaf as CA                        # noqa: E402
 import build_financials_leaf as FIN                              # noqa: E402
@@ -53,7 +56,7 @@ def _run(tmp_path, as_of=AS_OF, seal="PENDING", full=True):
     write_leaf(d, CA.build(RUN, as_of, run_dir=d))
     if full:
         write_aggregate(d, assemble_aggregate(
-            run_dir=d, run_id=RUN, as_of=as_of, route_seal_id=seal))
+            run_dir=d, run_id=RUN, as_of=as_of, purpose=PURPOSE_DIAGNOSTIC))
     return d
 
 
@@ -107,7 +110,7 @@ def test_a_partial_source_set_is_refused(tmp_path):
     d = _run(tmp_path, full=False)
     os.remove(os.path.join(d, "source_manifest_prices.json"))
     write_aggregate(d, assemble_aggregate(
-        run_dir=d, run_id=RUN, as_of=AS_OF, route_seal_id="PENDING"))
+        run_dir=d, run_id=RUN, as_of=AS_OF, purpose=PURPOSE_DIAGNOSTIC))
 
     # Readiness belongs to the manifest engine, not to the snapshot: the layer
     # that knows the source set is incomplete is the layer that says so.
@@ -153,7 +156,8 @@ def test_the_receipt_binds_one_hash_that_covers_every_source(tmp_path):
     assert r["source_ownership_manifest_sha256"] == file_sha256(
         os.path.join(d, AGGREGATE_FILENAME))
     assert len(r["required_datasets"]) == 9
-    assert r["route_code_closure_size"] == 28      # +b0_l3_price_span (v1.34/C-68)
+    assert r["route_code_closure_size"] == 29      # +b0_l3_price_span (v1.34/C-68)
+                                                   # +b0_l3_lineage_capture (v1.35/C-70)
 
 
 @sources
