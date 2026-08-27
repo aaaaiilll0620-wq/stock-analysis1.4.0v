@@ -1,0 +1,486 @@
+# -*- coding: utf-8 -*-
+"""W6b-2 · the L3 readers, and the parity that establishes they are right.
+
+A second implementation of a parsing rule does not fail by crashing. It returns
+a slightly different number and every guard downstream accepts it. Several of
+those numbers are one keystroke away here:
+
+    UTF-16 + TAB       the wrong pair yields ONE column, silently
+    成交量(千股) x1000  the frozen adv20 unit (C-25) against an absolute NTD
+                       floor (§4.2) — forget it and every security is illiquid
+    m = 1 + b/1000     C-51's holder multiplier silently rescales the price
+                       series momentum reads
+    a dropped 恢復交易日 row leaves a suspension explaining gaps forever
+
+So the fast tests below drive those directly on synthetic archives, and the full
+parity run against the sealed panels is available under an env flag.
+
+FULL PARITY, run 2026-08-27 (opt in with B0_L3_PARITY=1):
+
+    prices             3,288,691 rows  2019-01-01..2026-04-01  all equal
+    valuation          3,902 values    as_of 2026-03-30        all equal
+    calendar           L2's 5,565 sessions are an exact PREFIX; L3 extends by 7
+    security_status    1,375 records / 566 securities           exact
+    corporate_actions  46,433 events (158 holder-side exits, 1,242
+                       NOT_RECONSTRUCTIBLE)                     exact BYTES
+    bonus_shares       3,215 events / 996 securities, 2,399 matched
+    financials         136,372 rows / 2,315 securities, 15 columns
+    revenue            301,801 rows / 2,168 securities
+    industry           4,782 rows / 2,436 securities, 92 UNRESOLVED
+
+The heavy ones are opt-in because they read hundreds of MB, not because they
+are optional.
+"""
+from __future__ import annotations
+
+import io
+import os
+import sys
+import zipfile
+
+import pytest
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _p in (os.path.join(REPO, "research", "b0_materializer"),
+           os.path.join(REPO, "research", "b0_l3")):
+    sys.path.insert(0, _p)
+
+import build_bonus_shares_leaf as B                              # noqa: E402
+import build_corporate_actions_leaf as CA                        # noqa: E402
+import build_financials_leaf as FIN                              # noqa: E402
+import build_flat_leaves as F                                    # noqa: E402
+import build_prices_leaf as P                                    # noqa: E402
+import build_valuation_leaf as V                                 # noqa: E402
+import l3_readers as R                                           # noqa: E402
+import verify_reader_parity as VP                                # noqa: E402
+from source_ownership_manifest import (                          # noqa: E402
+    assemble_aggregate, write_aggregate, write_leaf,
+)
+
+RUN, AS_OF = "L3-0000000000000001", "2026-03-30"
+sources = pytest.mark.skipif(
+    not os.path.isdir(os.path.join(REPO, P.LANDING_DIRECTORY)),
+    reason="TEJ exports not present")
+heavy = pytest.mark.skipif(
+    os.environ.get("B0_L3_PARITY") != "1",
+    reason="set B0_L3_PARITY=1 (reads hundreds of MB of archives)")
+
+
+@pytest.fixture(scope="session")
+def run_dir(tmp_path_factory):
+    """One declared source set for the whole module.
+
+    Session-scoped because assembling it hashes every declared file, and doing
+    that per test would make the honest checks the slow ones.
+    """
+    d = str(tmp_path_factory.mktemp("l3run"))
+    for ds in sorted(F.FLAT_FAMILIES):
+        write_leaf(d, F.build(ds, RUN, AS_OF))
+    for mod in (FIN, P, B, V):
+        write_leaf(d, mod.build(RUN, AS_OF))
+    write_leaf(d, CA.build(RUN, AS_OF, run_dir=d))
+    write_aggregate(d, assemble_aggregate(
+        run_dir=d, run_id=RUN, as_of=AS_OF, route_seal_id="PENDING"))
+    return d
+
+
+# --- the silent failure modes ---------------------------------------------------
+
+def _price_archive(tmp_path, rows, encoding="utf-16", sep="\t"):
+    header = sep.join(R.PRICE_COLUMNS)
+    body = "\n".join(sep.join(r) for r in rows)
+    csv_bytes = (header + "\n" + body + "\n").encode(encoding)
+    p = os.path.join(str(tmp_path), "prices.zip")
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("member.csv", csv_bytes)
+    return p
+
+
+def test_the_volume_unit_is_restored_to_shares(tmp_path):
+    """TEJ publishes 成交量(千股). C-25 pins adv20 to close x Trading_Volume and
+    §4.2 applies an ABSOLUTE NTD floor, so dropping the x1000 does not raise —
+    it makes every security illiquid."""
+    import pandas as pd
+
+    path = _price_archive(tmp_path,
+                          [["1101 台泥", "2026-03-30", "37.0", "37.5", "1234"]])
+    with zipfile.ZipFile(path) as z:
+        txt = z.read("member.csv").decode("utf-16")
+    d = pd.read_csv(io.StringIO(txt), sep="\t", dtype=str)
+    shares = pd.to_numeric(d["成交量(千股)"]) * R.VOLUME_THOUSANDS_TO_SHARES
+
+    assert R.VOLUME_THOUSANDS_TO_SHARES == 1000.0
+    assert float(shares.iloc[0]) == 1_234_000.0
+
+
+def test_the_wrong_dialect_collapses_the_frame_without_raising(tmp_path):
+    """Why encoding and separator are pinned rather than sniffed."""
+    import pandas as pd
+
+    path = _price_archive(tmp_path,
+                          [["1101 台泥", "2026-03-30", "37.0", "37.5", "1"]])
+    with zipfile.ZipFile(path) as z:
+        txt = z.read("member.csv").decode("utf-16")
+
+    wrong = pd.read_csv(io.StringIO(txt), sep=",", dtype=str)
+    assert len(wrong.columns) == 1                    # silently one column
+    right = pd.read_csv(io.StringIO(txt), sep="\t", dtype=str)
+    assert len(right.columns) == len(R.PRICE_COLUMNS)
+
+
+def test_the_stock_id_is_split_off_the_name():
+    assert R._sid("1101 台泥") == "1101"
+
+
+def test_the_three_number_rules_are_three_rules():
+    """Collapsing them would be the quiet kind of wrong.
+
+    A valuation ratio of 0.0 is an ABSENCE (`valuation_sentinel_zero_is_
+    undefined`); a share quantity of 0 is a real zero; an exchange figure may
+    arrive with a unit suffix glued to it.
+    """
+    assert R._num("0") is None and R._num("0.0") is None
+    assert R._num("1.23") == 1.23 and R._num("-") is None
+
+    assert R._ca_num("0") == 0.0                      # a real zero, kept
+    assert R._ca_num(".") is None and R._ca_num("") is None
+
+    assert R._bonus_num("1,234") == 1234.0
+    assert R._bonus_num("50 元/股") == 50.0
+    assert R._bonus_num("--") is None
+
+
+def test_a_zip_with_the_wrong_schema_aborts(tmp_path):
+    """A schema change is a source change, not something a reader absorbs."""
+    p = os.path.join(str(tmp_path), "bad.zip")
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("m.csv", "證券代碼\t年月日\n1101 台泥\t20260330\n".encode("utf-16"))
+    with pytest.raises(R.ReaderError, match="schema"):
+        R._zip_tsv_rows(p, R.SUSPENSION_COLUMNS)
+
+
+# --- transcription, not import --------------------------------------------------
+
+def test_the_readers_import_no_l2_builder_and_no_tej_importer():
+    """The line the module docstring draws, pinned.
+
+    `core.*` is normative and inside the A2 route closure, so importing the
+    reason->status mapping or the multiplier rule from it is importing ONE
+    definition. `tej_importer` and `research/b0_materializer/build_*.py` are
+    neither: importing them would drag unsealed, actively-edited code into the
+    route AND make parity a tautology — a reader that calls L2's parser cannot
+    be checked against L2's output.
+    """
+    import ast
+
+    path = os.path.join(REPO, "research", "b0_l3", "l3_readers.py")
+    tree = ast.parse(open(path, encoding="utf-8").read())
+    imported = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module:
+            imported.add(node.module)
+        elif isinstance(node, ast.Import):
+            imported |= {a.name for a in node.names}
+
+    assert "tej_importer" not in imported
+    assert not [m for m in imported if m.startswith("build_")
+                and m != "build_leaf"], sorted(imported)
+    # and it DOES take its semantics from the normative modules
+    assert {"core.b0_market_state", "core.b0_corporate_actions",
+            "core.b0_bonus_share_source"} <= imported
+
+
+def test_the_readers_never_write_to_the_sealed_data_directory():
+    import ast
+
+    for name in ("l3_readers.py", "verify_reader_parity.py"):
+        path = os.path.join(REPO, "research", "b0_l3", name)
+        tree = ast.parse(open(path, encoding="utf-8").read())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                fn = node.func
+                dotted = getattr(fn, "attr", "") or getattr(fn, "id", "")
+                assert dotted not in ("to_parquet", "to_csv"), name
+
+
+@sources
+def test_every_family_has_a_reader_and_none_is_undeclared():
+    """'Not implemented' must remain a DECLARED state, not something discovered
+    at run time — which is why the mapping survives being empty."""
+    from source_ownership_manifest import REQUIRED_DATASETS
+
+    covered = set(R.READERS) | set(R.READERS_NOT_IMPLEMENTED)
+    assert covered == set(REQUIRED_DATASETS)
+    assert not (set(R.READERS) & set(R.READERS_NOT_IMPLEMENTED))
+    assert R.READERS_NOT_IMPLEMENTED == {}
+
+
+# --- the readers obey the manifest, they do not search --------------------------
+
+@sources
+def test_a_reader_reads_only_what_the_leaf_marked_consumed():
+    """Six of seven for status — 事件+下市.zip is a different source
+    (build_market_state.py:52) and must stay unread. For prices, 2 of the 26
+    entries in the export directory, plus the whole pre-2019 cache leg, which
+    lives in a different tree entirely (§2.8.3)."""
+    import collections
+
+    prices = P.build(RUN, AS_OF)
+    legs = collections.Counter(e.get("leg") for e in R.consumed_entries(prices))
+    assert legs["2019+"] == 2
+    assert legs["pre-2019"] > 2000
+    assert sum(1 for e in prices["entries"]
+               if e["disposition"] == "not_consumed") == 24
+
+    status = F.build("security_status", RUN, AS_OF)
+    consumed = [e["locator"] for e in R.consumed_entries(status)]
+    assert len(consumed) == 6 and len(status["entries"]) == 7
+    assert not any("事件" in n for n in consumed)
+
+
+@sources
+def test_a_source_changed_after_declaration_is_caught(run_dir, monkeypatch):
+    """The engine checks hashes at declare time; the reader checks again at read
+    time, closing the window between the two."""
+    monkeypatch.setattr(R, "file_sha256", lambda p: "9" * 64)
+    with pytest.raises(R.ReaderError, match="changed between declaration and read"):
+        R.read_calendar(run_dir)
+
+
+@sources
+def test_the_calendar_reader_returns_the_declared_series(run_dir):
+    sessions = R.read_calendar(run_dir)
+    assert sessions[0] == "2004-01-02"
+    assert sessions[-1] > "2026-08-17"                 # past L2's frozen end
+
+
+@sources
+def test_the_valuation_reader_treats_a_zero_ratio_as_undefined(run_dir):
+    vals = R.read_valuation(run_dir)
+    assert vals
+    assert all(v["pbr_tse"] != 0.0 for v in vals.values())
+
+
+# --- security_status ------------------------------------------------------------
+
+@sources
+def test_a_resumption_is_emitted_as_its_own_filed_fact(run_dir):
+    """Without it a suspension explains missing prices forever."""
+    rows = R.read_security_status(run_dir)
+    resumes = [r for r in rows if r["reason"] == "resume"]
+    assert resumes
+    assert all(r["status"] == "listed" for r in resumes)
+    # A delisting never resumes.
+    for r in rows:
+        if r["status"] == "delisted":
+            assert r["reason"] != "resume"
+
+
+@sources
+def test_available_from_is_present_on_every_record(run_dir):
+    """B0.6 exists because `status_available_from` was absent from the state.
+    O-E-1 needs the date a status became KNOWABLE, and a record without one
+    cannot satisfy it."""
+    rows = R.read_security_status(run_dir)
+    assert all(r["available_from"] for r in rows)
+    assert all(r["available_from"] == r["effective_from"] for r in rows)
+
+
+def test_an_uninterpretable_reason_produces_no_status_record():
+    """O-F ruling 4, fail closed: a 停止過戶 window or an unreadable reason must
+    not be promoted to `suspended`, because a promoted row would then stand over
+    a session as an explanation for a missing price."""
+    from core.b0_market_state import status_for_event
+
+    assert status_for_event("停止過戶") is None
+    assert status_for_event("") is None
+    assert status_for_event("合併下市") == "delisted"
+
+
+# --- corporate_actions ----------------------------------------------------------
+
+@sources
+def test_the_ledger_binds_this_runs_status_leaf(run_dir, monkeypatch):
+    """The holder-side exits come from security_status and nowhere else, so the
+    ledger must be built against THIS run's declared status source."""
+    real = R.load_leaf
+
+    def tampered(path):
+        leaf = real(path)
+        if "security_status" in os.path.basename(path):
+            return {**leaf, R.SELF_HASH_FIELD: "9" * 64}
+        return leaf
+
+    assert R.assert_status_dependency_holds(run_dir)
+    monkeypatch.setattr(R, "load_leaf", tampered)
+    with pytest.raises(R.ReaderError, match="not the one"):
+        R.assert_status_dependency_holds(run_dir)
+
+
+@sources
+@heavy
+def test_not_reconstructible_rows_are_part_of_the_source(run_dir):
+    """B0.7 terminates on exactly these rows. A reader that filtered them out
+    would make the run look like it had more history than it does."""
+    rows = R.read_corporate_actions(run_dir)
+    states = {r["reconstructibility"] for r in rows}
+    assert "NOT_RECONSTRUCTIBLE" in states
+    assert any(r["kind"] == "holder_side_reorganization_exit" for r in rows)
+    # B0.3 R4: provenance travels with the event.
+    assert all("source_field" in r for r in rows)
+
+
+# --- bonus_shares ---------------------------------------------------------------
+
+@sources
+@heavy
+def test_the_bonus_window_is_an_argument_not_a_constant(run_dir):
+    """L2's window is a property of L2's frozen 141 periods. Baking it in would
+    make a prospective panel that silently stops in March."""
+    ledger = R.read_corporate_actions(run_dir)
+    sessions = list(R.read_calendar(run_dir))
+    wide = R.read_bonus_shares(run_dir, "2013-06-29", "2026-03-31",
+                               ledger=ledger, sessions=sessions)
+    narrow = R.read_bonus_shares(run_dir, "2020-01-01", "2026-03-31",
+                                 ledger=ledger, sessions=sessions)
+    assert len(narrow) < len(wide)
+    assert narrow["market_effective_session"].min() >= "2020-01-01"
+
+
+def test_an_official_zero_never_becomes_a_multiplier_of_one():
+    """An official row saying 'no bonus' contradicts the ledger's own
+    classification of the event; turning it into m = 1 would silently assert
+    that no adjustment was needed."""
+    from core.b0_bonus_share_source import (
+        MATCHED_DISPOSITION, UNRESOLVED_DISPOSITION, assert_no_inferred_multiplier,
+        holder_multiplier_from_bonus, resolve_disposition,
+    )
+
+    assert holder_multiplier_from_bonus(100.0) == 1.1
+    assert resolve_disposition(official_bonus_per_1000=None,
+                               pre_listing=False) == UNRESOLVED_DISPOSITION
+    assert resolve_disposition(official_bonus_per_1000=100.0,
+                               pre_listing=False) == MATCHED_DISPOSITION
+    with pytest.raises(Exception):
+        assert_no_inferred_multiplier(UNRESOLVED_DISPOSITION, 1.0)
+
+
+# --- the readers do not inherit L2's frozen window ------------------------------
+
+@sources
+@heavy
+def test_the_fundamentals_readers_run_past_the_frozen_window(run_dir):
+    """§2.2's availability rule belongs to the DECISION, not to the reader. A
+    reader that stopped at window_end would be prospective in name only."""
+    import pandas as pd
+
+    end = pd.Timestamp(VP.WINDOW_END)
+    fin = R.read_financials(run_dir)
+    rev = R.read_revenue(run_dir)
+    assert (fin["release_date"] > end).any()
+    assert (pd.to_datetime(rev["release_date"]) > end).any()
+
+
+@sources
+@heavy
+def test_the_later_export_owns_the_overlapping_period(run_dir):
+    """Both financials sources carry 2026-06; the csv owns it and the workbook
+    yields it, so every 2026-06 row must come from the csv's larger census."""
+    fin = R.read_financials(run_dir)
+    june = fin[fin["date"].astype(str).str[:7] == "2026-06"]
+    assert len(june) > 1000            # the csv's 1,879, not the xlsx's 318
+
+
+# --- parity: the readers reproduce L2's answer from the same bytes -------------
+
+@sources
+def test_the_calendar_is_a_suffix_extension_of_l2s(run_dir):
+    """PREFIX, not equality: L2 is frozen at 2026-08-17 and the declared series
+    runs past it. What must hold is that no PAST session was re-dated — a
+    calendar that moves one re-dates every decision that stood on it."""
+    got = VP.verify_calendar(run_dir)
+    assert got["l3_sessions"] >= got["l2_sessions"]
+    assert got["extension"]
+
+
+@sources
+def test_a_re_dated_past_session_would_fail_parity(run_dir, monkeypatch):
+    """Negative control for the prefix rule."""
+    real = R.read_calendar(run_dir)
+    monkeypatch.setattr(VP, "read_calendar",
+                        lambda _d: ("1999-01-01",) + real[1:])
+    with pytest.raises(VP.ParityError, match="not a suffix-extension"):
+        VP.verify_calendar(run_dir)
+
+
+@sources
+def test_valuation_parity_against_the_sealed_panel(run_dir):
+    assert VP.verify_valuation(run_dir, AS_OF)["values_checked"] > 3000
+
+
+@sources
+def test_security_status_parity_against_the_sealed_table(run_dir):
+    got = VP.verify_security_status(run_dir)
+    assert got["records"] == 1375
+    assert got["statuses"] == ["delisted", "listed", "suspended"]
+
+
+@sources
+def test_industry_parity_against_the_sealed_timeline(run_dir):
+    """§2.3's step function must have exactly ONE construction."""
+    got = VP.verify_industry(run_dir)
+    assert got["securities"] == 2436
+    assert got["unresolved_securities"] == 92
+
+
+@sources
+def test_a_lost_status_record_would_fail_parity(run_dir, monkeypatch):
+    """Negative control: dropping one row must not pass."""
+    real = R.read_security_status(run_dir)
+    monkeypatch.setattr(VP, "read_security_status", lambda _d: real[1:])
+    with pytest.raises(VP.ParityError, match="row counts differ"):
+        VP.verify_security_status(run_dir)
+
+
+@sources
+@heavy
+def test_revenue_parity_against_the_sealed_panel(run_dir):
+    got = VP.verify_revenue(run_dir)
+    assert got["rows"] > 300_000
+    # §2.1: the window opens at 2014-07 because real release dates begin 2013-01.
+    assert got["first_real_release_date"].startswith("2013")
+
+
+@sources
+@heavy
+def test_financials_parity_against_the_sealed_panel(run_dir):
+    got = VP.verify_financials(run_dir)
+    assert got["rows"] > 130_000
+    assert got["columns_checked"] == 15
+
+
+@sources
+@heavy
+def test_corporate_action_ledger_parity_is_byte_for_byte(run_dir):
+    """Byte equality because the ledger IS consumed as a CSV downstream: the
+    bonus panel reads it with `csv.DictReader` and compares strings, so a float
+    whose repr moved is a real difference to that consumer."""
+    got = VP.verify_corporate_actions(run_dir)
+    assert got["events"] == 46433
+    assert got["holder_side_reorganization_exits"] == 158
+
+
+@sources
+@heavy
+def test_bonus_share_parity_against_the_sealed_panel(run_dir):
+    got = VP.verify_bonus_shares(run_dir)
+    assert got["events"] == 3215
+    assert got["matched_official_bonus_rate"] == 2399
+
+
+@sources
+@heavy
+def test_price_parity_against_the_sealed_panel(run_dir):
+    got = VP.verify_prices(run_dir)
+    assert got["rows"] > 3_000_000
+    assert got["columns_checked"] == ["open", "close", "volume_shares"]

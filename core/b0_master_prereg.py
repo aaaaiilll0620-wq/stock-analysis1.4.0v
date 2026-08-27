@@ -76,6 +76,10 @@ NORMATIVE_MODULES: tuple[str, ...] = (
     "core/b0_1_diagnostic_closure.py",
     "core/b0_benchmark_gate1.py",
     "core/b0_benchmark_construction.py",
+    # v1.34 · C-68 · §19. The L3 prospective route's span endpoints. Normative
+    # because `price_span[0]` decides `spell_start`, which is a hashed state
+    # field — a rule that moves the state hash may not live in a route.
+    "core/b0_l3_price_span.py",
 )
 
 
@@ -1023,6 +1027,7 @@ def _spec_registry() -> dict[str, Any]:
     from core import b0_opening_state as opn
     from core import b0_corporate_actions as ca
     from core import b0_valuation_source as vsrc
+    from core import b0_l3_price_span as lsp
     prereg_modules = NORMATIVE_MODULES
     from core import b0_pit_observability as pit
     from core import b0_state as st
@@ -1219,6 +1224,24 @@ def _spec_registry() -> dict[str, Any]:
         "ca_event_delivery_scope": "portfolio_economic_interest",
         "ca_event_delivery_is_global_broadcast": False,
         "ca_event_delivery_depends_on_market_row": False,
+        # v1.34 · C-68 · §19. The L3 prospective route's span endpoints. Three of
+        # the four are derived (execution session / as_of / the reach's own
+        # depth); the floor is the one degree of freedom, and it is frozen per
+        # lineage rather than re-derived per period, because it decides
+        # `spell_start` and therefore the state hash. NO DATE is registered here
+        # — the rule is (§19.7).
+        "l3_span_m3_key": lsp.M3_KEY,
+        "l3_span_ruling": lsp.RULING,
+        "l3_price_span_floor_rule": lsp.FLOOR_RULE,
+        "l3_span_applies_to": lsp.APPLIES_TO,
+        "l3_span_endpoint_derivations": lsp.ENDPOINT_DERIVATIONS,
+        "l3_lineage_floor_drift_policy": lsp.FLOOR_DRIFT_POLICY,
+        "l3_lineage_floor_may_drift_within_lineage": False,
+        # ASCII on purpose: a hashed declaration value that carries a non-ASCII
+        # character is one console codec away from being unreadable evidence.
+        "l3_span_semantic_authority": "master_preregistration_section_19",
+        "l3_span_enforcement_sites": (
+            "research/b0_l3/l3_assemble.py", "research/b0_l3/l3_snapshot.py"),
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,

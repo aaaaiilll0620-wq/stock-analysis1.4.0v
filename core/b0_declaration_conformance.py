@@ -376,6 +376,101 @@ def _conform_ca_event_delivery_scope() -> None:
             f"future one must not")
 
 
+def _c_l3_price_span_floor_rule():
+    from core import b0_l3_price_span as lsp
+    return lsp.FLOOR_RULE
+
+
+def _c_l3_span_endpoint_derivations():
+    from core import b0_l3_price_span as lsp
+    return lsp.ENDPOINT_DERIVATIONS
+
+
+def _c_l3_lineage_floor_drift_policy():
+    from core import b0_l3_price_span as lsp
+    return lsp.FLOOR_DRIFT_POLICY
+
+
+def _conform_l3_lineage_floor_dispositions() -> None:
+    """§19.3 step 3: the three floor relations, exercised rather than restated.
+
+    The sentence "the lineage floor does not drift" is exactly the F0-R4 shape —
+    it stays readable while the code under it starts widening the span. So the
+    check that backs it asks the code what it DOES when the observed floor is
+    later, equal and earlier than the frozen one.
+    """
+    from core.b0_l3_price_span import L3SpanError, assert_floor_conforms
+
+    frozen = "2010-01-04"
+    try:
+        assert_floor_conforms(frozen, "2010-01-05")
+    except L3SpanError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§19.3: an observed floor LATER than the frozen lineage floor means "
+            "the required history is missing; it must abort, not proceed shallow")
+
+    if assert_floor_conforms(frozen, frozen) != "PROCEED":
+        raise DeclarationConformanceError(
+            "§19.3: an observed floor equal to the frozen one is the normal case")
+
+    earlier = assert_floor_conforms(frozen, "2004-01-02")
+    if earlier != "CLIP_TO_LINEAGE_FLOOR_NEW_LINEAGE_VERSION_REQUIRED":
+        raise DeclarationConformanceError(
+            "§19.3: newly available earlier history must leave THIS lineage "
+            "clipped to its frozen floor (a new lineage version adopts it); the "
+            "disposition returned was %r" % earlier)
+
+
+def _conform_l3_span_endpoints_are_derived() -> None:
+    """§19.2: the three derived endpoints, and the floor that is not defaulted."""
+    from core.b0_l3_price_span import (
+        L3SpanError, bonus_window, capture_lineage_floor, price_span,
+    )
+
+    if price_span("2004-01-02", "2026-03-31") != ("2004-01-02", "2026-03-31"):
+        raise DeclarationConformanceError(
+            "§19.2: price_span must be (lineage floor, execution session) exactly")
+    try:
+        price_span("2026-03-31", "2004-01-02")
+    except L3SpanError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§19.2: an execution session before the floor is an abort — a span "
+            "that cannot price the trade the decision authorises is not shorter, "
+            "it is invalid")
+
+    # 14 month-ends ending 2026-03 reach 2025-02; the window opens the DAY AFTER
+    # that month's last session, which is what makes an event on it divide both
+    # momentum anchors alike.
+    if bonus_window("2026-03-30", "2025-02-27") != ("2025-02-28", "2026-03-30"):
+        raise DeclarationConformanceError(
+            "§19.2: bonus_window must open the day after the earliest required "
+            "month-end price and close at as_of")
+    try:
+        bonus_window("2026-03-30", "2025-03-31")
+    except L3SpanError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§19.2: a month-end session outside the oldest month the reach needs "
+            "must abort; a silently short window is how a boundary inside the "
+            "reach goes unseen")
+
+    try:
+        capture_lineage_floor("2004-01-02", source_manifest_is_hash_bound=False,
+                              leg_coverage_is_complete=True,
+                              quarantine_applied=True)
+    except L3SpanError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§19.3 step 1: a floor may not be captured from sources nobody "
+            "hashed — that is not evidence a seal can bind")
+
+
 def _conform_permanent_disappearance_not_a_concept() -> None:
     """O-B carries no 'gone forever' observable to be asked about at as_of."""
     from core.b0_pit_observability import PitPriceObservation
@@ -480,6 +575,30 @@ DECLARATION_BINDINGS: tuple[DeclarationBinding, ...] = (
         "ca_claim_bearing_event_kinds", IMPLEMENTATION_DERIVED,
         "core.b0_corporate_actions.CLAIM_BEARING_EVENT_KINDS",
         _derived("ca_claim_bearing_event_kinds", _c_claim_bearing_event_kinds)),
+
+    # --- v1.34 · C-68 · §19 · L3 prospective span endpoints -------------------
+    DeclarationBinding(
+        "l3_price_span_floor_rule", IMPLEMENTATION_DERIVED,
+        "core.b0_l3_price_span.FLOOR_RULE",
+        _derived("l3_price_span_floor_rule", _c_l3_price_span_floor_rule)),
+    DeclarationBinding(
+        "l3_span_endpoint_derivations", IMPLEMENTATION_DERIVED,
+        "core.b0_l3_price_span.ENDPOINT_DERIVATIONS",
+        _derived("l3_span_endpoint_derivations", _c_l3_span_endpoint_derivations)),
+    DeclarationBinding(
+        "l3_lineage_floor_drift_policy", IMPLEMENTATION_DERIVED,
+        "core.b0_l3_price_span.FLOOR_DRIFT_POLICY",
+        _derived("l3_lineage_floor_drift_policy", _c_l3_lineage_floor_drift_policy)),
+    DeclarationBinding(
+        "l3_lineage_floor_may_drift_within_lineage", BEHAVIORAL_CONFORMANCE,
+        "assert_floor_conforms: later aborts, equal proceeds, earlier stays "
+        "clipped to the frozen floor",
+        _conform_l3_lineage_floor_dispositions),
+    DeclarationBinding(
+        "l3_span_applies_to", BEHAVIORAL_CONFORMANCE,
+        "price_span / bonus_window / capture_lineage_floor: endpoints are "
+        "derived or refused, never defaulted",
+        _conform_l3_span_endpoints_are_derived),
 )
 
 # Declarations that decide what the route does. Every one must be bound above.
