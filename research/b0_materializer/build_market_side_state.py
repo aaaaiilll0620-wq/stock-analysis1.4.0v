@@ -42,6 +42,7 @@ sys.path.insert(0, REPO)
 
 from core.b0_canonical_hash import canonical_sha256          # noqa: E402
 from core.b0_features import INDUSTRY_UNRESOLVED             # noqa: E402
+from core.b0_master_prereg import spec as frozen_spec        # noqa: E402
 from core.b0_share_unit_adjustment import (                  # noqa: E402
     ELIGIBLE_KINDS, ShareUnitAdjustmentError, UnreconstructibleAdjustment,
     assert_kind_classified, holder_multiplier,
@@ -53,8 +54,13 @@ OUTDIR = os.path.join(DATA, "market_state")
 MANIFEST = os.path.join(DATA, "market_state_manifest.json")
 RECEIPT = os.path.join(HERE, "market_side_state_receipt.json")
 
-WINDOW_START, WINDOW_END = "2014-07-31", "2026-03-31"
-WINDOW_MONTHS = 141
+# B-09 / §2.1. Read, never restated: a frozen parameter written out a
+# second time is a second source of truth, and it agrees right up until the
+# day it does not — the C-55 shape. `spec()` has no default, so a window
+# that ever stops being specified aborts here instead of resolving to a
+# literal someone typed while the window was a different length.
+WINDOW_START, WINDOW_END = frozen_spec("window_start"), frozen_spec("window_end")
+WINDOW_MONTHS = frozen_spec("window_months")
 ADV_SESSIONS = 20
 SIGMA_SESSIONS = 20            # 20 log returns -> 21 closes
 

@@ -47,6 +47,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, REPO)
 
+from core.b0_master_prereg import spec as frozen_spec        # noqa: E402
+from core.b0_valuation_source import LINEAGE_BOUNDARY         # noqa: E402
+
 ART = os.path.join(os.environ.get("B0_ARTIFACT_DIR") or
                    os.path.join(REPO, "artifacts"), "valuation_lineage_audit")
 RAW_DIR = ART
@@ -79,9 +82,14 @@ WHICH = os.environ.get("B0_AUDIT_SESSIONS", "window").lower()
 # whose sha256 is already recorded.
 RENORM = os.environ.get("B0_AUDIT_MODE", "").lower() == "renormalize"
 
-# The frozen window's 2019+ decision months. Overlap sessions are pre-2019
-# month-ends, where the admissible yearly export still carries 股價淨值比-TSE.
-WINDOW_FROM, WINDOW_TO = "2019-01", "2026-03"
+# The frozen window's 2019+ decision months, DERIVED and not restated: the
+# end is the master preregistration's `window_end` (§2.1) and the start is
+# the C-48 valuation lineage boundary. Writing either out as a literal here
+# would create a second source of truth for a frozen parameter, which is the
+# C-55 shape — it agrees until the day it does not. Overlap sessions are
+# pre-2019 month-ends, where the admissible yearly export still carries
+# 股價淨值比-TSE.
+WINDOW_FROM, WINDOW_TO = LINEAGE_BOUNDARY[:7], frozen_spec("window_end")[:7]
 OVERLAP_FROM, OVERLAP_TO = "2016-01", "2018-12"
 
 
