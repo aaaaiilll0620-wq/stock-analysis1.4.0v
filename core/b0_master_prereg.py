@@ -1268,6 +1268,16 @@ def _spec_registry() -> dict[str, Any]:
             "core.b0_l3_lineage_capture.capture_lineage_floor",
         "l3_capture_writer_trusts_its_caller": False,
         "l3_diagnostic_evidence_class": lcap.DIAGNOSTIC_EVIDENCE_CLASS,
+        # v1.36 · C-71 · §20.8. The floor's causal closure, fixed rather than
+        # chosen: valuation and corporate actions cannot move the earliest
+        # admissible session, so they neither gate a capture nor enter the
+        # lineage identity. A PRODUCTION_RUN still binds all nine families.
+        "l3_floor_capture_required_datasets": lcap.FLOOR_CAPTURE_REQUIRED_DATASETS,
+        "l3_floor_capture_inventory_is_caller_selectable": False,
+        "l3_d1_quarantine_authority": tuple(sorted(
+            lcap.D1_QUARANTINE_AUTHORITY.items())),
+        "l3_production_inventory_unchanged_by_c71":
+            lcap.PRODUCTION_INVENTORY_IS_UNCHANGED_BY_C71,
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,

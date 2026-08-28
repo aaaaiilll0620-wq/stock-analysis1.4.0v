@@ -582,6 +582,80 @@ def write_capture_record_exclusively(artifact_root: str, record: dict) -> tuple:
 
 REQUIRED_PRICE_LEGS: tuple[str, ...] = ("pre-2019", "2019+")
 
+# §20.8 · C-71 · THE FLOOR CAUSAL CLOSURE — fixed, and not a caller's choice.
+#
+# v1.35 required a capture to read the full nine-family production inventory.
+# That blocked A01 on a `valuation` board payload that had not been harvested —
+# for a quantity valuation cannot move. The earliest admissible trading session
+# is decided by the price corpus and by which sessions exist; `valuation` and
+# `corporate_actions` cannot change it, so requiring them neither protects the
+# floor nor belongs in the lineage identity.
+#
+#   prices    both legs. §2.8.3 splits the lineage at 2019-01-01 and the halves
+#             live in different trees, so one leg alone is a different corpus.
+#   calendar  the floor must be a SESSION, and price rows off the declared
+#             calendar must be refused rather than silently deepening the floor.
+#
+# The D-1 quarantine is deliberately NOT a tenth family: it is a rule plus the
+# code that enforces it, bound by the spec and by FLOOR_CAPTURE_CODE_CLOSURE.
+FLOOR_CAPTURE_REQUIRED_DATASETS: tuple[str, ...] = ("calendar", "prices")
+
+D1_QUARANTINE_AUTHORITY = {
+    "rule": "PRE_2019_CACHE_ROWS_ONLY_THE_2019_ERA_IS_D1_QUARANTINED",
+    "boundary": "2019-01-01",
+    "bound_by": "specification + FLOOR_CAPTURE_CODE_CLOSURE, not a dataset family",
+}
+
+# A PRODUCTION_RUN is unchanged: it still binds all nine families.
+PRODUCTION_INVENTORY_IS_UNCHANGED_BY_C71 = True
+
+
+def assert_capture_inventory(required) -> tuple:
+    """The capture inventory is fixed. Short OR long is a refusal.
+
+    Not "at least these": a caller that could add families would put a hash that
+    cannot move the floor into the lineage identity, and one that could drop the
+    calendar would let an off-calendar row set it.
+    """
+    got = tuple(sorted(set(required or ())))
+    want = tuple(sorted(FLOOR_CAPTURE_REQUIRED_DATASETS))
+    if got != want:
+        raise LineageCaptureError(
+            "abort: a %s run reads exactly %s. It declared %s (missing %s, "
+            "extra %s). The floor's causal closure is fixed by §20.8, not "
+            "chosen per run." % (PURPOSE_CAPTURE, list(want), list(got),
+                                 sorted(set(want) - set(got)),
+                                 sorted(set(got) - set(want))))
+    return want
+
+
+def assert_floor_is_a_trading_session(floor: str, sessions) -> str:
+    """The floor is the earliest admissible SESSION, not the earliest row.
+
+    A price row on a day the declared calendar does not have is either a bad
+    date or a source from another calendar; either way it must not become the
+    day a lineage is frozen at.
+    """
+    assert_iso_date("lineage_price_floor", floor)
+    if floor not in set(sessions or ()):
+        raise LineageCaptureError(
+            "abort: the observed floor %s is not a session in the declared "
+            "calendar. A floor that is not a trading session cannot be the "
+            "earliest admissible one." % floor)
+    return floor
+
+
+def assert_prices_are_on_calendar(dates, sessions) -> int:
+    """No off-calendar price row may reach the floor derivation."""
+    known = set(sessions or ())
+    off = sorted({str(d) for d in dates if str(d) not in known})
+    if off:
+        raise LineageCaptureError(
+            "abort: %d price date(s) are not sessions in the declared calendar "
+            "(earliest %s). One of them would silently deepen the floor."
+            % (len(off), off[0]))
+    return 0
+
 # §20.8 / W4-A2. The inventory a capture stands on may not describe itself as
 # provisional: a floor captured from "whatever sources we had" is not a fact
 # about the corpus.

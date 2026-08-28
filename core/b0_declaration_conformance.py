@@ -599,6 +599,50 @@ def _conform_l3_capture_writer_trusts_nobody() -> None:
             "caller" % list(mutate))
 
 
+def _c_l3_floor_capture_required_datasets():
+    from core import b0_l3_lineage_capture as lcap
+    return lcap.FLOOR_CAPTURE_REQUIRED_DATASETS
+
+
+def _conform_l3_floor_capture_inventory_is_fixed() -> None:
+    """§20.8 / C-71: exactly the causal closure — short OR long is refused."""
+    from core.b0_l3_lineage_capture import (
+        FLOOR_CAPTURE_REQUIRED_DATASETS, LineageCaptureError,
+        assert_capture_inventory, assert_floor_is_a_trading_session,
+        assert_prices_are_on_calendar,
+    )
+
+    assert_capture_inventory(FLOOR_CAPTURE_REQUIRED_DATASETS)
+    for wrong in (("prices",), ("calendar",),
+                  tuple(FLOOR_CAPTURE_REQUIRED_DATASETS) + ("valuation",), ()):
+        try:
+            assert_capture_inventory(wrong)
+        except LineageCaptureError:
+            continue
+        raise DeclarationConformanceError(
+            "§20.8: capture inventory %s was accepted; it is fixed, so both a "
+            "shorter and a longer set must abort" % (wrong,))
+
+    sessions = ("2004-01-02", "2004-01-05")
+    assert_floor_is_a_trading_session("2004-01-02", sessions)
+    try:
+        assert_floor_is_a_trading_session("2004-01-03", sessions)
+    except LineageCaptureError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§20.8: a floor that is not a declared session was accepted")
+    assert_prices_are_on_calendar(["2004-01-02"], sessions)
+    try:
+        assert_prices_are_on_calendar(["2004-01-02", "2004-01-03"], sessions)
+    except LineageCaptureError:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§20.8: an off-calendar price row was accepted; it would deepen the "
+            "floor silently")
+
+
 def _conform_permanent_disappearance_not_a_concept() -> None:
     """O-B carries no 'gone forever' observable to be asked about at as_of."""
     from core.b0_pit_observability import PitPriceObservation
@@ -746,6 +790,17 @@ DECLARATION_BINDINGS: tuple[DeclarationBinding, ...] = (
         "assert_manifest_binding: a capture naming any seal aborts; a "
         "production manifest refuses a placeholder seal",
         _conform_l3_capture_chain_is_one_way),
+    DeclarationBinding(
+        "l3_floor_capture_required_datasets", IMPLEMENTATION_DERIVED,
+        "core.b0_l3_lineage_capture.FLOOR_CAPTURE_REQUIRED_DATASETS",
+        _derived("l3_floor_capture_required_datasets",
+                 _c_l3_floor_capture_required_datasets)),
+    DeclarationBinding(
+        "l3_floor_capture_inventory_is_caller_selectable", BEHAVIORAL_CONFORMANCE,
+        "assert_capture_inventory / assert_floor_is_a_trading_session / "
+        "assert_prices_are_on_calendar: the closure is fixed, the floor must be "
+        "a session, off-calendar rows are refused",
+        _conform_l3_floor_capture_inventory_is_fixed),
     DeclarationBinding(
         "l3_capture_writer_trusts_its_caller", BEHAVIORAL_CONFORMANCE,
         "assert_record_is_admissible / write_capture_record_exclusively: a "

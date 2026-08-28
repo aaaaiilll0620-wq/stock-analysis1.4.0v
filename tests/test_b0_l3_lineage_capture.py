@@ -17,7 +17,8 @@ from core.b0_l3_lineage_capture import (                          # noqa: E402
     CAPTURE_AUTHORITY, CAPTURE_FILENAME, DIAGNOSTIC_EVIDENCE_CLASS,
     DIAGNOSTIC_EXPECTED_FLOOR, LINEAGE_BASIS_FIELDS, LineageCaptureError,
     PLACEHOLDER_ROUTE_SEAL_IDS, PURPOSE_CAPTURE, PURPOSE_DIAGNOSTIC,
-    PURPOSE_PRODUCTION, RATIFIED_INVENTORY_AUTHORITY, ROUTE_SEAL_CONTRACT_STATUS,
+    FLOOR_CAPTURE_REQUIRED_DATASETS, PURPOSE_PRODUCTION,
+    RATIFIED_INVENTORY_AUTHORITY, ROUTE_SEAL_CONTRACT_STATUS,
     assert_capture_run_id, assert_floor_matches_expected,
     assert_inventory_is_ratified, assert_leg_summaries, assert_lineage_id,
     assert_manifest_binding, assert_no_decision_fields, assert_record_is_admissible,
@@ -444,3 +445,68 @@ def test_the_floor_capture_closure_is_its_own():
     for p in FLOOR_CAPTURE_CODE_CLOSURE:
         assert os.path.isfile(os.path.join(repo, p)), p
     assert len(floor_capture_code_closure_sha256(repo)) == 64
+
+
+# --- §20.8 · C-71 · the floor's causal closure is fixed ---------------------------
+
+def test_the_capture_inventory_is_exactly_the_floor_causal_closure():
+    """Short OR long is a refusal. A01 was blocked by a `valuation` payload that
+    cannot move the earliest admissible session; C-71 removes that gate without
+    letting a caller choose its own list."""
+    from core.b0_l3_lineage_capture import (
+        FLOOR_CAPTURE_REQUIRED_DATASETS, assert_capture_inventory,
+    )
+
+    assert FLOOR_CAPTURE_REQUIRED_DATASETS == ("calendar", "prices")
+    assert assert_capture_inventory(FLOOR_CAPTURE_REQUIRED_DATASETS) == \
+        ("calendar", "prices")
+    for wrong in (("prices",), ("calendar",), (), ("calendar", "prices", "valuation"),
+                  ("calendar", "prices", "corporate_actions")):
+        with pytest.raises(LineageCaptureError, match="reads exactly"):
+            assert_capture_inventory(wrong)
+
+
+def test_a_production_run_still_binds_all_nine_families():
+    """C-71 narrows the CAPTURE inventory only."""
+    from core.b0_l3_lineage_capture import PRODUCTION_INVENTORY_IS_UNCHANGED_BY_C71
+    sys.path.insert(0, os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "research", "b0_l3"))
+    from route_closure import REQUIRED_DATASET_FLOOR
+
+    assert PRODUCTION_INVENTORY_IS_UNCHANGED_BY_C71 is True
+    assert len(REQUIRED_DATASET_FLOOR) == 9
+    assert set(FLOOR_CAPTURE_REQUIRED_DATASETS) < set(REQUIRED_DATASET_FLOOR)
+
+
+def test_the_floor_must_be_a_declared_trading_session():
+    from core.b0_l3_lineage_capture import assert_floor_is_a_trading_session
+
+    sessions = ("2004-01-02", "2004-01-05", "2004-01-06")
+    assert assert_floor_is_a_trading_session("2004-01-02", sessions) == "2004-01-02"
+    with pytest.raises(LineageCaptureError, match="not a session"):
+        assert_floor_is_a_trading_session("2004-01-03", sessions)   # a Saturday
+    with pytest.raises(LineageCaptureError, match="YYYY-MM-DD"):
+        assert_floor_is_a_trading_session("20040102", sessions)
+
+
+def test_an_off_calendar_price_row_may_not_deepen_the_floor():
+    from core.b0_l3_lineage_capture import assert_prices_are_on_calendar
+
+    sessions = ("2004-01-02", "2004-01-05")
+    assert assert_prices_are_on_calendar(["2004-01-05", "2004-01-02"], sessions) == 0
+    with pytest.raises(LineageCaptureError, match="not sessions"):
+        assert_prices_are_on_calendar(["2003-12-31", "2004-01-02"], sessions)
+
+
+def test_the_d1_quarantine_is_a_rule_not_a_dataset_family():
+    from core.b0_l3_lineage_capture import (
+        D1_QUARANTINE_AUTHORITY, FLOOR_CAPTURE_CODE_CLOSURE,
+        FLOOR_CAPTURE_REQUIRED_DATASETS,
+    )
+
+    assert D1_QUARANTINE_AUTHORITY["boundary"] == "2019-01-01"
+    assert "not a dataset family" in D1_QUARANTINE_AUTHORITY["bound_by"]
+    assert not any("quarantine" in d for d in FLOOR_CAPTURE_REQUIRED_DATASETS)
+    assert "research/b0_materializer/build_prices_leaf.py" in FLOOR_CAPTURE_CODE_CLOSURE
+    assert "research/b0_l3/l3_readers.py" in FLOOR_CAPTURE_CODE_CLOSURE

@@ -507,17 +507,21 @@ def assemble_aggregate(*, run_dir: str, run_id: str, as_of: str,
                                 audit that only checks the field is present.
     """
     from core.b0_l3_lineage_capture import (                       # noqa: E402
-        PURPOSE_CAPTURE, RATIFIED_INVENTORY_AUTHORITY, LineageCaptureError,
-        assert_manifest_binding,
+        FLOOR_CAPTURE_REQUIRED_DATASETS, PURPOSE_CAPTURE,
+        RATIFIED_INVENTORY_AUTHORITY, LineageCaptureError,
+        assert_capture_inventory, assert_manifest_binding,
     )
 
-    if purpose == PURPOSE_CAPTURE and tuple(sorted(required)) != \
-            tuple(sorted(REQUIRED_DATASETS)):
-        raise ManifestError(
-            "abort: a %s run must read the FULL ratified inventory. It declared "
-            "%d families, the W4/A2 floor is %d. A floor captured from a "
-            "narrowed source set freezes an accident (§20.8)."
-            % (PURPOSE_CAPTURE, len(set(required)), len(set(REQUIRED_DATASETS))))
+    if purpose == PURPOSE_CAPTURE:
+        # C-71 · §20.8. The capture inventory is the floor's causal closure and
+        # it is FIXED: `required` is not a knob here, and a caller that passes a
+        # different set is refused rather than quietly overridden.
+        if required is REQUIRED_DATASETS:
+            required = FLOOR_CAPTURE_REQUIRED_DATASETS
+        try:
+            required = assert_capture_inventory(required)
+        except LineageCaptureError as exc:
+            raise ManifestError(str(exc))
     if not run_id or not as_of:
         raise ManifestError("abort: an aggregate must name run_id and as_of.")
     try:
