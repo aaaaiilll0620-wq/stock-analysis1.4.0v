@@ -6,6 +6,9 @@
 > **未**修改 `research/b0_registry/master_prereg_freeze.json`、
 > **未**修改任何 normative module、**未**改動任何 run artefact 的位元組。
 >
+> 治理裁決時序：2026-08-29 第一裁（分類錯置成立、額度仍消耗、C-56／C-57 並存）；
+> 同日第二裁（§5 repair-kind 分派為 MOOT / UNREACHABLE）。兩裁皆已納入本稿。
+>
 > 目標版號 **v1.37**、closure 編號 **C-72**。經 Codex 覆核與使用者批准後，
 > 方由 §6 的擬議文字落入 `docs/FrozenB0_MasterPreregistration.md`。
 > 若被否決，依 C-67 前例保留為 rejected history，版號與編號**不重用**。
@@ -182,9 +185,9 @@ Frozen B0 之 once-only L2 observation ：已消耗，終局
 
 ---
 
-## §5 · 殘留項：該標籤的第三個消費者
+## §5 · 該標籤的第三個消費者：已裁定為 MOOT / UNREACHABLE
 
-裁決處理了 provenance 與 accounting 兩個消費者。**尚有第三個。**
+裁決處理了 provenance 與 accounting 兩個消費者。第三個是：
 
 ```
 core/b0_master_prereg.py:927   assert_rerun_admissible(previous, repair)
@@ -199,29 +202,52 @@ else
     → DataRepair
 ```
 
-標籤依 C-57 留在 F-CA-B ⇒ **該閘門將要求 `DataRepair`**，
-而治理層已裁定該缺陷屬 implementation。其自身 docstring 寫著：
+標籤依 C-57 留在 F-CA-B ⇒ 該閘門將要求 `DataRepair`，而治理層已裁定該缺陷屬
+implementation；其自身 docstring 正指此種錯置（`Accepting a DataRepair for a
+conformance failure would record an implementation defect as a data defect`）。
+又依 §1.3 附帶推論，本案並不存在可用之 `DataRepair`。
 
-> Accepting a `DataRepair` for a conformance failure would record an
-> implementation defect as a data defect.
+### §9.6b-R5 · 本 lineage 之 repair-kind 分派為 MOOT / UNREACHABLE（擬議，規範性）
 
-即該閘門現於規範模組中執行著與本裁決**相反**的規則。又依 §1.3 附帶推論，
-本案並不存在可用之 `DataRepair`，故該路徑同時是死路。
+治理層裁定（2026-08-29）：
 
-**兩個處置選項，本草稿不預設立場：**
+> Frozen B0 lineage 之 once-only effective observation 已由
+> `L2-af1b4d90c29b3b5f` 消耗，且 C-60 明定
+> `official Frozen B0 L2 replay permitted = false`。
+> 因此 §5 之 repair-kind 分派對本 lineage 已屬 **MOOT / UNREACHABLE**，
+> **不得**被解讀為仍存在 reopening 路徑。
 
-- **(a) 分派改讀已裁決類別。** 新增不可變的 adjudication record，
-  `assert_rerun_admissible` 於分派前先查詢之；標籤仍依 C-57 不動。
-  代價：新增一個 governance artefact 與其 schema、綁定與測試。
-  適用前提：未來仍可能對某個 lineage 嘗試 reopening。
-- **(b) 明文宣告本 lineage 不再有 reopening，該分派對 Frozen B0 為 moot。**
-  代價：僅文字。適用前提：接受 Frozen B0 之 L2 終局結案，
-  日後任何規格變更依 §1.4 no-post-hoc-rescue 走新版本（B1、B2 …）且主證據為 L3。
+兩項理由**互相獨立**，任一項單獨即足以關閉該路徑：
 
-> 選 (b) 時**必須**明文寫出「該閘門對本 lineage 為 moot」，
-> 否則日後閱讀者會將其讀為一扇開著的門。
+| # | 理由 | 出處 | 生效時點 |
+|---|---|---|---|
+| 1 | once-only effective observation 已消耗 | §9.6b-R2；`effective_observations() = ('L2-af1b4d90c29b3b5f',)` | 2026-08-19T10:03:02 |
+| 2 | `official Frozen B0 L2 replay permitted = false` | §12（C-60 / v1.26）與 §18（C-66 / v1.32）之規範性標頭 | **v1.26** |
 
----
+**故該分派自 v1.26 起即已不可達，早於本裁決。** 理由 2 並非本案新增——它自 B0.1
+起即隨每一份 B0.x 標頭重複宣告。本條所做的不是關閉一條開著的路，而是把一條
+**早已關閉**的路明文記載下來，以免日後被誤讀為尚未關閉。
+
+**明文禁止之讀法（規範性）：**
+
+- **不得**將 `assert_rerun_admissible` 之存在讀為 Frozen B0 仍有 reopening 路徑。
+- **不得**為滿足該分派而構造 `DataRepair` —— 依 §1.3，該資料缺口不存在。
+- **不得**以「取得某個 `DataRepair` 即可重開」作為任何工作項之理由，
+  含 B0.8 之 158 筆 holder-side 條款回填（見 §10）。
+
+**規格變更之唯一出路**依 §1.4 no-post-hoc-rescue：另立新版本（B1、B2 …），
+其 primary evidence 為 L3，並須自行取得新的 Baseline Seal 與具名授權。
+**新 lineage 之 repair-kind 分派不受本條影響——本條僅及於 Frozen B0。**
+
+### §5.1 · 該宣告目前無機械強制（揭露）
+
+實測：`official Frozen B0 L2 replay permitted = false` 在 `core/` 中
+**沒有任何對應常數**（`grep -rn "replay_permitted\|REPLAY_PERMITTED" core/` 為空），
+它是**文件宣告，不是可執行閘門**。同理，`assert_rerun_admissible` 本身不知道
+自己已 moot——它仍會對任何呼叫者正常分派。
+
+本條不改變此現況（§8 判定為 false 之基礎），但 §7 就此提出一條建議綁定：
+**讓「不可達」這件事本身可被機械檢查**，否則它與被它取代的那扇門一樣，只存在於文字裡。
 
 ## §6 · 對條文的具體修改建議
 
@@ -240,7 +266,8 @@ else
 > 詞彙表不因改判而新增或改名任何 outcome。
 > 讀取標籤以進行分派之程式須明示其讀的是哪一個（見 §9.6b-R5）。
 
-**§9.6b-R5** 依 §5 之選項擇一寫定。
+**§9.6b-R5** 已依 2026-08-29 之治理裁決寫定於 §5，採 MOOT / UNREACHABLE，
+連同其三條禁止讀法與「僅及於 Frozen B0」之範圍限定，原文落入 §9.6b。
 
 ---
 
@@ -253,6 +280,13 @@ else
   `zero_effective_decision_observations = False` 者，
   `effective_observations()` 仍將其計入；且僅當七條件全部成立時方排除。
   正反兩側皆須施測（比照 C-71 對 `assert_capture_inventory` 的長短集合雙向拒絕）。
+
+- `frozen_b0_l2_reopening_is_unreachable`（因 §5.1 而新增）——
+  把 §9.6b-R5 的結論變成可執行檢查，而非僅存於文字：
+  以具名常數宣告 Frozen B0 lineage 之 replay/reopening 為不可達，
+  並證明在該宣告下 `assert_reopening_admissible` 對**任何**輸入組合皆失敗
+  （含構造出來的合法 repair 與新 seal），使「不得被解讀為仍存在 reopening 路徑」
+  不依賴閱讀者的自制。
 
 另建議一條回歸測試釘住本案事實：`effective_observations()` 恆含
 `L2-af1b4d90c29b3b5f`。
@@ -278,7 +312,8 @@ L2 spans、歷史 run、L3 §19／§20 契約全部不變。
 ## §9 · 若批准之落地清單
 
 1. §6 之文字落入 `docs/FrozenB0_MasterPreregistration.md`，版本行追加 v1.37 / C-72。
-2. §5 選項定案並寫入 §9.6b-R5；若選 (a)，另需 adjudication record 之 schema 與模組。
+2. ~~§5 選項定案~~ **已定案（2026-08-29）**：採 MOOT / UNREACHABLE，
+   §9.6b-R5 之原文見 §5，無須 adjudication record 或新模組。
 3. §7 之 declaration binding 與回歸測試落地。
 4. 重算 `spec_sha256` / `spec_bytes`，更新 `master_prereg_freeze.json`
    （**本草稿階段不做**）。
