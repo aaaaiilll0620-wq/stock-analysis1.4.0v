@@ -34,8 +34,20 @@ from core.b0_l2_run_layout import (                                # noqa: E402
     create_run_dir, read_opening_claim, sha256_of,
 )
 from core.b0_master_prereg import (                                # noqa: E402
+    FROZEN_B0_LINEAGE, L2ReopeningUnreachable, assert_l2_reopening_reachable,
     effective_observation_count, write_provenance_json,
 )
+
+# C-72 / §9.6e-R5. This script IS the opening boundary: it claims the run
+# directory and writes the opening claim. Every path in it is Frozen B0 — the
+# seal archive, the market-state manifest and the period-1 receipt below are all
+# that lineage's — so the lineage is a constant here, not an argument.
+#
+# The guard being in `assert_reopening_admissible` was not enough. That function
+# is consulted by whoever chooses to consult it, and this script did not: it
+# read `effective_observation_count()` only to COPY the number into the record.
+# A gate the entry point never asks is not a closed gate.
+LINEAGE = FROZEN_B0_LINEAGE
 
 SEAL_ARCHIVE = os.path.join(REPO, "artifacts", "baseline_seal", "seals")
 FREEZE = os.path.join(REPO, "research", "b0_registry", "master_prereg_freeze.json")
@@ -64,6 +76,16 @@ def main() -> int:
 
     if not a.authorization.strip():
         raise SystemExit("abort: an opening requires a named authorization")
+
+    # 0 · C-72 / §9.6e-R5 · may this lineage be opened at all?
+    #     BEFORE everything: before the seal is looked up, before HEAD is read,
+    #     before --dry-run prints a record that would suggest an opening is
+    #     available. --dry-run creates nothing, but it is not exempt: the answer
+    #     it would print is wrong.
+    try:
+        assert_l2_reopening_reachable(LINEAGE)
+    except L2ReopeningUnreachable as exc:
+        raise SystemExit("abort: %s" % exc)
 
     # 1 · the seal the caller names must be the one actually archived
     archive = os.path.join(SEAL_ARCHIVE, a.seal + ".json")

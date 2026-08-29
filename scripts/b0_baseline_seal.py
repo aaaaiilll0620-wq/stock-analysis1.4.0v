@@ -43,7 +43,9 @@ from core.b0_l2_run_layout import (                                 # noqa: E402
     attempted_opening_count, opening_claims,
 )
 from core.b0_master_prereg import (                                          # noqa: E402
-    NORMATIVE_MODULES, effective_observation_count, normative_module_hashes,
+    FROZEN_B0_LINEAGE, L2ReopeningUnreachable, NORMATIVE_MODULES,
+    assert_l2_reopening_reachable, effective_observation_count,
+    normative_module_hashes,
     read_registry, spec, specified_keys,
 )
 from core.b0_provenance import (                                             # noqa: E402
@@ -418,6 +420,21 @@ def main() -> None:
     print("=" * 78)
     print("B0 BASELINE SEAL — pre-L2 (Master v1.14, C-47)")
     print("=" * 78)
+
+    # C-72 / §9.6e-R5. A Baseline Seal exists to authorise an L2 opening
+    # (§13.3). Frozen B0 has no opening left to authorise, so a NEW seal for
+    # this lineage has no admissible consumer — and R2 condition 6 ("a new
+    # Baseline Seal is taken") is exactly the door a new seal would look like it
+    # was opening. Refused here rather than three steps later at the opener,
+    # because a seal that gets taken is already a fact in the lineage ledger.
+    try:
+        assert_l2_reopening_reachable(FROZEN_B0_LINEAGE)
+    except L2ReopeningUnreachable as exc:
+        raise SystemExit(
+            "abort: %s\n"
+            "Taking a new Baseline Seal cannot change this: condition 6 is not "
+            "an entrance, and the seal would bind a window that is closed."
+            % exc)
 
     # Snapshot BEFORE any of the reads below, so the guard spans the whole
     # critical section rather than only its last instant.

@@ -36,7 +36,7 @@ from core.b0_master_prereg import (
     NonConsumptionAttestation,
     assert_conformance_repair_admissible,
     assert_non_consumption_admissible,
-    assert_reopening_admissible,
+    assert_reopening_claim_wellformed,
     assert_rerun_admissible,
     effective_observation_count,
     read_non_consumption,
@@ -46,6 +46,15 @@ from core.b0_master_prereg import (
 
 OLD_SEAL = "7faad84ab88c972474780d406cb3504e039d26d416c21c62a1cd1ed7ae1c3289"
 NEW_SEAL = "aea938248ef8bdee4fdb3b6fb5cade7bd58e0219a7c9dab2dda51c076dc52cee"
+
+# C-72 / Master 9.6e-R5. Frozen B0's reopening path is closed by ruling, so the
+# PRODUCTION gate `assert_reopening_admissible` now refuses it before it looks
+# at anything else. The tests below are about C-56's MECHANISM — R2 conditions 6
+# and 7 — which the ruling leaves intact, so they call the mechanism directly:
+# `assert_reopening_claim_wellformed`. They deliberately do NOT reach it by
+# naming some other lineage; an unregistered lineage fails loudly, and routing a
+# test around a production guard is how the guard stops meaning anything.
+# The refusal itself is pinned in tests/test_b0_c72_observation_accounting.py.
 
 
 def _opening(**kw):
@@ -234,7 +243,7 @@ def test_a_conformance_repair_scoped_to_the_portfolio_is_refused():
 
 def test_reopening_requires_a_genuinely_new_baseline_seal():
     with pytest.raises(MasterPreregViolation, match="requires a NEW Baseline Seal"):
-        assert_reopening_admissible(
+        assert_reopening_claim_wellformed(
             _opening(), _conformance_repair(),
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=OLD_SEAL,
@@ -243,7 +252,7 @@ def test_reopening_requires_a_genuinely_new_baseline_seal():
 
 def test_reopening_requires_a_named_authorization():
     with pytest.raises(MasterPreregViolation, match="authorization_reference"):
-        assert_reopening_admissible(
+        assert_reopening_claim_wellformed(
             _opening(), _conformance_repair(),
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,
@@ -252,7 +261,7 @@ def test_reopening_requires_a_named_authorization():
 
 def test_reopening_still_requires_the_right_repair_kind():
     with pytest.raises(MasterPreregViolation, match="requires a ImplementationConformanceRepair"):
-        assert_reopening_admissible(
+        assert_reopening_claim_wellformed(
             _opening(), _data_repair(),
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,
@@ -260,7 +269,7 @@ def test_reopening_still_requires_the_right_repair_kind():
 
 
 def test_a_complete_reopening_claim_is_admissible():
-    assert_reopening_admissible(
+    assert_reopening_claim_wellformed(
         _opening(), _conformance_repair(),
         previous_baseline_seal_sha256=OLD_SEAL,
         new_baseline_seal_sha256=NEW_SEAL,
@@ -283,7 +292,7 @@ def test_closing_the_item_did_not_grant_a_retry():
     conformance repair, a different Baseline Seal, and a named authorization.
     """
     with pytest.raises(MasterPreregViolation):
-        assert_reopening_admissible(
+        assert_reopening_claim_wellformed(
             _opening(), None,
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,

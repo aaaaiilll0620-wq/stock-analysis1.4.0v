@@ -1,6 +1,31 @@
 # DRAFT · C-72 · 終局重新分類下的 L2 observation accounting
 
-> **STATUS: DRAFT — NOT NORMATIVE, NOT FROZEN.**
+> **STATUS: LANDED 2026-08-29 as Master v1.37 / C-72. 本檔自此為證據附件，非規範。**
+>
+> 規範文字在 `docs/FrozenB0_MasterPreregistration.md` **§9.6e**（R1~R5）與
+> closure entry `C-72`。**兩處與本檔的差異只有節號**：本檔擬議之 §9.6b 自 v1.22 起
+> 已由「Deterministic provenance bytes」占用，落地改列 §9.6e，
+> 其下條文編為 §9.6e-R1 ~ R5，內容未因改號而變動。
+> §7 之 binding 已實作，並在覆核後擴為**四條**（新增
+> `l2_opening_entry_points_ask_the_gate`）：`frozen_b0_l2_replay_permitted`、
+> `frozen_b0_l2_reopening_is_unreachable`、`l2_opening_entry_points_ask_the_gate`、
+> `l2_reclassification_does_not_reopen_accounting`。
+> §5.1 所揭露的「宣告無機械強制」已於 v1.37 關閉 —— 且**閘門設在真正的開封邊界**
+> （`scripts/b0_open_l2.py`、`scripts/b0_baseline_seal.py`），不只在 core API。
+>
+> **本草稿另有兩處已在落地時更正，不追改本文：**
+> (1) §4 之 decision date 應為 **2014-07-31**（`as_of` 2014-07-30、execution 2014-08-01）；
+> (2) §4 「不得主張績效面仍屬未觀測」措辭矛盾，落地版拆為
+> **事實層**（績效確實未產生、未觀測，得如實引用）與
+> **治理層**（不得據此推論窗口仍有再開封補產績效之資格）兩句。
+>
+> 首次落地 commit `43943b5f` 係在覆核通過前提誤成立之下提交，
+> 判為 `LANDED_BEFORE_REQUIRED_REVIEW + REVISION_REQUIRED`，已 revert（`54ddb1a`）。
+> 本檔以下內容為**撰寫當時**的狀態，保留原樣不追改。
+>
+> **以下為原始草稿狀態行（歷史記錄）：**
+>
+> > **STATUS: DRAFT — NOT NORMATIVE, NOT FROZEN.**
 >
 > 本檔**不是** Master Preregistration 的一部分。撰寫本檔**未**上版號、
 > **未**修改 `research/b0_registry/master_prereg_freeze.json`、

@@ -33,7 +33,7 @@ from core.b0_master_prereg import (
     L2Opening,
     NonConsumptionAttestation,
     assert_non_consumption_admissible,
-    assert_reopening_admissible,
+    assert_reopening_claim_wellformed,
     effective_observation_count,
     read_non_consumption,
     record_non_consumption,
@@ -48,6 +48,15 @@ OPENING_CASH = 2000000.0
 
 OLD_SEAL = "7faad84ab88c972474780d406cb3504e039d26d416c21c62a1cd1ed7ae1c3289"
 NEW_SEAL = "ab8dcbc3d87b3647bf280c9af9ac66ccd7a3d13ff7f04f7160105ea3ab5149f4"
+
+# C-72 / Master 9.6e-R5. Frozen B0's reopening path is closed by ruling, so the
+# PRODUCTION gate `assert_reopening_admissible` now refuses it before it looks
+# at anything else. The tests below are about C-56's MECHANISM — R2 conditions 6
+# and 7 — which the ruling leaves intact, so they call the mechanism directly:
+# `assert_reopening_claim_wellformed`. They deliberately do NOT reach it by
+# naming some other lineage; an unregistered lineage fails loudly, and routing a
+# test around a production guard is how the guard stops meaning anything.
+# The refusal itself is pinned in tests/test_b0_c72_observation_accounting.py.
 
 
 def _run_dir(tmp_path, nav_rows, final=None):
@@ -234,7 +243,7 @@ def test_the_reopening_gate_refuses_when_the_artefacts_are_missing(tmp_path):
                          data_manifest_sha256="b" * 64,
                          outcome=L2_RUN_INVALID_CONFORMANCE)
     with pytest.raises(ConditionTwoContradicted, match="cannot be verified"):
-        assert_reopening_admissible(
+        assert_reopening_claim_wellformed(
             previous, repair,
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,

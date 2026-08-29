@@ -656,6 +656,234 @@ def _conform_permanent_disappearance_not_a_concept() -> None:
             f"disappearance is not a concept B0 has at as_of")
 
 
+# --- v1.37 · C-72 · §9.6e · L2 observation accounting -------------------------
+
+def _c_frozen_b0_l2_replay_permitted():
+    from core import b0_master_prereg as mp
+    return mp.REGISTERED_L2_LINEAGES[mp.FROZEN_B0_LINEAGE]
+
+
+def _conform_frozen_b0_reopening_is_unreachable() -> None:
+    """§9.6e-R5: no input combination reopens Frozen B0 — including a good one.
+
+    The interesting case is the LAST one. A refusal that only fires on malformed
+    input would leave the path open to anyone who fills the form in correctly,
+    which is precisely the reading §9.6e-R5 forbids.
+    """
+    from core.b0_master_prereg import (
+        DataRepair, FROZEN_B0_LINEAGE, ImplementationConformanceRepair,
+        L2Opening, L2ReopeningUnreachable, L2_NOT_EVALUABLE_CA_BLOCK,
+        L2_RUN_INVALID_CONFORMANCE, UnregisteredLineage,
+        assert_l2_reopening_reachable, assert_reopening_admissible,
+        assert_reopening_claim_wellformed, l2_replay_permitted,
+    )
+
+    if l2_replay_permitted(FROZEN_B0_LINEAGE):
+        raise DeclarationConformanceError(
+            "§9.6e-R5: Frozen B0 reports its L2 replay as permitted")
+    try:
+        assert_l2_reopening_reachable()          # the default IS Frozen B0
+    except L2ReopeningUnreachable:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§9.6e-R5: the default lineage was reachable; a caller that names "
+            "nothing is asking about Frozen B0 and must be refused")
+
+    previous = L2Opening(
+        opened_at="2026-08-19T10:03:02.000000+00:00", spec_sha256="a" * 64,
+        code_commit="3256270b", data_manifest_sha256="b" * 64,
+        outcome=L2_RUN_INVALID_CONFORMANCE)
+    good_repair = ImplementationConformanceRepair(
+        description="a repair that is well formed in every respect",
+        frozen_semantics_reference="§6.1.7 exposure interval rule",
+        semantics_frozen_before_run=True, changes_strategy_semantics=False,
+        performance_consulted=False, selected_by_portfolio_exposure=False)
+    for repair in (None, good_repair):
+        try:
+            assert_reopening_admissible(
+                previous, repair,
+                previous_baseline_seal_sha256="c" * 64,
+                new_baseline_seal_sha256="d" * 64,
+                authorization_reference="a fresh explicit authorization")
+        except L2ReopeningUnreachable:
+            continue
+        except Exception as exc:                 # refused, but for a lesser reason
+            raise DeclarationConformanceError(
+                "§9.6e-R5: Frozen B0 reopening was refused as %s, not as "
+                "unreachable; the lineage question must be asked FIRST, or a "
+                "caller who fixes the lesser complaint reaches the mechanism"
+                % type(exc).__name__)
+        raise DeclarationConformanceError(
+            "§9.6e-R5: a Frozen B0 reopening claim was ADMITTED (repair=%r); "
+            "the path is closed for every input combination" % (repair,))
+
+    # An unregistered lineage FAILS CLOSED. Answering "reachable" for an unknown
+    # name would make the refusal above bypassable by misspelling FROZEN_B0.
+    for unknown in ("FROZEN_BO", "B1", "", "frozen_b0"):
+        try:
+            assert_l2_reopening_reachable(unknown)
+        except UnregisteredLineage:
+            continue
+        raise DeclarationConformanceError(
+            "§9.6e-R5: lineage %r was answered rather than refused; an "
+            "unregistered lineage has no replay disposition to read, and "
+            "answering one makes the Frozen B0 gate bypassable by typo"
+            % (unknown,))
+
+    # Scope limit, tested from the other side: C-56's mechanism still works, and
+    # it is reached by CALLING the mechanism, never by naming a fictional
+    # lineage. A gate that refused everything would satisfy the checks above
+    # while quietly deleting C-56.
+    # A terminal OUTSIDE the non-consuming set on purpose: it exercises the
+    # seal comparison, the repair-kind dispatch and the named authorization
+    # without reaching into the repository for a real run's artefacts. A check
+    # that `seal()` calls may not depend on files being where it hopes.
+    assert_reopening_claim_wellformed(
+        L2Opening(opened_at="2026-08-19T10:03:02.000000+00:00",
+                  spec_sha256="a" * 64, code_commit="3256270b",
+                  data_manifest_sha256="b" * 64,
+                  outcome=L2_NOT_EVALUABLE_CA_BLOCK),
+        DataRepair(description="an independent source closes a real gap",
+                   independent_source="an exchange export nobody has read yet",
+                   scope="event_class", performance_consulted=False,
+                   selected_by_portfolio_exposure=False),
+        previous_baseline_seal_sha256="c" * 64,
+        new_baseline_seal_sha256="d" * 64,
+        authorization_reference="a fresh explicit authorization")
+
+
+L2_OPENING_ENTRY_POINTS: tuple[str, ...] = (
+    "scripts/b0_open_l2.py",            # claims the run dir and the opening claim
+    "scripts/b0_baseline_seal.py",      # takes the seal an opening would bind
+)
+
+# The guard the entry points must ask. Named here so that renaming it in
+# `b0_master_prereg` without updating the callers fails this check instead of
+# silently un-guarding the boundary.
+L2_OPENING_ENTRY_GUARD = "assert_l2_reopening_reachable"
+
+
+def _conform_l2_opening_entry_points_ask_the_gate() -> None:
+    """§9.6e-R5: the gate lives where the opening HAPPENS, not only in core.
+
+    The first attempt at C-72 wired the guard into `assert_reopening_admissible`
+    alone. Neither entry point called it: `b0_open_l2.py` read
+    `effective_observation_count()` only to copy the number into the record it
+    was about to write, and `b0_baseline_seal.py` wrote
+    `effective_observations_to_date` into the manifest without refusing to seal.
+    The core API said the window could not be reopened and the boundary never
+    asked, which is a closed door with no wall around it.
+
+    Checked by AST rather than by substring: a mention inside a comment or a
+    docstring is exactly the kind of evidence this project does not accept.
+    """
+    import ast
+    import os
+
+    from core.b0_master_prereg import REPO_ROOT
+
+    for rel in L2_OPENING_ENTRY_POINTS:
+        path = os.path.join(REPO_ROOT, rel)
+        if not os.path.exists(path):
+            raise DeclarationConformanceError(
+                "§9.6e-R5: %s is registered as an L2 opening entry point but "
+                "does not exist; the register must name real boundaries" % rel)
+        with open(path, encoding="utf-8") as fh:
+            tree = ast.parse(fh.read(), filename=rel)
+
+        imported = any(
+            isinstance(n, ast.ImportFrom)
+            and n.module == "core.b0_master_prereg"
+            and any(alias.name == L2_OPENING_ENTRY_GUARD for alias in n.names)
+            for n in ast.walk(tree))
+        called = any(
+            isinstance(n, ast.Call)
+            and ((isinstance(n.func, ast.Name)
+                  and n.func.id == L2_OPENING_ENTRY_GUARD)
+                 or (isinstance(n.func, ast.Attribute)
+                     and n.func.attr == L2_OPENING_ENTRY_GUARD))
+            for n in ast.walk(tree))
+        if not (imported and called):
+            raise DeclarationConformanceError(
+                "§9.6e-R5: %s does not %s %s. An opening boundary that never "
+                "asks whether the lineage may be opened is unguarded, however "
+                "firmly core says otherwise."
+                % (rel, "import" if not imported else "call",
+                   L2_OPENING_ENTRY_GUARD))
+
+
+def _conform_reclassification_does_not_reopen_accounting() -> None:
+    """§9.6e-R4, on injected rows: accounting follows the seven conditions.
+
+    Three sides, because two would not pin it: an attestation filed against a
+    row recorded as F-CA-B does not retire that row (re-classification is not
+    an excuse), the same attestation DOES retire a row actually recorded as
+    F-CA-C (the rule was not simply broken), and an attestation that denies any
+    one condition is refused outright (the exclusion needs all seven).
+    """
+    import os
+    import tempfile
+
+    from core.b0_master_prereg import (
+        ATTESTED_CONDITIONS, L2Opening, L2_NOT_EVALUABLE_CA_BLOCK,
+        L2_RUN_INVALID_CONFORMANCE, MasterPreregViolation,
+        NonConsumptionAttestation, effective_observations,
+        record_non_consumption, record_opening,
+    )
+
+    opened_at = "2026-08-19T10:03:02.000000+00:00"
+    run_id = "L2-0000000000000001"
+
+    def _attestation(**kw):
+        base = dict(opened_at=opened_at, run_id=run_id,
+                    outcome=L2_RUN_INVALID_CONFORMANCE,
+                    ruling="§9.6e-R1 re-classified the defect class",
+                    evidence="injected fixture, not a real run")
+        base.update({c: True for c in ATTESTED_CONDITIONS})
+        base.update(kw)
+        return NonConsumptionAttestation(**base)
+
+    def _observed(recorded_outcome, attestation):
+        with tempfile.TemporaryDirectory() as tmp:
+            reg = os.path.join(tmp, "registry.jsonl")
+            att = os.path.join(tmp, "nonconsumption.jsonl")
+            record_opening(L2Opening(
+                opened_at=opened_at, spec_sha256="a" * 64,
+                code_commit="3256270b", data_manifest_sha256="b" * 64,
+                outcome=recorded_outcome,
+                detail='{"run_id": "%s"}' % run_id), reg)
+            if attestation is not None:
+                record_non_consumption(attestation, att)
+            return effective_observations(reg, att)
+
+    kept = _observed(L2_NOT_EVALUABLE_CA_BLOCK, _attestation())
+    if kept != (run_id,):
+        raise DeclarationConformanceError(
+            "§9.6e-R4: a row recorded as %s was retired by an attestation "
+            "naming a re-classified defect class (%r). Accounting must follow "
+            "the seven conditions and the RECORDED row, not the re-labelling."
+            % (L2_NOT_EVALUABLE_CA_BLOCK, kept))
+
+    excused = _observed(L2_RUN_INVALID_CONFORMANCE, _attestation())
+    if excused != ():
+        raise DeclarationConformanceError(
+            "§9.6a: a fully attested row recorded as %s was still counted "
+            "(%r); the narrow exemption itself has stopped working."
+            % (L2_RUN_INVALID_CONFORMANCE, excused))
+
+    try:
+        _observed(L2_RUN_INVALID_CONFORMANCE,
+                  _attestation(zero_effective_decision_observations=False))
+    except MasterPreregViolation:
+        pass
+    else:
+        raise DeclarationConformanceError(
+            "§9.6a-R2: an attestation denying condition 1 was accepted; the "
+            "seven conditions are a conjunction, and the run this ruling "
+            "governs fails exactly that one")
+
+
 # --- the register -------------------------------------------------------------
 # Every production-reachable declaration. A key that decides route behaviour and
 # is absent here is the gap F0-R4 closes, so the completeness of THIS tuple is
@@ -812,6 +1040,31 @@ DECLARATION_BINDINGS: tuple[DeclarationBinding, ...] = (
         "lineage_id_from_basis / assert_lineage_id: derived from the basis, "
         "deterministic, and the display alias is refused as an identity",
         _conform_l3_lineage_identity_is_not_circular),
+
+    # --- v1.37 · C-72 · §9.6e · L2 observation accounting ---------------------
+    DeclarationBinding(
+        "frozen_b0_l2_replay_permitted", IMPLEMENTATION_DERIVED,
+        "core.b0_master_prereg.LINEAGE_L2_REPLAY_PERMITTED[FROZEN_B0]",
+        _derived("frozen_b0_l2_replay_permitted",
+                 _c_frozen_b0_l2_replay_permitted)),
+    DeclarationBinding(
+        "frozen_b0_l2_reopening_is_unreachable", BEHAVIORAL_CONFORMANCE,
+        "assert_reopening_admissible: Frozen B0 is refused as unreachable "
+        "before anything else is asked, including with a well-formed repair, a "
+        "new seal and a named authorization; another lineage still reaches the "
+        "mechanism",
+        _conform_frozen_b0_reopening_is_unreachable),
+    DeclarationBinding(
+        "l2_opening_entry_points_ask_the_gate", BEHAVIORAL_CONFORMANCE,
+        "AST over scripts/b0_open_l2.py and scripts/b0_baseline_seal.py: each "
+        "imports and calls assert_l2_reopening_reachable",
+        _conform_l2_opening_entry_points_ask_the_gate),
+    DeclarationBinding(
+        "l2_reclassification_does_not_reopen_accounting", BEHAVIORAL_CONFORMANCE,
+        "effective_observations on injected rows: an attestation naming a "
+        "re-classified defect class does not retire an F-CA-B row, does retire "
+        "an F-CA-C row, and is refused outright when any condition is denied",
+        _conform_reclassification_does_not_reopen_accounting),
 )
 
 # Declarations that decide what the route does. Every one must be bound above.

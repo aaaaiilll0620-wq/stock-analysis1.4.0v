@@ -924,6 +924,110 @@ def effective_observations(
     return tuple(out)
 
 
+# --- C-72 / §9.6e-R5 · Frozen B0's L2 reopening path is unreachable -----------
+#
+# v1.26 (C-60) declared `official Frozen B0 L2 replay permitted = false`, and
+# every B0.x normative header has repeated it since. C-72 measured what that
+# declaration was worth and found it was worth a sentence: a grep over `core/`
+# returned nothing, so the prohibition lived in the document and the gate below
+# had never been told about it. That is the F0-R4 failure mode with the roles
+# reversed — not a declaration the code stopped honouring, but a declaration the
+# code was never given.
+#
+# Two INDEPENDENT reasons close the path; either one alone is sufficient:
+#
+#   1. the once-only effective observation of the Frozen B0 window was consumed
+#      by `L2-af1b4d90c29b3b5f` (§9.6e-R2), and
+#   2. replay of the official Frozen B0 lineage has been impermissible since
+#      v1.26 — which predates this ruling rather than being created by it.
+#
+# The scope limit is normative and narrow: this closes FROZEN_B0 and rules on
+# nothing else. But "C-72 does not govern a new lineage" is NOT "any unknown
+# string is admitted". The register below is exhaustive and fails CLOSED: an
+# unregistered name — a typo like `FROZEN_BO`, or a lineage nobody has ruled on
+# yet — raises rather than being waved through, for the same reason `spec()`
+# takes no `default`. A future B1 becomes reachable by being registered here
+# with its own authority, which is a specification change, not an argument.
+FROZEN_B0_LINEAGE = "FROZEN_B0"
+
+# lineage -> may its L2 window be replayed / reopened at all.
+REGISTERED_L2_LINEAGES: Mapping[str, bool] = {FROZEN_B0_LINEAGE: False}
+
+# ASCII on purpose: these travel into a hashed declaration registry.
+FROZEN_B0_REOPENING_UNREACHABLE_REASONS: tuple[str, ...] = (
+    "once_only_effective_observation_consumed_by_L2-af1b4d90c29b3b5f",
+    "official_frozen_b0_l2_replay_permitted_is_false_since_master_v1_26",
+)
+
+
+class L2ReopeningUnreachable(MasterPreregViolation):
+    """§9.6e-R5: this lineage has no reopening path, whatever the inputs are.
+
+    Distinct from the R2 condition failures below, which say "this particular
+    claim does not qualify". This says there is nothing to qualify for.
+    """
+
+
+class UnregisteredLineage(UnspecifiedBehaviour):
+    """A lineage nobody has ruled on. Not a permission, not a refusal — a gap."""
+
+
+def l2_replay_permitted(lineage: str = FROZEN_B0_LINEAGE) -> bool:
+    """Whether `lineage` may replay/reopen its L2 window at all.
+
+    Fails closed on an unregistered name. Answering True by default would make
+    the Frozen B0 gate bypassable by misspelling it, and would silently grant a
+    lineage the once-only discipline has never been applied to.
+    """
+    try:
+        return REGISTERED_L2_LINEAGES[lineage]
+    except KeyError:
+        raise UnregisteredLineage(
+            f"M-3 / Master 9.6e-R5: {lineage!r} is not a registered L2 "
+            f"lineage. "
+            f"Registered lineages are {tuple(REGISTERED_L2_LINEAGES)}. This is "
+            f"neither a grant nor a refusal: a lineage that has not been ruled "
+            f"on has no replay disposition to read. Registering one — a future "
+            f"B1 with its own Baseline Seal and its own named authority — is a "
+            f"specification change, not a caller's choice."
+        ) from None
+
+
+def assert_l2_reopening_reachable(lineage: str = FROZEN_B0_LINEAGE) -> None:
+    """§9.6e-R5, as a gate rather than as a sentence in a header."""
+    if not l2_replay_permitted(lineage):
+        # ASCII on purpose. This message is read from consoles and CI logs, and
+        # a section sign that arrives as mojibake is one more reason for a
+        # reader to skim past the sentence that was supposed to stop them.
+        raise L2ReopeningUnreachable(
+            f"Master 9.6e-R5 (C-72): the {lineage} lineage has no L2 reopening "
+            f"path. Reasons, each independently sufficient: "
+            f"{FROZEN_B0_REOPENING_UNREACHABLE_REASONS}. A well-formed repair, "
+            f"a genuinely new Baseline Seal and a named authorization do not "
+            f"reach the question: the existence of the machinery is not a "
+            f"reopening path, and a DataRepair may not be constructed in order "
+            f"to satisfy a dispatch that is moot. The only route to a changed "
+            f"specification is a NEW lineage under Master 1.4 "
+            f"no-post-hoc-rescue, whose primary evidence is L3."
+        )
+
+
+# §9.6e-R4 · the accounting is bound to the seven conditions, not to the label.
+# A terminal that is later re-classified is re-assessed against what the run
+# ACTUALLY did; re-classification can move condition 3 and nothing else. This is
+# the sentence that stops re-classification from becoming a resurrection ritual:
+# any reconstruction block can be narrated afterwards as "that question should
+# never have been asked", so an accounting rule keyed on the label would make
+# once-only decorative.
+RECLASSIFIED_TERMINAL_ACCOUNTING_RULE = (
+    "A later re-classification of a run's terminal category does not itself "
+    "change once-only observation accounting. The accounting is re-assessed "
+    "against the facts of what the run did, under the same seven conditions; "
+    "re-classification bears at most on condition 3 (defect is implementation "
+    "or input conformance). Conditions 1 and 2 describe events that, once they "
+    "have happened, cannot be undone by re-labelling them.")
+
+
 def assert_rerun_admissible(
         previous: L2Opening,
         repair: "DataRepair | ImplementationConformanceRepair | None") -> None:
@@ -933,6 +1037,13 @@ def assert_rerun_admissible(
     conformance failure would record an implementation defect as a data defect,
     and accepting a conformance repair for a reconstruction block would let a
     missing source be closed by editing code.
+
+    C-72 / §9.6e-R5: this dispatch is MOOT for Frozen B0, and its existence must
+    not be read as a reopening path. It dispatches on the RECORDED label, which
+    C-57 keeps at whatever the run wrote; a governance re-classification of the
+    defect CLASS does not move it. The gate that knows the path is closed is
+    `assert_l2_reopening_reachable`, which `assert_reopening_admissible` asks
+    before it asks anything here.
     """
     if previous.outcome in (L2_SUPPORTED, L2_NOT_SUPPORTED):
         raise MasterPreregViolation(
@@ -967,12 +1078,49 @@ def assert_reopening_admissible(
         new_baseline_seal_sha256: str,
         authorization_reference: str,
         attestation: "NonConsumptionAttestation | None" = None,
+        run_dir: str | None = None,
+        lineage: str = FROZEN_B0_LINEAGE) -> None:
+    """THE production gate. Reachability first, then the C-56 mechanism.
+
+    C-72: which lineage this is gets asked FIRST, and an unregistered name
+    raises rather than passing. For Frozen B0 the answer is that there is no
+    path, and no combination of repair, seal and authorization changes it, so
+    the mechanism below never runs. `lineage` defaults to Frozen B0 deliberately
+    — the closed case is the silent one.
+
+    Nothing may reach `assert_reopening_claim_wellformed` by naming a lineage
+    that does not exist. That is why the register fails closed: a test or a
+    caller that wants the mechanism calls the mechanism.
+    """
+    assert_l2_reopening_reachable(lineage)
+    assert_reopening_claim_wellformed(
+        previous, repair,
+        previous_baseline_seal_sha256=previous_baseline_seal_sha256,
+        new_baseline_seal_sha256=new_baseline_seal_sha256,
+        authorization_reference=authorization_reference,
+        attestation=attestation, run_dir=run_dir)
+
+
+def assert_reopening_claim_wellformed(
+        previous: L2Opening,
+        repair: "DataRepair | ImplementationConformanceRepair | None",
+        *,
+        previous_baseline_seal_sha256: str,
+        new_baseline_seal_sha256: str,
+        authorization_reference: str,
+        attestation: "NonConsumptionAttestation | None" = None,
         run_dir: str | None = None) -> None:
-    """R2 conditions 6 and 7, enforced rather than attested.
+    """R2 conditions 6 and 7, enforced rather than attested. C-56's mechanism.
 
     A boolean saying "a new seal was taken" is worth nothing next to comparing
     the two seal identities, and 6.1.14 says explicitly that the clause does not
     itself grant a retry - so the authorization must be NAMED at the call site.
+
+    ⚠ NOT a production entry point, and not a permission. This answers "is this
+    claim well formed", never "may this lineage reopen" — that question belongs
+    to `assert_reopening_admissible`, which asks it first. Split out under C-72
+    so the mechanism stays testable after Frozen B0's path closed, WITHOUT
+    anyone reaching it by inventing a lineage name.
     """
     assert_rerun_admissible(previous, repair)
     assert set(NON_CONSUMPTION_CONDITIONS) - set(ATTESTED_CONDITIONS) == {
@@ -1278,6 +1426,24 @@ def _spec_registry() -> dict[str, Any]:
             lcap.D1_QUARANTINE_AUTHORITY.items())),
         "l3_production_inventory_unchanged_by_c71":
             lcap.PRODUCTION_INVENTORY_IS_UNCHANGED_BY_C71,
+        # v1.37 · C-72 · §9.6e. Observation accounting under a re-classified
+        # terminal, and the reachability of the reopening path itself. §5.1 of
+        # the ruling measured that `official Frozen B0 L2 replay permitted =
+        # false` had no constant anywhere in `core/`; these three keys are that
+        # gap closed, so the prohibition now hashes into config_hash like every
+        # other ruling instead of living only in a document header.
+        "frozen_b0_l2_replay_permitted": REGISTERED_L2_LINEAGES[
+            FROZEN_B0_LINEAGE],
+        "registered_l2_lineages": tuple(sorted(REGISTERED_L2_LINEAGES.items())),
+        "unregistered_l2_lineage_is_permitted": False,
+        "frozen_b0_reopening_unreachable_reasons":
+            FROZEN_B0_REOPENING_UNREACHABLE_REASONS,
+        "frozen_b0_l2_reopening_is_unreachable": True,
+        "l2_reclassification_does_not_reopen_accounting": True,
+        "l2_opening_entry_points_ask_the_gate": True,
+        "l2_opening_entry_points": conform.L2_OPENING_ENTRY_POINTS,
+        "l2_reclassified_terminal_accounting_rule":
+            RECLASSIFIED_TERMINAL_ACCOUNTING_RULE,
         "l2_repair_kinds": tuple(k.__name__ for k in REPAIR_KINDS),
         "l2_conformance_repair_forbidden_subjects":
             ImplementationConformanceRepair.FORBIDDEN_SUBJECTS,
