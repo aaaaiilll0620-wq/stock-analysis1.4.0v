@@ -49,13 +49,6 @@ OPENING_CASH = 2000000.0
 OLD_SEAL = "7faad84ab88c972474780d406cb3504e039d26d416c21c62a1cd1ed7ae1c3289"
 NEW_SEAL = "ab8dcbc3d87b3647bf280c9af9ac66ccd7a3d13ff7f04f7160105ea3ab5149f4"
 
-# C-72 / §9.6e-R5: Frozen B0's reopening path is unreachable by ruling, and it is
-# the DEFAULT for `assert_reopening_admissible`. The tests below are about the
-# mechanism — R2 conditions 6 and 7 — which the ruling explicitly leaves intact
-# for a lineage it does not reach, so they name one. The Frozen B0 refusal is
-# pinned in tests/test_b0_c72_observation_accounting.py.
-OTHER_LINEAGE = "B1_LINEAGE_NOT_YET_OPENED"
-
 
 def _run_dir(tmp_path, nav_rows, final=None):
     """A synthetic run directory holding exactly the rows under test."""
@@ -246,8 +239,7 @@ def test_the_reopening_gate_refuses_when_the_artefacts_are_missing(tmp_path):
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,
             authorization_reference="a fresh explicit authorization",
-            attestation=_att(), run_dir=str(tmp_path / "absent"),
-            lineage=OTHER_LINEAGE)
+            attestation=_att(), run_dir=str(tmp_path / "absent"))
 
 
 # --- R4 · the preserved run, verified rather than described -------------------
