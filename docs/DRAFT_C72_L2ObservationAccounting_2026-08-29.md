@@ -1,6 +1,20 @@
 # DRAFT · C-72 · 終局重新分類下的 L2 observation accounting
 
-> **STATUS: DRAFT — NOT NORMATIVE, NOT FROZEN.**
+> **STATUS: LANDED 2026-08-29 as Master v1.37 / C-72. 本檔自此為證據附件，非規範。**
+>
+> 規範文字在 `docs/FrozenB0_MasterPreregistration.md` **§9.6e**（R1~R5）與
+> closure entry `C-72`。**兩處與本檔的差異只有節號**：本檔擬議之 §9.6b 自 v1.22 起
+> 已由「Deterministic provenance bytes」占用，落地改列 §9.6e，
+> 其下條文編為 §9.6e-R1 ~ R5，內容未因改號而變動。
+> §7 之三條 binding 已實作（`frozen_b0_l2_replay_permitted`、
+> `frozen_b0_l2_reopening_is_unreachable`、
+> `l2_reclassification_does_not_reopen_accounting`），
+> §5.1 所揭露的「宣告無機械強制」已於 v1.37 關閉。
+> 本檔以下內容為**撰寫當時**的狀態，保留原樣不追改。
+>
+> **以下為原始草稿狀態行（歷史記錄）：**
+>
+> > **STATUS: DRAFT — NOT NORMATIVE, NOT FROZEN.**
 >
 > 本檔**不是** Master Preregistration 的一部分。撰寫本檔**未**上版號、
 > **未**修改 `research/b0_registry/master_prereg_freeze.json`、

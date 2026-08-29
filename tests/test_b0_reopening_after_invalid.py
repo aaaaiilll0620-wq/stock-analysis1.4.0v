@@ -47,6 +47,13 @@ from core.b0_master_prereg import (
 OLD_SEAL = "7faad84ab88c972474780d406cb3504e039d26d416c21c62a1cd1ed7ae1c3289"
 NEW_SEAL = "aea938248ef8bdee4fdb3b6fb5cade7bd58e0219a7c9dab2dda51c076dc52cee"
 
+# C-72 / §9.6e-R5: Frozen B0's reopening path is unreachable by ruling, and it is
+# the DEFAULT for `assert_reopening_admissible`. The tests below are about the
+# mechanism — R2 conditions 6 and 7 — which the ruling explicitly leaves intact
+# for a lineage it does not reach, so they name one. The Frozen B0 refusal is
+# pinned in tests/test_b0_c72_observation_accounting.py.
+OTHER_LINEAGE = "B1_LINEAGE_NOT_YET_OPENED"
+
 
 def _opening(**kw):
     base = dict(opened_at="2026-08-19T06:25:31.174494+00:00",
@@ -238,7 +245,8 @@ def test_reopening_requires_a_genuinely_new_baseline_seal():
             _opening(), _conformance_repair(),
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=OLD_SEAL,
-            authorization_reference="ruling of 2026-08-19")
+            authorization_reference="ruling of 2026-08-19",
+            lineage=OTHER_LINEAGE)
 
 
 def test_reopening_requires_a_named_authorization():
@@ -247,7 +255,8 @@ def test_reopening_requires_a_named_authorization():
             _opening(), _conformance_repair(),
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,
-            authorization_reference="   ")
+            authorization_reference="   ",
+            lineage=OTHER_LINEAGE)
 
 
 def test_reopening_still_requires_the_right_repair_kind():
@@ -256,7 +265,8 @@ def test_reopening_still_requires_the_right_repair_kind():
             _opening(), _data_repair(),
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,
-            authorization_reference="a fresh explicit authorization")
+            authorization_reference="a fresh explicit authorization",
+            lineage=OTHER_LINEAGE)
 
 
 def test_a_complete_reopening_claim_is_admissible():
@@ -264,7 +274,8 @@ def test_a_complete_reopening_claim_is_admissible():
         _opening(), _conformance_repair(),
         previous_baseline_seal_sha256=OLD_SEAL,
         new_baseline_seal_sha256=NEW_SEAL,
-        authorization_reference="a fresh explicit authorization")
+        authorization_reference="a fresh explicit authorization",
+            lineage=OTHER_LINEAGE)
 
 
 # --- R4 · the M-3 item is closed, and closing it authorises nothing -----------
@@ -287,4 +298,5 @@ def test_closing_the_item_did_not_grant_a_retry():
             _opening(), None,
             previous_baseline_seal_sha256=OLD_SEAL,
             new_baseline_seal_sha256=NEW_SEAL,
-            authorization_reference="a fresh explicit authorization")
+            authorization_reference="a fresh explicit authorization",
+            lineage=OTHER_LINEAGE)
