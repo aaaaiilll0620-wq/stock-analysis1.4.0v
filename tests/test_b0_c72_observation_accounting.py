@@ -340,24 +340,55 @@ def test_the_baseline_sealer_refuses_to_take_a_new_seal():
     assert _tree(BASELINE_SEAL_DIR) == before, "the sealer wrote something"
 
 
+def _require_clean_tree(why):
+    """Fail loudly on a dirty tree rather than quietly dropping an assertion.
+
+    A skip here would be the same defect in a politer form: the one situation
+    in which this precondition fails — someone mid-edit — is the situation in
+    which the success assertion would stop running, so "the audit still works"
+    would be untested exactly when it is most likely to have broken.
+
+    An isolated `git worktree` would remove the precondition entirely and was
+    considered. It does not work here: `data/b0/` is UNTRACKED (`git ls-files
+    data/b0` is empty), so a fresh worktree has no sealed corpus to assemble and
+    the audit would fail for a reason that has nothing to do with C-72. Pinned
+    here so the next reader does not rediscover it as a mystery.
+    """
+    proc = subprocess.run(["git", "status", "--porcelain"], cwd=REPO,
+                          capture_output=True, text=True, encoding="utf-8",
+                          errors="replace")
+    if proc.returncode != 0:
+        pytest.fail("git is unavailable, so the precondition cannot be "
+                    "established: %s" % proc.stderr.strip())
+    if proc.stdout.strip():
+        pytest.fail(
+            "%s, and the working tree is dirty. The sealer's own clean-tree "
+            "rule (C-47) would abort the audit for that reason, so the "
+            "assertion below could not mean what it says. Commit or stash "
+            "first - this is a precondition, not a failure of the code under "
+            "test.\nDirty:\n%s"
+            % (why, "\n".join(proc.stdout.strip().splitlines()[:10])))
+
+
 def test_the_read_only_seal_audit_survives_the_closure():
     """Closing the reopening path does not license deleting an audit.
 
     `--dry-run` assembles and validates and writes nothing, which is useful
-    precisely BECAUSE the window is closed. It must say plainly that reopening
-    is unreachable, and must not be refused for that reason.
-
-    Deliberately not asserted: the exit code. This mode still runs the
-    pre-existing clean-tree check, so it exits non-zero on a dirty working tree
-    — a fact about the tree, not about C-72. What is asserted is that the C-72
-    guard let it through, and that it wrote nothing.
+    precisely BECAUSE the window is closed. Three things are asserted, and the
+    exit code is one of them: §9.6e promises this mode still ASSEMBLES AND
+    VALIDATES, and without that assertion the audit could start aborting for
+    some unrelated reason and this test would stay green.
     """
+    _require_clean_tree("this test asserts the read-only seal audit SUCCEEDS")
+
     before = _tree(BASELINE_SEAL_DIR)
     proc = _run("b0_baseline_seal.py", "--dry-run")
     out = proc.stdout + proc.stderr
     assert "abort: Master 9.6e-R5" not in out, (
         "the read-only audit was refused as if it were taking a seal")
     assert "UNREACHABLE" in out and "READ-ONLY audit" in out, out[:2000]
+    assert proc.returncode == 0, out
+    assert "record NOT written" in out, out[-2000:]
     assert _tree(BASELINE_SEAL_DIR) == before, "the audit wrote something"
 
 
