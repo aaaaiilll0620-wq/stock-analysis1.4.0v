@@ -422,19 +422,38 @@ def main() -> None:
     print("=" * 78)
 
     # C-72 / §9.6e-R5. A Baseline Seal exists to authorise an L2 opening
-    # (§13.3). Frozen B0 has no opening left to authorise, so a NEW seal for
-    # this lineage has no admissible consumer — and R2 condition 6 ("a new
+    # (§13.3). Frozen B0 has no opening left to authorise, so TAKING a new seal
+    # for this lineage has no admissible consumer — and R2 condition 6 ("a new
     # Baseline Seal is taken") is exactly the door a new seal would look like it
     # was opening. Refused here rather than three steps later at the opener,
     # because a seal that gets taken is already a fact in the lineage ledger.
+    #
+    # `--dry-run` is NOT refused, and the asymmetry with `b0_open_l2.py` is the
+    # whole point. This mode assembles and validates and writes nothing: it is a
+    # read-only consistency audit over the frozen corpus, and it stays useful
+    # precisely BECAUSE the window is closed. The opener's dry run is different
+    # in kind — it prints a record asserting that an opening is available, and
+    # that answer is wrong. Closing a reopening path does not license deleting
+    # an audit that never opened anything.
     try:
         assert_l2_reopening_reachable(FROZEN_B0_LINEAGE)
     except L2ReopeningUnreachable as exc:
-        raise SystemExit(
-            "abort: %s\n"
-            "Taking a new Baseline Seal cannot change this: condition 6 is not "
-            "an entrance, and the seal would bind a window that is closed."
-            % exc)
+        if not a.dry_run:
+            raise SystemExit(
+                "abort: %s\n"
+                "Taking a new Baseline Seal cannot change this: condition 6 is "
+                "not an entrance, and the seal would bind a window that is "
+                "closed. `--dry-run` remains available as a read-only audit."
+                % exc)
+        print("NOTE (C-72 / Master 9.6e-R5): Frozen B0 L2 reopening is "
+              "UNREACHABLE.")
+        print("      %s" % exc)
+        print("      --dry-run continues as a READ-ONLY audit: it validates "
+              "the assembled")
+        print("      seal and writes no seal record and no lineage entry. It "
+              "is not, and")
+        print("      may not be reported as, a seal that was taken.")
+        print()
 
     # Snapshot BEFORE any of the reads below, so the guard spans the whole
     # critical section rather than only its last instant.

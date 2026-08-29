@@ -327,11 +327,52 @@ def test_the_opener_refuses_before_it_looks_at_the_seal_at_all():
     assert "no archived seal" not in out
 
 
+BASELINE_SEAL_DIR = os.path.join(REPO, "artifacts", "baseline_seal")
+
+
 def test_the_baseline_sealer_refuses_to_take_a_new_seal():
     """R2 condition 6 is not an entrance. A seal taken is already a fact."""
+    before = _tree(BASELINE_SEAL_DIR)
+    proc = _run("b0_baseline_seal.py")
+    out = proc.stdout + proc.stderr
+    assert proc.returncode != 0, out
+    assert "abort: Master 9.6e-R5" in out
+    assert _tree(BASELINE_SEAL_DIR) == before, "the sealer wrote something"
+
+
+def test_the_read_only_seal_audit_survives_the_closure():
+    """Closing the reopening path does not license deleting an audit.
+
+    `--dry-run` assembles and validates and writes nothing, which is useful
+    precisely BECAUSE the window is closed. It must say plainly that reopening
+    is unreachable, and must not be refused for that reason.
+
+    Deliberately not asserted: the exit code. This mode still runs the
+    pre-existing clean-tree check, so it exits non-zero on a dirty working tree
+    — a fact about the tree, not about C-72. What is asserted is that the C-72
+    guard let it through, and that it wrote nothing.
+    """
+    before = _tree(BASELINE_SEAL_DIR)
     proc = _run("b0_baseline_seal.py", "--dry-run")
-    assert proc.returncode != 0
-    assert "9.6e-R5" in proc.stdout + proc.stderr
+    out = proc.stdout + proc.stderr
+    assert "abort: Master 9.6e-R5" not in out, (
+        "the read-only audit was refused as if it were taking a seal")
+    assert "UNREACHABLE" in out and "READ-ONLY audit" in out, out[:2000]
+    assert _tree(BASELINE_SEAL_DIR) == before, "the audit wrote something"
+
+
+def test_the_two_dry_runs_are_treated_differently_on_purpose():
+    """The opener's dry run is refused; the sealer's is not.
+
+    Same flag, opposite answers, because they do different things: one prints a
+    record asserting an opening is available (wrong), the other validates a
+    corpus and writes nothing (still true).
+    """
+    opener = _run("b0_open_l2.py", "--seal", "0" * 64,
+                  "--authorization", "x", "--dry-run")
+    sealer = _run("b0_baseline_seal.py", "--dry-run")
+    assert "abort: Master 9.6e-R5" in opener.stdout + opener.stderr
+    assert "abort: Master 9.6e-R5" not in sealer.stdout + sealer.stderr
 
 
 def test_the_entry_point_binding_actually_bites(monkeypatch):

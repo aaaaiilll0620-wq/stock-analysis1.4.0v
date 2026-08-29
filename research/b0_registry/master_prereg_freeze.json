@@ -2,8 +2,8 @@
  "document": "docs/FrozenB0_MasterPreregistration.md",
  "version": "1.37",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "28351f6cc5f5583ea20f6ca0aa6ba2429afa92a8e85cc0e4b893c6f723477c3d",
- "spec_bytes": 297221,
+ "spec_sha256": "7366517839357b664e07bb986d94df3d4596e8669f4bb47d95beb178d9a8975a",
+ "spec_bytes": 298970,
  "normative_modules": {
   "core/b0_master_prereg.py": "94ba6bb07027fe317dd01d92bf2108efc3df409b8cf78265a19ab9db0d453633",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
