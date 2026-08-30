@@ -136,7 +136,56 @@ def _members(path: str) -> list:
                 for i in sorted(z.infolist(), key=lambda i: i.filename)]
 
 
-def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "") -> dict:
+def _stamped_declaration(path: str, argument: str) -> str:
+    """Normalise a CALLER-SUPPLIED declared landing path for the leaf doc.
+
+    ⚠ `landing_directory` lives inside the leaf `doc`, so it is inside
+    `_verify_self_hash` — it is part of the leaf's payload sha256, which is part
+    of the aggregate's, which is part of `SourceAttestation.provenance_sha256`.
+    A machine-absolute value therefore makes the SAME source bytes hash
+    differently in every clone, silently: no error and no version signal. The
+    A01 floor-capture evidence was produced in a different clone
+    (`C:\\dev\\pj1_capture`), and the contract requires a later attempt to
+    compare its source hashes against A01's, so a clone-dependent stamp turns a
+    confirmation into a disagreement nobody can explain.
+
+    A declared path is therefore stored repo-relative with forward slashes. An
+    absolute path INSIDE the repo is relativised — deterministic and lossless,
+    and the readers already re-join a relative landing to their own REPO
+    (`l3_readers._leaf_and_landing`, `assert_landing_dir_matches`). An absolute
+    path OUTSIDE the repo cannot be made portable at all, so it ABORTS rather
+    than being silently relativised or silently stamped.
+
+    Twin of `build_prices_leaf._stamped_declaration`; each stamps against its
+    own module's REPO.
+    """
+    if not os.path.isabs(path):
+        return path.replace("\\", "/")
+    rel = os.path.relpath(os.path.abspath(path), REPO)
+    if (rel == os.pardir or rel.startswith(os.pardir + os.sep)
+            or os.path.isabs(rel)):
+        raise ManifestError(
+            "abort: %s=%r is an absolute path outside the repository (%s). The "
+            "declared landing directory is stamped into the leaf payload hash, "
+            "so a path that exists only on this machine makes the same source "
+            "bytes hash differently in every clone. Declare a repo-relative "
+            "path." % (argument, path, REPO))
+    return rel.replace("\\", "/")
+
+
+def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "",
+          declared_landing_dir: str = "", observed_at: str = "") -> dict:
+    # `declared_landing_dir` means "READ the staged directory, DECLARE this
+    # one". Without a staged read there is nothing for it to stand in for, and
+    # an argument the callee ignores is a decision input the caller believes it
+    # supplied (`run_l3_prospective.py:501-508`). So it is refused BY NAME
+    # rather than dropped.
+    if declared_landing_dir and not landing_dir:
+        raise ManifestError(
+            "abort: declared_landing_dir=%r was supplied without landing_dir. "
+            "It only means anything when the bytes are read from a stand-in "
+            "directory; on its own it would be silently dropped."
+            % declared_landing_dir)
     if dataset in UNRESOLVED_FAMILIES:
         raise ManifestError(
             "abort: %s has no declared source contract yet.\n  %s"
@@ -151,7 +200,8 @@ def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "") -> dict:
     if not os.path.isdir(landing):
         raise ManifestError("abort: %s landing directory not found: %s"
                             % (dataset, landing))
-    observed_at = _dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    observed_at = observed_at or _dt.datetime.now().astimezone().isoformat(
+        timespec="seconds")
 
     # Some families land in a dedicated export folder; `calendar` lands in a
     # shared cache root whose sibling directories belong to other consumers. A
@@ -209,9 +259,25 @@ def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "") -> dict:
             entry["members"] = _members(p)
         entries.append(entry)
 
+    # With no stand-in read, the stamp is the family's OWN declared constant —
+    # never `os.path.join(REPO, ...)`. The constant is the contract, it is the
+    # value A01's evidence carries, and it is the only form that survives a
+    # different clone root. (`calendar`'s constant is deliberately home-absolute:
+    # its source is a shared cache outside the repo, not an export in it.)
+    if not landing_dir:
+        declared_landing = spec["landing"].replace("\\", "/")
+    elif declared_landing_dir:
+        declared_landing = _stamped_declaration(
+            declared_landing_dir, "declared_landing_dir")
+    else:
+        # A staged read with nothing declared over it: the staging path IS the
+        # declaration. That is the validation pass, whose leaves must point at
+        # the snapshot the readers are about to open; it is throwaway evidence
+        # and deliberately not portable.
+        declared_landing = landing.replace("\\", "/")
     return build_leaf(
         dataset=dataset, run_id=run_id, as_of=as_of, entries=entries,
-        landing_directory=spec["landing"].replace("\\", "/"),
+        landing_directory=declared_landing,
         accepted_extensions=spec["extensions"],
         policies={"family_notes": {"rule": "FAMILY_SPECIFIC_CONSTRAINTS",
                                    "detail": spec["notes"]}})

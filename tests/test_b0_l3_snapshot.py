@@ -7,6 +7,8 @@ What it has to refuse is the point:
     an as_of the caller supplied rather than one §6.6 derived
     a manifest whose declared as_of disagrees with the frozen rule
     a decision date whose period is not over
+    a declared calendar that stops before the decision date, so as_of cannot be
+        shown to be the latest completed session before it
     a second receipt for the same period
     being mistaken for a materialized snapshot when it is only a bound one
 """
@@ -85,13 +87,119 @@ def test_a_manifest_claiming_a_different_as_of_is_refused(tmp_path):
         S.plan(d, RUN, DECISION)
 
 
-@sources
-def test_a_period_that_is_not_over_is_refused(tmp_path):
+def _declared(monkeypatch, sessions, manifest_as_of):
+    """Stub the declared source set: a calendar and the as_of it was harvested
+    for. Nothing here touches the filesystem, so a `plan*` call that got as far
+    as claiming a receipt would be visible as a write, not a pass."""
+    monkeypatch.setattr(
+        S, "verify_aggregate",
+        lambda d: {"run_id": RUN, "as_of": manifest_as_of})
+    monkeypatch.setattr(S, "assert_ready", lambda aggregate: None)
+    monkeypatch.setattr(
+        S, "_sessions_from_declared_calendar", lambda d: tuple(sessions))
+
+
+# The decision date IS a session here, and it is the last one the calendar has:
+# coverage reaches through the decision date, and the execution session after it
+# does not exist yet. That is precisely the state an intent run is built for.
+COVERED = ("2026-08-27", "2026-08-28", "2026-08-31")
+
+
+def test_a_period_that_is_not_over_is_refused(tmp_path, monkeypatch):
     """§6.5 executes at the open of the session AFTER the decision date. If the
     declared calendar has no such session, the month has not finished."""
-    d = _run(tmp_path)
+    _declared(monkeypatch, COVERED, "2026-08-28")
     with pytest.raises(S.L3SnapshotError, match="period is not over"):
-        S.plan(d, RUN, "2026-08-31")
+        S.plan(str(tmp_path), RUN, "2026-08-31")
+
+
+def test_a_decision_intent_does_not_invent_the_future_execution_session(
+        tmp_path, monkeypatch):
+    """The LEGITIMATE half of the decision/execution split: the session after
+    the decision date may be absent, and the intent says so with an explicit
+    null rather than a weekday guess. The calendar still reaches through the
+    decision date, so §6.6 can name as_of exactly."""
+    _declared(monkeypatch, COVERED, "2026-08-28")
+    planned = S.plan_decision_intent(str(tmp_path), RUN, "2026-08-31")
+    assert planned["as_of"] == "2026-08-28"     # latest completed session
+    assert planned["execution_date"] is None    # and no invented one
+    assert planned["calendar_last_session"] == "2026-08-31"
+
+
+def test_a_calendar_covering_exactly_through_the_decision_date_is_accepted(
+        tmp_path, monkeypatch):
+    """The positive boundary: coverage ending ON the decision date, with no
+    later session at all, is enough for an intent. Nothing beyond it is asked
+    for, so a calendar harvested on the decision date is admissible."""
+    _declared(monkeypatch, COVERED, "2026-08-28")
+    planned = S.plan_decision_intent(str(tmp_path), RUN, "2026-08-31")
+    assert planned["as_of"] < planned["decision_date"] == COVERED[-1]
+    assert planned["execution_date"] is None
+
+    # The requirement is coverage THROUGH the decision date, not coverage that
+    # stops exactly there: a calendar reaching further is admissible too, and
+    # resolves to the same as_of.
+    _declared(monkeypatch, COVERED + ("2026-09-01",), "2026-08-28")
+    assert S.plan_decision_intent(
+        str(tmp_path), RUN, "2026-08-31")["as_of"] == "2026-08-28"
+
+
+def test_a_calendar_that_stops_before_the_decision_date_is_refused(
+        tmp_path, monkeypatch):
+    """The DEFECT half. Leaves harvested 2026-08-14, an operator running an
+    intent for 2026-08-31: the observed prefix used to be clipped, as_of
+    silently became 2026-08-14, eleven sessions vanished from the eligible
+    population and the ADV20 window, and the intent still declared
+    decision_date 2026-08-31. §6 stop rule: as_of must EQUAL the latest
+    completed session before the decision date, and this calendar cannot
+    establish that. It aborts."""
+    harvested = ("2026-08-12", "2026-08-13", "2026-08-14")
+    _declared(monkeypatch, harvested, "2026-08-14")
+
+    with pytest.raises(S.L3SnapshotError) as excinfo:
+        S.plan_decision_intent(str(tmp_path), RUN, "2026-08-31")
+
+    message = str(excinfo.value)
+    # An operator must be able to act on this without reading the source: the
+    # coverage end, the requested decision date, and the as_of that would have
+    # been used are all named.
+    assert "2026-08-14" in message                      # coverage end / as_of
+    assert "2026-08-31" in message                      # requested decision
+    assert "as_of that would have been used" in message
+
+    # The executable path refuses it too, and for this reason rather than the
+    # §6.5 one — the calendar never even reaches the decision date.
+    with pytest.raises(S.L3SnapshotError, match="observed only through"):
+        S.plan(str(tmp_path), RUN, "2026-08-31")
+
+
+def test_the_route_helper_refuses_the_clipped_prefix_itself(monkeypatch):
+    """The guard belongs to the route, not only to the L3 caller: the
+    production adapter resolves as_of through the same helper."""
+    from core.b0_market_state import SourceContract, TradingCalendar
+    from core import b0_route
+
+    observed = ("2026-08-12", "2026-08-13", "2026-08-14")
+    calendar = TradingCalendar(observed, SourceContract(
+        name="short_calendar", kind="trading_calendar",
+        importer_version="test", content_sha256="0" * 64,
+        schema_sha256="0" * 64, date_min=observed[0], date_max=observed[-1],
+        has_effective_dates=True, has_availability_semantics=True,
+        is_current_snapshot=False))
+
+    with pytest.raises(b0_route.RouteError, match="observed only through"):
+        b0_route.resolve_as_of_observed_prefix("2026-08-31", calendar)
+
+    # ...and resolves normally once coverage reaches the decision date.
+    full = observed + ("2026-08-17", "2026-08-31")
+    calendar = TradingCalendar(full, SourceContract(
+        name="full_calendar", kind="trading_calendar",
+        importer_version="test", content_sha256="0" * 64,
+        schema_sha256="0" * 64, date_min=full[0], date_max=full[-1],
+        has_effective_dates=True, has_availability_semantics=True,
+        is_current_snapshot=False))
+    assert b0_route.resolve_as_of_observed_prefix(
+        "2026-08-31", calendar) == "2026-08-17"
 
 
 @sources

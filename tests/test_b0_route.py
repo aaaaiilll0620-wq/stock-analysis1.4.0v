@@ -25,7 +25,9 @@ from core.b0_master_prereg import PIPELINE_STAGES, MasterPreregViolation
 from core.b0_pit_observability import PitPriceObservation, PriceObservabilityError
 from core.b0_route import (
     CanonicalDecisionInput,
+    DecisionIntentInput,
     RouteError,
+    build_decision_intent,
     canonical_config,
     config_hash,
     resolve_as_of,
@@ -62,6 +64,18 @@ def canonical_input(**over) -> CanonicalDecisionInput:
     return CanonicalDecisionInput(**kw)
 
 
+def intent_input(**over) -> DecisionIntentInput:
+    inp = canonical_input()
+    kw = dict(
+        route_kind=inp.route_kind, decision_date=inp.decision_date,
+        as_of=inp.as_of, snapshot=inp.snapshot, portfolio=inp.portfolio,
+        pit_inputs=inp.pit_inputs, price_observations=inp.price_observations,
+        corporate_action_events=inp.corporate_action_events,
+        exposures=inp.exposures, listing_spells=inp.listing_spells)
+    kw.update(over)
+    return DecisionIntentInput(**kw)
+
+
 # --- M-1 · the route declares and obeys the canonical order -------------------
 
 def test_the_route_runs_every_stage_in_canonical_order():
@@ -77,6 +91,121 @@ def test_exclusion_happens_before_any_ordering():
     """§4.5: the eligible set is decided from availability, not from scores."""
     result = run_decision(canonical_input(), for_sealed_run=False)
     assert set(result.scores) <= set(result.eligibility.eligible)
+
+
+def test_intent_exists_before_a_following_execution_session_is_known():
+    intent = build_decision_intent(intent_input(), for_sealed_run=False)
+
+    assert not hasattr(intent_input(), "execution_date")
+    assert not hasattr(intent_input(), "execution_prices")
+    assert intent.stages == PIPELINE_STAGES[:8]
+    assert intent.ranking == ("3008", "2454", "2330", "1101")
+    assert intent.targets.selected == intent.ranking
+    assert dict(intent.target_shares) == {
+        "3008": 5020, "2454": 6275, "2330": 8366, "1101": 12550}
+
+
+def test_execution_consumes_the_exact_native_intent_without_rescoring(monkeypatch):
+    """One full run builds one intent and does not repeat it for execution."""
+    import core.b0_route as route
+
+    calls = {"score": 0, "rank": 0, "select": 0}
+    built = []
+    originals = {
+        "score": route.decision.score_eligible,
+        "rank": route.decision.rank,
+        "select": route.decision.select,
+    }
+    original_build = route.build_decision_intent
+
+    def counted(name):
+        def invoke(*args, **kwargs):
+            calls[name] += 1
+            return originals[name](*args, **kwargs)
+        return invoke
+
+    monkeypatch.setattr(route.decision, "score_eligible", counted("score"))
+    monkeypatch.setattr(route.decision, "rank", counted("rank"))
+    monkeypatch.setattr(route.decision, "select", counted("select"))
+
+    def capture_build(*args, **kwargs):
+        intent = original_build(*args, **kwargs)
+        built.append(intent)
+        return intent
+    monkeypatch.setattr(route, "build_decision_intent", capture_build)
+
+    result = run_decision(canonical_input(), for_sealed_run=False)
+
+    # select() itself delegates to the same native rank(); two rank calls are
+    # the pre-existing canonical implementation, not a parallel implementation.
+    assert calls == {"score": 1, "rank": 2, "select": 1}
+    assert len(built) == 1
+    assert result.scores == built[0].scores
+    assert result.ranking == built[0].ranking
+    assert result.targets == built[0].targets
+    assert result.target_shares == built[0].target_shares
+    assert result.ranking == ("3008", "2454", "2330", "1101")
+    assert dict(result.target_shares) == {
+        "3008": 5020, "2454": 6275, "2330": 8366, "1101": 12550}
+
+
+def test_execution_boundary_cannot_accept_an_injected_intent(monkeypatch):
+    import core.b0_route as route
+
+    intent = build_decision_intent(intent_input(), for_sealed_run=False)
+    with pytest.raises(TypeError, match="prebuilt_intent"):
+        run_decision(canonical_input(), for_sealed_run=False,
+                     prebuilt_intent=intent)
+
+
+def test_execution_always_reenters_the_native_decision_path(monkeypatch):
+    import core.b0_route as route
+
+    calls = []
+    original = route.build_decision_intent
+
+    def counted(*args, **kwargs):
+        calls.append(1)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(route, "build_decision_intent", counted)
+    run_decision(canonical_input(), for_sealed_run=False)
+    assert calls == [1]
+
+
+def test_split_preserves_the_pre_split_route_output_byte_for_byte():
+    """Golden hashes captured from the canonical fixture before the split."""
+    from core.b0_canonical_hash import canonical_sha256
+
+    result = run_decision(canonical_input(), for_sealed_run=False)
+    session_payload = {
+        "cash": result.session.cash_after,
+        "shares": dict(result.session.shares_after),
+        "pending": dict(result.session.pending_exit_after),
+        "receipts": [receipt.__dict__ for receipt in result.session.receipts],
+    }
+
+    assert canonical_sha256(result.rows()) == \
+        "86557d7bd520360d74988e5f0f78ffa6e84c044fe326eebebaf35ba4e9cdb3c4"
+    assert canonical_sha256(session_payload) == \
+        "33ebd978b61b346b83add5dccd7e1bbb85f571c3fc18b0d707f320eecf82b9b6"
+    assert result.state_hash == \
+        "7020372285a3001d142e7cfb867edfb1ead73dcfda17b14db28e0592d8a66aa1"
+    assert result.port_value == 5_020_000.0
+
+
+def test_execution_entry_contains_no_second_scoring_or_ranking_path():
+    import ast
+    import inspect
+    import textwrap
+    import core.b0_route as route
+
+    tree = ast.parse(textwrap.dedent(inspect.getsource(route.run_decision)))
+    called_attributes = {
+        node.func.attr for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)}
+
+    assert not ({"score_eligible", "rank", "select"} & called_attributes)
 
 
 # --- S-3b · the guards are actually invoked by a NAV-producing path -----------

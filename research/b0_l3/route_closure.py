@@ -272,9 +272,10 @@ def seal_payload() -> dict:
     """Everything A2's closure covers, ready to be hashed into a route seal.
 
     This does NOT take a seal: A2 ruled the closure is the whole replayable
-    route, and the runner, the L3 snapshot materializer and the checkpoint wiring
-    do not exist yet. What it does is fix WHAT would be sealed, so that when
-    those land the boundary is not renegotiated at sealing time.
+    route. What it does is fix WHAT is sealed, so the boundary is not
+    renegotiated at sealing time.  Lineage/capture existence is enforced by the
+    route-seal writer itself and therefore is not duplicated as a stale text
+    item here.
     """
     closure = assert_closure_is_wholly_normative()
     assert_inventories_agree()
@@ -289,24 +290,7 @@ def seal_payload() -> dict:
         "dataset_families": {
             k: {"feeds": list(v["feeds"]), "locator_form": v["locator_form"]}
             for k, v in sorted(DATASET_FAMILIES.items())},
-        # Updated 2026-08-27. The market side of one canonical decision state
-        # now rebuilds from a run's declared source manifest and reproduces
-        # L2's sealed hash for 2026-03 exactly. What remains is the PORTFOLIO
-        # side and the decision itself — and one specification gap that is not
-        # code, listed first because no amount of implementation closes it.
-        "still_owed_before_a_seal_may_be_taken": [
-            "lineage_price_floor CAPTURE: §19 / C-68 registered the derivation "
-            "(the M-3 on `price_span` / `bonus_window` is adjudicated), but no "
-            "lineage has captured its floor yet. It must come from a complete, "
-            "hash-bound price leaf after the D-1 quarantine; the diagnostic "
-            "expected value 2004-01-02 is NOT the frozen value until that runs.",
-            "MASTER FREEZE: `master_prereg_freeze.json` still records v1.32. "
-            "Until it is regenerated, every spec-sha preflight refuses.",
-            "portfolio side: checkpoint -> PortfolioState for period N (B7), "
-            "so `build_decision_input` receives a portfolio that was generated "
-            "rather than supplied",
-            "L3 runner: call run_decision and record its output",
-        ],
+        "still_owed_before_a_seal_may_be_taken": [],
         "done": [
             "nine dataset leaf producers + aggregate assembler (W6a/W4)",
             "L3 run-scoped immutable run layout (W7)",
@@ -316,6 +300,9 @@ def seal_payload() -> dict:
             "W6b-2 assembly: market-side CanonicalDecisionInput, verified "
             "against L2's sealed market_state_sha256 for 2026-03 "
             "(verify_assembly_parity.py); RECEIPT_ONLY -> MATERIALIZED",
+            "portfolio-side checkpoint materialization (B7)",
+            "prospective runner invokes the native decision route",
+            "Master freeze advanced beyond the stale v1.32 blocker",
         ],
     }
 

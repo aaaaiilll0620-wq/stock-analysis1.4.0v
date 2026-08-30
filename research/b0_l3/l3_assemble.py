@@ -591,7 +591,7 @@ def build_rows(period, series, fin_idx, rev_idx, ind_idx, val, status_idx,
     import numpy as np
     import pandas as pd
 
-    as_of, exec_date = period["as_of"], period["execution_date"]
+    as_of, exec_date = period["as_of"], period.get("execution_date")
     window_start = str(pd.Period(as_of[:7], freq="M") - (MONTH_ENDS_REQUIRED - 1))
     rows = []
     for sid, ss in series.items():
@@ -621,7 +621,7 @@ def build_rows(period, series, fin_idx, rev_idx, ind_idx, val, status_idx,
             sig = None                     # C-50/R8 reaches into the sigma window
 
         status = known_status_tuple_at(status_idx, sid, as_of)
-        j = ss.pos.get(exec_date)
+        j = ss.pos.get(exec_date) if exec_date is not None else None
         v = val.get(sid, {})
         frows = fin_idx.get(sid, ())
         latest = _latest_quarter_row(frows, as_of)
@@ -678,7 +678,7 @@ def market_state_payload(period, rows):
         "decision_month": period["decision_month"],
         "decision_date": period["decision_date"],
         "as_of": period["as_of"],
-        "execution_date": period["execution_date"],
+        "execution_date": period.get("execution_date"),
         "marks": {r["stock_id"]: r["mark"] for r in rows
                   if r["mark"] is not None and r["mark"] > 0},
         "adv20": {r["stock_id"]: r["adv20"] for r in rows
@@ -725,6 +725,21 @@ def market_state_payload(period, rows):
     }
 
 
+def decision_cutoff_payload(period, rows):
+    """Canonical market facts knowable at ``as_of`` in either phase.
+
+    The executable assembly necessarily contains the following session's open
+    and names that session in ``execution_date``.  Those facts did not exist at
+    the decision cut-off and therefore cannot be part of the identity handed
+    from an intent run to its later execution.  Everything else is kept byte
+    for byte identical to :func:`market_state_payload`.
+    """
+    cutoff_period = dict(period)
+    cutoff_period["execution_date"] = None
+    cutoff_rows = [dict(row, execution_open=None) for row in rows]
+    return market_state_payload(cutoff_period, cutoff_rows)
+
+
 def assert_market_state_is_portfolio_free(payload):
     """Definition B, as a check rather than a comment."""
     leaked = [k for k in PORTFOLIO_FIELDS if k in payload]
@@ -747,15 +762,34 @@ def assemble(run_dir: str, run_id: str, decision_date: str,
     other endpoint is derived by `core.b0_l3_price_span` from `as_of` and the
     §6.5 execution session, and this module may not override any of them.
     """
-    from l3_snapshot import plan
+    return _assemble(run_dir, run_id, decision_date, lineage_price_floor,
+                     decision_intent_only=False)
 
-    period = dict(plan(run_dir, run_id, decision_date))
+
+def assemble_decision_intent(run_dir: str, run_id: str, decision_date: str,
+                             lineage_price_floor=None) -> dict:
+    """Materialize only facts knowable at the decision cut-off.
+
+    The source span ends at ``as_of`` because the next execution session has
+    not happened.  No execution date or opening price is guessed or admitted.
+    This object may feed ``build_decision_intent`` but not ``run_decision``.
+    """
+    return _assemble(run_dir, run_id, decision_date, lineage_price_floor,
+                     decision_intent_only=True)
+
+
+def _assemble(run_dir: str, run_id: str, decision_date: str,
+              lineage_price_floor, *, decision_intent_only: bool) -> dict:
+    from l3_snapshot import plan, plan_decision_intent
+
+    planner = plan_decision_intent if decision_intent_only else plan
+    period = dict(planner(run_dir, run_id, decision_date))
     # The month a decision belongs to is the month of its DECISION DATE, not of
     # its as_of. They differ whenever §6.6 resolves back across a month boundary,
     # and labelling the state by as_of would file a 2026-04-30 decision under
     # 2026-04 in one run and 2026-05 in another.
     period["decision_month"] = period["decision_date"][:7]
-    as_of, exec_date = period["as_of"], period["execution_date"]
+    as_of, exec_date = period["as_of"], period.get("execution_date")
     if lineage_price_floor is None:
         raise AssemblyError(
             "abort: this run declares no `lineage_price_floor`, and one may not "
@@ -770,7 +804,12 @@ def assemble(run_dir: str, run_id: str, decision_date: str,
     legs = assert_both_price_legs_are_declared(run_dir)
     cal = list(read_calendar(run_dir))
     try:
-        price_span = lsp.price_span(lineage_price_floor, exec_date)
+        # The executable route binds through the observed execution session.
+        # A decision intent cannot: its admissible price endpoint is the
+        # completed decision cut-off, and the missing execution fact remains
+        # explicit in ``period["execution_date"]``.
+        price_endpoint = as_of if decision_intent_only else exec_date
+        price_span = lsp.price_span(lineage_price_floor, price_endpoint)
         bonus_window = lsp.bonus_window(as_of, _earliest_required_month_end(cal, as_of))
     except lsp.L3SpanError as exc:
         raise AssemblyError(str(exc))
@@ -815,12 +854,15 @@ def assemble(run_dir: str, run_id: str, decision_date: str,
             "abort: %s produced no market-side state" % period["decision_month"])
 
     payload = market_state_payload(period, rows)
+    cutoff_payload = decision_cutoff_payload(period, rows)
     assert_market_state_is_portfolio_free(payload)
+    assert_market_state_is_portfolio_free(cutoff_payload)
     return {
         "period": period,
         "rows": rows,
         "payload": payload,
         "market_state_sha256": canonical_sha256(payload),
+        "decision_cutoff_state_sha256": canonical_sha256(cutoff_payload),
         "share_unit_adjustment": dict(adj_stats),
         "securities": len(rows),
         "bonus_window": list(bonus_window),
@@ -841,6 +883,10 @@ def assemble(run_dir: str, run_id: str, decision_date: str,
         "spell_floor_semantics": SPELL_FLOOR_SEMANTICS,
         "decision_layer_invoked": False,
         "performance_computed": False,
+        "decision_intent_only": bool(decision_intent_only),
+        "price_span_endpoint_kind": (
+            "AS_OF_DECISION_CUTOFF" if decision_intent_only
+            else "OBSERVED_EXECUTION_SESSION"),
     }
 
 
@@ -971,3 +1017,15 @@ def build_decision_input(assembled: dict, sources, portfolio, execution_prices,
     p = assembled["period"]
     return build_input(sources, portfolio, p["decision_date"],
                        p["execution_date"], execution_prices, untradable)
+
+
+def build_decision_intent_input(assembled: dict, sources, portfolio):
+    """Build the canonical decision-time input without execution facts."""
+    from core.b0_adapter_production import build_intent_input
+
+    p = assembled["period"]
+    if p.get("execution_date") is not None:
+        raise AssemblyError(
+            "abort: decision-intent input unexpectedly carries an execution "
+            "date; use build_decision_input for an executable period.")
+    return build_intent_input(sources, portfolio, p["decision_date"])

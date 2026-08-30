@@ -23,11 +23,18 @@ WHAT THIS ENFORCES
         The aggregate's raw sha256, which transitively covers every leaf and
         every declared file. Re-checking the receipt re-checks the sources.
 
-    nothing may be materialized for a date that has not happened
-        §6.5 executes at the OPEN of the session after the decision date. If
-        that session does not exist in the declared calendar yet, the period is
-        not over and there is nothing to observe. This is the guard that stops
-        an L3 month being "run" early and then quietly counted.
+    decision and execution have distinct temporal boundaries
+        A decision intent may be materialized from the completed `as_of`
+        prefix, with execution fields explicitly null. §6.5 execution still
+        requires the observed session after the decision date; without it no
+        cost, fill, checkpoint or performance may be produced.
+
+        Exactly ONE absence is licensed by that split: the session AFTER the
+        decision date. Coverage THROUGH the decision date is required on both
+        paths, because §6's stop rule binds `as_of` to the latest completed
+        session strictly before it. A calendar that stops earlier is refused
+        rather than clipped — a clipped query answers with a stale `as_of`
+        while the receipt still declares the requested decision date.
 
     the receipt is immutable
         O_EXCL, like the manifests. A second attempt at the same period is a new
@@ -55,7 +62,9 @@ for _p in (REPO, os.path.join(REPO, "research", "b0_materializer")):
 
 from core.b0_canonical_hash import file_sha256                  # noqa: E402
 from core.b0_market_state import SourceContract, TradingCalendar  # noqa: E402
-from core.b0_route import resolve_as_of                          # noqa: E402
+from core.b0_route import (                                      # noqa: E402
+    RouteError, resolve_as_of_observed_prefix,
+)
 from source_ownership_manifest import (                          # noqa: E402
     AGGREGATE_FILENAME, LEAF_FILENAME, SELF_HASH_FIELD, assert_ready,
     load_leaf, verify_aggregate,
@@ -118,8 +127,15 @@ def _calendar(sessions: tuple) -> TradingCalendar:
         is_current_snapshot=False))
 
 
-def plan(run_dir: str, run_id: str, decision_date: str) -> dict:
-    """Resolve the period and check every precondition. Writes nothing."""
+def plan_decision_intent(run_dir: str, run_id: str,
+                         decision_date: str) -> dict:
+    """Resolve the decision-time view without inventing a future execution.
+
+    A prospective decision can be observed after its `as_of` source snapshot is
+    complete even though the next execution session has not happened yet.  The
+    result deliberately carries no `execution_date`; only `plan()` may add one
+    after the observed-session calendar contains it.
+    """
     if not decision_date:
         raise L3SnapshotError(
             "abort: decision_date is required and has no default. An L3 period "
@@ -134,23 +150,45 @@ def plan(run_dir: str, run_id: str, decision_date: str) -> dict:
             % (run_dir, aggregate["run_id"], run_id))
 
     sessions = _sessions_from_declared_calendar(run_dir)
-    calendar = _calendar(sessions)
 
-    # Coverage first, and in THIS exception class. `resolve_as_of` also refuses
-    # a date beyond the calendar, but it raises `MarketStateError`, which a
-    # caller guarding against `L3SnapshotError` would not catch — and the reason
-    # that matters here is not "beyond coverage", it is "the period is not over".
-    after = [s for s in sessions if s > decision_date]
-    if not after:
+    # Coverage first, and in THIS exception class. What a decision intent is
+    # allowed to be missing is the session AFTER the decision date (§6.5);
+    # `plan()` owns that one. What it may never be missing is coverage THROUGH
+    # the decision date, because the §6 stop rule binds as_of to the latest
+    # completed session strictly before it and a shorter calendar cannot say
+    # which sessions lie in the gap. Clipping the query to the observed end —
+    # which this path used to do — turned an unanswerable question into an
+    # as_of that was quietly days old while the published intent still carried
+    # the requested decision_date.
+    if sessions[-1] < decision_date:
+        clipped = [s for s in sessions if s < decision_date]
         raise L3SnapshotError(
-            "abort: the declared calendar has no session after %s, so the §6.5 "
-            "execution session does not exist yet.\n"
-            "  calendar ends: %s\n"
-            "The period is not over. There is nothing here to observe, and a "
-            "snapshot taken now would be a forecast wearing a receipt."
-            % (decision_date, sessions[-1]))
+            "abort: the declared calendar is observed only through %s, which "
+            "is before the requested decision date %s.\n"
+            "  calendar coverage ends:          %s\n"
+            "  requested decision_date:         %s\n"
+            "  as_of that would have been used: %s\n"
+            "§6.6 requires as_of to EQUAL the latest completed session strictly "
+            "before the decision date. This calendar cannot establish that: the "
+            "sessions between the two are unobserved, so the eligible "
+            "population and the ADV20 window would end on the wrong day while "
+            "the intent still claimed %s. Re-harvest the declared calendar "
+            "source through %s and re-run. The execution session after %s may "
+            "still be absent — that is what an intent run is for — but coverage "
+            "through %s may not be."
+            % (sessions[-1], decision_date, sessions[-1], decision_date,
+               clipped[-1] if clipped else "(no completed session at all)",
+               decision_date, decision_date, decision_date, decision_date))
 
-    as_of = resolve_as_of(decision_date, calendar)
+    # §6.6 resolves as_of from the completed prefix. The intent path differs
+    # from the executable one only in not requiring a session AFTER the
+    # decision date; the route helper refuses a short calendar as well, and
+    # this translates its RouteError into the abort class L3 callers guard.
+    try:
+        as_of = resolve_as_of_observed_prefix(decision_date,
+                                              _calendar(sessions))
+    except RouteError as exc:
+        raise L3SnapshotError("abort: %s" % exc)
     if as_of != aggregate["as_of"]:
         raise L3SnapshotError(
             "abort: §6.6 resolves %s to as_of %s, but the manifest declares "
@@ -161,14 +199,32 @@ def plan(run_dir: str, run_id: str, decision_date: str) -> dict:
     return {
         "decision_date": decision_date,
         "as_of": as_of,
-        "execution_date": after[0],
+        "execution_date": None,
         "calendar_last_session": sessions[-1],
         "aggregate": aggregate,
     }
 
 
+def plan(run_dir: str, run_id: str, decision_date: str) -> dict:
+    """Resolve the executable period. Writes nothing and guesses no session."""
+    result = plan_decision_intent(run_dir, run_id, decision_date)
+    sessions = _sessions_from_declared_calendar(run_dir)
+    after = [s for s in sessions if s > decision_date]
+    if not after:
+        raise L3SnapshotError(
+            "abort: the declared calendar has no observed session after %s, so "
+            "the §6.5 execution session does not exist yet.\n"
+            "  calendar ends: %s\n"
+            "The period is not over for execution. A decision intent may be "
+            "prepared, but exact execution, costs and "
+            "post-trade state must wait; no weekday/holiday guess is allowed."
+            % (decision_date, sessions[-1]))
+    return {**result, "execution_date": after[0]}
+
+
 def build_receipt(run_dir: str, run_id: str, decision_date: str,
-                  route_seal_id: str = "", assembled: dict = None) -> dict:
+                  route_seal_id: str = "", assembled: dict = None,
+                  *, decision_intent_only: bool = False) -> dict:
     """The per-period receipt. Binds the aggregate, not the individual leaves.
 
     `assembled` is `l3_assemble.assemble(...)`'s result, and passing it is what
@@ -177,7 +233,8 @@ def build_receipt(run_dir: str, run_id: str, decision_date: str,
     a period is observed once, so the state it certifies has to be known before
     it is written, not stamped onto it afterwards.
     """
-    p = plan(run_dir, run_id, decision_date)
+    planner = plan_decision_intent if decision_intent_only else plan
+    p = planner(run_dir, run_id, decision_date)
     aggregate_path = os.path.join(run_dir, AGGREGATE_FILENAME)
 
     from route_closure import seal_payload
@@ -190,11 +247,18 @@ def build_receipt(run_dir: str, run_id: str, decision_date: str,
                 "abort: the assembled state is for decision date %s, this "
                 "receipt is for %s."
                 % (assembled["period"]["decision_date"], p["decision_date"]))
+        if bool(assembled.get("decision_intent_only")) != bool(
+                decision_intent_only):
+            raise L3SnapshotError(
+                "abort: receipt/assembly disagree on whether execution facts "
+                "exist for this observation.")
         built = {
             "state": STATE_MATERIALIZED,
             "state_detail": (
                 "the nine declared families were parsed and assembled into the "
-                "market side of one canonical decision state"),
+                + ("market side of an execution-independent canonical decision "
+                   "intent" if decision_intent_only else
+                   "market side of one canonical executable decision state")),
             # The market side ONLY. Definition B: portfolio[t] is causally
             # generated by executing t-1, so a receipt that bound a portfolio
             # here would be certifying a fabrication.
@@ -216,13 +280,16 @@ def build_receipt(run_dir: str, run_id: str, decision_date: str,
             "floor_disposition": assembled["floor_disposition"],
             "span_derivation_authority": assembled["span_derivation_authority"],
             "portfolio_side_materialized": False,
+            "decision_intent_only": bool(decision_intent_only),
+            "price_span_endpoint_kind":
+                assembled.get("price_span_endpoint_kind"),
         }
     return {
         "contract_version": SNAPSHOT_CONTRACT_VERSION,
         "run_id": run_id,
         "decision_date": p["decision_date"],
         "as_of": p["as_of"],
-        "execution_date": p["execution_date"],
+        "execution_date": p.get("execution_date"),
         # ONE hash. It covers every leaf, and every leaf covers every file.
         "source_ownership_manifest_sha256": file_sha256(aggregate_path),
         "source_ownership_manifest_payload_sha256":
@@ -241,6 +308,15 @@ def build_receipt(run_dir: str, run_id: str, decision_date: str,
             timespec="seconds"),
         **built,
     }
+
+
+def build_intent_receipt(run_dir: str, run_id: str, decision_date: str,
+                         route_seal_id: str = "",
+                         assembled: dict = None) -> dict:
+    """Receipt whose temporal boundary ends at the decision cut-off."""
+    return build_receipt(
+        run_dir, run_id, decision_date, route_seal_id, assembled,
+        decision_intent_only=True)
 
 
 def write_receipt(run_dir: str, receipt: dict) -> str:

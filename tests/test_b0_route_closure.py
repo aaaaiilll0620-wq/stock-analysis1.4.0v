@@ -189,35 +189,19 @@ def test_the_manifest_engine_uses_the_derived_floor():
 
 # --- what a seal would bind ----------------------------------------------------
 
-def test_the_seal_payload_names_what_is_still_owed():
-    """A2 ruled the closure is the whole replayable route, so the payload has to
-    say what is missing rather than look complete.
-
-    The list is checked for HONESTY in both directions: it must name what is
-    genuinely outstanding, and it must not still be claiming credit for work
-    that has since landed. A stale owed-list is the failure mode here — it reads
-    as caution while actually being out of date.
-    """
+def test_the_seal_payload_no_longer_repeats_landed_or_writer_owned_gates():
+    """Code closure is complete; capture existence is checked by the writer."""
     payload = seal_payload()
     assert payload["closure_kind"] == \
         "PRODUCTION_ROUTE_COMPLETE_REPLAYABLE_CLOSURE"
     owed = payload["still_owed_before_a_seal_may_be_taken"]
-    assert owed, "a payload with nothing owed would read as sealable"
-    joined = " ".join(owed).lower()
-
-    # What is actually outstanding since v1.34 / C-68: the span M-3 is ruled and
-    # registered, so what remains is capturing the lineage floor from hash-bound
-    # sources, regenerating the master freeze, the portfolio side, and the runner.
-    for expected in ("lineage_price_floor", "hash-bound", "freeze",
-                     "portfolio", "runner"):
-        assert expected in joined, expected
+    assert owed == []
 
     # What has landed must appear in `done` and NOT in `owed`.
     done = " ".join(payload["done"]).lower()
-    for finished in ("leaf producers", "readers", "assembly"):
+    for finished in ("leaf producers", "readers", "assembly", "portfolio",
+                     "runner", "freeze"):
         assert finished in done, finished
-    for finished in ("leaf producer", "reader"):
-        assert not any(finished in o.lower() for o in owed), finished
 
 
 def test_the_seal_payload_carries_both_halves():

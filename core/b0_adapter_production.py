@@ -39,8 +39,10 @@ from core.b0_pit_observability import PitPriceObservation
 from core.b0_route import (
     ROUTE_KIND_PRODUCTION,
     CanonicalDecisionInput,
+    DecisionIntentInput,
     RouteError,
     resolve_as_of,
+    resolve_as_of_observed_prefix,
     run_decision,
 )
 from core.b0_state import MarketSnapshot, PortfolioState, SourceAttestation
@@ -108,6 +110,40 @@ def build_input(sources: ProductionSources,
         execution_date=execution_date,
         execution_prices=dict(execution_prices),
         untradable=frozenset(untradable),
+        listing_spells=tuple(sources.listing_spells),
+    )
+
+
+def build_intent_input(sources: ProductionSources,
+                       portfolio: PortfolioState,
+                       decision_date: str) -> DecisionIntentInput:
+    """Live sources -> execution-independent canonical decision state.
+
+    This is the production-adapter twin of :func:`build_input`.  It performs
+    the same PIT and portfolio-date checks but deliberately has no way to
+    accept a future execution session, opening price, or tradability outcome.
+    """
+    as_of = resolve_as_of_observed_prefix(decision_date, sources.calendar)
+    if portfolio.as_of != as_of:
+        raise ProductionAdapterError(
+            f"portfolio state is as of {portfolio.as_of} but the canonical "
+            f"decision state for {decision_date} is {as_of} (§6.6).")
+
+    _assert_live_source_is_pit_safe(sources)
+    snapshot = MarketSnapshot(
+        as_of=as_of, attestation=sources.attestation,
+        marks=dict(sources.marks), adv20=dict(sources.adv20),
+        sigma20d=dict(sources.sigma20d))
+    return DecisionIntentInput(
+        route_kind=ROUTE_KIND_PRODUCTION,
+        decision_date=decision_date,
+        as_of=as_of,
+        snapshot=snapshot,
+        portfolio=portfolio,
+        pit_inputs=tuple(sources.pit_inputs),
+        price_observations=tuple(sources.price_observations),
+        corporate_action_events=tuple(sources.corporate_action_events),
+        exposures=tuple(sources.exposures),
         listing_spells=tuple(sources.listing_spells),
     )
 

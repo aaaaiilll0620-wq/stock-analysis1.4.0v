@@ -208,6 +208,76 @@ def test_the_route_label_is_not_part_of_the_state():
     assert ri.state_hash() == pi.state_hash()
 
 
+def test_production_can_build_a_decision_intent_without_future_execution():
+    inp = production.build_intent_input(
+        production_sources(), portfolio(), DECISION)
+
+    assert inp.decision_date == DECISION
+    assert inp.as_of == AS_OF
+    assert not hasattr(inp, "execution_date")
+    assert not hasattr(inp, "execution_prices")
+    assert not hasattr(inp, "untradable")
+
+
+def _sources_on_calendar(sessions: tuple[str, ...]):
+    """Production sources whose declared calendar is exactly `sessions`."""
+    contract = SourceContract(
+        name="declared_calendar", kind="trading_calendar",
+        importer_version="test", content_sha256="8" * 64,
+        schema_sha256="7" * 64, date_min=sessions[0], date_max=sessions[-1],
+        has_effective_dates=True, has_availability_semantics=True,
+        is_current_snapshot=False)
+    return production.ProductionSources(**{
+        **production_sources().__dict__,
+        "calendar": TradingCalendar(sessions, contract)})
+
+
+def test_intent_as_of_is_the_last_session_before_the_decision_date():
+    """Coverage THROUGH the decision date is enough; the EXECUTION session is
+    the one absence the intent phase tolerates.
+
+    The calendar here stops exactly on `decision_date` (2020-06-30) — there is
+    no 2020-07-01 in it — so this is the boundary the decision-intent phase
+    actually stands on: everything up to and including the decision date is
+    observed, nothing after it is. `as_of` must be the latest completed session
+    STRICTLY BEFORE the decision date, and no execution fact may appear.
+    """
+    covered = SESSIONS[:5]      # ends 2020-06-30, the decision date itself
+    src = _sources_on_calendar(covered)
+    assert src.calendar.coverage[1] == DECISION   # no session after it exists
+
+    inp = production.build_intent_input(src, portfolio(), DECISION)
+
+    assert inp.decision_date == DECISION
+    assert inp.as_of == AS_OF
+    assert not hasattr(inp, "execution_date")
+    assert not hasattr(inp, "execution_prices")
+    assert not hasattr(inp, "untradable")
+
+
+def test_intent_aborts_when_the_calendar_stops_before_the_decision_date():
+    """§6.6 stop rule, at the adapter: a short calendar is not a shorter answer.
+
+    A calendar observed only through 2020-06-29 cannot say whether a session
+    traded between then and a decision stamped 2020-06-30. The defect this
+    replaces asserted the opposite — that `as_of` should be clipped to the
+    observed end — which silently moved the eligible population and the ADV20
+    window and raised nothing. The abort must name both dates so an operator
+    can see how far the calendar has to be re-harvested.
+    """
+    short = SESSIONS[:4]        # ends 2020-06-29; decision is 2020-06-30
+    src = _sources_on_calendar(short)
+    assert src.calendar.coverage[1] < DECISION
+
+    with pytest.raises(RouteError) as excinfo:
+        production.build_intent_input(src, portfolio(), DECISION)
+
+    message = str(excinfo.value)
+    assert short[-1] in message          # the coverage end, 2020-06-29
+    assert DECISION in message           # the requested decision date
+    assert "observed only through" in message
+
+
 def test_a_state_difference_changes_the_hash_and_aborts_before_outputs():
     p, r = run_both()
     other = retrospective.run(

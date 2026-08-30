@@ -281,7 +281,7 @@ def assert_capture_run_id(run_id: str, as_of: str) -> int:
 MAX_ATTEMPT = 99
 
 
-def next_attempt_run_id(run_id: str) -> str:
+def next_attempt_run_id(run_id: str, *, capture_date: str | None = None) -> str:
     """A failed attempt is never cleared or reused — the next one is A(NN+1).
 
     A99 has no successor: `A100` does not match the run-id form, and returning
@@ -291,13 +291,20 @@ def next_attempt_run_id(run_id: str) -> str:
     m = CAPTURE_RUN_ID_RE.match(str(run_id or ""))
     if not m:
         raise LineageCaptureError("abort: %r is not a capture run id" % (run_id,))
+    previous_date = "%s-%s-%s" % (m.group(1)[:4], m.group(1)[4:6],
+                                   m.group(1)[6:])
+    next_date = assert_iso_date("capture_date", capture_date or previous_date)
+    if next_date < previous_date:
+        raise LineageCaptureError(
+            "abort: a later capture attempt may not move backwards from %s "
+            "to %s." % (previous_date, next_date))
     nxt = int(m.group(2)) + 1
     if nxt > MAX_ATTEMPT:
         raise LineageCaptureError(
             "abort: A%02d is the last attempt id the form admits, so there is no "
             "A%d. %d failed captures is a finding to report, not a counter to "
             "widen." % (MAX_ATTEMPT, nxt, MAX_ATTEMPT))
-    return "L3-FLOOR-CAPTURE-%s-A%02d" % (m.group(1), nxt)
+    return "L3-FLOOR-CAPTURE-%s-A%02d" % (next_date.replace("-", ""), nxt)
 
 
 def assert_iso_date(name: str, value) -> str:
@@ -710,6 +717,57 @@ def assert_leg_summaries(summaries) -> tuple:
     return tuple(summaries)
 
 
+def derive_leg_summaries(price_leaf: dict, admitted_prices,
+                         *, rows_dropped_by_quarantine: int,
+                         quarantine_boundary: str = "2019-01-01") -> tuple:
+    """One canonical derivation for the two capture-leg summaries.
+
+    `admitted_prices` is the fully verified reader output.  The quarantine
+    count cannot be reconstructed from that output because the reader has
+    intentionally discarded those rows, so the capture runner must count the
+    raw pre-2019 cache rows on/after the boundary and supply that measured
+    value.  Keeping the remaining arithmetic here prevents every runner from
+    inventing a subtly different inventory projection or split.
+    """
+    from core.b0_canonical_hash import canonical_sha256
+
+    if not isinstance(rows_dropped_by_quarantine, int) or \
+            rows_dropped_by_quarantine < 0:
+        raise LineageCaptureError(
+            "abort: rows_dropped_by_quarantine must be a non-negative integer")
+    assert_iso_date("quarantine_boundary", quarantine_boundary)
+    entries = [e for e in (price_leaf or {}).get("entries", ())
+               if e.get("disposition") == "consumed"]
+    result = []
+    for leg in REQUIRED_PRICE_LEGS:
+        leg_entries = [e for e in entries if e.get("leg") == leg]
+        if not leg_entries:
+            raise LineageCaptureError(
+                "abort: prices leaf has no consumed %s entry" % leg)
+        inventory = [{k: e[k] for k in ("locator", "raw_sha256", "members")
+                      if k in e} for e in leg_entries]
+        if leg == "pre-2019":
+            mask = admitted_prices["date"] < quarantine_boundary
+            dropped = rows_dropped_by_quarantine
+        else:
+            mask = admitted_prices["date"] >= quarantine_boundary
+            dropped = 0
+        frame = admitted_prices.loc[mask]
+        if frame.empty:
+            raise LineageCaptureError(
+                "abort: verified reader admitted no %s price rows" % leg)
+        result.append({
+            "leg": leg,
+            "entry_count": len(leg_entries),
+            "inventory_digest": canonical_sha256(inventory),
+            "leg_floor": str(frame["date"].min()),
+            "quarantine_boundary": quarantine_boundary,
+            "rows_dropped_by_quarantine": dropped,
+            "admissible_rows": int(len(frame)),
+        })
+    return assert_leg_summaries(result)
+
+
 def build_capture_record(basis: dict, *, capture_date: str,
                          diagnostic_expected_floor: str = DIAGNOSTIC_EXPECTED_FLOOR,
                          **evidence) -> dict:
@@ -839,7 +897,10 @@ FLOOR_CAPTURE_CODE_CLOSURE: tuple[str, ...] = (
     "core/b0_master_prereg.py",
     "research/b0_l3/l3_readers.py",
     "research/b0_materializer/source_ownership_manifest.py",
+    "research/b0_materializer/build_flat_leaves.py",
     "research/b0_materializer/build_prices_leaf.py",
+    "research/b0_materializer/l3_temporal_snapshot.py",
+    "research/b0_l3_runner/capture_l3_floor.py",
 )
 
 

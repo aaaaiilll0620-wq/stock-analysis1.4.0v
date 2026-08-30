@@ -26,8 +26,9 @@ WHAT AN ADAPTER MAY NOT DO
     orientation, percentiles, complete-case, risk or ADV eligibility,
     SelectionScore, ranking, targets, tie-break, share rounding, buy priority,
     sell-first, pending_exit, the 1% cap, corporate-action dispatch, the cost
-    formula, or any regime-dependent branch. Every one of those lives behind
-    `run_decision`.
+    formula, or any regime-dependent branch. Decision-time semantics live
+    behind `build_decision_intent`; `run_decision` consumes that exact intent
+    and is the only execution entry point.
 
 ON STAGE ORDER
     M-1 orders `eligibility` before `features`, and this route declares exactly
@@ -148,7 +149,75 @@ def resolve_as_of(decision_date: str, calendar: TradingCalendar) -> str:
     return prior[-1]
 
 
+def resolve_as_of_observed_prefix(decision_date: str,
+                                  calendar: TradingCalendar) -> str:
+    """§6.6 for a decision intent, i.e. before the EXECUTION session exists.
+
+    Exactly one absence is legitimate on the decision date: the session AFTER
+    `decision_date`. That is the whole point of the decision-intent phase, and
+    this helper — unlike the executable path — never asks for it.
+
+    Coverage THROUGH `decision_date` is NOT optional. The §6 stop rule is
+    "`as_of` does not equal the latest completed session before
+    `decision_date`" -> abort, and a calendar that ends earlier cannot
+    establish that equality: it cannot say whether a session traded in the gap.
+    An earlier revision of this function clipped the query to the observed end
+    (`min(decision_date, observed_end)`), which converted "the calendar cannot
+    answer" into a silently older `as_of` — a decision published for
+    2026-08-31 off a population and an ADV20 window that stopped on
+    2026-08-14, with no error raised. Clipping is therefore refused here, and
+    the refusal carries the three facts an operator needs.
+
+    Coverage being sufficient, this resolves identically to `resolve_as_of`;
+    it exists to raise `RouteError` (which the L3 caller re-raises in its own
+    abort class) rather than the `MarketStateError` that `sessions_through`
+    would raise, and to say WHICH absence was fatal.
+    """
+    observed_end = str(calendar.coverage[1])
+    if observed_end < str(decision_date):
+        # Named from the observed prefix only, so the message reports what the
+        # clipping bug WOULD have used without itself asserting anything about
+        # the unobserved gap.
+        clipped = [s for s in calendar.sessions_through(observed_end)
+                   if str(s) < str(decision_date)]
+        raise RouteError(
+            f"§6.6 stop rule: the declared trading calendar is observed only "
+            f"through {observed_end}, which is before the requested "
+            f"decision_date {decision_date}. as_of would have resolved to "
+            f"{clipped[-1] if clipped else '(no completed session at all)'}, "
+            f"and the run cannot assert that no session traded between that "
+            f"day and {decision_date}. as_of must EQUAL the latest completed "
+            f"session strictly before decision_date; a shorter prefix is not "
+            f"a substitute. Re-harvest the declared calendar through "
+            f"{decision_date} and re-run. The following EXECUTION session may "
+            f"legitimately still be absent — coverage through the decision "
+            f"date may not.")
+    sessions = calendar.sessions_through(decision_date)
+    prior = [s for s in sessions if str(s) < str(decision_date)]
+    if not prior:
+        raise RouteError(
+            f"§6.6: no completed trading session before {decision_date}; there "
+            f"is no PIT state to decide from.")
+    return prior[-1]
+
+
 # --- P2-3 · the canonical input state ------------------------------------------
+
+def _assert_decision_time_state(route_kind: str, decision_date: str, as_of: str,
+                                snapshot: MarketSnapshot,
+                                portfolio: PortfolioState) -> None:
+    """One validation primitive for intent-only and executable inputs."""
+    if route_kind not in ROUTE_KINDS:
+        raise RouteError(
+            f"route_kind must be one of {ROUTE_KINDS}, got {route_kind!r}")
+    if str(as_of) >= str(decision_date):
+        raise RouteError(
+            f"§6.6: as_of {as_of} is not strictly before the decision "
+            f"date {decision_date}.")
+    if snapshot.as_of != as_of or portfolio.as_of != as_of:
+        raise RouteError(
+            f"snapshot/portfolio must be as of {as_of}; got "
+            f"{snapshot.as_of} / {portfolio.as_of}.")
 
 @dataclass(frozen=True)
 class CanonicalDecisionInput:
@@ -176,21 +245,13 @@ class CanonicalDecisionInput:
     listing_spells: tuple[ListingSpell, ...] = ()
 
     def __post_init__(self) -> None:
-        if self.route_kind not in ROUTE_KINDS:
-            raise RouteError(
-                f"route_kind must be one of {ROUTE_KINDS}, got {self.route_kind!r}")
-        if str(self.as_of) >= str(self.decision_date):
-            raise RouteError(
-                f"§6.6: as_of {self.as_of} is not strictly before the decision "
-                f"date {self.decision_date}.")
+        _assert_decision_time_state(
+            self.route_kind, self.decision_date, self.as_of,
+            self.snapshot, self.portfolio)
         if str(self.execution_date) <= str(self.decision_date):
             raise RouteError(
                 f"§6.5: execution happens at the open of the following session; "
                 f"{self.execution_date} is not after {self.decision_date}.")
-        if self.snapshot.as_of != self.as_of or self.portfolio.as_of != self.as_of:
-            raise RouteError(
-                f"snapshot/portfolio must be as of {self.as_of}; got "
-                f"{self.snapshot.as_of} / {self.portfolio.as_of}.")
 
     def state_payload(self) -> dict[str, Any]:
         """The hashed view. Deliberately excludes `route_kind`.
@@ -265,6 +326,67 @@ class CanonicalDecisionInput:
         return _hash(self.state_payload())
 
 
+@dataclass(frozen=True)
+class DecisionIntentInput:
+    """Decision-time state, before a following execution session exists.
+
+    This is deliberately a strict subset of :class:`CanonicalDecisionInput`.
+    It lets a production route publish what was knowable at the decision cut-off
+    without inventing an execution date or an opening price.  The same object is
+    also derived from the full input by :func:`run_decision`, so this does not
+    create a second scoring or ranking route.
+    """
+    route_kind: str
+    decision_date: str
+    as_of: str
+    snapshot: MarketSnapshot
+    portfolio: PortfolioState
+    pit_inputs: tuple[features.SecurityPitInputs, ...]
+    price_observations: tuple[PitPriceObservation, ...]
+    corporate_action_events: tuple[CorporateActionEvent, ...]
+    exposures: tuple[Exposure, ...]
+    listing_spells: tuple[ListingSpell, ...] = ()
+
+    def __post_init__(self) -> None:
+        _assert_decision_time_state(
+            self.route_kind, self.decision_date, self.as_of,
+            self.snapshot, self.portfolio)
+
+    @classmethod
+    def from_canonical(cls, inp: CanonicalDecisionInput) -> "DecisionIntentInput":
+        return cls(
+            route_kind=inp.route_kind,
+            decision_date=inp.decision_date,
+            as_of=inp.as_of,
+            snapshot=inp.snapshot,
+            portfolio=inp.portfolio,
+            pit_inputs=inp.pit_inputs,
+            price_observations=inp.price_observations,
+            corporate_action_events=inp.corporate_action_events,
+            exposures=inp.exposures,
+            listing_spells=inp.listing_spells,
+        )
+
+
+@dataclass(frozen=True)
+class DecisionIntent:
+    """Canonical, execution-independent output of the decision layers."""
+    route_kind: str
+    decision_date: str
+    as_of: str
+    config_hash: str
+    stages: tuple[str, ...]
+    panel: features.FeaturePanel
+    eligibility: eligibility.EligibilityResult
+    scores: Mapping[str, float]
+    ranking: tuple[str, ...]
+    targets: decision.TargetPortfolio
+    target_shares: Mapping[str, int]
+    port_value: float
+    stale_marks: Mapping[str, Any]
+    diagnostics: Mapping[str, Any] = field(default_factory=dict)
+
+
 # --- the result ----------------------------------------------------------------
 
 # P2-5. Wider than `b0_parity.PARITY_COLUMNS`, which stays untouched: the frozen
@@ -335,15 +457,11 @@ class RouteResult:
                                 state_hash=self.state_hash, rows=self.rows())
 
 
-# --- the one entry point --------------------------------------------------------
+# --- the one decision implementation -------------------------------------------
 
-def run_decision(inp: CanonicalDecisionInput, *,
-                 for_sealed_run: bool) -> RouteResult:
-    """The whole of Frozen B0 for one decision date. Called by both adapters.
-
-    `for_sealed_run` is keyword-only with no default: whether this run may
-    produce sealed evidence is a declaration, never an inference.
-    """
+def build_decision_intent(inp: DecisionIntentInput, *,
+                          for_sealed_run: bool) -> DecisionIntent:
+    """Run every decision-time layer, but require no future execution state."""
     stages: list[str] = []
 
     # --- pit_raw_state ----------------------------------------------------------
@@ -417,7 +535,8 @@ def run_decision(inp: CanonicalDecisionInput, *,
     targets = decision.target_portfolio(inp.decision_date, selected)
     decision.assert_no_reweighting(targets.weights)
 
-    # --- order_intents ----------------------------------------------------------
+    # These are indicative decision-time counts: the existing canonical route
+    # has always sized them from the as-of mark, not the later execution price.
     stages.append("order_intents")
     rounding = spec("share_rounding")
     target_share_counts: dict[str, int] = {}
@@ -426,20 +545,67 @@ def run_decision(inp: CanonicalDecisionInput, *,
             weight * marked.port_value, inp.snapshot.mark_price(sid),
             share_rounding=rounding)
 
+    expected_prefix = tuple(PIPELINE_STAGES[:len(stages)])
+    if tuple(stages) != expected_prefix:
+        raise RouteError(
+            f"decision intent stage order differs from canonical prefix: "
+            f"{tuple(stages)!r} != {expected_prefix!r}")
+    assert_corporate_action_precedes_mark(stages)
+
+    return DecisionIntent(
+        route_kind=inp.route_kind,
+        decision_date=inp.decision_date,
+        as_of=inp.as_of,
+        config_hash=config_hash(),
+        stages=tuple(stages),
+        panel=panel,
+        eligibility=elig,
+        scores=scores,
+        ranking=ranking,
+        targets=targets,
+        target_shares=target_share_counts,
+        port_value=marked.port_value,
+        stale_marks=stale_mark_report(verdicts),
+        diagnostics={
+            "eligibility_counts": elig.counts,
+            "peg_coverage": features.peg_availability_report(
+                {sid: panel.values[sid]["PEG"] for sid in panel.values}),
+            "under_invested_by_breadth":
+                targets.diagnostics["under_invested_by_breadth"],
+            "pipeline_stages": tuple(PIPELINE_STAGES),
+        },
+    )
+
+
+def run_decision(inp: CanonicalDecisionInput, *,
+                 for_sealed_run: bool) -> RouteResult:
+    """The whole of Frozen B0 for one decision date. Called by both adapters.
+
+    `for_sealed_run` is keyword-only with no default: whether this run may
+    produce sealed evidence is a declaration, never an inference.
+    """
+    # Execution always derives its own intent through the canonical path.  A
+    # caller may compare this result with a previously published prospective
+    # intent, but may never inject target shares or ranking at this boundary.
+    intent = build_decision_intent(
+        DecisionIntentInput.from_canonical(inp),
+        for_sealed_run=for_sealed_run)
+    stages = list(intent.stages)
+
     # --- execution / costs / post_trade_nav ------------------------------------
     stages.append("execution")
     session = execution.execute_session(
         execution_date=inp.execution_date,
         data_as_of=inp.as_of,
         pre_trade=inp.portfolio,
-        target_share_counts=target_share_counts,
+        target_share_counts=intent.target_shares,
         prices=inp.execution_prices,
         adv20=inp.snapshot.adv20,
         sigma20d=inp.snapshot.sigma20d,
         untradable=inp.untradable,
         drift_policy=spec("target_drift_policy"),
         buy_priority=spec("buy_priority"),
-        buy_order=ranking,
+        buy_order=intent.ranking,
         x_sell=float(spec("X_sell")),
         x_buy=float(spec("X_buy")))
     stages.append("costs")
@@ -453,26 +619,21 @@ def run_decision(inp: CanonicalDecisionInput, *,
         route_kind=inp.route_kind,
         decision_date=inp.decision_date,
         as_of=inp.as_of,
-        config_hash=config_hash(),
+        config_hash=intent.config_hash,
         state_hash=inp.state_hash(),
         stages=tuple(stages),
-        panel=panel,
-        eligibility=elig,
-        scores=scores,
-        ranking=ranking,
-        targets=targets,
-        target_shares=target_share_counts,
+        panel=intent.panel,
+        eligibility=intent.eligibility,
+        scores=intent.scores,
+        ranking=intent.ranking,
+        targets=intent.targets,
+        target_shares=intent.target_shares,
         session=session,
-        port_value=marked.port_value,
-        stale_marks=stale_mark_report(verdicts),
+        port_value=intent.port_value,
+        stale_marks=intent.stale_marks,
         diagnostics={
-            "eligibility_counts": elig.counts,
-            "peg_coverage": features.peg_availability_report(
-                {sid: panel.values[sid]["PEG"] for sid in panel.values}),
+            **intent.diagnostics,
             "cost_totals": execution.cost_totals(session.receipts),
-            "under_invested_by_breadth":
-                targets.diagnostics["under_invested_by_breadth"],
-            "pipeline_stages": tuple(PIPELINE_STAGES),
         },
     )
 

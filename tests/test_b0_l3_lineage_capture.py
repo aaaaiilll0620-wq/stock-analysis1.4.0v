@@ -25,7 +25,7 @@ from core.b0_l3_lineage_capture import (                          # noqa: E402
     assert_receipt_names_its_lineage, assert_repo_identity, build_capture_record,
     capture_lineage_floor, capture_path, create_lineage_dir_exclusively,
     display_alias, lineage_basis, lineage_id_from_basis,
-    load_and_verify_capture_record, next_attempt_run_id,
+    derive_leg_summaries, load_and_verify_capture_record, next_attempt_run_id,
     write_capture_record_exclusively,
 )
 
@@ -366,6 +366,27 @@ def test_both_price_legs_must_be_summarised():
         assert_leg_summaries([{**_legs()[0], "entry_count": 0}, _legs()[1]])
 
 
+def test_leg_summaries_are_derived_from_the_verified_leaf_and_rows():
+    import pandas as pd
+
+    leaf = {"entries": [
+        {"locator": "1101.parquet", "raw_sha256": SHA,
+         "disposition": "consumed", "leg": "pre-2019"},
+        {"locator": "prices.zip", "raw_sha256": "b" * 64,
+         "members": [{"name": "p.csv", "size": 1, "crc32": "00000000"}],
+         "disposition": "consumed", "leg": "2019+"},
+    ]}
+    rows = pd.DataFrame({"date": ["2004-01-02", "2018-12-28",
+                                       "2019-01-02", "2026-08-28"]})
+    got = derive_leg_summaries(
+        leaf, rows, rows_dropped_by_quarantine=7)
+    assert [row["leg"] for row in got] == ["pre-2019", "2019+"]
+    assert got[0]["admissible_rows"] == 2
+    assert got[0]["rows_dropped_by_quarantine"] == 7
+    assert got[1]["admissible_rows"] == 2
+    assert got[1]["rows_dropped_by_quarantine"] == 0
+
+
 # --- §20.6 · the capture run id ----------------------------------------------------
 
 def test_the_capture_run_id_names_its_own_as_of():
@@ -389,6 +410,13 @@ def test_a_failed_attempt_is_never_reused():
     assert next_attempt_run_id(RUN) == "L3-FLOOR-CAPTURE-20260826-A02"
     assert next_attempt_run_id(next_attempt_run_id(RUN)) == \
         "L3-FLOOR-CAPTURE-20260826-A03"
+
+
+def test_a_later_attempt_names_the_day_it_actually_reads_sources():
+    assert next_attempt_run_id(RUN, capture_date="2026-08-29") == \
+        "L3-FLOOR-CAPTURE-20260829-A02"
+    with pytest.raises(LineageCaptureError, match="move backwards"):
+        next_attempt_run_id(RUN, capture_date="2026-08-25")
 
 
 def test_there_is_no_attempt_after_a99():
