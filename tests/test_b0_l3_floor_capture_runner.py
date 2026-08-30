@@ -176,6 +176,26 @@ def surfaces(sources, monkeypatch):
             aligned[name] = entry
         monkeypatch.setattr(P, "CONSUMED_ARCHIVE_DECLARATIONS", aligned)
         monkeypatch.setattr(P, "CONSUMED_ARCHIVES", tuple(aligned))
+
+        # The SEALED CONTRACT's own record of those same bytes is re-pointed for
+        # exactly the same reason. `build` now reconciles the declared set
+        # against `price_source_contract.json`, which names the two composed
+        # archives by hash — and a synthetic archive can no more carry the
+        # contract's hashes than it can carry the declaration's.
+        #
+        # Only `upstream_zips` is substituted. `content_sha256` stays real,
+        # because it is what a beyond-contract allowance is keyed to, and
+        # `date_max` stays real, because the 2026-08 archive must still be seen
+        # to reach past it — substituting either would make this fixture pass
+        # for a reason the production path does not have.
+        loader = getattr(P, "sealed_contract_payload", None)
+        if loader is not None:
+            payload = loader()
+            payload["upstream_zips"] = {
+                name: aligned[name]["raw_sha256"]
+                for name in payload["upstream_zips"] if name in aligned}
+            monkeypatch.setattr(P, "sealed_contract_payload",
+                                lambda path="", _p=payload: _p)
     return sources
 
 

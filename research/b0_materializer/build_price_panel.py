@@ -71,7 +71,13 @@ from core.b0_price_universe import (                            # noqa: E402
 # one place to forget, and the forgotten one is the one that globs.
 from build_prices_leaf import (                                 # noqa: E402
     CONSUMED_ARCHIVE_DECLARATIONS,
+    DECLARED_SPAN_VERIFICATION,
     DELISTED_COVERAGE_POLICY,
+    SEALED_PRICE_CONTRACT_JSON,
+    panel_end_session,
+    reconcile_declarations_with_sealed_contract,
+    sealed_contract_payload,
+    verify_declared_spans,
 )
 
 IMPORTER_VERSION = "price_panel_importer_v1"
@@ -80,9 +86,9 @@ VINTAGE_BOUNDARY = "2019-01-01"
 OLD_CACHE = os.path.join(os.path.expanduser("~"), "tej_cache", "price_valuation")
 ZIP_DIR = os.path.join(REPO, "tej_exports", "DataExport0806",
                        "個股股價、本益比2004-20260817")
-CONTRACT_JSON = os.path.join(REPO, "research", "d1_price_universe",
-                             "price_source_contract.json")
-CALENDAR = os.path.join(REPO, "data", "b0", "trading_calendar.csv")
+# One locator for the sealed contract, owned beside the declarations it must be
+# reconciled against — two paths to the same document is two places to update.
+CONTRACT_JSON = os.path.join(REPO, SEALED_PRICE_CONTRACT_JSON)
 
 OUT_PARQUET = os.path.join(REPO, "data", "b0", "price_panel.parquet")
 OUT_RECEIPT = os.path.join(HERE, "price_panel_receipt.json")
@@ -141,6 +147,25 @@ def assert_reads_the_sealed_source(contract: PriceSourceContract) -> str:
     return sha
 
 
+def assert_declared_set_matches_the_sealed_contract(panel_end: str) -> dict:
+    """S-8 · the OTHER half of the gate above, and it is not the same half.
+
+    `assert_reads_the_sealed_source` recomputes the composed fingerprint from
+    `data/b0/price_2019plus_new.parquet`. That artefact is sealed and stops at
+    the contract's `date_max`, so it cannot see an archive DECLARED beside it:
+    on 2026-08-30 the declared set was three archives reaching 2026-08-28 while
+    the contract named two and stopped at 2026-08-17, and that gate still
+    reported a match.
+
+    This one compares the two lists directly, and re-checks the clip that
+    today's single allowance rests on against the panel end actually in use —
+    so a `window_end` that moves the panel past 2026-04 aborts here instead of
+    quietly widening the composition.
+    """
+    return reconcile_declarations_with_sealed_contract(
+        payload=sealed_contract_payload(CONTRACT_JSON), panel_end=panel_end)
+
+
 def panel_span() -> tuple[str, str]:
     """Derived from the frozen window, never chosen.
 
@@ -150,23 +175,18 @@ def panel_span() -> tuple[str, str]:
     End: the first session strictly after `window_end` — §6.5 executes at the
     OPEN of the session following the decision date, and nothing beyond it is
     reachable by B0.
-    """
-    import csv
 
+    The END is `build_prices_leaf.panel_end_session()`, not a second copy of the
+    rule: an archive declared beyond the sealed contract is allowed only while
+    the panel end clips it away, and a clip defined in two places is a clip that
+    can move in one of them.
+    """
     import pandas as pd
 
     start = pd.Timestamp(str(frozen_spec("window_start")))
     lookback = int(frozen_spec("lookback_L_months"))
     first_year = (start - pd.DateOffset(months=lookback)).year
-    with open(CALENDAR, encoding="utf-8") as fh:
-        sessions = sorted(r["session"] for r in csv.DictReader(fh))
-    end = str(frozen_spec("window_end"))
-    after = [s for s in sessions if s > end]
-    if not after:
-        raise SystemExit(
-            "abort: the calendar has no session after window_end %s, so the §6.5 "
-            "execution session of the final decision month does not exist" % end)
-    return "%d-01-01" % first_year, after[0]
+    return "%d-01-01" % first_year, panel_end_session()
 
 
 def cache_leg(date_min: str, date_max: str):
@@ -338,6 +358,18 @@ def main() -> None:
     print("panel span %s .. %s (derived: window_start - lookback_L_months, "
           "through the §6.5 execution session)" % (date_min, date_max), flush=True)
 
+    reconciliation = assert_declared_set_matches_the_sealed_contract(date_max)
+    print("declared archive set reconciles with the sealed contract "
+          "(%d aligned, %d allowed: %s)"
+          % (len(reconciliation["reconciled_without_allowance"]),
+             len(reconciliation["allowances_granted"]),
+             sorted(reconciliation["allowances_granted"]) or "none"), flush=True)
+    spans = verify_declared_spans(ZIP_DIR)
+    print("declared spans re-measured from the archives: %s" % ", ".join(
+        "%s %s..%s (%d rows)" % (n, v["observed_covers"][0],
+                                 v["observed_covers"][1], v["rows"])
+        for n, v in sorted(spans.items())), flush=True)
+
     pre = cache_leg(date_min, date_max)
     post, zip_upstream = zip_leg(date_min, date_max)
     panel = pd.concat([pre, post], ignore_index=True)
@@ -378,11 +410,19 @@ def main() -> None:
             "from_2019": sorted(zip_upstream),
             "from_2019_declared_inventory": {
                 name: {"covers": list(d["covers"]),
-                       "roster_basis": d["roster_basis"]}
+                       "roster_basis": d["roster_basis"],
+                       # S-9: the published span is the RE-MEASURED one, not the
+                       # constant beside it. A correct hash with a wrong span
+                       # used to travel straight into this receipt.
+                       "covers_verified": spans[name]}
                 for name, d in sorted(CONSUMED_ARCHIVE_DECLARATIONS.items())},
             "boundary_enforced_mechanically": True,
             "inventory_checked_by_name_and_hash_not_by_count": True,
         },
+        "declared_span_verification": DECLARED_SPAN_VERIFICATION,
+        # S-8: which archives stand outside the sealed contract, on what named
+        # allowance, and the panel end that allowance was checked against.
+        "sealed_source_reconciliation": reconciliation,
         # Carried into the receipt so the limitation is readable at the artefact
         # a consumer actually opens, not only in the leaf. `includes_delisted`
         # above is the COMPOSED corpus's D1-6 standing; this says which archives

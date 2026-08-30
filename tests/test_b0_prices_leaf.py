@@ -430,3 +430,351 @@ def test_the_real_directory_holds_exactly_the_declared_archives():
         P.CONSUMED_ARCHIVE_DECLARATIONS)
     assert upstream["股價0817-0828.zip"] == P.CONSUMED_ARCHIVE_DECLARATIONS[
         "股價0817-0828.zip"]["raw_sha256"]
+
+
+# --- S-9 · the declared span is re-measured, never trusted ----------------------
+#
+# `raw_sha256` catches a REPACKED archive. It cannot see an archive whose bytes
+# are exactly what was declared and whose SPAN was written down wrong — and the
+# precedent is in this directory: 股價0817-0828.zip is NAMED for 0817 and starts
+# on 2026-08-18. A hand-measured constant nothing re-measures is the filename
+# one indirection later.
+
+TEJ_HEADER = ("證券代碼", "年月日", "開盤價(元)", "最高價(元)", "最低價(元)",
+              "收盤價(元)", "成交量(千股)", "成交值(千元)", "流通在外股數(千股)",
+              "本益比-TEJ", "股價淨值比-TEJ")
+
+
+def _tej_zip(path, days, member="m.csv", header=TEJ_HEADER, extra_members=()):
+    """A TEJ-shaped archive: UTF-16, tab separated, 年月日 as YYYYMMDD."""
+    def body(rows):
+        lines = ["\t".join(header)]
+        for d in rows:
+            lines.append("\t".join(
+                ["1101 台泥", d] + ["1.0"] * (len(header) - 2)))
+        return ("\n".join(lines) + "\n").encode("utf-16")
+
+    with zipfile.ZipFile(path, "w") as z:
+        z.writestr(member, body(days))
+        for name, rows in extra_members:
+            z.writestr(name, body(rows))
+    return path
+
+
+def _declare(monkeypatch, path, locator, covers, **kw):
+    from core.b0_canonical_hash import file_sha256
+
+    d = {"leg": "2019+", "raw_sha256": file_sha256(path), "covers": covers,
+         "roster_basis": P.ROSTER_BASIS_BULK_HISTORICAL}
+    d.update(kw)
+    monkeypatch.setattr(P, "CONSUMED_ARCHIVE_DECLARATIONS", {locator: d})
+    monkeypatch.setattr(P, "CONSUMED_ARCHIVES", (locator,))
+    P._SPAN_CACHE.clear()
+    return d
+
+
+def test_a_mis_declared_span_is_caught_though_the_bytes_are_right(
+        tmp_path, monkeypatch):
+    """The exact hole `raw_sha256` leaves open. The archive is byte-identical to
+    its declaration; only the span written beside it is wrong."""
+    p = _tej_zip(os.path.join(str(tmp_path), "股價_x.zip"),
+                 ["20260818", "20260828"])
+    d = _declare(monkeypatch, p, "股價_x.zip", ("2026-08-17", "2026-08-28"))
+    with pytest.raises(ManifestError, match="mis-declared span"):
+        P.assert_declared_span(p, "股價_x.zip", d["raw_sha256"])
+
+
+def test_a_correctly_declared_span_passes_and_reports_what_it_measured(
+        tmp_path, monkeypatch):
+    """Mutation control for the test above: the same code path must be able to
+    PASS, or the check is just a raise."""
+    p = _tej_zip(os.path.join(str(tmp_path), "股價_x.zip"),
+                 ["20260828", "20260818", "20260820"])
+    d = _declare(monkeypatch, p, "股價_x.zip", ("2026-08-18", "2026-08-28"))
+    out = P.assert_declared_span(p, "股價_x.zip", d["raw_sha256"])
+    assert out["observed_covers"] == ["2026-08-18", "2026-08-28"]
+    assert out["rows"] == 3
+
+
+def test_the_span_covers_every_member_not_only_the_first(tmp_path, monkeypatch):
+    """`build_price_panel.zip_leg` reads `namelist()[0]`, so a second member is
+    invisible to it. The declaration speaks for the whole archive, so the span
+    is measured over all of them and a member that reaches past the declared end
+    is named rather than skipped."""
+    p = _tej_zip(os.path.join(str(tmp_path), "股價_x.zip"), ["20260818"],
+                 member="a.csv", extra_members=[("b.csv", ["20260901"])])
+    d = _declare(monkeypatch, p, "股價_x.zip", ("2026-08-18", "2026-08-18"))
+    with pytest.raises(ManifestError, match="mis-declared span"):
+        P.assert_declared_span(p, "股價_x.zip", d["raw_sha256"])
+    P._SPAN_CACHE.clear()
+    assert P.observed_archive_span(p, d["raw_sha256"])["members_read"] == [
+        "a.csv", "b.csv"]
+
+
+def test_the_date_column_is_located_by_name_not_by_position(tmp_path, monkeypatch):
+    """A reordered export would shift a positional read silently into another
+    column, and 開盤價 parsed as a date is a span nobody can question."""
+    header = TEJ_HEADER[:1] + ("交易日",) + TEJ_HEADER[2:]
+    p = _tej_zip(os.path.join(str(tmp_path), "股價_x.zip"), ["20260818"],
+                 header=header)
+    d = _declare(monkeypatch, p, "股價_x.zip", ("2026-08-18", "2026-08-18"))
+    with pytest.raises(ManifestError, match="no 年月日 column"):
+        P.assert_declared_span(p, "股價_x.zip", d["raw_sha256"])
+
+    # And when it IS present but moved, it is followed rather than assumed: the
+    # dates here sit in the LAST column, where a positional read would find a
+    # price instead and publish it as a span.
+    P._SPAN_CACHE.clear()
+    moved = TEJ_HEADER[:1] + TEJ_HEADER[2:] + ("年月日",)
+    q = os.path.join(str(tmp_path), "股價_y.zip")
+    row = ["1101 台泥"] + ["1.0"] * 9 + ["20260818"]
+    text = "\t".join(moved) + "\n" + "\t".join(row) + "\n"
+    with zipfile.ZipFile(q, "w") as z:
+        z.writestr("m.csv", text.encode("utf-16"))
+    assert P.observed_archive_span(q, "c" * 64)["observed_covers"] == [
+        "2026-08-18", "2026-08-18"]
+
+
+def test_an_unreadable_date_field_aborts_rather_than_being_guessed(
+        tmp_path, monkeypatch):
+    p = _tej_zip(os.path.join(str(tmp_path), "股價_x.zip"), ["2026/08/18"])
+    d = _declare(monkeypatch, p, "股價_x.zip", ("2026-08-18", "2026-08-18"))
+    with pytest.raises(ManifestError, match="neither YYYYMMDD nor YYYY-MM-DD"):
+        P.assert_declared_span(p, "股價_x.zip", d["raw_sha256"])
+
+
+def test_an_archive_with_no_data_rows_evidences_no_span(tmp_path, monkeypatch):
+    p = _tej_zip(os.path.join(str(tmp_path), "股價_x.zip"), [])
+    d = _declare(monkeypatch, p, "股價_x.zip", ("2026-08-18", "2026-08-18"))
+    with pytest.raises(ManifestError, match="evidences no span"):
+        P.assert_declared_span(p, "股價_x.zip", d["raw_sha256"])
+
+
+def test_the_span_memo_is_keyed_on_the_bytes(tmp_path):
+    """The memo is what makes a full re-measure affordable per process. It is
+    sound only because the key is the hash `build()` has just recomputed from
+    the bytes — so different bytes can never collect another file's span."""
+    a = _tej_zip(os.path.join(str(tmp_path), "a.zip"), ["20260818"])
+    b = _tej_zip(os.path.join(str(tmp_path), "b.zip"), ["20200102", "20200103"])
+    P._SPAN_CACHE.clear()
+    assert P.observed_archive_span(a, "a" * 64)["observed_covers"] == [
+        "2026-08-18", "2026-08-18"]
+    assert P.observed_archive_span(b, "b" * 64)["observed_covers"] == [
+        "2020-01-02", "2020-01-03"]
+    assert set(P._SPAN_CACHE) == {"a" * 64, "b" * 64}
+
+
+@live
+def test_the_real_declared_spans_are_what_the_archives_actually_hold():
+    """Against the bytes, not against the constants beside them."""
+    P._SPAN_CACHE.clear()
+    spans = P.verify_declared_spans()
+    assert set(spans) == set(P.CONSUMED_ARCHIVE_DECLARATIONS)
+    assert spans["股價0817-0828.zip"]["observed_covers"] == [
+        "2026-08-18", "2026-08-28"]
+    assert spans["股價0817-0828.zip"]["rows"] == 17586
+    assert spans["股價2023-20260817.zip"]["observed_covers"][1] == "2026-08-17"
+    assert spans["股價 2019-2022.zip"]["observed_covers"] == [
+        "2019-01-02", "2022-12-30"]
+
+
+@live
+def test_the_verified_span_travels_on_the_entry():
+    leaf = P.build(RUN, AS_OF)
+    by = {e["locator"]: e for e in leaf["entries"]}
+    e = by["股價0817-0828.zip"]
+    assert e["covers_verified"]["observed_covers"] == e["covers"]
+    assert e["covers_verified"]["rows"] == 17586
+    pol = leaf["policies"]["declared_span_verification"]
+    assert pol["memoised_on"] == "raw_sha256"
+    assert any("MISSING" in s for s in pol["does_not_catch"])
+
+
+# --- S-8 · the declared set against the SEALED contract -------------------------
+#
+# The fingerprint gate recomputes the composed manifest from
+# `data/b0/price_2019plus_new.parquet`, a sealed artefact that stops at the
+# contract's date_max. It never opens the archives, so it cannot see one
+# declared beside them.
+
+def _payload(**over):
+    import json
+
+    with open(os.path.join(REPO, P.SEALED_PRICE_CONTRACT_JSON),
+              encoding="utf-8") as fh:
+        payload = json.load(fh)
+    payload["contract"] = dict(payload["contract"], **over.pop("contract", {}))
+    payload.update(over)
+    return payload
+
+
+CACHE = os.path.join(os.path.expanduser("~"), "tej_cache", "price_valuation")
+composed = pytest.mark.skipif(
+    not (os.path.isdir(CACHE)
+         and os.path.isfile(os.path.join(REPO, "data", "b0",
+                                         "price_2019plus_new.parquet"))),
+    reason="the composed corpus is not present in this clone")
+
+
+@composed
+def test_the_fingerprint_gate_cannot_see_the_declared_set_diverge():
+    """S-8, reproduced as a standing characterisation.
+
+    Both of these are true at the same time, and that is the whole finding: the
+    sealed fingerprint reproduces exactly while the declared archive set and the
+    contract describe different compositions. The second gate is not a
+    restatement of the first — it is the only one that can see this."""
+    import build_price_panel as B
+
+    contract = B.sealed_contract()
+    assert B.assert_reads_the_sealed_source(contract) == contract.content_sha256
+
+    payload = _payload()
+    assert sorted(payload["upstream_zips"]) != sorted(
+        P.CONSUMED_ARCHIVE_DECLARATIONS)
+    assert max(d["covers"][1] for d in
+               P.CONSUMED_ARCHIVE_DECLARATIONS.values()) > contract.date_max
+
+    record = P.reconcile_declarations_with_sealed_contract(
+        payload=payload, panel_end=P.panel_end_session())
+    assert record["divergences"] == {
+        "股價0817-0828.zip": [P.DIVERGENCE_NOT_IN_CONTRACT,
+                              P.DIVERGENCE_BEYOND_DATE_MAX]}
+
+
+def test_the_declared_set_reconciles_today_and_says_on_what_condition():
+    record = P.reconcile_declarations_with_sealed_contract(
+        payload=_payload(), panel_end=P.panel_end_session())
+    granted = record["allowances_granted"]["股價0817-0828.zip"]
+    assert granted["condition"] == P.ALLOWANCE_CONDITION_PANEL_CLIPS
+    assert granted["checked"]["panel_end_before_archive_start"] is True
+    assert granted["checked"]["panel_end"] == "2026-04-01"
+    assert granted["checked"]["archive_first_covered_session"] == "2026-08-18"
+    assert record["reconciled_without_allowance"] == [
+        "股價 2019-2022.zip", "股價2023-20260817.zip"]
+
+
+@pytest.mark.parametrize("panel_end", ["2026-08-18", "2026-09-30"])
+def test_the_allowance_dies_the_moment_the_panel_stops_clipping_it(panel_end):
+    """The trap this whole check exists for. 'The panel clips this away today'
+    is a fact about a FROZEN WINDOW, so it is re-checked against the panel end
+    in use rather than restated — move `window_end` past 2026-04 and the build
+    aborts instead of quietly carrying rows the contract does not cover."""
+    with pytest.raises(ManifestError, match="no longer true"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=panel_end)
+
+
+def test_an_allowance_is_void_when_the_source_is_re_registered():
+    """Keyed to the sealed fingerprint, not to the contract's NAME:
+    `register_price_source.py` hard-codes the name, so a recomposition would
+    keep it and let a stale allowance survive the event it must not survive."""
+    payload = _payload(contract={"content_sha256": "9" * 64})
+    with pytest.raises(ManifestError, match="no allowance is declared"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=payload, panel_end=P.panel_end_session())
+
+
+def test_an_undeclared_divergence_names_both_sides():
+    """A fourth archive reaching past the contract, with nothing written for
+    it — the case that used to pass silently."""
+    decl = dict(P.CONSUMED_ARCHIVE_DECLARATIONS)
+    decl["股價0901-0930.zip"] = {
+        "leg": "2019+", "raw_sha256": "e" * 64,
+        "covers": ("2026-09-01", "2026-09-30"),
+        "roster_basis": P.ROSTER_BASIS_CURRENT_SNAPSHOT}
+    with pytest.raises(ManifestError, match="股價0901-0930.zip"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session(),
+            declarations=decl)
+
+
+def test_an_allowance_may_not_be_granted_by_a_reason_in_prose(monkeypatch):
+    """The condition vocabulary is closed and every member is CHECKED. An
+    allowance that explains itself instead of proving itself aborts."""
+    key = ("股價0817-0828.zip", _payload()["contract"]["content_sha256"])
+    monkeypatch.setitem(
+        P.ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES, key,
+        {"condition": "it is fine, the panel clips it away"})
+    with pytest.raises(ManifestError, match="not one of"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session())
+
+
+def test_a_spent_allowance_must_be_removed_not_left_standing():
+    """Fail-closed in the other direction: an allowance against this exact
+    fingerprint that no longer describes a divergence is a standing permission
+    nobody re-reads."""
+    decl = {n: d for n, d in P.CONSUMED_ARCHIVE_DECLARATIONS.items()
+            if n != "股價0817-0828.zip"}
+    with pytest.raises(ManifestError, match="no longer describe a divergence"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session(),
+            declarations=decl)
+
+
+def test_an_archive_the_contract_stands_on_must_be_declared():
+    """A source the sealed corpus was composed from that this module does not
+    read is a shorter panel wearing the sealed fingerprint."""
+    decl = {n: d for n, d in P.CONSUMED_ARCHIVE_DECLARATIONS.items()
+            if n != "股價 2019-2022.zip"}
+    with pytest.raises(ManifestError, match="does not name"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session(),
+            declarations=decl)
+
+
+def test_the_contract_and_the_declaration_must_name_the_same_bytes():
+    payload = _payload()
+    payload["upstream_zips"] = dict(payload["upstream_zips"])
+    payload["upstream_zips"]["股價 2019-2022.zip"] = "d" * 64
+    with pytest.raises(ManifestError, match="different bytes is a different"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=payload, panel_end=P.panel_end_session())
+
+
+@pytest.mark.parametrize("over", [
+    {"contract": {"date_max": ""}}, {"contract": {"content_sha256": ""}}])
+def test_a_contract_that_cannot_state_its_own_coverage_aborts(over):
+    with pytest.raises(ManifestError, match="must declare name, date_max"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(**over), panel_end=P.panel_end_session())
+
+
+def test_a_document_with_nothing_to_reconcile_against_aborts():
+    payload = _payload()
+    payload.pop("upstream_zips")
+    with pytest.raises(ManifestError, match="nothing to reconcile"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=payload, panel_end=P.panel_end_session())
+
+
+def test_the_panel_end_is_a_measurement_not_an_argument_of_convenience():
+    """An allowance whose reason is 'the panel clips this away' is void if the
+    clip cannot be read, so an unusable panel end aborts rather than defaulting."""
+    with pytest.raises(ManifestError, match="neither YYYYMMDD nor YYYY-MM-DD"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end="the panel clips it")
+
+
+def test_the_panel_end_has_one_owner():
+    """`build_price_panel.panel_span()` consumes it. A clip defined in two
+    places is a clip that can move in one of them."""
+    import build_price_panel as B
+
+    assert B.panel_span()[1] == P.panel_end_session() == "2026-04-01"
+
+
+@live
+def test_the_reconciliation_is_recorded_in_the_leaf():
+    leaf = P.build(RUN, AS_OF)
+    rec = leaf["policies"]["sealed_source_reconciliation"]
+    assert rec["sealed_contract_name"] == "b0_price_universe_20260817"
+    assert rec["sealed_contract_date_max"] == "2026-08-17"
+    assert rec["declared_archives"] == sorted(P.CONSUMED_ARCHIVE_DECLARATIONS)
+    assert rec["divergences"] == {
+        "股價0817-0828.zip": [P.DIVERGENCE_NOT_IN_CONTRACT,
+                              P.DIVERGENCE_BEYOND_DATE_MAX]}
+    assert rec["panel_end_checked"] == "2026-04-01"
+    assert "R-W1-1" in rec["allowances_granted"]["股價0817-0828.zip"][
+        "why_the_contract_was_not_reissued"]

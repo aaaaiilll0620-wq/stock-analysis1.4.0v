@@ -62,11 +62,38 @@ guessed.
     so in its own entry (`declared_properties.delisted_coverage`) rather than
     leaving a future reader to re-derive it from the row counts.
 
+5 · A DECLARED SPAN IS A MEASUREMENT, AND A MEASUREMENT DECAYS INTO A CONSTANT
+    `covers` was measured by hand and written down. `raw_sha256` catches a
+    REPACKED archive; it says nothing about an archive whose bytes are exactly
+    what was declared and whose SPAN was declared wrong — and that is not
+    hypothetical here, because the archive's own filename is wrong
+    (股價0817-0828.zip covers 2026-08-18 .. 08-28). The span is what the leaf
+    PUBLISHES as the archive's coverage, so it is re-measured from the archive's
+    rows at build time (`assert_declared_span`) rather than trusted.
+
+6 · THE DECLARED SET AND THE SEALED CONTRACT ARE TWO DIFFERENT LISTS
+    `build_price_panel.assert_reads_the_sealed_source` recomputes the composed
+    fingerprint from `data/b0/price_2019plus_new.parquet` — a SEALED ARTEFACT,
+    not from the archives. So declaring a third archive here moved the read set
+    and left that gate reporting a match: measured 2026-08-30, the declared set
+    was three archives spanning to 2026-08-28 while the sealed contract named
+    two and stopped at 2026-08-17, and the fingerprint gate passed.
+
+    It was harmless only because `panel_span()` clips at 2026-04-01 and the new
+    archive contributes no rows — a fact about a FROZEN WINDOW that a future
+    `window_end` change silently invalidates. So it is checked, not assumed:
+    `reconcile_declarations_with_sealed_contract` compares the two lists every
+    build, and an archive reaching past the contract must carry a named
+    allowance keyed to the exact sealed fingerprint it diverges from, whose
+    stated reason is re-verified against the panel end on every build.
+
     python research/b0_materializer/build_prices_leaf.py <run_dir> <run_id> <as_of>
 """
 from __future__ import annotations
 
 import datetime as _dt
+import io
+import json
 import os
 import sys
 import zipfile
@@ -219,6 +246,199 @@ CONSUMED_ARCHIVE_DECLARATIONS = {
 
 CONSUMED_ARCHIVES = tuple(CONSUMED_ARCHIVE_DECLARATIONS)
 
+# --- S-9 · the declared span is RE-MEASURED, never trusted ----------------------
+#
+# ⚠ `raw_sha256` AND `covers` FAIL DIFFERENTLY, AND ONLY ONE OF THEM WAS CHECKED.
+#
+# A repacked archive changes its bytes, so the hash names it. An archive whose
+# bytes are exactly what was declared and whose SPAN was written down wrong is
+# invisible to the hash — and `covers` is not commentary: it is what this leaf
+# publishes as the archive's coverage, and `build_price_panel` copies it into
+# the panel receipt as `from_2019_declared_inventory`.
+#
+# The precedent is in this very directory: 股價0817-0828.zip is NAMED for 0817
+# and does not contain 2026-08-17. A hand-measured constant that nothing
+# re-measures is the same shape as the filename, one indirection later.
+#
+# So the span is re-derived from the archive's own rows. Cost, measured rather
+# than assumed (2026-08-31, this clone):
+#
+#     股價 2019-2022.zip       1,785,993 rows   286 MB decompressed   2.9 s
+#     股價2023-20260817.zip    1,684,634 rows   273 MB decompressed   2.8 s
+#     股價0817-0828.zip           17,586 rows   2.8 MB decompressed   0.03 s
+#
+# ~5.7 s for the whole declared set, against ~1.4 s for the rest of the build.
+# That is paid ONCE PER PROCESS, memoised on `raw_sha256` — and the key is not a
+# promise: `build()` re-hashes every archive from its bytes and asserts it
+# against the declaration BEFORE the lookup, so a cache hit is a hit on bytes
+# just proven identical. Nothing is persisted, so nothing is trusted across
+# runs and there is no ledger to hand-edit.
+ARCHIVE_DATE_COLUMN = "年月日"
+ARCHIVE_TEXT_ENCODING = "utf-16"
+ARCHIVE_DELIMITER = "\t"
+
+DECLARED_SPAN_VERIFICATION = {
+    "rule": "DECLARED_COVERS_IS_RE_MEASURED_FROM_THE_ARCHIVE_ROWS_EVERY_BUILD",
+    "method": (
+        "stream every member of every declared archive, take min and max of the "
+        "%s column by NAME (not by position), and require exact equality with "
+        "both ends of the declared span" % ARCHIVE_DATE_COLUMN),
+    "memoised_on": "raw_sha256",
+    "memo_is_sound_because": (
+        "the archive is re-hashed from its bytes and asserted against the "
+        "declaration before the memo is consulted, so a hit is a hit on bytes "
+        "proven identical in this same build. The memo is process-local and "
+        "never written to disk."),
+    "catches": [
+        "a span declared wrong at either end while the bytes are exactly what "
+        "was declared — the case raw_sha256 cannot see",
+        "a span taken from the filename rather than from the contents",
+        "a member added to the archive whose rows fall outside the declared span",
+        "a date field that is neither YYYYMMDD nor YYYY-MM-DD, and a row whose "
+        "field count disagrees with its own header",
+    ],
+    "does_not_catch": [
+        "sessions MISSING inside a correctly declared span — this is a span "
+        "check, not a completeness check; the calendar/coverage question belongs "
+        "to core.b0_price_universe and the D-1 audit",
+        "securities missing from the roster (that is roster_basis, declared "
+        "separately, and D1-6)",
+        "a wrong `leg` or `roster_basis` — neither is derivable from the rows",
+        "values: prices and volumes are not re-verified here",
+    ],
+}
+
+_SPAN_CACHE: dict = {}
+
+
+def _iso_day(value: str, where: str) -> str:
+    """`20260818` or `2026-08-18` -> `2026-08-18`. Anything else aborts.
+
+    Both forms occur: TEJ writes 年月日 as YYYYMMDD, and the readers parse it
+    with `pd.to_datetime`, which also accepts the dashed form. Guessing at a
+    third form is how a misparse becomes a span.
+    """
+    v = str(value).strip()
+    if len(v) == 8 and v.isdigit():
+        return "%s-%s-%s" % (v[:4], v[4:6], v[6:])
+    if (len(v) == 10 and v[4] == "-" and v[7] == "-"
+            and v[:4].isdigit() and v[5:7].isdigit() and v[8:].isdigit()):
+        return v
+    raise ManifestError(
+        "abort: %s carries the date field %r, which is neither YYYYMMDD nor "
+        "YYYY-MM-DD. A date this module cannot read is not a span it may "
+        "publish." % (where, value))
+
+
+def observed_archive_span(path: str, raw_sha256: str) -> dict:
+    """Re-measure (min, max, rows) over EVERY row of EVERY member.
+
+    Every member, not `namelist()[0]`: a second member is not visible in the
+    span unless it is read, and the declaration speaks for the whole archive.
+    """
+    key = str(raw_sha256).lower()
+    if key in _SPAN_CACHE:
+        return dict(_SPAN_CACHE[key])
+
+    lo = hi = None
+    rows = 0
+    members = []
+    with zipfile.ZipFile(path) as z:
+        infos = sorted(z.infolist(), key=lambda i: i.filename)
+        for info in infos:
+            if info.is_dir():
+                continue
+            members.append(info.filename)
+            with z.open(info) as fh:
+                text = io.TextIOWrapper(fh, encoding=ARCHIVE_TEXT_ENCODING,
+                                        newline="")
+                header = text.readline().rstrip("\r\n").split(ARCHIVE_DELIMITER)
+                if ARCHIVE_DATE_COLUMN not in header:
+                    raise ManifestError(
+                        "abort: member %s of %s has no %s column (header: %s). "
+                        "The date column is located by NAME because a reordered "
+                        "export would otherwise shift the span silently."
+                        % (info.filename, os.path.basename(path),
+                           ARCHIVE_DATE_COLUMN, header))
+                idx = header.index(ARCHIVE_DATE_COLUMN)
+                width = len(header)
+                for lineno, line in enumerate(text, start=2):
+                    line = line.rstrip("\r\n")
+                    if not line:
+                        continue
+                    fields = line.split(ARCHIVE_DELIMITER)
+                    if len(fields) != width:
+                        raise ManifestError(
+                            "abort: %s member %s line %d has %d field(s) against "
+                            "a %d-column header. A row this module cannot align "
+                            "is not a row it may take a date from."
+                            % (os.path.basename(path), info.filename, lineno,
+                               len(fields), width))
+                    day = _iso_day(fields[idx], "%s member %s line %d"
+                                   % (os.path.basename(path), info.filename,
+                                      lineno))
+                    rows += 1
+                    if lo is None or day < lo:
+                        lo = day
+                    if hi is None or day > hi:
+                        hi = day
+    if not rows:
+        raise ManifestError(
+            "abort: %s holds no data rows, so it evidences no span at all. An "
+            "empty archive is not a zero-length coverage claim."
+            % os.path.basename(path))
+    observed = {"observed_covers": [lo, hi], "rows": rows,
+                "members_read": members}
+    _SPAN_CACHE[key] = observed
+    return dict(observed)
+
+
+def assert_declared_span(path: str, locator: str, raw_sha256: str,
+                         declarations: dict = None) -> dict:
+    """The declared `covers` must equal the span the archive actually holds."""
+    declarations = (CONSUMED_ARCHIVE_DECLARATIONS if declarations is None
+                    else declarations)
+    declared = list(declarations[locator]["covers"])
+    observed = observed_archive_span(path, raw_sha256)
+    if observed["observed_covers"] != declared:
+        raise ManifestError(
+            "abort: %s declares covers %s but its %d rows span %s. `covers` is "
+            "what this leaf PUBLISHES as the archive's coverage, and the bytes "
+            "match the declaration — so this is a mis-declared span, exactly "
+            "the failure raw_sha256 cannot see. Declare the measured span (the "
+            "filename is not evidence: 股價0817-0828.zip is named 0817 and "
+            "starts on 2026-08-18). file: %s"
+            % (locator, declared, observed["rows"],
+               observed["observed_covers"], path))
+    observed["declared_covers"] = declared
+    observed["verified_against"] = "archive rows, this build"
+    return observed
+
+
+def verify_declared_spans(landing_dir: str = "",
+                          declarations: dict = None) -> dict:
+    """Every declared archive's span, re-measured. Used by the panel builder."""
+    declarations = (CONSUMED_ARCHIVE_DECLARATIONS if declarations is None
+                    else declarations)
+    landing = landing_dir or os.path.join(REPO, LANDING_DIRECTORY)
+    out = {}
+    for locator in sorted(declarations):
+        path = os.path.join(landing, locator)
+        if not os.path.isfile(path):
+            raise ManifestError(
+                "abort: declared price archive %s is absent from %s, so its "
+                "declared span cannot be verified." % (locator, landing))
+        raw = file_sha256(path)
+        if raw != declarations[locator]["raw_sha256"]:
+            raise ManifestError(
+                "abort: %s hashes to %s but the declared inventory names %s. "
+                "The span may not be verified under a declaration that does not "
+                "own these bytes." % (locator, raw[:16],
+                                      declarations[locator]["raw_sha256"][:16]))
+        out[locator] = assert_declared_span(path, locator, raw, declarations)
+    return out
+
+
 # Derived from the declarations, so the family-level statement cannot drift from
 # the per-archive one. D1-6's `includes_delisted` is a property of the COMPOSED
 # corpus and is not restated here — restating it would be a second place to
@@ -243,6 +463,327 @@ DELISTED_COVERAGE_POLICY = {
         if d.get("declared_properties", {}).get("delisted_coverage")},
     "d1_6_gate_owner": "core.b0_price_universe.assert_price_source_admissible",
 }
+
+# --- S-8 · the declared set vs the SEALED contract ------------------------------
+#
+# ⚠ THE FINGERPRINT GATE CANNOT SEE THIS, BY CONSTRUCTION.
+#
+# `build_price_panel.assert_reads_the_sealed_source` recomputes the composed
+# manifest with `rebuild_audit_new_source.coverage("new")`, which reads
+# `data/b0/price_2019plus_new.parquet` — a SEALED ARTEFACT whose rows stop at
+# 2026-08-17. It never opens the archives. So declaring a third archive changed
+# the set this module reads and left that gate reporting a match. Measured
+# 2026-08-30, both true at once:
+#
+#     declared archives  3, spanning ... 2026-08-28
+#     sealed contract    b0_price_universe_20260817, upstream_zips = 2 names,
+#                        date_max 2026-08-17, securities 2306,
+#                        content_sha256 2646356f406a585c…
+#     gate               PASSED, recomputed sha == 2646356f406a585c…
+#
+# It carried no rows only because `panel_span()` ends at 2026-04-01, which is
+# before the new archive's first session. That is a fact about the FROZEN
+# WINDOW, not about the sources — move `window_end` past 2026-04 and the panel
+# starts carrying rows the sealed contract does not describe, with the same gate
+# still reporting a match.
+#
+# The two lists are therefore reconciled directly, and "the panel clips it away"
+# is the one thing that may NOT be assumed: it is re-checked against the panel's
+# own end every build.
+SEALED_PRICE_CONTRACT_JSON = os.path.join(
+    "research", "d1_price_universe", "price_source_contract.json")
+
+# The panel end is derived HERE rather than in `build_price_panel`, which now
+# calls this: the allowance below is only valid while the clip holds, so the
+# clip and the allowance must not be able to drift apart, and this module is
+# inside `FLOOR_CAPTURE_CODE_CLOSURE` while a second copy of the rule would not
+# be bound by anything.
+FROZEN_TRADING_CALENDAR = os.path.join("data", "b0", "trading_calendar.csv")
+
+# The only condition under which a declared archive may reach past the sealed
+# contract. A CLOSED vocabulary with one member: an allowance naming any other
+# condition aborts, so a future allowance cannot be granted by inventing a
+# reason in prose.
+ALLOWANCE_CONDITION_PANEL_CLIPS = (
+    "PANEL_END_IS_STRICTLY_BEFORE_THE_ARCHIVES_FIRST_COVERED_SESSION")
+
+DIVERGENCE_NOT_IN_CONTRACT = "NOT_NAMED_BY_THE_SEALED_CONTRACT"
+DIVERGENCE_BEYOND_DATE_MAX = "COVERAGE_ENDS_AFTER_THE_CONTRACT_DATE_MAX"
+
+# ⚠ AN ALLOWANCE IS KEYED TO THE EXACT SEALED FINGERPRINT IT DIVERGES FROM.
+#
+# Not to the contract's NAME: `register_price_source.py` hard-codes
+# `b0_price_universe_20260817`, so a re-registration that recomposes the corpus
+# keeps the name and would let a stale allowance survive the very event it must
+# not survive. Keying on `content_sha256` means re-registering the source voids
+# every allowance written against the old one and forces re-adjudication — and
+# it means granting one requires pasting a 64-hex sealed fingerprint next to an
+# exact filename, which is not something that happens by accident.
+#
+# The bytes of the archive itself are NOT part of this key: they are already
+# gated, twice and unconditionally, by the `raw_sha256` comparison in `build()`
+# and in `build_price_panel.declared_zip_inventory`. Putting them here would add
+# no gate and would make the key untestable against a substituted source
+# surface.
+ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES = {
+    ("股價0817-0828.zip",
+     "2646356f406a585c53954430eb5ad2967ddebc5c20ef12ea51f4333009d63549"): {
+        "sealed_contract_name": "b0_price_universe_20260817",
+        "condition": ALLOWANCE_CONDITION_PANEL_CLIPS,
+        "granted_because": (
+            "the archive covers 2026-08-18 .. 2026-08-28 and the sealed "
+            "contract stops at 2026-08-17, so it is declared and read while "
+            "standing outside what D-1 verified and B-21 sealed. Every session "
+            "it carries is after the panel's end, so it contributes no row to "
+            "any composed panel — which is a fact about the frozen window, not "
+            "about the archive, and is therefore re-checked here every build "
+            "rather than restated."),
+        "why_the_contract_was_not_reissued": (
+            "resolving this properly means recomposing the corpus and "
+            "re-registering the contract, which regenerates "
+            "data/b0/price_2019plus_new.parquet and the D-1 audit artefacts. "
+            "data/b0/ is frozen by ruling R-W1-1, so that is not available "
+            "here. The divergence is therefore made DETECTABLE and bounded "
+            "instead of resolved; §7 and A-8 own the re-adjudication."),
+        "what_invalidates_it": (
+            "any `window_end` that moves the panel end to 2026-08-18 or later, "
+            "and any re-registration of the price source (which changes "
+            "content_sha256 and voids this key). Both abort rather than "
+            "degrade."),
+    },
+}
+
+SEALED_SOURCE_RECONCILIATION_RULE = {
+    "rule": "THE_DECLARED_ARCHIVE_SET_MUST_RECONCILE_WITH_THE_SEALED_CONTRACT",
+    "why_the_fingerprint_gate_is_not_this_gate": (
+        "build_price_panel.assert_reads_the_sealed_source recomputes the "
+        "composed fingerprint from data/b0/price_2019plus_new.parquet, a sealed "
+        "artefact that stops at the contract's date_max. It never opens the "
+        "archives, so an archive added beside it changes what is READ without "
+        "changing what that gate MEASURES. Both gates are needed; neither "
+        "substitutes for the other."),
+    "hard_aborts": [
+        "a declared archive the contract names, whose declared bytes differ "
+        "from the bytes the contract recorded",
+        "an archive the contract names that is not declared here",
+        "a divergence with no allowance keyed to this exact sealed fingerprint",
+        "an allowance whose condition is not in the closed vocabulary",
+        "an allowance whose stated condition no longer holds",
+        "an allowance for this fingerprint that no longer describes a "
+        "divergence — a spent allowance is removed, not left lying about",
+    ],
+    "allowance_conditions": [ALLOWANCE_CONDITION_PANEL_CLIPS],
+    "allowance_key": "(archive locator, sealed contract content_sha256)",
+}
+
+
+def panel_end_session() -> str:
+    """The last session a composed panel may carry: the first after window_end.
+
+    §6.5 executes at the OPEN of the session following the decision date, and
+    nothing beyond it is reachable by B0. Owned here and consumed by
+    `build_price_panel.panel_span`, so the clip that an allowance depends on has
+    exactly one definition.
+    """
+    import csv
+
+    from core.b0_master_prereg import spec as frozen_spec
+
+    end = str(frozen_spec("window_end"))
+    path = os.path.join(REPO, FROZEN_TRADING_CALENDAR)
+    if not os.path.isfile(path):
+        raise ManifestError(
+            "abort: the frozen trading calendar %s is absent, so the panel end "
+            "cannot be established. It is not optional: an allowance whose "
+            "reason is 'the panel clips this away' is void if the clip cannot "
+            "be measured." % FROZEN_TRADING_CALENDAR)
+    with open(path, encoding="utf-8") as fh:
+        after = sorted(r["session"] for r in csv.DictReader(fh)
+                       if str(r["session"]) > end)
+    if not after:
+        raise ManifestError(
+            "abort: the calendar has no session after window_end %s, so the "
+            "§6.5 execution session of the final decision month does not exist"
+            % end)
+    return after[0]
+
+
+def sealed_contract_payload(path: str = "") -> dict:
+    """The registered D1-7 contract document. One path, shared with the panel."""
+    p = path or os.path.join(REPO, SEALED_PRICE_CONTRACT_JSON)
+    if not os.path.isfile(p):
+        raise ManifestError(
+            "abort: the sealed price source contract %s is absent. The declared "
+            "archive set cannot be reconciled against a contract that is not "
+            "there, and an unreconciled set is exactly the silent divergence "
+            "this check exists for." % SEALED_PRICE_CONTRACT_JSON)
+    with open(p, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _check_panel_clips(*, locator, covers, panel_end, date_max):
+    """The one allowance condition, checked — never assumed."""
+    checks = {
+        "panel_end": panel_end,
+        "archive_first_covered_session": covers[0],
+        "contract_date_max": date_max,
+        "panel_end_before_archive_start": panel_end < covers[0],
+        "panel_end_within_contract_date_max": panel_end <= date_max,
+    }
+    if not checks["panel_end_before_archive_start"]:
+        raise ManifestError(
+            "abort: the allowance for %s states that the panel clips it away, "
+            "and that is no longer true: the panel end is %s, which is NOT "
+            "before the archive's first covered session %s. The panel would "
+            "carry rows the sealed contract (date_max %s) does not describe. "
+            "This is the future edit the allowance was written to catch — "
+            "re-register the price source or withdraw the archive; do not widen "
+            "the allowance." % (locator, panel_end, covers[0], date_max))
+    if not checks["panel_end_within_contract_date_max"]:
+        raise ManifestError(
+            "abort: the panel end %s is after the sealed contract's date_max "
+            "%s, so the composed panel reaches past what D-1 verified and B-21 "
+            "sealed, whatever %s contributes." % (panel_end, date_max, locator))
+    return checks
+
+
+def reconcile_declarations_with_sealed_contract(
+        payload: dict = None, panel_end: str = "",
+        declarations: dict = None) -> dict:
+    """Compare the declared archive inventory against the sealed contract.
+
+    Returns the record that travels into the artefact. Raises on any divergence
+    that is not covered by a named allowance whose condition still holds.
+    """
+    payload = sealed_contract_payload() if payload is None else payload
+    declarations = (CONSUMED_ARCHIVE_DECLARATIONS if declarations is None
+                    else declarations)
+    contract = payload.get("contract") if isinstance(payload, dict) else None
+    named_raw = payload.get("upstream_zips") if isinstance(payload, dict) else None
+    if not isinstance(contract, dict) or not isinstance(named_raw, dict):
+        raise ManifestError(
+            "abort: the sealed price source contract document must carry a "
+            "`contract` object and an `upstream_zips` map naming the archives "
+            "it was composed from. Without both there is nothing to reconcile "
+            "the declared set against, and 'nothing to compare' is how this "
+            "divergence stayed silent.")
+    name = str(contract.get("name", "")).strip()
+    date_max = str(contract.get("date_max", "")).strip()
+    fingerprint = str(contract.get("content_sha256", "")).strip().lower()
+    if not (name and date_max and fingerprint):
+        raise ManifestError(
+            "abort: the sealed contract must declare name, date_max and "
+            "content_sha256; got name=%r date_max=%r content_sha256=%r"
+            % (name, date_max, fingerprint))
+    named = {str(k): str(v).strip().lower() for k, v in named_raw.items()}
+
+    panel_end = str(panel_end).strip() or panel_end_session()
+    _iso_day(panel_end, "the panel end")
+
+    absent = sorted(n for n in named if n not in declarations)
+    if absent:
+        raise ManifestError(
+            "abort: the sealed contract %s was composed from %s, which the "
+            "declared archive inventory does not name. A source the contract "
+            "stands on that this module does not read is a shorter panel "
+            "wearing the sealed fingerprint." % (name, absent))
+
+    divergences, aligned = {}, []
+    for locator in sorted(declarations):
+        d = declarations[locator]
+        covers = [str(x) for x in d["covers"]]
+        reasons = []
+        if locator not in named:
+            reasons.append(DIVERGENCE_NOT_IN_CONTRACT)
+        elif named[locator] != str(d["raw_sha256"]).strip().lower():
+            raise ManifestError(
+                "abort: %s is named by the sealed contract %s with bytes %s, "
+                "but the declared inventory names %s for the same locator. Same "
+                "name, different bytes is a different source: the contract and "
+                "the read set are not describing the same archive."
+                % (locator, name, named[locator][:16],
+                   str(d["raw_sha256"])[:16]))
+        if covers[1] > date_max:
+            reasons.append(DIVERGENCE_BEYOND_DATE_MAX)
+        if reasons:
+            divergences[locator] = {"reasons": reasons, "covers": covers}
+        else:
+            aligned.append(locator)
+
+    granted = {}
+    for locator in sorted(divergences):
+        covers = divergences[locator]["covers"]
+        allowance = ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES.get(
+            (locator, fingerprint))
+        if allowance is None:
+            raise ManifestError(
+                "abort: %s diverges from the sealed price source contract (%s) "
+                "and no allowance is declared for it.\n"
+                "  divergence      : %s\n"
+                "  archive covers  : %s .. %s\n"
+                "  contract name   : %s\n"
+                "  contract date_max: %s\n"
+                "  contract names  : %s\n"
+                "  declared set    : %s\n"
+                "The fingerprint gate cannot see this: it recomputes the "
+                "composed manifest from a sealed artefact, not from these "
+                "archives. Either re-register the price source so the contract "
+                "describes what is read, or declare an allowance in "
+                "build_prices_leaf.ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES "
+                "keyed (%r, %r) with a condition from %s."
+                % (locator, fingerprint[:16],
+                   divergences[locator]["reasons"], covers[0], covers[1],
+                   name, date_max, sorted(named), sorted(declarations),
+                   locator, fingerprint,
+                   [ALLOWANCE_CONDITION_PANEL_CLIPS]))
+        condition = str(allowance.get("condition", ""))
+        if condition != ALLOWANCE_CONDITION_PANEL_CLIPS:
+            raise ManifestError(
+                "abort: the allowance for %s names the condition %r, which is "
+                "not one of %s. An allowance is granted by a condition this "
+                "module CHECKS, never by a reason written in prose."
+                % (locator, condition, [ALLOWANCE_CONDITION_PANEL_CLIPS]))
+        granted[locator] = {
+            "condition": condition,
+            "checked": _check_panel_clips(
+                locator=locator, covers=covers, panel_end=panel_end,
+                date_max=date_max),
+            "reasons": divergences[locator]["reasons"],
+            "covers": covers,
+            "granted_because": allowance.get("granted_because", ""),
+            "why_the_contract_was_not_reissued": allowance.get(
+                "why_the_contract_was_not_reissued", ""),
+            "what_invalidates_it": allowance.get("what_invalidates_it", ""),
+        }
+
+    # Fail-closed in the other direction too. An allowance written against THIS
+    # sealed fingerprint that no longer describes a divergence has been spent —
+    # left in place it becomes a standing permission nobody re-reads, which is
+    # the shape this whole check exists to remove.
+    spent = sorted(loc for (loc, fp) in ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES
+                   if fp == fingerprint and loc not in divergences)
+    if spent:
+        raise ManifestError(
+            "abort: allowance(s) %s are declared against the sealed contract %s "
+            "but no longer describe a divergence. A spent allowance is removed, "
+            "not left standing." % (spent, fingerprint[:16]))
+
+    return {
+        "rule": SEALED_SOURCE_RECONCILIATION_RULE["rule"],
+        "sealed_contract_name": name,
+        "sealed_contract_content_sha256": fingerprint,
+        "sealed_contract_date_max": date_max,
+        "sealed_contract_names_archives": sorted(named),
+        "declared_archives": sorted(declarations),
+        "reconciled_without_allowance": aligned,
+        "divergences": {k: v["reasons"] for k, v in sorted(divergences.items())},
+        "allowances_granted": granted,
+        "panel_end_checked": panel_end,
+        "why_the_fingerprint_gate_is_not_this_gate":
+            SEALED_SOURCE_RECONCILIATION_RULE[
+                "why_the_fingerprint_gate_is_not_this_gate"],
+    }
+
 
 NOT_CONSUMED_REASON = (
     "yearly/period workbook superseded by the two 2019+ archives and the "
@@ -493,7 +1034,13 @@ def build(run_id: str, as_of: str, landing_dir: str = "",
             # MEASURED span and DECLARED roster basis travel with the entry. The
             # filename is not evidence of either: 股價0817-0828.zip covers
             # 2026-08-18 .. 2026-08-28 and does not contain 2026-08-17.
+            #
+            # S-9: and neither is the CONSTANT. `covers` is re-measured from the
+            # archive's own rows before it is published, because the bytes
+            # matching `raw_sha256` says nothing about whether the span written
+            # beside them was measured correctly.
             entry["covers"] = list(declaration["covers"])
+            entry["covers_verified"] = assert_declared_span(p, name, raw)
             entry["roster_basis"] = declaration["roster_basis"]
             if declaration.get("declared_properties"):
                 entry["declared_properties"] = dict(
@@ -507,6 +1054,13 @@ def build(run_id: str, as_of: str, landing_dir: str = "",
     entries += _pre_2019_entries(
         observed_at, pre_2019_dir,
         declared_directory=declared_pre_2019_dir)
+
+    # S-8. Not conditional on anything: the declared set and the sealed contract
+    # are reconciled on EVERY build, and the record of that reconciliation —
+    # including the checked clip that today's single allowance rests on — is
+    # part of the leaf, so a reader cannot open the leaf without seeing which
+    # archives stand outside the contract and on what condition.
+    reconciliation = reconcile_declarations_with_sealed_contract()
 
     # With no stand-in read, the stamp is this module's OWN declared constant —
     # never `os.path.join(REPO, ...)`. The constant is the contract, it is the
@@ -539,6 +1093,14 @@ def build(run_id: str, as_of: str, landing_dir: str = "",
             # every archive entry to learn that one of the 2019+ archives
             # cannot evidence delisted coverage.
             "delisted_coverage": DELISTED_COVERAGE_POLICY,
+            # What was re-measured rather than trusted, and what that does and
+            # does not catch — beside the spans it certifies.
+            "declared_span_verification": DECLARED_SPAN_VERIFICATION,
+            # The declared set against the sealed contract, with every allowance
+            # named, its condition checked, and the panel end it was checked
+            # against recorded. A future `window_end` that voids the clip aborts
+            # here rather than widening the panel quietly.
+            "sealed_source_reconciliation": reconciliation,
         })
 
 
