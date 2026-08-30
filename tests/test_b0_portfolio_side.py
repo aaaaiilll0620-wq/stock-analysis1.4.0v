@@ -638,6 +638,60 @@ def test_checkpoints_accumulate_with_a_strictly_increasing_seq(tmp_path):
     assert prov["producer_run_id"] == "L3-1"
 
 
+# --- S-1 · the cohort a checkpoint belongs to ----------------------------------
+#
+# The hand-off surface used to carry a state and nothing about WHICH capacity
+# cohort's state it was, so from period 2 the two registered L3 cells were
+# separated only by the magnitude of `cash` -- which is the input to
+# `core.b0_eligibility.adv_floor(port_value)` and therefore selects the
+# population. The cohort now travels on the row.
+
+def test_the_cohort_travels_on_the_row_not_inside_the_hashed_state():
+    """It must be a ROW field: a state field would move every hash ever written.
+
+    `checkpoint_sha256` covers `serialize_state(state)` alone and
+    `handoff_hash` covers format/run_id/period/seq/checkpoint_sha256, so adding
+    the cohort may not disturb either. If it did, every identity already
+    recorded in a `period_progress.jsonl` would silently stop matching.
+    """
+    from research.b0_checkpoint.portfolio_checkpoint import (
+        CHECKPOINT_COHORT_FIELD, cohort_of,
+    )
+
+    state = _state()
+    bare = checkpoint_record(run_id="L3-1", seq=1, period="2026-03", state=state)
+    named = checkpoint_record(run_id="L3-1", seq=1, period="2026-03",
+                              state=state, cohort_id="L3_PRIMARY_20M")
+
+    assert named[CHECKPOINT_COHORT_FIELD] == "L3_PRIMARY_20M"
+    assert cohort_of(named) == "L3_PRIMARY_20M"
+    # present even when nobody named one -- a field that can be absent is a
+    # field a reader has to guess about
+    assert CHECKPOINT_COHORT_FIELD in bare and cohort_of(bare) == ""
+    assert named["checkpoint_sha256"] == bare["checkpoint_sha256"]
+    assert named["ca_state_hash"] == bare["ca_state_hash"]
+    assert checkpoint_hash(state) == bare["checkpoint_sha256"]
+    assert CHECKPOINT_COHORT_FIELD not in named["state"]
+    assert ps.handoff_hash(named) == ps.handoff_hash(bare)
+
+
+def test_a_cohort_bearing_checkpoint_is_still_a_readable_hand_off(tmp_path):
+    """The new field may not break the lineage checks that already existed."""
+    state = _state()
+    path, rec = _checkpoint_file(tmp_path, state)
+    cohorted = checkpoint_record(run_id=rec["run_id"], seq=rec["seq"],
+                                 period=rec["period"], state=state,
+                                 cohort_id="L3_SECONDARY_50M")
+    with open(path, "wb") as fh:
+        fh.write((json.dumps(cohorted, ensure_ascii=False, sort_keys=True)
+                  + "\n").encode())
+
+    reopened, prov = ps.opening_state(path, **_continuation(path, cohorted))
+
+    assert prov["checkpoint_sha256"] == rec["checkpoint_sha256"]
+    assert reopened.as_of == state.as_of
+
+
 def test_a_checkpoint_row_is_round_tripped_before_it_is_written(tmp_path):
     """`verify=True` is not decoration: an unwritable state is never recorded."""
     rec = ps.append_checkpoint(str(tmp_path), run_id="L3-1", period="2026-03",

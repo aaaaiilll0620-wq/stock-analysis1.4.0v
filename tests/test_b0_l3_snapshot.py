@@ -391,6 +391,171 @@ def test_the_written_receipt_round_trips(tmp_path):
     assert len(raw) == 64
 
 
+# --- S-7: the contract version moves when the receipt payload moves -------------
+#
+# The defect: `SNAPSHOT_CONTRACT_VERSION` stayed `..._V1` while the v1.38
+# decision-intent/execution split added `decision_intent_only` and
+# `price_span_endpoint_kind` to the MATERIALIZED payload. Pre- and post-change
+# receipts for the same period therefore differ in bytes and in raw sha256 while
+# declaring the same contract — and because `write_receipt` is O_EXCL, the two
+# can never be produced by one run and diffed in place. Nothing in either
+# artefact said why they disagreed.
+#
+# Bumping the string alone would move the problem one version along, so the
+# version is pinned to an EXPLICIT key set here. Not `len(receipt) == 30`: a
+# count survives an add-one/remove-one edit and says nothing about what the
+# contract IS. The keys are written out so that changing the payload forces this
+# table to be edited, which forces the version decision to be made rather than
+# inherited.
+
+_RECEIPT_ONLY_KEYS_V2 = frozenset({
+    "contract_version", "run_id", "decision_date", "as_of", "execution_date",
+    "source_ownership_manifest_sha256",
+    "source_ownership_manifest_payload_sha256",
+    "required_datasets", "route_seal_id", "route_code_closure_size",
+    "state", "state_detail", "performance_computed", "decision_layer_invoked",
+    "evidence_class", "written_at",
+})
+
+# Everything the RECEIPT_ONLY shape has, plus the market-side facts an assembled
+# observation certifies. `state` / `state_detail` are re-stated, not added.
+_MATERIALIZED_KEYS_V2 = _RECEIPT_ONLY_KEYS_V2 | {
+    "market_state_sha256", "securities", "price_span", "bonus_window",
+    "price_legs", "price_coverage_floor",
+    "spell_starts_at_price_coverage_floor",
+    "lineage_price_floor", "observed_price_coverage_floor",
+    "floor_disposition", "span_derivation_authority",
+    "portfolio_side_materialized",
+    # v1.38. The two that moved while the version did not.
+    "decision_intent_only", "price_span_endpoint_kind",
+}
+
+PINNED_RECEIPT_KEYS = {
+    "L3_SNAPSHOT_CONTRACT_V2": {
+        "receipt_only": _RECEIPT_ONLY_KEYS_V2,
+        "materialized": _MATERIALIZED_KEYS_V2,
+    },
+}
+
+
+def _receipt_key_sets_from_source() -> dict:
+    """The key sets `build_receipt` actually emits, read off its own AST.
+
+    Static so that it runs everywhere, including a tree with no TEJ exports: a
+    version signal guarded by a fixture is a version signal that can be missing
+    exactly when someone is working without the exports.
+    `test_the_built_receipt_has_exactly_the_pinned_keys` ties this back to a
+    receipt that was really built, so the AST is never trusted on its own.
+    """
+    import ast
+
+    path = os.path.join(REPO, "research", "b0_l3", "l3_snapshot.py")
+    fn = next(n for n in ast.walk(ast.parse(open(path, encoding="utf-8").read()))
+              if isinstance(n, ast.FunctionDef) and n.name == "build_receipt")
+
+    def literal_keys(node):
+        names, splats = [], []
+        for key, value in zip(node.keys, node.values):
+            if key is None:                     # **something
+                assert isinstance(value, ast.Name), ast.dump(value)
+                splats.append(value.id)
+                continue
+            assert isinstance(key, ast.Constant) and isinstance(key.value, str), \
+                "a computed receipt key cannot be pinned: %s" % ast.dump(key)
+            names.append(key.value)
+        return set(names), splats
+
+    built = next(
+        n.value for n in ast.walk(fn)
+        if isinstance(n, ast.Assign) and isinstance(n.value, ast.Dict)
+        and n.value.keys
+        and any(getattr(t, "id", "") == "built" for t in n.targets))
+    returned = next(n.value for n in ast.walk(fn)
+                    if isinstance(n, ast.Return) and isinstance(n.value, ast.Dict))
+
+    base, base_splats = literal_keys(returned)
+    extra, extra_splats = literal_keys(built)
+    # A second `**` in either dict would let part of the payload escape the pin.
+    assert base_splats == ["built"], base_splats
+    assert extra_splats == [], extra_splats
+    return {"receipt_only": base, "materialized": base | extra}
+
+
+def _pinned_for_the_current_version() -> dict:
+    assert S.SNAPSHOT_CONTRACT_VERSION in PINNED_RECEIPT_KEYS, (
+        "the receipt contract version is %r and no key set is pinned for it. A "
+        "version is only a signal if it says what it stands for: declare that "
+        "version's payload in PINNED_RECEIPT_KEYS."
+        % S.SNAPSHOT_CONTRACT_VERSION)
+    return PINNED_RECEIPT_KEYS[S.SNAPSHOT_CONTRACT_VERSION]
+
+
+def test_the_receipt_key_set_is_pinned_to_the_contract_version():
+    """S-7. Change the payload without changing the version and this fails."""
+    pinned = _pinned_for_the_current_version()
+    emitted = _receipt_key_sets_from_source()
+
+    for shape in ("receipt_only", "materialized"):
+        assert emitted[shape] == pinned[shape], (
+            "%s receipt payload keys changed under %s.\n  added:   %s\n"
+            "  removed: %s\nEither this is a new contract version or the key "
+            "does not belong in the receipt; it cannot be neither."
+            % (shape, S.SNAPSHOT_CONTRACT_VERSION,
+               sorted(emitted[shape] - pinned[shape]),
+               sorted(pinned[shape] - emitted[shape])))
+
+    # The two the split added, named, so a REVERT is as visible as an add — and
+    # so that they stay on the materialized side only.
+    assert {"decision_intent_only", "price_span_endpoint_kind"} <= \
+        pinned["materialized"]
+    assert not ({"decision_intent_only", "price_span_endpoint_kind"}
+                & pinned["receipt_only"])
+
+
+class _AssembledStub(dict):
+    """An assembled state that answers every key `build_receipt` asks it for.
+
+    A plain dict would raise KeyError on a newly added field, which reads as a
+    broken test rather than as an unpinned payload key. This makes the key set
+    the thing that fails.
+    """
+
+    def __missing__(self, key):
+        return "STUB_%s" % key
+
+
+@sources
+def test_the_built_receipt_has_exactly_the_pinned_keys(tmp_path):
+    """The AST pin, tied to a receipt that was really built by `build_receipt`.
+
+    The RECEIPT_ONLY shape is built on the real nine-family run. The MATERIALIZED
+    shape needs an assembled state, which is `l3_assemble`'s contract and not
+    this module's, so the assembly is a stub — but the `built` block that maps it
+    into the payload is this module's own code running for real, and that block
+    is what the key set is about.
+    """
+    d = _run(tmp_path)
+    pinned = _pinned_for_the_current_version()
+
+    receipt = S.build_receipt(d, RUN, DECISION)
+    assert set(receipt) == pinned["receipt_only"]
+    assert receipt["contract_version"] == S.SNAPSHOT_CONTRACT_VERSION
+
+    materialized = S.build_receipt(
+        d, RUN, DECISION,
+        assembled=_AssembledStub(period={"decision_date": DECISION}))
+    assert set(materialized) == pinned["materialized"]
+    assert materialized["state"] == S.STATE_MATERIALIZED
+    assert materialized["decision_intent_only"] is False
+
+    intent = S.build_intent_receipt(
+        d, RUN, DECISION,
+        assembled=_AssembledStub(period={"decision_date": DECISION},
+                                 decision_intent_only=True))
+    assert set(intent) == pinned["materialized"]
+    assert intent["decision_intent_only"] is True
+
+
 # --- L2 stays untouched ---------------------------------------------------------
 
 def test_the_l3_materializer_does_not_import_the_l2_one():

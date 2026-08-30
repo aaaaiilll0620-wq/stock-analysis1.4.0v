@@ -193,21 +193,215 @@ def test_a_prospective_intent_cannot_be_claimed_early_or_backdated(monkeypatch):
         R._assert_intent_claim_is_today("2026-08-28")
 
 
+def _cohort_args(**kw):
+    base = dict(opening_kind="GENESIS", genesis_cohort="", lineage_cohort="",
+                c_ref=0.0, synthetic_sources=False, sealed_evidence=None)
+    base.update(kw)
+    return SimpleNamespace(**base)
+
+
 def test_genesis_cash_is_bound_to_a_named_prospective_cohort():
-    good = SimpleNamespace(
-        opening_kind="GENESIS", genesis_cohort="L3_PRIMARY_20M",
-        c_ref=20_000_000.0, synthetic_sources=False)
-    assert R._assert_genesis_cohort(good)["opening_cash"] == 20_000_000.0
+    good = _cohort_args(genesis_cohort="L3_PRIMARY_20M", c_ref=20_000_000.0)
+    assert R._assert_cohort_identity(good)["opening_cash"] == 20_000_000.0
 
     with pytest.raises(R.L3RunAbort, match="requires opening cash"):
-        R._assert_genesis_cohort(SimpleNamespace(
-            opening_kind="GENESIS", genesis_cohort="L3_PRIMARY_20M",
-            c_ref=2_000_000.0, synthetic_sources=False))
+        R._assert_cohort_identity(_cohort_args(
+            genesis_cohort="L3_PRIMARY_20M", c_ref=2_000_000.0))
     with pytest.raises(R.L3RunAbort, match="fixture-only"):
-        R._assert_genesis_cohort(SimpleNamespace(
-            opening_kind="GENESIS",
-            genesis_cohort=R.SYNTHETIC_PARITY_COHORT,
-            c_ref=2_000_000.0, synthetic_sources=False))
+        R._assert_cohort_identity(_cohort_args(
+            genesis_cohort=R.SYNTHETIC_PARITY_COHORT, c_ref=2_000_000.0))
+
+
+# --- S-1 · the cohort is carried forward, not asserted once at genesis ----------
+#
+# Two registered cells run side by side (L3_PRIMARY_20M / L3_SECONDARY_50M) and
+# NAV is the input to `core.b0_eligibility.adv_floor(port_value)`. Cohort
+# identity used to be checked at GENESIS only: from period 2 the two tracks were
+# separated by the magnitude of `state.cash` and by nothing else, so a
+# checkpoint crossed between them produced a normal-looking decision over a
+# silently different eligible population.
+
+def test_a_continuation_must_name_the_cohort_its_lineage_was_opened_under():
+    # "named nothing" and "named something unregistered" are different facts
+    # and get different refusals. Matching only the flag name would let the
+    # first guard be deleted and the message quietly become the second one's.
+    with pytest.raises(
+            R.L3RunAbort,
+            match="must name the cohort its lineage was opened under"):
+        R._assert_cohort_identity(_cohort_args(opening_kind="CONTINUATION"))
+    with pytest.raises(R.L3RunAbort, match="not a registered cohort"):
+        R._assert_cohort_identity(_cohort_args(
+            opening_kind="CONTINUATION", lineage_cohort="L3_SOMETHING_ELSE"))
+    with pytest.raises(R.L3RunAbort, match="fixture-only"):
+        R._assert_cohort_identity(_cohort_args(
+            opening_kind="CONTINUATION",
+            lineage_cohort=R.SYNTHETIC_PARITY_COHORT))
+
+    got = R._assert_cohort_identity(_cohort_args(
+        opening_kind="CONTINUATION", lineage_cohort="L3_SECONDARY_50M"))
+    assert got["cohort_id"] == "L3_SECONDARY_50M"
+    # and it reaches the field the decision contract already compares, which is
+    # what makes the two tracks distinguishable from period 2 onward
+    assert got["genesis_cohort_id"] == "L3_SECONDARY_50M"
+
+
+def test_the_continuation_cohort_is_not_blank_in_the_decision_contract():
+    """The defect, expressed at the contract: `genesis_cohort_id` was ""."""
+    cohort = R._assert_cohort_identity(_cohort_args(
+        opening_kind="CONTINUATION", lineage_cohort="L3_PRIMARY_20M"))
+    provenance = dict(PROVENANCE, genesis_cohort_id=cohort["genesis_cohort_id"])
+    contract = R.decision_contract_payload(_built(INTENT_MARKET_STATE),
+                                           _intent_stub(), provenance)
+
+    assert contract["genesis_cohort_id"] == "L3_PRIMARY_20M"
+    assert "genesis_cohort_id" in R.DECISION_CONTRACT_COMPARED_FIELDS
+
+
+def test_one_cohort_argument_per_opening_contract_and_no_third_form():
+    """An argument that would be IGNORED is a decision input silently lost."""
+    with pytest.raises(R.L3RunAbort, match="belongs to the CONTINUATION"):
+        R._assert_cohort_identity(_cohort_args(
+            genesis_cohort="L3_PRIMARY_20M", c_ref=20_000_000.0,
+            lineage_cohort="L3_PRIMARY_20M"))
+    with pytest.raises(R.L3RunAbort,
+                       match="may not name a genesis cohort or c_ref"):
+        R._assert_cohort_identity(_cohort_args(
+            opening_kind="CONTINUATION", lineage_cohort="L3_PRIMARY_20M",
+            c_ref=20_000_000.0))
+
+
+def _cohort_checkpoint(tmp_path, name, cohort_id, cash=20_000_000.0, rows=1):
+    """A checkpoint file whose rows name (or refuse to name) a cohort."""
+    from core.b0_master_prereg import append_provenance_record
+    from core.b0_state import PortfolioState
+    from research.b0_checkpoint import portfolio_checkpoint as pc
+
+    d = tmp_path / name
+    d.mkdir()
+    path = str(d / pc.CHECKPOINT_FILENAME)
+    for seq in range(1, rows + 1):
+        append_provenance_record(path, pc.checkpoint_record(
+            run_id="L3-PREV", seq=seq, period="2026-%02d" % (8 + seq),
+            state=PortfolioState(as_of="2026-09-30", cash=cash, shares={}),
+            cohort_id=cohort_id))
+    return path
+
+
+def test_a_continuation_whose_checkpoint_names_another_cohort_aborts(tmp_path):
+    """The crossed checkpoint. Both cells look identical apart from cash."""
+    crossed = _cohort_checkpoint(tmp_path, "crossed", "L3_SECONDARY_50M",
+                                 cash=50_000_000.0)
+
+    with pytest.raises(R.L3RunAbort, match="crossed between two capacity cells"):
+        R.build_period("unused", "L3-NOW", "2026-10-30", {}, crossed,
+                       opening_kind="CONTINUATION",
+                       cohort_id="L3_PRIMARY_20M")
+
+
+def test_a_continuation_whose_checkpoint_names_no_cohort_aborts(tmp_path):
+    """"Names none" is refused exactly as "names another" is."""
+    unnamed = _cohort_checkpoint(tmp_path, "unnamed", "")
+
+    with pytest.raises(R.L3RunAbort, match="name no cohort"):
+        R.build_period("unused", "L3-NOW", "2026-10-30", {}, unnamed,
+                       opening_kind="CONTINUATION",
+                       cohort_id="L3_PRIMARY_20M")
+
+
+def test_a_continuation_may_not_reach_a_checkpoint_without_naming_a_cohort(
+        tmp_path):
+    named = _cohort_checkpoint(tmp_path, "named", "L3_PRIMARY_20M")
+
+    with pytest.raises(R.L3RunAbort, match="must name the cohort"):
+        R.build_period("unused", "L3-NOW", "2026-10-30", {}, named,
+                       opening_kind="CONTINUATION", cohort_id="")
+
+
+def test_a_genesis_opening_checkpoint_may_predate_the_cohort_field(tmp_path):
+    """It was written before the field existed -- but a disagreement still stops."""
+    from research.b0_checkpoint import portfolio_checkpoint as pc
+
+    older = _cohort_checkpoint(tmp_path, "older", "")
+    assert pc.assert_checkpoint_cohort(
+        older, expected_cohort_id="L3_PRIMARY_20M",
+        rule=pc.COHORT_MAY_PREDATE_THE_LINEAGE)["rows_naming_no_cohort"] == 1
+
+    disagreeing = _cohort_checkpoint(tmp_path, "disagreeing", "L3_SECONDARY_50M")
+    with pytest.raises(pc.CheckpointError, match="crossed between"):
+        pc.assert_checkpoint_cohort(
+            disagreeing, expected_cohort_id="L3_PRIMARY_20M",
+            rule=pc.COHORT_MAY_PREDATE_THE_LINEAGE)
+
+
+def test_the_checkpoint_cohort_rule_is_declared_never_inferred():
+    from research.b0_checkpoint import portfolio_checkpoint as pc
+
+    with pytest.raises(pc.CheckpointError, match="never an inference"):
+        pc.assert_checkpoint_cohort("nowhere.jsonl",
+                                    expected_cohort_id="L3_PRIMARY_20M",
+                                    rule="whatever-seems-reasonable")
+    with pytest.raises(pc.CheckpointError, match="verifies nothing"):
+        pc.assert_checkpoint_cohort("nowhere.jsonl", expected_cohort_id="",
+                                    rule=pc.COHORT_MUST_BE_NAMED)
+
+
+def test_the_runner_writes_a_checkpoint_that_names_its_cohort():
+    """The carry-forward half: what run N writes is what run N+1 verifies.
+
+    `portfolio_side.append_checkpoint` cannot name a cohort, so a runner that
+    still used it would write the very row the next period must refuse.
+    """
+    tree = ast.parse(open(R.__file__, encoding="utf-8").read())
+    writes = [n for n in ast.walk(tree)
+              if isinstance(n, ast.Call)
+              and getattr(n.func, "attr", "") in ("append_checkpoint",
+                                                  "checkpoint_record")]
+    named = [n for n in writes
+             if any(k.arg == "cohort_id" for k in n.keywords)]
+    assert writes, "the runner writes no checkpoint at all"
+    assert len(named) == len(writes), (
+        "%d of %d checkpoint write(s) in the runner do not name a cohort"
+        % (len(writes) - len(named), len(writes)))
+
+
+# --- S-4 · the synthetic cohort may not borrow a registered cell's identity -----
+
+@pytest.mark.parametrize("cash", sorted(R.L3_GENESIS_COHORTS.values()))
+def test_the_parity_cohort_may_not_open_at_a_registered_cells_cash(cash):
+    """`expected = c_ref` admitted ANY NAV, including a registered cell's.
+
+    `core.b0_state` refuses a synthetic input for a sealed run, so this never
+    reached sealed evidence -- but a fixture opened at 20,000,000 selects
+    L3_PRIMARY_20M's eligible population and writes records nothing can tell
+    apart from the real cell's.
+    """
+    with pytest.raises(R.L3RunAbort, match="may not borrow a registered"):
+        R._assert_cohort_identity(_cohort_args(
+            genesis_cohort=R.SYNTHETIC_PARITY_COHORT, c_ref=cash,
+            synthetic_sources=True))
+
+
+def test_the_parity_cohort_may_not_open_a_sealed_run():
+    with pytest.raises(R.L3RunAbort, match="sealed evidence"):
+        R._assert_cohort_identity(_cohort_args(
+            genesis_cohort=R.SYNTHETIC_PARITY_COHORT, c_ref=2_000_000.0,
+            synthetic_sources=True, sealed_evidence=True))
+
+
+def test_the_parity_cohort_still_opens_the_frozen_c_ref_fixture():
+    """The tightening may not close the path the fixture legitimately uses."""
+    from core.b0_benchmark_construction import C_REF
+
+    assert C_REF not in set(R.L3_GENESIS_COHORTS.values())
+    got = R._assert_cohort_identity(_cohort_args(
+        genesis_cohort=R.SYNTHETIC_PARITY_COHORT, c_ref=C_REF,
+        synthetic_sources=True))
+    assert got["opening_cash"] == C_REF
+
+    with pytest.raises(R.L3RunAbort, match="positive opening cash"):
+        R._assert_cohort_identity(_cohort_args(
+            genesis_cohort=R.SYNTHETIC_PARITY_COHORT, c_ref=0.0,
+            synthetic_sources=True))
 
 
 def test_the_contract_binds_the_phase_invariant_hash_and_records_the_other():
@@ -557,6 +751,242 @@ def test_an_unknown_assembly_contract_is_an_abort_not_a_guess():
         R.resolve_spans(_Args(), as_of="2026-03-30",
                         execution_date="2026-04-01", contract="something-else")
     assert "guessing at a decision input" in str(exc.value)
+
+
+# --- S-2 · the source-revision stop rule is wired to the decision route -----------
+#
+# `l3_temporal_snapshot.assert_append_only_continuity` implements the ruling
+# draft's stop rule ("a revision inside the overlap is a stop, not a quiet
+# refresh") and had no caller anywhere outside its own unit test, so on this
+# route the rule did not exist. The baseline is the PRECEDING run's own
+# source-ownership manifest; the first run of a lineage declares that it has
+# none, and that declaration is recorded rather than skipped.
+
+def _source_entry(locator, sha, vintage):
+    return {"locator": locator, "format": "parquet", "raw_sha256": sha,
+            "export_vintage": vintage,
+            "observed_at": "2026-08-31T00:00:00+08:00",
+            "source_family": "TEJ", "authority": "AUTHORITATIVE",
+            "disposition": "consumed"}
+
+
+def _source_run(root, run_id, entries, dataset="calendar"):
+    """A real run directory with a real leaf and a real aggregate.
+
+    Built through the manifest engine rather than by writing JSON, so the
+    baseline this test compares against is the same object the runner reads.
+    """
+    from core.b0_l3_lineage_capture import PURPOSE_DIAGNOSTIC
+    from source_ownership_manifest import (
+        assemble_aggregate, build_leaf, write_aggregate, write_leaf,
+    )
+
+    d = os.path.join(str(root), run_id)
+    os.makedirs(d)
+    write_leaf(d, build_leaf(dataset=dataset, run_id=run_id,
+                             as_of="2026-08-31", entries=entries))
+    write_aggregate(d, assemble_aggregate(
+        run_dir=d, run_id=run_id, as_of="2026-08-31",
+        purpose=PURPOSE_DIAGNOSTIC, required={dataset}))
+    return d
+
+
+def _baseline_manifest(run_dir):
+    from source_ownership_manifest import AGGREGATE_FILENAME
+
+    return os.path.join(run_dir, AGGREGATE_FILENAME)
+
+
+def test_a_later_source_export_is_admitted_as_a_strict_append(tmp_path):
+    base = _source_run(tmp_path, "L3-BASE",
+                       [_source_entry("taiex.parquet", "a" * 64, "2026-08-17")])
+    later = _source_run(tmp_path, "L3-LATER",
+                        [_source_entry("taiex.parquet", "a" * 64, "2026-08-17"),
+                         _source_entry("taiex_0828.parquet", "b" * 64,
+                                       "2026-08-28")])
+
+    got = R.assert_source_continuity(later,
+                                     prior_manifest=_baseline_manifest(base),
+                                     no_prior_declared=False)
+
+    assert got["baseline"] == "PRIOR_RUN_SOURCE_OWNERSHIP_MANIFEST"
+    assert got["baseline_run_id"] == "L3-BASE"
+    assert got["datasets_compared"] == ["calendar"]
+    calendar = got["per_dataset"]["calendar"]
+    assert calendar["status"] == "APPEND_ONLY"
+    assert calendar["appended_rows"] == 1
+    # the overlap is digest-identical, which is what "append" MEANS here
+    assert calendar["prior_full_semantic_digest"] == \
+        calendar["current_overlap_semantic_digest"]
+
+
+def test_a_revision_inside_the_observed_overlap_is_a_stop(tmp_path):
+    """The negative half. Same locator, same vintage, DIFFERENT bytes."""
+    base = _source_run(tmp_path, "L3-BASE",
+                       [_source_entry("taiex.parquet", "a" * 64, "2026-08-17")])
+    revised = _source_run(tmp_path, "L3-REVISED",
+                          [_source_entry("taiex.parquet", "c" * 64,
+                                         "2026-08-17")])
+
+    with pytest.raises(R.L3RunAbort) as exc:
+        R.assert_source_continuity(revised,
+                                   prior_manifest=_baseline_manifest(base),
+                                   no_prior_declared=False)
+    assert "HISTORICAL_SOURCE_REVISION" in str(exc.value)
+    assert "calendar" in str(exc.value)
+    assert "quiet refresh" in str(exc.value)
+
+
+def test_a_source_family_that_stops_being_declared_is_a_stop(tmp_path):
+    base = _source_run(tmp_path, "L3-BASE",
+                       [_source_entry("taiex.parquet", "a" * 64, "2026-08-17")])
+    other = _source_run(tmp_path, "L3-OTHER",
+                        [_source_entry("px.parquet", "d" * 64, "2026-08-17")],
+                        dataset="prices")
+
+    with pytest.raises(R.L3RunAbort, match="stops being declared"):
+        R.assert_source_continuity(other,
+                                   prior_manifest=_baseline_manifest(base),
+                                   no_prior_declared=False)
+
+
+def test_the_first_run_of_a_lineage_records_no_baseline_rather_than_skipping(
+        tmp_path):
+    """A silent skip and a genuinely first run look identical afterwards."""
+    first = _source_run(tmp_path, "L3-FIRST",
+                        [_source_entry("taiex.parquet", "a" * 64,
+                                       "2026-08-17")])
+
+    got = R.assert_source_continuity(first, prior_manifest="",
+                                     no_prior_declared=True)
+
+    assert got["baseline"] == R.NO_SOURCE_BASELINE
+    assert got["datasets_compared"] == []
+    assert got["datasets_without_baseline"] == ["calendar"]
+
+
+def test_the_source_baseline_is_a_declaration_with_no_third_state(tmp_path):
+    base = _source_run(tmp_path, "L3-BASE",
+                       [_source_entry("taiex.parquet", "a" * 64, "2026-08-17")])
+
+    for prior, none_declared in ((_baseline_manifest(base), True), ("", False)):
+        with pytest.raises(R.L3RunAbort, match="exactly one of"):
+            R.assert_source_continuity(base, prior_manifest=prior,
+                                       no_prior_declared=none_declared)
+
+
+def test_a_run_may_not_be_its_own_source_baseline(tmp_path):
+    base = _source_run(tmp_path, "L3-BASE",
+                       [_source_entry("taiex.parquet", "a" * 64, "2026-08-17")])
+
+    with pytest.raises(R.L3RunAbort, match="own source baseline"):
+        R.assert_source_continuity(base,
+                                   prior_manifest=_baseline_manifest(base),
+                                   no_prior_declared=False)
+
+
+def test_the_stop_rule_is_reached_through_the_shared_primitive():
+    """It must be THE rule, not a second copy of it living in the runner."""
+    import research.b0_materializer.l3_temporal_snapshot as TS
+
+    assert R.assert_append_only_continuity is TS.assert_append_only_continuity
+
+    tree = ast.parse(open(R.__file__, encoding="utf-8").read())
+    calls = [n for n in ast.walk(tree)
+             if isinstance(n, ast.Call)
+             and getattr(n.func, "id", "") == "assert_append_only_continuity"]
+    assert calls, "the runner does not call the stop rule"
+
+
+def test_a_continuation_may_not_declare_that_it_has_no_source_baseline(tmp_path):
+    """A CONTINUATION has a preceding run by definition."""
+    args = R.build_parser().parse_args([
+        "--mode", "assemble", "--run-id", "L3-0000000000000009",
+        "--decision-date", "2026-10-30", "--authorization", "ref",
+        "--opening-checkpoint", str(tmp_path / "cp.jsonl"),
+        "--opening-kind", "CONTINUATION", "--lineage-cohort", "L3_PRIMARY_20M",
+        "--run-dir", str(tmp_path), "--no-prior-source-manifest"])
+
+    with pytest.raises(R.L3RunAbort, match="GENESIS-only declaration"):
+        R.preflight(args)
+
+
+# --- S-5 · decision and lineage records are claimed exclusively --------------------
+
+def test_a_decision_record_may_not_be_overwritten(tmp_path):
+    """`write_provenance_json` opens "wb", which truncates without saying so."""
+    path = str(tmp_path / R.DECISION_INTENT)
+
+    R.write_decision_record(path, {"record": "FIRST"})
+    with pytest.raises(R.L3RunAbort, match="claimed exclusively"):
+        R.write_decision_record(path, {"record": "SECOND"})
+
+    with open(path, encoding="utf-8") as fh:
+        assert json.load(fh)["record"] == "FIRST"
+
+
+def test_the_exclusive_claim_does_not_change_the_recorded_bytes(tmp_path):
+    """Exclusivity is a claim AROUND the provenance primitive, not a rewrite."""
+    payload = {"record": "B0_L3_DECISION_INTENT", "run_id": "L3-1",
+               "nested": {"b": 2, "a": [1, 2, 3]}}
+    a = str(tmp_path / "overwrite.json")
+    b = str(tmp_path / "exclusive.json")
+
+    R.write_provenance_json(a, payload)
+    R.write_decision_record(b, payload)
+
+    assert open(a, "rb").read() == open(b, "rb").read()
+
+
+def test_every_decision_record_in_the_runner_is_claimed_exclusively():
+    """The wiring half: one missed call site is one overwritable record."""
+    tree = ast.parse(open(R.__file__, encoding="utf-8").read())
+    overwrites = []
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call)
+                and getattr(node.func, "id", "") == "write_provenance_json"):
+            continue
+        # the single legitimate one is inside write_decision_record itself,
+        # which has already claimed the path with O_EXCL
+        parents = [f for f in ast.walk(tree)
+                   if isinstance(f, ast.FunctionDef)
+                   and any(n is node for n in ast.walk(f))]
+        if any(f.name == "write_decision_record" for f in parents):
+            continue
+        overwrites.append(node.lineno)
+    assert not overwrites, (
+        "record(s) at line(s) %s are written with overwrite semantics" % overwrites)
+
+
+# --- S-6 · an unobtainable repo identity is a stop, not an empty string ------------
+
+def test_the_repo_identity_is_a_stop_when_git_cannot_be_reached(monkeypatch):
+    def _boom(*a, **k):
+        raise OSError("git not found")
+
+    monkeypatch.setattr(R.subprocess, "run", _boom)
+    with pytest.raises(R.L3RunAbort, match="not an empty string"):
+        R.repo_commit_sha()
+
+
+def test_the_repo_identity_is_a_stop_when_git_fails(monkeypatch):
+    monkeypatch.setattr(R.subprocess, "run", lambda *a, **k: SimpleNamespace(
+        stdout="", stderr="fatal: not a git repository", returncode=128))
+    with pytest.raises(R.L3RunAbort, match="exited 128"):
+        R.repo_commit_sha()
+
+
+def test_the_repo_identity_must_look_like_a_commit(monkeypatch):
+    monkeypatch.setattr(R.subprocess, "run", lambda *a, **k: SimpleNamespace(
+        stdout="HEAD\n", stderr="", returncode=0))
+    with pytest.raises(R.L3RunAbort, match="not a 40-hex commit sha"):
+        R.repo_commit_sha()
+
+
+def test_the_repo_identity_resolves_in_this_working_tree():
+    """The positive half: the stop must not be unconditional."""
+    sha = R.repo_commit_sha()
+    assert len(sha) == 40 and set(sha) <= set("0123456789abcdef")
 
 
 # --- run-directory discipline -----------------------------------------------------------

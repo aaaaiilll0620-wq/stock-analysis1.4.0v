@@ -56,6 +56,33 @@ from core.b0_state import (
 CHECKPOINT_FORMAT_VERSION = "b0_portfolio_checkpoint@1"
 CHECKPOINT_FILENAME = "portfolio_checkpoint.jsonl"
 
+# --- the cohort a checkpoint belongs to ----------------------------------------
+#
+# A checkpoint carries a state, and a state carries CASH. Nothing in it used to
+# carry the COHORT that cash belongs to, and the L3 prospective track runs two
+# registered cells side by side (L3_PRIMARY_20M at NT$20,000,000 and
+# L3_SECONDARY_50M at NT$50,000,000). Cohort identity was therefore asserted at
+# genesis and then dropped: from period 2 onward the only thing separating the
+# two tracks was the magnitude of `state.cash`.
+#
+# That is not a cosmetic gap. NAV is the input to
+# `core.b0_eligibility.adv_floor(port_value)`, so a checkpoint handed to the
+# wrong track silently changes the ELIGIBLE POPULATION and then produces a
+# decision that looks entirely normal. The cohort has to travel WITH the state.
+#
+# `cohort_id` is a row field and NOT part of the hashed state payload:
+# `checkpoint_sha256` covers `serialize_state(state)` alone, so adding this
+# neither moves any state hash already written nor changes
+# `portfolio_side.handoff_hash`. It is always present — empty string when the
+# writer named none — because a field that can be absent is a field a reader
+# has to guess about.
+CHECKPOINT_COHORT_FIELD = "cohort_id"
+
+# How a reader is required to treat the cohort field. Declared, never inferred.
+COHORT_MUST_BE_NAMED = "COHORT_MUST_BE_NAMED_BY_EVERY_ROW"
+COHORT_MAY_PREDATE_THE_LINEAGE = "COHORT_MAY_PREDATE_THE_LINEAGE"
+COHORT_RULES = (COHORT_MUST_BE_NAMED, COHORT_MAY_PREDATE_THE_LINEAGE)
+
 
 class CheckpointError(RuntimeError):
     """Fail-loud: a checkpoint could not be written, read or verified."""
@@ -236,12 +263,20 @@ def assert_roundtrip(state: PortfolioState) -> PortfolioState:
 # --- record shape --------------------------------------------------------------
 
 def checkpoint_record(*, run_id: str, seq: int, period: str,
-                      state: PortfolioState, verify: bool = True) -> dict:
+                      state: PortfolioState, verify: bool = True,
+                      cohort_id: str = "") -> dict:
     """One checkpoint row. `ca_state_hash` is a cross-check, not the check.
 
     It is written so a checkpoint can be tied to the `post_state_hash` the
     harness already records in `period_progress.jsonl` for the same period —
     two independently-computed identities over one state.
+
+    `cohort_id` names the capacity cohort this state belongs to — see
+    `CHECKPOINT_COHORT_FIELD`. It defaults to empty rather than being required
+    because this record predates the cohort and a writer that cannot name one
+    must say so rather than guess; a READER that requires it says so with
+    `assert_checkpoint_cohort(..., rule=COHORT_MUST_BE_NAMED)`, which is where
+    the refusal lives.
     """
     if verify:
         assert_roundtrip(state)
@@ -251,6 +286,7 @@ def checkpoint_record(*, run_id: str, seq: int, period: str,
         "run_id": run_id,
         "seq": int(seq),
         "period": period,
+        CHECKPOINT_COHORT_FIELD: str(cohort_id or ""),
         "checkpoint_sha256": canonical_sha256(payload),
         "ca_state_hash": ca_state_hash(state),
         "positions": len([1 for v in payload["shares"].values() if v > 0]),
@@ -291,6 +327,74 @@ def read_checkpoints(path: str) -> list:
             "checkpoint file with a repeated or reordered period cannot say "
             "which state is terminal." % (path, seqs[:8]))
     return rows
+
+
+def cohort_of(record: dict) -> str:
+    """The cohort one checkpoint row names, or "" if it names none."""
+    return str(record.get(CHECKPOINT_COHORT_FIELD, "") or "")
+
+
+def assert_checkpoint_cohort(path: str, *, expected_cohort_id: str,
+                             rule: str) -> dict:
+    """The cohort a checkpoint file carries, verified against the caller's.
+
+    `rule` is REQUIRED and has no default, because the two cases are different
+    contracts and the difference is not inferable from the file:
+
+        COHORT_MUST_BE_NAMED
+            a CONTINUATION. Every row must name a cohort, all rows must name
+            the SAME one, and it must be the one the caller declared. A row
+            that names none, or a file that names a different cell, is the
+            crossed-checkpoint defect and it aborts: NAV feeds
+            `adv_floor(port_value)`, so continuing the wrong track produces a
+            normal-looking decision over a silently different population.
+
+        COHORT_MAY_PREDATE_THE_LINEAGE
+            a GENESIS opening. The file was written before this lineage
+            existed, so it is allowed to name nothing — but if it DOES name a
+            cohort, that cohort must be this one. "Older than the field" is a
+            reason for absence; it is not a reason to ignore a disagreement.
+
+    Returns what was verified, so the run can record it rather than assert it.
+    """
+    if rule not in COHORT_RULES:
+        raise CheckpointError(
+            "abort: cohort rule %r is not one of %s. How a reader treats the "
+            "cohort field is a declaration, never an inference."
+            % (rule, list(COHORT_RULES)))
+    expected = str(expected_cohort_id or "")
+    if not expected:
+        raise CheckpointError(
+            "abort: a checkpoint cohort check must name the cohort it expects. "
+            "Verifying against an unnamed cohort verifies nothing.")
+
+    rows = read_checkpoints(path)
+    named = {cohort_of(r) for r in rows}
+    unnamed = [int(r["seq"]) for r in rows if not cohort_of(r)]
+
+    if rule == COHORT_MUST_BE_NAMED and unnamed:
+        raise CheckpointError(
+            "abort: %s row(s) at seq %s name no cohort (%s), and this hand-off "
+            "is a CONTINUATION. The two registered L3 cells differ only by "
+            "opening cash, and cash is the input to adv_floor(port_value) — a "
+            "checkpoint that cannot say which cell it belongs to cannot open "
+            "the next period of either.\n  file: %s"
+            % (len(unnamed), unnamed[:8], CHECKPOINT_COHORT_FIELD, path))
+
+    disagreeing = sorted(c for c in named if c and c != expected)
+    if disagreeing:
+        raise CheckpointError(
+            "abort: this checkpoint names cohort(s) %s; the run declared %r. A "
+            "checkpoint crossed between two capacity cells yields a decision "
+            "that looks normal and was taken over a different eligible "
+            "population.\n  file: %s" % (disagreeing, expected, path))
+    return {
+        "cohort_id": expected,
+        "cohort_rule": rule,
+        "rows_verified": len(rows),
+        "rows_naming_a_cohort": len(rows) - len(unnamed),
+        "rows_naming_no_cohort": len(unnamed),
+    }
 
 
 def terminal_state(path: str, *, expect_period: str = "",

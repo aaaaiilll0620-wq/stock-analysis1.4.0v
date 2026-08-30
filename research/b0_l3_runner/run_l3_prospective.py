@@ -106,7 +106,11 @@ from core.b0_state import SourceAttestation                        # noqa: E402
 
 import l3_route_seal as rs                                          # noqa: E402
 
+from research.b0_checkpoint import portfolio_checkpoint as pc      # noqa: E402
 from research.b0_checkpoint import portfolio_side as ps            # noqa: E402
+from research.b0_materializer.l3_temporal_snapshot import (        # noqa: E402
+    TemporalSnapshotError, assert_append_only_continuity,
+)
 
 RUN_KIND = "B0_L3_PROSPECTIVE"
 HARNESS_PATH = "research/b0_l3_runner/run_l3_prospective.py"
@@ -137,6 +141,36 @@ L3_GENESIS_COHORTS = {
 }
 SYNTHETIC_PARITY_COHORT = "SYNTHETIC_FROZEN_CREF_PARITY"
 
+# The cohorts a CONTINUATION may name. Same identities, plus the fixture one so
+# that a synthetic multi-period track is expressible -- a fixture track that
+# could not continue would have to be re-genesised every period, which is the
+# one shape that hides a crossed checkpoint.
+L3_LINEAGE_COHORTS = (*sorted(L3_GENESIS_COHORTS), SYNTHETIC_PARITY_COHORT)
+
+# --- the source-revision stop rule (§1 / §6 of the governing ruling draft) ------
+#
+# "A later source update is admissible only when the previously captured
+#  overlap is byte/semantic-digest identical and the new rows are a strict
+#  append. A revision inside the overlap is a stop, not a quiet refresh."
+#
+# `l3_temporal_snapshot.assert_append_only_continuity` implements exactly that
+# and had NO CALLER anywhere in `research/`, `core/` or `tests/` outside its own
+# unit test, so on the decision route the rule did not exist. It is wired in
+# below over the run's DECLARED SOURCE SET -- the rows of the source-ownership
+# leaves -- which is the row set this route actually stands on.
+#
+# The row is projected to source IDENTITY only. `observed_at` is deliberately
+# excluded: it records when THIS run looked at the file, so including it would
+# make every comparison fail for a reason that is not a revision.
+SOURCE_CONTINUITY_ROW_FIELDS: tuple[str, ...] = (
+    "locator", "format", "raw_sha256", "export_vintage", "source_family",
+    "authority", "disposition",
+)
+SOURCE_CONTINUITY_DATE_FIELD = "export_vintage"
+SOURCE_CONTINUITY_PRIMARY_KEY: tuple[str, ...] = ("locator",)
+NO_SOURCE_BASELINE = "NO_PRIOR_SOURCE_MANIFEST_FIRST_RUN_OF_THIS_LINEAGE"
+SOURCE_CONTINUITY_MODES = ("intent", "assemble", "execute")
+
 _VERSION_RE = re.compile(r"\*\*(?:版本|Version)\s*[:：]\*\*\s*([0-9]+\.[0-9]+)")
 
 
@@ -159,19 +193,99 @@ def _assert_intent_claim_is_today(decision_date: str) -> None:
             % (claimed.isoformat(), today.isoformat()))
 
 
-def _assert_genesis_cohort(args) -> dict:
-    """Bind a GENESIS opening to a named L3 cohort, never to a loose c_ref."""
+def _assert_cohort_identity(args) -> dict:
+    """The ONE cohort this period belongs to, for either opening contract.
+
+    Cohort identity used to be asserted at GENESIS and then dropped. From
+    period 2 the checkpoint carried cash and nothing else, so the two
+    registered cells were distinguishable only by the magnitude of that cash --
+    and NAV is precisely what sets `core.b0_eligibility.adv_floor(port_value)`,
+    so a checkpoint crossed between the cells produces a normal-looking
+    decision over a silently different eligible population.
+
+    So both contracts name a cohort, and each names it with its OWN argument:
+
+        GENESIS       `--genesis-cohort` + `--c-ref`. The cash must be the
+                      registered cash of that cell; a bare number is not an
+                      admissible cohort identity.
+        CONTINUATION  `--lineage-cohort`. There is no `--c-ref` to check
+                      against -- the cash is whatever executing the previous
+                      period produced -- so the declaration is verified against
+                      the CHECKPOINT instead, by
+                      `portfolio_checkpoint.assert_checkpoint_cohort`.
+
+    One argument per contract and no third form, for the same reason
+    `resolve_spans` refuses an endpoint belonging to the other span contract:
+    an argument that would be ignored is a decision input the caller believes
+    it supplied.
+    """
     cohort_id = str(getattr(args, "genesis_cohort", "") or "")
+    lineage_cohort = str(getattr(args, "lineage_cohort", "") or "")
     c_ref = float(getattr(args, "c_ref", 0.0) or 0.0)
+
     if args.opening_kind != ps.OPENING_GENESIS:
         if cohort_id or c_ref:
             raise L3RunAbort(
                 "abort: CONTINUATION may not name a genesis cohort or c_ref")
-        return {}
+        if not lineage_cohort:
+            raise L3RunAbort(
+                "abort: CONTINUATION must name the cohort its lineage was "
+                "opened under (--lineage-cohort, one of %s). The two "
+                "registered cells differ only by opening cash, cash is the "
+                "input to adv_floor(port_value), and a continuation that "
+                "names no cohort cannot be shown not to have crossed them."
+                % sorted(L3_LINEAGE_COHORTS))
+        if lineage_cohort not in L3_LINEAGE_COHORTS:
+            raise L3RunAbort(
+                "abort: --lineage-cohort %r is not a registered cohort: %s"
+                % (lineage_cohort, sorted(L3_LINEAGE_COHORTS)))
+        if (lineage_cohort == SYNTHETIC_PARITY_COHORT
+                and not bool(getattr(args, "synthetic_sources", False))):
+            raise L3RunAbort(
+                "abort: the Frozen C_ref parity cohort is fixture-only")
+        return {"cohort_id": lineage_cohort,
+                # The cohort a lineage was BORN into, carried forward. It is
+                # the same fact at period 1 and at period 40, which is what
+                # makes it admissible as a phase-invariant contract field.
+                "genesis_cohort_id": lineage_cohort,
+                "opening_cash": 0.0,
+                "cohort_source": "declared_and_verified_against_the_checkpoint"}
+
+    if lineage_cohort:
+        raise L3RunAbort(
+            "abort: --lineage-cohort belongs to the CONTINUATION contract; a "
+            "GENESIS opening names --genesis-cohort and --c-ref")
     if cohort_id == SYNTHETIC_PARITY_COHORT:
+        # S-4. `core.b0_state` already refuses a synthetic input for a sealed
+        # run, so this path cannot reach sealed evidence. It is tightened here
+        # anyway, at the layer that hands out cohort identities, because the
+        # escape hatch was `expected = c_ref` -- the fixture cohort accepted
+        # ANY opening cash, including the registered cash of a real cell.
         if not bool(getattr(args, "synthetic_sources", False)):
             raise L3RunAbort(
                 "abort: the Frozen C_ref parity cohort is fixture-only")
+        if bool(getattr(args, "sealed_evidence", False)):
+            raise L3RunAbort(
+                "abort: the Frozen C_ref parity cohort may not open a run "
+                "declared as sealed evidence. Fixtures exist to test "
+                "mechanics, not to produce evidence "
+                "(core.b0_state: a synthetic input may not feed a sealed run).")
+        if c_ref <= 0:
+            raise L3RunAbort(
+                "abort: the Frozen C_ref parity cohort still requires a "
+                "positive opening cash; caller named %.2f" % c_ref)
+        borrowed = sorted(name for name, cash in L3_GENESIS_COHORTS.items()
+                          if float(cash) == c_ref)
+        if borrowed:
+            raise L3RunAbort(
+                "abort: the parity cohort was handed %.2f, which is the "
+                "registered opening cash of %s. NAV is the input to "
+                "adv_floor(port_value), so a fixture opened at a registered "
+                "cell's cash selects that cell's eligible population and every "
+                "record it writes is indistinguishable from the real one. A "
+                "fixture may not borrow a registered cohort's identity; name "
+                "that cohort or use a different opening cash."
+                % (c_ref, ", ".join(borrowed)))
         expected = c_ref
     else:
         if cohort_id not in L3_GENESIS_COHORTS:
@@ -183,7 +297,8 @@ def _assert_genesis_cohort(args) -> dict:
         raise L3RunAbort(
             "abort: genesis cohort %s requires opening cash %.2f; caller named %.2f"
             % (cohort_id, expected, c_ref))
-    return {"genesis_cohort_id": cohort_id, "opening_cash": c_ref}
+    return {"cohort_id": cohort_id, "genesis_cohort_id": cohort_id,
+            "opening_cash": c_ref, "cohort_source": "registered_genesis_cell"}
 
 
 class L3RunAbort(RuntimeError):
@@ -202,12 +317,78 @@ def _require(ok, label, detail="") -> dict:
     return {"item": label, "status": "PASS", "detail": str(detail)}
 
 
+_COMMIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+
+
 def _git(*args) -> str:
+    """One git command. An unobtainable answer is a STOP, never an empty string.
+
+    This used to swallow `OSError` and return `""`, and it returned `""` for a
+    non-zero exit as well. `provenance["commit_sha"]` and the publication
+    marker's `commit_sha` are written from it, so both could carry the empty
+    string -- which reads, in every later audit, exactly like a repository
+    identity that was established and happened to be blank.
+    `l3_route_seal.current_repo_identity` is strict, so a SEALED path was
+    protected; an unsealed intent was not.
+    """
     try:
-        return subprocess.run(["git", *args], capture_output=True, text=True,
-                              cwd=REPO).stdout.strip()
-    except OSError:                                          # pragma: no cover
-        return ""
+        proc = subprocess.run(["git", *args], capture_output=True, text=True,
+                              cwd=REPO)
+    except OSError as exc:
+        raise L3RunAbort(
+            "abort: git could not be executed (%s), so this run cannot name "
+            "the repository revision it was run at. An unobtainable repo "
+            "identity is a stop, not an empty string." % exc) from exc
+    if proc.returncode != 0:
+        raise L3RunAbort(
+            "abort: `git %s` exited %d: %s"
+            % (" ".join(args), proc.returncode,
+               ((proc.stderr or "").strip().splitlines() or ["no stderr"])[0]))
+    return proc.stdout.strip()
+
+
+def repo_commit_sha() -> str:
+    """The 40-hex revision this run is executed at, or an abort.
+
+    Shape-checked rather than trusted: `git rev-parse` exiting 0 is not the
+    same fact as it having answered with a commit.
+    """
+    sha = _git("rev-parse", "HEAD")
+    if not _COMMIT_SHA_RE.match(sha):
+        raise L3RunAbort(
+            "abort: `git rev-parse HEAD` answered %r, which is not a 40-hex "
+            "commit sha. A run may not record an unresolvable revision as its "
+            "identity." % sha)
+    return sha
+
+
+def write_decision_record(path: str, payload) -> bytes:
+    """A lineage / decision record, claimed EXCLUSIVELY and then written.
+
+    `core.b0_master_prereg.write_provenance_json` opens `"wb"`, which
+    truncates: writing the same name twice replaces the first record and
+    nothing says so. In practice the O_EXCL snapshot receipt and the O_EXCL
+    publication marker make a same-directory re-run abort before it gets here,
+    so this is belt-and-braces -- but "belt-and-braces" is not the same fact as
+    "exclusive", and the specification requires exclusive creation for lineage
+    and decision records.
+
+    The claim is a separate `O_CREAT | O_EXCL` call and the BYTES are still
+    written by the provenance primitive, so the record's content is byte-
+    identical to what it has always been. `core/b0_master_prereg.py` is not
+    editable from here, which is why the exclusivity is expressed as a claim
+    around it rather than as a mode change inside it.
+    """
+    try:
+        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError as exc:
+        raise L3RunAbort(
+            "abort: %s already exists in this run directory. Decision and "
+            "lineage records are claimed exclusively; re-deciding a period is "
+            "a NEW run, never an overwrite of the record of the first one."
+            % os.path.basename(path)) from exc
+    os.close(fd)
+    return write_provenance_json(path, payload)
 
 
 def declared_master_version(path: str = MASTER_DOC) -> str:
@@ -453,6 +634,160 @@ def assert_route_execution_admissible(aggregate=None, seal_id: str = "") -> list
     return checks
 
 
+# --- the source-revision stop rule ---------------------------------------------
+
+def declared_source_rows(run_dir: str) -> dict:
+    """`dataset -> the source-identity rows that run declares`.
+
+    Read through `verify_aggregate` / `load_leaf` rather than off the raw JSON,
+    so a baseline whose leaves have been edited since they were indexed is
+    refused by the manifest engine before it is ever used as a baseline.
+    """
+    from source_ownership_manifest import (
+        LEAF_FILENAME, ManifestError, load_leaf, verify_aggregate,
+    )
+
+    try:
+        aggregate = verify_aggregate(run_dir)
+        rows = {}
+        for dataset in sorted(aggregate["leaves"]):
+            leaf = load_leaf(os.path.join(run_dir, LEAF_FILENAME % dataset))
+            entries = []
+            for i, entry in enumerate(leaf["entries"]):
+                absent = [f for f in SOURCE_CONTINUITY_ROW_FIELDS
+                          if not entry.get(f)]
+                if absent:
+                    raise L3RunAbort(
+                        "abort: %s entry %d (%s) cannot state its source "
+                        "identity: %s. A row that cannot say what it is cannot "
+                        "be compared against what it was."
+                        % (dataset, i, entry.get("locator", "<unnamed>"), absent))
+                entries.append({f: str(entry[f])
+                                for f in SOURCE_CONTINUITY_ROW_FIELDS})
+            rows[dataset] = entries
+        return rows
+    except ManifestError as exc:
+        raise L3RunAbort(
+            "abort: the source set at %s could not be read as a comparison "
+            "surface: %s" % (run_dir, exc)) from exc
+
+
+def assert_source_continuity(directory: str, *, prior_manifest: str,
+                             no_prior_declared: bool) -> dict:
+    """Wire the ruling draft's stop rule onto this run's declared sources.
+
+    THE BASELINE IS THE PRECEDING RUN'S OWN SOURCE MANIFEST, named by
+    `--prior-source-manifest <run>/source_ownership_manifest.json`. It is not
+    discovered, because "the latest run directory" is a guess about which
+    lineage a run continues, and a baseline picked by guess is a baseline that
+    can be picked to pass.
+
+    THE FIRST RUN OF A LINEAGE HAS NO BASELINE, and that is declared, not
+    inferred: `--no-prior-source-manifest` records `NO_SOURCE_BASELINE` in the
+    provenance of every receipt. A silent skip and a genuinely first run look
+    identical afterwards, which is the whole reason the declaration exists.
+    Only a GENESIS opening may make it -- a CONTINUATION by definition has a
+    predecessor, so "no baseline" there is a claim that contradicts the opening
+    contract, and it is refused in `preflight`.
+
+    The comparison is PER DATASET FAMILY, keyed on `locator` and dated by
+    `export_vintage`. Per family rather than globally because families are
+    exported on their own cadences: a new prices archive dated inside the
+    calendar family's already-observed span is an append to prices, not a
+    revision of anything, and a global date axis would call it a stop.
+    """
+    if bool(prior_manifest) == bool(no_prior_declared):
+        raise L3RunAbort(
+            "abort: exactly one of --prior-source-manifest and "
+            "--no-prior-source-manifest must be declared. Whether a run has a "
+            "source baseline is a fact about its lineage; inferring it from an "
+            "empty argument is how a revision becomes a quiet refresh.")
+
+    current = declared_source_rows(directory)
+    if no_prior_declared:
+        return {
+            "rule": "APPEND_ONLY_OR_STOP",
+            "baseline": NO_SOURCE_BASELINE,
+            "baseline_manifest": "",
+            "baseline_run_id": "",
+            "datasets_declared": sorted(current),
+            "datasets_compared": [],
+            "datasets_without_baseline": sorted(current),
+            "per_dataset": {},
+        }
+
+    prior_manifest = os.path.abspath(prior_manifest)
+    if not os.path.isfile(prior_manifest):
+        raise L3RunAbort(
+            "abort: the declared source baseline is absent: %s" % prior_manifest)
+    prior_dir = os.path.dirname(prior_manifest)
+    if os.path.normcase(prior_dir) == os.path.normcase(os.path.abspath(directory)):
+        raise L3RunAbort(
+            "abort: a run may not be its own source baseline. "
+            "--prior-source-manifest must name the PRECEDING run's "
+            "source_ownership_manifest.json.")
+
+    from source_ownership_manifest import AGGREGATE_FILENAME
+
+    if os.path.basename(prior_manifest) != AGGREGATE_FILENAME:
+        raise L3RunAbort(
+            "abort: --prior-source-manifest must name a %s; got %s"
+            % (AGGREGATE_FILENAME, os.path.basename(prior_manifest)))
+
+    previous = declared_source_rows(prior_dir)
+    baseline = _load(prior_manifest)
+
+    disappeared = sorted(set(previous) - set(current))
+    if disappeared:
+        raise L3RunAbort(
+            "abort: source family/families %s were declared by the baseline "
+            "run %r and are not declared by this one. A family that stops "
+            "being declared is not an append; it is a source this run decided "
+            "without." % (disappeared, baseline.get("run_id")))
+
+    per_dataset, compared, unbaselined = {}, [], []
+    for dataset in sorted(current):
+        if dataset not in previous:
+            # A family the route gained since the baseline. Recorded by name so
+            # it is countable later; it cannot be compared against rows that do
+            # not exist, and pretending it was compared would be the lie.
+            unbaselined.append(dataset)
+            per_dataset[dataset] = {
+                "status": "NEW_FAMILY_NO_BASELINE_ROWS",
+                "current_rows": len(current[dataset])}
+            continue
+        try:
+            report = assert_append_only_continuity(
+                previous[dataset], current[dataset],
+                date_field=SOURCE_CONTINUITY_DATE_FIELD,
+                primary_key=SOURCE_CONTINUITY_PRIMARY_KEY)
+        except TemporalSnapshotError as exc:
+            raise L3RunAbort(
+                "abort: declared source family %r fails the append-only "
+                "continuity rule against baseline run %r: %s.\n"
+                "A later source update is admissible only when the previously "
+                "observed overlap is digest-identical and the new rows are a "
+                "strict append. A revision inside the overlap is a stop, not a "
+                "quiet refresh -- the decision this run would take stands on "
+                "bytes that are not the bytes the previous run stood on."
+                % (dataset, baseline.get("run_id"), exc)) from exc
+        compared.append(dataset)
+        per_dataset[dataset] = {"status": "APPEND_ONLY", **report}
+
+    return {
+        "rule": "APPEND_ONLY_OR_STOP",
+        "baseline": "PRIOR_RUN_SOURCE_OWNERSHIP_MANIFEST",
+        "baseline_manifest": prior_manifest.replace("\\", "/"),
+        "baseline_run_id": str(baseline.get("run_id", "")),
+        "baseline_as_of": str(baseline.get("as_of", "")),
+        "baseline_payload_sha256": str(baseline.get("payload_sha256", "")),
+        "datasets_declared": sorted(current),
+        "datasets_compared": compared,
+        "datasets_without_baseline": unbaselined,
+        "per_dataset": per_dataset,
+    }
+
+
 # --- preflight ------------------------------------------------------------------
 
 def resolve_run_directory(run_id: str, run_dir: str = "") -> str:
@@ -567,6 +902,15 @@ def preflight(args) -> tuple:
         raise L3RunAbort("an L3 period requires a named authorization")
     checks.append(_require(args.mode in MODES, "mode is one of %s" % (MODES,),
                            args.mode))
+    # An args-level contradiction, refused before any source set is read.
+    # "This lineage has no source baseline" is a statement only a first run can
+    # make, and a CONTINUATION has a preceding run by definition.
+    if args.opening_kind != ps.OPENING_GENESIS and args.no_prior_source_manifest:
+        raise L3RunAbort(
+            "abort: --no-prior-source-manifest is a GENESIS-only declaration. "
+            "A CONTINUATION has a preceding run by definition, and 'this "
+            "lineage has no source baseline' contradicts the opening contract "
+            "it was invoked under.")
 
     directory = resolve_run_directory(args.run_id, args.run_dir)
     checks.append(_require(True, "run directory resolved",
@@ -585,9 +929,38 @@ def preflight(args) -> tuple:
     checks.append(_require(os.path.exists(args.opening_checkpoint),
                            "opening checkpoint present",
                            str(args.opening_checkpoint)))
-    cohort = _assert_genesis_cohort(args)
+    cohort = _assert_cohort_identity(args)
     checks.append(_require(True, "opening cohort identity bound",
-                           cohort.get("genesis_cohort_id", "CONTINUATION")))
+                           "%s (%s)" % (cohort["cohort_id"],
+                                        cohort["cohort_source"])))
+
+    # The source baseline. Declared for every mode that CONSUMES the source set
+    # and writes receipts; `preflight` writes nothing, so it reports the
+    # declaration rather than requiring one.
+    if args.mode in SOURCE_CONTINUITY_MODES:
+        continuity = assert_source_continuity(
+            directory, prior_manifest=args.prior_source_manifest,
+            no_prior_declared=bool(args.no_prior_source_manifest))
+        checks.append(_require(
+            True, "declared sources are append-only against their baseline",
+            "%s; compared %d family/families, %d without baseline rows"
+            % (continuity["baseline"], len(continuity["datasets_compared"]),
+               len(continuity["datasets_without_baseline"]))))
+    elif args.prior_source_manifest or args.no_prior_source_manifest:
+        continuity = assert_source_continuity(
+            directory, prior_manifest=args.prior_source_manifest,
+            no_prior_declared=bool(args.no_prior_source_manifest))
+        checks.append(_require(
+            True, "declared sources are append-only against their baseline",
+            continuity["baseline"]))
+    else:
+        continuity = {"rule": "APPEND_ONLY_OR_STOP",
+                      "baseline": "NOT_DECLARED_PREFLIGHT_WRITES_NOTHING"}
+        checks.append({
+            "item": "declared source baseline",
+            "status": "OPEN",
+            "detail": "not declared; required for %s"
+                      % (SOURCE_CONTINUITY_MODES,)})
 
     if args.mode == "intent":
         _assert_intent_claim_is_today(args.decision_date)
@@ -655,7 +1028,7 @@ def preflight(args) -> tuple:
                 "declared for a decision invocation. Whether a run may produce sealed "
                 "evidence is a declaration, never an inference "
                 "(run_decision(for_sealed_run=...)).")
-    return checks, directory, aggregate, tx, spans_state
+    return checks, directory, aggregate, tx, spans_state, cohort, continuity
 
 
 # --- the period ------------------------------------------------------------------
@@ -686,7 +1059,8 @@ def build_period(directory: str, run_id: str, decision_date: str, spans: dict,
                  expect_handoff_sha256: str = "",
                  expect_checkpoint_file_sha256: str = "",
                  synthetic_sources: bool = False,
-                 decision_intent_only: bool = False) -> dict:
+                 decision_intent_only: bool = False,
+                 cohort_id: str = "") -> dict:
     """Both halves of one period, and its canonical input.
 
     The decision layer is NOT invoked here. This function ends one call short of
@@ -694,6 +1068,29 @@ def build_period(directory: str, run_id: str, decision_date: str, spans: dict,
     and it must be possible to verify all of it without producing an
     observation.
     """
+    # S-1. The cohort travels WITH the state, and it is verified before the
+    # state is allowed to open anything. A CONTINUATION must name one and the
+    # file must agree; a GENESIS opening checkpoint predates the field, so it
+    # may name none -- but if it names one it must be this one.
+    cohort_id = str(cohort_id or "")
+    if opening_kind == ps.OPENING_CONTINUATION and not cohort_id:
+        raise L3RunAbort(
+            "abort: a CONTINUATION period must name the cohort its lineage "
+            "was opened under before it may read an opening checkpoint. "
+            "Without it the two registered cells are separated only by the "
+            "magnitude of `cash`, which is the input to adv_floor(port_value).")
+    cohort_verification = {"cohort_id": cohort_id, "cohort_rule": "",
+                           "rows_verified": 0}
+    if cohort_id:
+        try:
+            cohort_verification = pc.assert_checkpoint_cohort(
+                opening_checkpoint, expected_cohort_id=cohort_id,
+                rule=(pc.COHORT_MUST_BE_NAMED
+                      if opening_kind == ps.OPENING_CONTINUATION
+                      else pc.COHORT_MAY_PREDATE_THE_LINEAGE))
+        except pc.CheckpointError as exc:
+            raise L3RunAbort(str(exc)) from exc
+
     import l3_assemble as A
 
     contract = assembly_span_contract()
@@ -776,6 +1173,7 @@ def build_period(directory: str, run_id: str, decision_date: str, spans: dict,
         "sessions": sessions,
         "opening_state": opening,
         "opening_provenance": opening_prov,
+        "cohort_verification": cohort_verification,
         "redated": redated,
         "transition": tr,
         "side": side,
@@ -819,6 +1217,9 @@ def write_period_receipts(directory: str, run_id: str, built: dict, spans: dict,
         "as_of": built["as_of"],
         "execution_date": built.get("execution_date"),
         "opening": built["opening_provenance"],
+        # The cohort this period belongs to, verified against the checkpoint
+        # that opened it rather than inferred from its cash.
+        "cohort": built["cohort_verification"],
         # What the caller DECLARED and what the assembly actually USED, side by
         # side. Under §19 the caller declares only the lineage floor, so the two
         # are not the same object and a receipt carrying only one of them cannot
@@ -846,9 +1247,9 @@ def write_period_receipts(directory: str, run_id: str, built: dict, spans: dict,
         "evidence_class": "NOT_L3_EVIDENCE_UNTIL_THE_ROUTE_IS_SEALED",
         "provenance": provenance,
     }
-    write_provenance_json(os.path.join(directory, PORTFOLIO_RECEIPT),
+    write_decision_record(os.path.join(directory, PORTFOLIO_RECEIPT),
                           portfolio_receipt)
-    write_provenance_json(os.path.join(directory, OPENING_RECORD), {
+    write_decision_record(os.path.join(directory, OPENING_RECORD), {
         "record": "B0_L3_OPENING_RECORD",
         "run_id": run_id,
         "run_kind": RUN_KIND,
@@ -1130,7 +1531,8 @@ def commit_publication(directory: str, run_id: str, mode: str,
 
 # --- entry point -----------------------------------------------------------------
 
-def _provenance(args, directory, aggregate, tx, spans_state, spans) -> dict:
+def _provenance(args, directory, aggregate, tx, spans_state, spans,
+                cohort, continuity) -> dict:
     return {
         "record": "B0_L3_PROSPECTIVE_RUN_PROVENANCE",
         "run_id": args.run_id,
@@ -1138,7 +1540,9 @@ def _provenance(args, directory, aggregate, tx, spans_state, spans) -> dict:
         "mode": args.mode,
         "authorization": args.authorization,
         "started_at_utc": datetime.now(timezone.utc).isoformat(),
-        "commit_sha": _git("rev-parse", "HEAD"),
+        # S-6: an unobtainable repository identity aborts here rather than
+        # being recorded as an empty string.
+        "commit_sha": repo_commit_sha(),
         "harness_path": HARNESS_PATH,
         "harness_sha256": file_sha256(os.path.abspath(__file__)),
         "portfolio_side_contract": ps.PORTFOLIO_SIDE_CONTRACT_VERSION,
@@ -1152,8 +1556,18 @@ def _provenance(args, directory, aggregate, tx, spans_state, spans) -> dict:
         "sealed_evidence": args.sealed_evidence,
         "route_seal_id": args.route_seal_id,
         "opening_kind": args.opening_kind,
-        "genesis_cohort_id": str(getattr(args, "genesis_cohort", "") or ""),
-        "opening_c_ref": float(getattr(args, "c_ref", 0.0) or 0.0),
+        # S-1. On a CONTINUATION this used to be "" -- the cohort was asserted
+        # at genesis and never again. It is now the cohort the LINEAGE was
+        # opened under, for both opening contracts, so it stays a phase-
+        # invariant compared field of the decision contract and it is no longer
+        # blank from period 2 onward.
+        "genesis_cohort_id": cohort["genesis_cohort_id"],
+        "cohort_id": cohort["cohort_id"],
+        "cohort_source": cohort["cohort_source"],
+        "opening_c_ref": float(cohort["opening_cash"]),
+        # S-2. Where this run's source baseline came from, or the explicit
+        # declaration that this lineage has none yet.
+        "source_continuity": continuity,
         "aggregate_route_seal_id": aggregate.get("route_seal_id"),
         "normative_module_count": len(NORMATIVE_MODULES),
         "decision_layer_invoked": False,
@@ -1186,6 +1600,23 @@ def build_parser() -> argparse.ArgumentParser:
                     choices=["", *sorted(L3_GENESIS_COHORTS),
                              SYNTHETIC_PARITY_COHORT],
                     help="GENESIS only: the named L3 prospective capacity cohort")
+    ap.add_argument("--lineage-cohort", default="",
+                    choices=["", *L3_LINEAGE_COHORTS],
+                    help="CONTINUATION only: the cohort this lineage was "
+                         "opened under. Verified against the cohort every row "
+                         "of --opening-checkpoint names; a checkpoint that "
+                         "names a different cohort, or none, aborts")
+    # --- the source baseline: one declaration, and no silent third state -----
+    # `--no-prior-source-manifest` is not "skip the check". It is the recorded
+    # statement that this lineage has no earlier run to compare against, and it
+    # is refused for a CONTINUATION, which has one by definition.
+    ap.add_argument("--prior-source-manifest", default="",
+                    help="the PRECEDING run's source_ownership_manifest.json; "
+                         "this run's declared sources must be a strict append "
+                         "to it")
+    ap.add_argument("--no-prior-source-manifest", action="store_true",
+                    help="GENESIS only: declare that this is the first run of "
+                         "the lineage and has no source baseline")
     ap.add_argument("--producer-run-id", default="",
                     help="CONTINUATION only: the run that WROTE the checkpoint")
     ap.add_argument("--expect-opening-period", default="")
@@ -1228,7 +1659,8 @@ def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
 
     print("== L3 PROSPECTIVE PREFLIGHT (%s) ==" % args.mode, flush=True)
-    checks, directory, aggregate, tx, spans_state = preflight(args)
+    (checks, directory, aggregate, tx, spans_state, cohort,
+     continuity) = preflight(args)
     for c in checks:
         print("  %-5s %-58s %s" % (c["status"], c["item"], c["detail"]),
               flush=True)
@@ -1253,7 +1685,8 @@ def main(argv=None) -> int:
                                           if planned.get("execution_date")
                                           else ""),
                           contract=spans_state["assembly_span_contract"])
-    provenance = _provenance(args, directory, aggregate, tx, spans_state, spans)
+    provenance = _provenance(args, directory, aggregate, tx, spans_state,
+                             spans, cohort, continuity)
 
     try:
         built = build_period(
@@ -1267,7 +1700,8 @@ def main(argv=None) -> int:
             expect_handoff_sha256=args.expect_handoff_sha256,
             expect_checkpoint_file_sha256=args.expect_checkpoint_file_sha256,
             synthetic_sources=args.synthetic_sources,
-            decision_intent_only=(args.mode == "intent"))
+            decision_intent_only=(args.mode == "intent"),
+            cohort_id=cohort["cohort_id"])
     except Exception as exc:                                # noqa: BLE001
         # The one failure shape this track already knows by name is B0.7's:
         # a corporate action on a held security whose terms are not
@@ -1328,8 +1762,8 @@ def main(argv=None) -> int:
         intent = prepared_intent
         payload = decision_intent_payload(args.run_id, built, intent,
                                           provenance)
-        write_provenance_json(os.path.join(directory, DECISION_INTENT), payload)
-        write_provenance_json(os.path.join(directory, FINAL_RESULT), {
+        write_decision_record(os.path.join(directory, DECISION_INTENT), payload)
+        write_decision_record(os.path.join(directory, FINAL_RESULT), {
             "record": "B0_L3_PROSPECTIVE_TERMINAL_RESULT",
             "run_id": args.run_id,
             "run_kind": RUN_KIND,
@@ -1349,7 +1783,8 @@ def main(argv=None) -> int:
                 built["assembled"]["decision_cutoff_state_sha256"],
             **{k: provenance[k] for k in
                ("commit_sha", "harness_sha256", "harness_path",
-                "closure_transaction", "span_derivation", "spans")},
+                "closure_transaction", "span_derivation", "spans",
+                "genesis_cohort_id", "cohort_id", "source_continuity")},
         })
         commit_publication(
             directory, args.run_id, "intent", args.decision_date, provenance,
@@ -1362,7 +1797,7 @@ def main(argv=None) -> int:
         return 0
 
     if args.mode == "assemble":
-        write_provenance_json(os.path.join(directory, FINAL_RESULT), {
+        write_decision_record(os.path.join(directory, FINAL_RESULT), {
             "record": "B0_L3_PROSPECTIVE_TERMINAL_RESULT",
             "run_id": args.run_id,
             "run_kind": RUN_KIND,
@@ -1375,7 +1810,8 @@ def main(argv=None) -> int:
             "market_state_sha256": built["assembled"]["market_state_sha256"],
             **{k: provenance[k] for k in
                ("commit_sha", "harness_sha256", "harness_path",
-                "closure_transaction", "span_derivation", "spans")},
+                "closure_transaction", "span_derivation", "spans",
+                "genesis_cohort_id", "cohort_id", "source_continuity")},
         })
         commit_publication(
             directory, args.run_id, "assemble", args.decision_date, provenance,
@@ -1405,7 +1841,7 @@ def main(argv=None) -> int:
             "blocker_kind": "implementation_conformance_or_invariant",
             "error_type": type(exc).__name__, "error": str(exc),
             "traceback": traceback.format_exc()[-4000:]})
-        write_provenance_json(os.path.join(directory, FINAL_RESULT), {
+        write_decision_record(os.path.join(directory, FINAL_RESULT), {
             "record": "B0_L3_PROSPECTIVE_TERMINAL_RESULT",
             "run_id": args.run_id,
             "run_kind": RUN_KIND,
@@ -1416,12 +1852,19 @@ def main(argv=None) -> int:
             "error_type": type(exc).__name__, "error": str(exc),
             **{k: provenance[k] for k in
                ("commit_sha", "harness_sha256", "harness_path",
-                "closure_transaction", "span_derivation", "spans")},
+                "closure_transaction", "span_derivation", "spans",
+                "genesis_cohort_id", "cohort_id", "source_continuity")},
         })
         raise
-    rec = ps.append_checkpoint(directory, run_id=args.run_id,
+    # S-1. Written here rather than through `portfolio_side.append_checkpoint`
+    # for one reason: that function cannot name a cohort, and a checkpoint
+    # written without one is a hand-off the NEXT period is required to
+    # refuse. The two calls below are exactly what it does, plus the cohort.
+    rec = pc.checkpoint_record(run_id=args.run_id, seq=ps.next_seq(directory),
                                period=str(built["period"]["decision_month"]),
-                               state=nxt)
+                               state=nxt, verify=True,
+                               cohort_id=cohort["cohort_id"])
+    append_provenance_record(ps.checkpoint_file(directory), rec)
     append_provenance_record(os.path.join(directory, PERIOD_PROGRESS), {
         "run_id": args.run_id, "seq": int(rec["seq"]),
         "period": str(built["period"]["decision_month"]),
@@ -1434,7 +1877,7 @@ def main(argv=None) -> int:
         "prior_intent_file_sha256": file_sha256(args.prior_intent),
         "decision_contract_sha256":
             prior_intent["decision_contract_sha256"]})
-    write_provenance_json(os.path.join(directory, FINAL_RESULT), {
+    write_decision_record(os.path.join(directory, FINAL_RESULT), {
         "record": "B0_L3_PROSPECTIVE_TERMINAL_RESULT",
         "run_id": args.run_id,
         "run_kind": RUN_KIND,
@@ -1464,7 +1907,8 @@ def main(argv=None) -> int:
             prior_intent["decision_contract_sha256"],
         **{k: provenance[k] for k in
            ("commit_sha", "harness_sha256", "harness_path",
-            "closure_transaction", "span_derivation", "spans")},
+            "closure_transaction", "span_derivation", "spans",
+            "genesis_cohort_id", "cohort_id", "source_continuity")},
     })
     commit_publication(
         directory, args.run_id, "execute", args.decision_date, provenance,

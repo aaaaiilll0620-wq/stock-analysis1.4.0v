@@ -45,6 +45,53 @@ from source_ownership_manifest import (                          # noqa: E402
 
 _TEJ = os.path.join("tej_exports", "DataExport0806")
 
+# `source_family` / `authority` are DECLARED per family, never defaulted.
+#
+# Both fields are already a closed vocabulary owned by the manifest engine
+# (`SOURCE_FAMILIES`, `AUTHORITY_LEVELS`), and R-W1-2 is what gives them meaning:
+# two source families coexist, TEJ is the authoritative one, and the live feed
+# supplies immediacy rather than authority — `_assert_entry_vocabulary` refuses
+# LIVE + AUTHORITATIVE outright. No taxonomy is introduced here; this engine
+# stops SUPPLYING one.
+#
+# ⚠ Until 2026-08-31 this engine hardcoded `TEJ` / `AUTHORITATIVE` for every
+# entry of every flat family. Three of the four families are TEJ exports, so the
+# constant was right for them by accident — and wrong for `calendar`, whose bytes
+# are `~/market_cache/taiex_daily.parquet`, produced by `core/market_index.py`
+# from a FinMind `TaiwanStockPrice(TAIEX)` seed plus daily TWSE `MI_INDEX`
+# increments. That is the LIVE family by construction. A manifest whose whole
+# purpose is provenance was therefore asserting, in the field the R-W1-2 audit
+# reads, that a live-derived file was a TEJ export — the exact shape a silent
+# source swap would take, with nothing in the artefact able to contradict it.
+#
+# So the value is per family, and a family that fails to declare one ABORTS. A
+# default is what produced the defect.
+_FAMILY_PROVENANCE_FIELDS = ("source_family", "authority")
+
+
+def _declared_provenance(dataset: str, spec: dict) -> dict:
+    """The family's own declared `source_family` / `authority`, or an abort.
+
+    Not `spec.get(..., "TEJ")`. An undeclared family must be unbuildable: a
+    default cannot be distinguished downstream from a deliberate declaration,
+    and this leaf is the artefact provenance is read from.
+
+    Only ABSENCE is checked here. Whether a declared value is IN the vocabulary
+    is `source_ownership_manifest._assert_entry_vocabulary`'s call and it already
+    fails closed on the way through `build_leaf` (measured: a `FINMIND` family
+    declared here aborts with this function's own check removed). A second
+    authentication of the same fact is what B2 was.
+    """
+    absent = [f for f in _FAMILY_PROVENANCE_FIELDS if not spec.get(f)]
+    if absent:
+        raise ManifestError(
+            "abort: the %s family declares no %s. Every entry's provenance is "
+            "read from this leaf; a family that does not say which source "
+            "family produced its bytes cannot be given one by default — that "
+            "is how a live-derived file came to be stamped TEJ."
+            % (dataset, absent))
+    return {f: spec[f] for f in _FAMILY_PROVENANCE_FIELDS}
+
 # `consumed` is a tuple of exact filenames — never a pattern. A pattern is how a
 # file joins the panel without anyone deciding that it should.
 #
@@ -58,6 +105,8 @@ _TEJ = os.path.join("tej_exports", "DataExport0806")
 FLAT_FAMILIES: dict = {
     "revenue": {
         "landing": os.path.join(_TEJ, "月營收2004-202608"),
+        "source_family": "TEJ",
+        "authority": "AUTHORITATIVE",
         "extensions": (".xlsx", ".zip"),
         "consumed": ("20260806091706.xlsx", "月營收7月完整.zip"),
         # A MIXED-FORMAT source with a contested period, declared the way
@@ -115,6 +164,8 @@ FLAT_FAMILIES: dict = {
     },
     "industry": {
         "landing": os.path.join(_TEJ, "產業類別"),
+        "source_family": "TEJ",
+        "authority": "AUTHORITATIVE",
         "extensions": (".xlsx",),
         "consumed": ("歷史產業類別.xlsx",),
         "not_consumed_reason": "not the declared historical industry table",
@@ -125,6 +176,8 @@ FLAT_FAMILIES: dict = {
     },
     "security_status": {
         "landing": os.path.join(_TEJ, "暫停交易2004-20260818"),
+        "source_family": "TEJ",
+        "authority": "AUTHORITATIVE",
         "extensions": (".zip",),
         # The producer's own filter is `SUSP_GLOB = "暫停交易*.zip"`, with the
         # comment "the sibling 事件+下市.zip is a different source"
@@ -147,6 +200,27 @@ FLAT_FAMILIES: dict = {
         # `data/b0/trading_calendar.csv`. Sharing a producer file is not sharing
         # a source, and the first declaration here conflated the two.
         "landing": os.path.join(os.path.expanduser("~"), "market_cache"),
+        # A-4. `taiex_daily.parquet` is NOT a TEJ export. `core/market_index.py`
+        # (module docstring, 資料源) produces it from a one-off FinMind
+        # `TaiwanStockPrice(TAIEX)` seed plus daily TWSE `MI_INDEX` increments —
+        # the same collector response `price_valuation_daily` is built from. It
+        # is the LIVE family, and under R-W1-2 a live source supplies immediacy,
+        # not authority, so SUPPLEMENTARY is the only authority level it can
+        # honestly carry (`_assert_entry_vocabulary` refuses the other).
+        #
+        # ⚠ That is a real statement, not a downgrade of ceremony: the calendar
+        # decides WHEN, and it has NO authoritative source behind it. R-W1-2
+        # gives TEJ the authority and the calendar's bytes do not come from TEJ,
+        # so no TEJ leg exists to reconcile it against. The old `TEJ` /
+        # `AUTHORITATIVE` stamp did not fix that — it hid it.
+        #
+        # This applies to the whole landing surface, `industry_value_ref.parquet`
+        # included. That file is `scripts/build_industry_value_ref.py` output
+        # (TEJ seed ∪ TWSE/TPEx daily snapshots) and is not_consumed here; what
+        # is being declared is the surface these bytes were read from, and this
+        # surface is the live cache.
+        "source_family": "LIVE",
+        "authority": "SUPPLEMENTARY",
         "extensions": (".parquet",),
         "consumed": ("taiex_daily.parquet",),
         # A shared cache root: these belong to other consumers, and each is
@@ -318,6 +392,8 @@ def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "",
             % (dataset, owning,
                [n for n in spec["consumed"] if n not in owning]))
 
+    provenance = _declared_provenance(dataset, spec)
+
     entries = []
     for name in present:
         p = os.path.join(landing, name)
@@ -329,8 +405,7 @@ def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "",
             "export_vintage": _dt.date.fromtimestamp(
                 os.path.getmtime(p)).isoformat(),
             "observed_at": observed_at,
-            "source_family": "TEJ",
-            "authority": "AUTHORITATIVE",
+            **provenance,
             "disposition": "consumed" if consumed else "not_consumed",
         }
         if consumed:

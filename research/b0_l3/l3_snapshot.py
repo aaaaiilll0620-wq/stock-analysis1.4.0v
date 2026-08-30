@@ -71,7 +71,26 @@ from source_ownership_manifest import (                          # noqa: E402
 )
 
 SNAPSHOT_RECEIPT_FILENAME = "l3_snapshot_receipt.json"
-SNAPSHOT_CONTRACT_VERSION = "L3_SNAPSHOT_CONTRACT_V1"
+
+# S-7. The version string is the ONLY thing that tells a reader why two receipts
+# for the same period disagree — the receipt is written under O_EXCL, so the two
+# can never be produced by one run and diffed in place.
+#
+#   V1  the receipt as W6b froze it.
+#   V2  the decision-intent / execution split (v1.38). The MATERIALIZED payload
+#       gained `decision_intent_only` — whether execution facts exist for this
+#       observation at all — and `price_span_endpoint_kind`. Both change what
+#       the receipt MEANS, not merely what it measured.
+#
+# V1 receipts and V2 receipts for the same period differ in bytes and in raw
+# sha256. Until this moved, they were indistinguishable by any declared field,
+# and the honest reading of that pair was "one of these is corrupt".
+#
+# ⚠ `tests/test_b0_l3_snapshot.py::PINNED_RECEIPT_KEYS` pins this string to an
+# explicit key set, in both receipt shapes. Adding or removing a receipt key
+# without moving this string fails there, by design: the next person has to make
+# this decision consciously rather than inherit it.
+SNAPSHOT_CONTRACT_VERSION = "L3_SNAPSHOT_CONTRACT_V2"
 
 STATE_RECEIPT_ONLY = "RECEIPT_ONLY_SOURCES_NOT_YET_PARSED"
 STATE_MATERIALIZED = "MATERIALIZED"

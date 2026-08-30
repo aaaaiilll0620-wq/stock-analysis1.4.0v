@@ -136,6 +136,82 @@ def test_the_current_industry_table_is_refused_as_a_source():
         assert by["現在產業類別.xlsx"]["disposition"] == "not_consumed"
 
 
+# --- A-4: the declared source family must match what produced the bytes -------
+
+def test_a_family_landing_outside_the_tej_export_tree_is_not_declared_tej():
+    """A-4. The defect: `build_flat_leaves` hardcoded `source_family: "TEJ"` /
+    `authority: "AUTHORITATIVE"` for EVERY entry of every flat family. Three of
+    the four are TEJ exports, so the constant was accidentally right for them
+    and wrong for exactly one — `calendar`, whose bytes are
+    `~/market_cache/taiex_daily.parquet`, produced by `core/market_index.py`
+    from a FinMind `TaiwanStockPrice(TAIEX)` seed plus daily TWSE `MI_INDEX`
+    increments.
+
+    Not a tidiness issue. R-W1-2 rules that two source families coexist with TEJ
+    authoritative and the live feed supplying immediacy; the manifest is the
+    artefact that ruling is verified from, so a live-derived file stamped TEJ
+    makes the ruling unfalsifiable AND is indistinguishable from a source swap.
+
+    Pinned as an INVARIANT rather than as a table of expected values: a family
+    whose landing surface is inside `tej_exports/` is a TEJ export, one outside
+    it is not, and the declaration must agree with where the bytes live. A new
+    family gets checked by the same rule instead of being added to a list."""
+    tej_root = os.path.join(REPO, "tej_exports")
+    for dataset, spec in sorted(F.FLAT_FAMILIES.items()):
+        landing = os.path.abspath(os.path.join(REPO, spec["landing"]))
+        inside = (landing == tej_root
+                  or landing.startswith(tej_root + os.sep))
+        assert (spec["source_family"] == "TEJ") is inside, (
+            "%s lands at %s and declares source_family=%r"
+            % (dataset, landing, spec["source_family"]))
+        if not inside:
+            # R-W1-2 through the engine's own vocabulary: a live source supplies
+            # immediacy, not authority.
+            assert spec["authority"] == "SUPPLEMENTARY", dataset
+
+    # And the one that made this concrete, named — the calendar decides WHEN,
+    # and it has no authoritative leg at all. That fact is now IN the artefact.
+    assert F.FLAT_FAMILIES["calendar"]["source_family"] == "LIVE"
+
+
+def test_every_entry_carries_its_family_declaration_not_a_default():
+    """The stamp reaches the bytes, not just the spec dict."""
+    for dataset, spec in sorted(F.FLAT_FAMILIES.items()):
+        landing = os.path.join(REPO, spec["landing"])
+        if not os.path.isdir(landing):
+            pytest.skip("%s landing not present" % dataset)
+        leaf = F.build(dataset, RUN, AS_OF)
+        assert leaf["entries"]
+        for e in leaf["entries"]:
+            assert e["source_family"] == spec["source_family"], e["locator"]
+            assert e["authority"] == spec["authority"], e["locator"]
+
+
+@pytest.mark.parametrize("field", ["source_family", "authority"])
+def test_a_family_that_declares_no_source_family_aborts(
+        field, tmp_path, monkeypatch):
+    """The fix is not 'change TEJ to LIVE for calendar'. A default is what
+    produced the defect: it is indistinguishable downstream from a deliberate
+    declaration. So an undeclared family must be UNBUILDABLE."""
+    landing = str(tmp_path)
+    open(os.path.join(landing, "歷史產業類別.xlsx"), "wb").close()
+    F.build("industry", RUN, AS_OF, landing_dir=landing)      # control: builds
+
+    spec = dict(F.FLAT_FAMILIES["industry"])
+    spec.pop(field)
+    monkeypatch.setitem(F.FLAT_FAMILIES, "industry", spec)
+    with pytest.raises(ManifestError, match="declares no"):
+        F.build("industry", RUN, AS_OF, landing_dir=landing)
+
+
+# A third family invented HERE ("FINMIND") is refused by
+# `source_ownership_manifest._assert_entry_vocabulary` on the way through
+# `build_leaf`, and `test_b0_prices_leaf.py:114` already pins that. Measured
+# rather than assumed: with `_declared_provenance`'s own vocabulary loop deleted
+# the abort still fires, so a copy of it here would be a second authentication
+# of one fact — the shape B2 was.
+
+
 def test_calendar_and_security_status_do_not_share_a_source():
     """CORRECTED. An earlier version of this test asserted they shared the TEJ
     suspension export — pinning a declaration that was simply wrong.
