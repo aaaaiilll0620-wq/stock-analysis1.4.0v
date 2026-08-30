@@ -166,6 +166,70 @@ SOURCE_CONTINUITY_ROW_FIELDS: tuple[str, ...] = (
     "locator", "format", "raw_sha256", "export_vintage", "source_family",
     "authority", "disposition",
 )
+
+# ⚠ IDENTICAL BYTES UNDER A DIFFERENT DECLARATION IS STILL A DIFFERENT SOURCE.
+#
+# The seven fields above are the ones every entry must be able to state, and
+# they are all either the file's own identity or a family-level label. They are
+# NOT the whole of what a row means to a decision. A price archive also carries
+# declaration constants that no byte comparison can reach, because they are not
+# in the bytes at all:
+#
+#   leg           §2.8.3 splits the price lineage at 2019-01-01, and the two
+#                 halves disagree about what a volume number MEANS: the 2019+
+#                 leg reports 成交量(千股) and the reader restores shares by
+#                 x1000, the pre-2019 leg is already shares. `l3_readers`
+#                 branches on this field alone (`entry.get("leg") == "pre-2019"`),
+#                 so flipping it moves every security 1000x across §4.2's
+#                 ABSOLUTE NTD liquidity floor -- with the same locator, the same
+#                 `raw_sha256`, and no other field moving. Nothing else verifies
+#                 it: `assert_declared_span` states in its own `does_not_catch`
+#                 that a wrong `leg` is not derivable from the rows.
+#   roster_basis  whether an archive can evidence delisted coverage. A
+#                 CURRENT_ROSTER_SNAPSHOT re-declared as BULK_HISTORICAL_QUERY is
+#                 the D-1 survivorship defect re-entering through a constant, and
+#                 it is likewise not derivable from the rows.
+#   covers        what the leaf PUBLISHES as the archive's span (and what
+#                 `build_price_panel` copies into the panel receipt). S-9
+#                 re-measures it from the archive every build, so within a
+#                 CURRENT build it is byte-entailed -- but the baseline is a
+#                 PRIOR RUN's manifest, possibly written by a builder from before
+#                 S-9 existed. A continuity rule that assumed another gate had
+#                 run in a run it cannot inspect would be assuming exactly what
+#                 S-2 itself was found not doing.
+#
+# Deliberately NOT projected, each for a stated reason rather than by omission:
+#
+#   observed_at         run-local: when THIS run looked at the file.
+#   members             DERIVED from the archive by `build_prices_leaf._members`,
+#                       not declared, so equal `raw_sha256` entails an equal
+#                       inventory. What it could still detect is a change in the
+#                       BUILDER's rendering -- a code fact, owned by the route
+#                       seal and the code closure -- and reporting that as
+#                       HISTORICAL_SOURCE_REVISION would name the wrong failure.
+#   covers_verified     the same: a measurement plus a rendering, entailed by the
+#                       bytes it was measured from.
+#   declared_properties prose beside `roster_basis`; the machine-checkable half
+#                       is the field itself, and prose that moves is not a source
+#                       revision.
+#   landing_directory   the pre-2019 leg stamps its own, home-absolute by design
+#                       (`~/tej_cache/price_valuation`). It is a fact about the
+#                       machine, so comparing it across runs fails for the same
+#                       class of reason `observed_at` would.
+SOURCE_CONTINUITY_SEMANTIC_FIELDS: tuple[str, ...] = (
+    "covers", "leg", "roster_basis",
+)
+SOURCE_CONTINUITY_PROJECTED_FIELDS: tuple[str, ...] = (
+    SOURCE_CONTINUITY_ROW_FIELDS + SOURCE_CONTINUITY_SEMANTIC_FIELDS)
+
+# The semantic fields are structurally optional -- `leg` is None on a
+# not_consumed workbook, `covers`/`roster_basis` exist only on consumed archives,
+# and most families declare none of the three. Absence is projected as a NAMED
+# marker rather than as "", so that "this entry declares no leg" and "this entry
+# declares an empty leg" are different rows. A declared value that spelled the
+# marker would collapse them again, so it aborts.
+SOURCE_CONTINUITY_ABSENT = "NOT_DECLARED_BY_THIS_ENTRY"
+
 SOURCE_CONTINUITY_DATE_FIELD = "export_vintage"
 SOURCE_CONTINUITY_PRIMARY_KEY: tuple[str, ...] = ("locator",)
 NO_SOURCE_BASELINE = "NO_PRIOR_SOURCE_MANIFEST_FIRST_RUN_OF_THIS_LINEAGE"
@@ -634,7 +698,158 @@ def assert_route_execution_admissible(aggregate=None, seal_id: str = "") -> list
     return checks
 
 
+# --- an allowance earned by another reader is not this route's ------------------
+#
+# ⚠ S-8 CHECKED A REAL CONDITION AGAINST THE WRONG CONSUMER.
+#
+# `build_prices_leaf` may declare a price archive that reaches past the sealed
+# `PriceSourceContract`, on ONE named allowance whose condition is "the panel end
+# is strictly before the archive's first covered session", re-verified every
+# build. The verification was real. The consumer was not the one at risk:
+# `panel_end_session()` is the L2 composed panel's end (2026-04-01, from the
+# frozen `window_end`), and THIS route never inherits `window_end`. §19.2 sets
+# `price_span[1]` to the period's execution session, and
+# `l3_readers.read_prices(run_dir, SOURCE_DEPTH_PROBE, price_span[1])` clips to
+# it — so for Month 1 (U-2: decision 2026-09-30, execution 2026-10-01) the route
+# reads 2026-08-18 .. 08-28 in full: 17,586 rows, 1,954 securities x 9 sessions,
+# from an archive the panel takes 0 rows from.
+#
+# It matters beyond bookkeeping because that archive is ROSTER_SNAPSHOT_DERIVED.
+# Its 1,954 securities are exactly the roster present on 2026-08-17, so it
+# evidences no delisted coverage and stands outside what D-1 verified and B-21
+# sealed. Reading it for a decision puts rows with unverified survivorship
+# properties into the decision input, under a permission earned by a reader that
+# stops four months earlier.
+#
+# The allowance is therefore consumer-scoped in the leaf, and this is the other
+# half: the route reads its OWN name out of the leaf's published refusal list and
+# refuses to run rather than reading what it was not granted. Fail-closed in
+# three directions — a reconciliation record with no consumer scope, a scope that
+# does not name this consumer, and a scope that names it with a non-empty list
+# are all aborts. "The leaf did not mention me" is not permission.
+SOURCE_RECONCILIATION_POLICY = "sealed_source_reconciliation"
+
+# The families whose leaf MUST carry a reconciliation record. Prices is the only
+# family with a sealed source contract today; naming it here means deleting the
+# record removes the gate's subject, not the gate.
+DATASETS_REQUIRING_SOURCE_RECONCILIATION = ("prices",)
+
+
+def assert_declared_sources_admit_this_route(run_dir: str) -> dict:
+    """Refuse a run whose declared sources are not allowed FOR THIS ROUTE.
+
+    The allowance vocabulary and the consumer identity both come from
+    `build_prices_leaf`; this function holds no second copy of either, because a
+    consumer name that could drift from the leaf's would silently look itself up
+    under a key nobody grants or denies.
+    """
+    from source_ownership_manifest import (
+        LEAF_FILENAME, ManifestError, load_leaf, verify_aggregate,
+    )
+    from research.b0_materializer.build_prices_leaf import (
+        CONSUMER_L3_PROSPECTIVE,
+    )
+
+    try:
+        aggregate = verify_aggregate(run_dir)
+        leaves = sorted(aggregate["leaves"])
+        checked, refused = [], {}
+        for dataset in leaves:
+            leaf = load_leaf(os.path.join(run_dir, LEAF_FILENAME % dataset))
+            record = (leaf.get("policies") or {}).get(
+                SOURCE_RECONCILIATION_POLICY)
+            if record is None:
+                if dataset in DATASETS_REQUIRING_SOURCE_RECONCILIATION:
+                    raise L3RunAbort(
+                        "abort: the %s leaf of %s carries no `%s` policy, so it "
+                        "cannot say whether its declared archives stand inside "
+                        "the sealed source contract or outside it on an "
+                        "allowance. A family with a sealed contract that does "
+                        "not reconcile against it is the S-8 divergence again, "
+                        "with the record removed."
+                        % (dataset, run_dir, SOURCE_RECONCILIATION_POLICY))
+                continue
+            scope = record.get("archives_denied_to_consumer")
+            if not isinstance(scope, dict):
+                raise L3RunAbort(
+                    "abort: the %s leaf reconciles against its sealed contract "
+                    "but publishes no `archives_denied_to_consumer` scope. An "
+                    "allowance without a consumer was verified against SOME "
+                    "reader's end, and this route is not necessarily that "
+                    "reader — %s reads through the period's execution session "
+                    "and inherits no window. A leaf that cannot say who its "
+                    "allowances were checked for may not be decided on."
+                    % (dataset, CONSUMER_L3_PROSPECTIVE))
+            if CONSUMER_L3_PROSPECTIVE not in scope:
+                raise L3RunAbort(
+                    "abort: the %s leaf's allowance scope names %s and does not "
+                    "name %s. Silence is not a grant: an allowance that never "
+                    "considered this consumer was never checked against this "
+                    "consumer's read end."
+                    % (dataset, sorted(scope), CONSUMER_L3_PROSPECTIVE))
+            denied = sorted(str(x) for x in scope[CONSUMER_L3_PROSPECTIVE])
+            checked.append(dataset)
+            if denied:
+                refused[dataset] = denied
+    except ManifestError as exc:
+        raise L3RunAbort(
+            "abort: the declared source set at %s could not be read as an "
+            "allowance surface: %s" % (run_dir, exc)) from exc
+
+    if refused:
+        raise L3RunAbort(
+            "abort: the declared source set names archive(s) this route may NOT "
+            "read:\n%s\n"
+            "Each stands outside the sealed source contract on an allowance "
+            "whose condition — the reader's end falls before the archive's "
+            "first covered session — was verified for another consumer of the "
+            "same leaf and is NOT satisfiable here: §19.2 puts this route's "
+            "price endpoint at the period's execution session, which is bounded "
+            "below by the run's own decision date.\n"
+            "This is a stop, not a filter. Dropping the archive at read time "
+            "would decide over a source set that differs from the one declared "
+            "and hash-bound; reading it would put rows outside D-1's "
+            "verification and B-21's seal into the decision input. The "
+            "resolution is to recompose the corpus and re-register the price "
+            "source (data/b0/, frozen by R-W1-1) — §7 and A-8 own it."
+            % "\n".join("    %s: %s" % (d, ", ".join(refused[d]))
+                        for d in sorted(refused)))
+
+    return {
+        "rule": "AN_ARCHIVE_THIS_ROUTE_READS_MUST_BE_ALLOWED_FOR_THIS_ROUTE",
+        "consumer": CONSUMER_L3_PROSPECTIVE,
+        "datasets_declared": leaves,
+        "datasets_with_a_reconciliation_record": sorted(checked),
+        "archives_refused_to_this_route": {},
+    }
+
+
 # --- the source-revision stop rule ---------------------------------------------
+
+def _project_semantic_field(dataset: str, index: int, entry: dict,
+                            field: str) -> str:
+    """One declaration-constant field, canonicalised for comparison.
+
+    Absent (or declared `None`, which is what a not_consumed workbook carries
+    for `leg`) becomes the named marker. Present becomes a canonical string --
+    `json.dumps` with sorted keys, so a list like `covers` compares by value
+    rather than by whichever repr the producing Python happened to emit.
+    """
+    if field not in entry or entry[field] is None:
+        return SOURCE_CONTINUITY_ABSENT
+    value = entry[field]
+    projected = (value if isinstance(value, str) else
+                 json.dumps(value, ensure_ascii=False, sort_keys=True,
+                            separators=(",", ":")))
+    if projected == SOURCE_CONTINUITY_ABSENT:
+        raise L3RunAbort(
+            "abort: %s entry %d (%s) declares %s=%r, which is the marker this "
+            "projection uses for 'not declared'. A declared value that spells "
+            "the absence marker makes a declaration and a silence compare "
+            "equal, which is the one thing this field was added to tell apart."
+            % (dataset, index, entry.get("locator", "<unnamed>"), field, value))
+    return projected
+
 
 def declared_source_rows(run_dir: str) -> dict:
     """`dataset -> the source-identity rows that run declares`.
@@ -662,8 +877,10 @@ def declared_source_rows(run_dir: str) -> dict:
                         "identity: %s. A row that cannot say what it is cannot "
                         "be compared against what it was."
                         % (dataset, i, entry.get("locator", "<unnamed>"), absent))
-                entries.append({f: str(entry[f])
-                                for f in SOURCE_CONTINUITY_ROW_FIELDS})
+                row = {f: str(entry[f]) for f in SOURCE_CONTINUITY_ROW_FIELDS}
+                for f in SOURCE_CONTINUITY_SEMANTIC_FIELDS:
+                    row[f] = _project_semantic_field(dataset, i, entry, f)
+                entries.append(row)
             rows[dataset] = entries
         return rows
     except ManifestError as exc:
@@ -925,6 +1142,19 @@ def preflight(args) -> tuple:
                            str(aggregate["run_id"])))
     checks.append(_require(True, "declared source set is READY",
                            "%d families" % len(aggregate["required_datasets"])))
+
+    # S-8/consumer scope. Before anything asks what the sources SAY, ask whether
+    # this route is allowed to read them at all. An archive standing outside its
+    # sealed contract on an allowance granted to a different consumer of the same
+    # leaf is refused here, in every mode -- a preflight that reported PASS and
+    # left the refusal to the read would be reporting on a reader that is not
+    # this one, which is the defect it exists to catch.
+    admission = assert_declared_sources_admit_this_route(directory)
+    checks.append(_require(
+        True, "declared archives are allowed for THIS consumer",
+        "%s; %d family/families reconcile against a sealed contract"
+        % (admission["consumer"],
+           len(admission["datasets_with_a_reconciliation_record"]))))
 
     checks.append(_require(os.path.exists(args.opening_checkpoint),
                            "opening checkpoint present",
@@ -1568,6 +1798,13 @@ def _provenance(args, directory, aggregate, tx, spans_state, spans,
         # S-2. Where this run's source baseline came from, or the explicit
         # declaration that this lineage has none yet.
         "source_continuity": continuity,
+        # S-8/consumer scope. Re-run rather than carried through preflight's
+        # return value: this is the gate that decides whether the route may read
+        # its own declared sources, and a receipt that recorded a preflight
+        # result would record that the gate was passed SOMEWHERE, not that it
+        # was passed for the bytes this run is about to decide on.
+        "source_route_admission": assert_declared_sources_admit_this_route(
+            directory),
         "aggregate_route_seal_id": aggregate.get("route_seal_id"),
         "normative_module_count": len(NORMATIVE_MODULES),
         "decision_layer_invoked": False,

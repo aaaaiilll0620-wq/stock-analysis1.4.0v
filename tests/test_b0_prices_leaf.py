@@ -432,6 +432,119 @@ def test_the_real_directory_holds_exactly_the_declared_archives():
         "股價0817-0828.zip"]["raw_sha256"]
 
 
+# --- how many members a declared archive may hold -------------------------------
+#
+# The panel producer read `namelist()[0]`; `l3_readers.read_prices` requires
+# exactly one member. Measured on the two-member fixture below before the fix:
+# the producer returned 1 row carrying only 1101 and dropped 9999 without a
+# word, while the reader refused the identical archive. One corpus, opposite
+# behaviour, and nothing failed on the producing side.
+
+PRICE_HEADER = ("證券代碼", "年月日", "開盤價(元)", "收盤價(元)", "成交量(千股)")
+
+
+def _price_archive(path, members):
+    """A TEJ-dialect price archive: UTF-16, tab-separated, one CSV per member."""
+    with zipfile.ZipFile(path, "w") as z:
+        for name, rows in members:
+            body = "\n".join(["\t".join(PRICE_HEADER)] +
+                             ["\t".join(r) for r in rows]) + "\n"
+            z.writestr(name, body.encode("utf-16"))
+    return path
+
+
+def _one_declared_archive(B, monkeypatch, path):
+    """Stand the inventory gate down; this is about what is INSIDE the file."""
+    monkeypatch.setattr(
+        B, "declared_zip_inventory",
+        lambda zip_dir="": ([path], {os.path.basename(path): "0" * 64}))
+
+
+def test_a_two_member_archive_aborts_the_panel_by_name(tmp_path, monkeypatch):
+    """The producer may not answer a two-member export by reading the first
+    member. `leg` and `roster_basis` are declared per ARCHIVE and neither is
+    derivable from the rows, so a second member has no declaration to stand
+    on — and the reader already refuses it."""
+    B = _panel()
+    p = _price_archive(os.path.join(str(tmp_path), "two.zip"), [
+        ("a.csv", [("1101 台泥", "20190102", "10", "11", "5")]),
+        ("b.csv", [("9999 乙", "20190103", "20", "21", "7")])])
+    _one_declared_archive(B, monkeypatch, p)
+    with pytest.raises(SystemExit, match="holds 2 member"):
+        B.zip_leg("2019-01-01", "2019-12-31")
+
+
+def test_a_directory_entry_counts_as_a_member_at_both_ends(tmp_path,
+                                                           monkeypatch):
+    """`build_prices_leaf._members` lists every `infolist()` entry, directories
+    included, and the reader counts THAT list. Counting them differently here
+    would rebuild the same disagreement one entry-kind down."""
+    B = _panel()
+    p = _price_archive(os.path.join(str(tmp_path), "dir.zip"),
+                       [("a.csv", [("1101 台泥", "20190102", "10", "11", "5")])])
+    with zipfile.ZipFile(p, "a") as z:
+        z.writestr("sub/", b"")
+    assert len(P._members(p)) == 2
+    _one_declared_archive(B, monkeypatch, p)
+    with pytest.raises(SystemExit, match="holds 2 member"):
+        B.zip_leg("2019-01-01", "2019-12-31")
+
+
+def test_a_single_member_archive_is_read_whole(tmp_path, monkeypatch):
+    """The contract is ONE member, not zero: the admissible case still parses,
+    still applies the 千股 -> shares conversion, and still keeps its rows."""
+    B = _panel()
+    p = _price_archive(os.path.join(str(tmp_path), "one.zip"), [
+        ("a.csv", [("1101 台泥", "20190102", "10", "11", "5"),
+                   ("9999 乙", "20190103", "20", "21", "7")])])
+    _one_declared_archive(B, monkeypatch, p)
+    out, upstream = B.zip_leg("2019-01-01", "2019-12-31")
+    assert sorted(out["stock_id"]) == ["1101", "9999"]
+    assert sorted(out["volume_shares"]) == [5000.0, 7000.0]
+    assert set(upstream) == {"one.zip"}
+
+
+def _cache_dir(tmp, rows):
+    import pandas as pd
+
+    p = os.path.join(tmp, "1101.parquet")
+    pd.DataFrame(rows, columns=["stock_id", "date", "open", "close",
+                                "Trading_Volume"]).to_parquet(p, index=False)
+    return tmp
+
+
+def test_a_cache_leg_that_contributes_nothing_aborts_by_name(tmp_path,
+                                                             monkeypatch):
+    """The same class of absence as the missing-file abort beside it, for the
+    case that leaves the files in place: every declared parquet read, every row
+    filtered away by the era cut. It used to die one line down in
+    `pandas.concat([])` with `ValueError: No objects to concatenate`, naming
+    neither the cache nor the span that emptied it."""
+    B = _panel()
+    monkeypatch.setattr(B, "OLD_CACHE", _cache_dir(
+        str(tmp_path), [("1101", "2019-01-02", 10.0, 11.0, 5000.0)]))
+    with pytest.raises(SystemExit, match="yielded no row"):
+        B.cache_leg("2013-01-01", "2026-08-28")
+
+
+def test_a_cache_leg_with_a_pre_2019_row_still_builds(tmp_path, monkeypatch):
+    """And the guard is emptiness, not strictness: one admissible row is a leg."""
+    B = _panel()
+    monkeypatch.setattr(B, "OLD_CACHE", _cache_dir(
+        str(tmp_path), [("1101", "2018-12-28", 10.0, 11.0, 5000.0),
+                        ("1101", "2019-01-02", 10.0, 11.0, 5000.0)]))
+    out = B.cache_leg("2013-01-01", "2026-08-28")
+    assert list(out["date"]) == ["2018-12-28"]
+
+
+@live
+def test_every_real_declared_archive_holds_exactly_one_member():
+    """The corpus this contract is written against, measured rather than
+    assumed: three archives, one CSV each. The gate changes no bytes today."""
+    for name in sorted(P.CONSUMED_ARCHIVE_DECLARATIONS):
+        assert len(P._members(os.path.join(LANDING, name))) == 1
+
+
 # --- S-9 · the declared span is re-measured, never trusted ----------------------
 #
 # `raw_sha256` catches a REPACKED archive. It cannot see an archive whose bytes
@@ -647,11 +760,123 @@ def test_the_declared_set_reconciles_today_and_says_on_what_condition():
         payload=_payload(), panel_end=P.panel_end_session())
     granted = record["allowances_granted"]["股價0817-0828.zip"]
     assert granted["condition"] == P.ALLOWANCE_CONDITION_PANEL_CLIPS
-    assert granted["checked"]["panel_end_before_archive_start"] is True
-    assert granted["checked"]["panel_end"] == "2026-04-01"
-    assert granted["checked"]["archive_first_covered_session"] == "2026-08-18"
+    checked = granted["checked"][P.CONSUMER_L2_PANEL]
+    assert checked["read_end_before_archive_start"] is True
+    assert checked["read_end"] == "2026-04-01"
+    assert checked["archive_first_covered_session"] == "2026-08-18"
     assert record["reconciled_without_allowance"] == [
         "股價 2019-2022.zip", "股價2023-20260817.zip"]
+
+
+# --- the clip is a fact about a READER, and the leaf has more than one ----------
+#
+# The condition was checked every build and checked correctly — against
+# `panel_end_session()`, which is the L2 composed panel's end. The L3 prospective
+# route reads [lineage_price_floor, execution_session] and never inherits
+# `window_end`, so the archive the panel clips away is read in full there.
+
+def test_the_l3_route_reads_straight_through_the_archive_the_panel_clips():
+    """D-1, reproduced. Both statements are true of the same archive at once."""
+    from core import b0_l3_price_span as lsp
+
+    covers = P.CONSUMED_ARCHIVE_DECLARATIONS["股價0817-0828.zip"]["covers"]
+    panel_end = P.panel_end_session()
+
+    # the L2 panel: clipped, which is exactly what the allowance says
+    assert panel_end == "2026-04-01"
+    assert panel_end < covers[0] == "2026-08-18"
+
+    # the L3 route, Month 1 (U-2: decision 2026-09-30, execution 2026-10-01).
+    # `l3_readers.read_prices(run_dir, SOURCE_DEPTH_PROBE, price_span[1])` clips
+    # to price_span[1] and to nothing else.
+    l3_read_end = lsp.price_span("2004-01-02", "2026-10-01")[1]
+    assert l3_read_end == "2026-10-01"
+    assert l3_read_end >= covers[1] == "2026-08-28"
+    assert not (l3_read_end < covers[0])
+
+
+def test_the_allowance_names_the_consumer_it_was_checked_for():
+    record = P.reconcile_declarations_with_sealed_contract(
+        payload=_payload(), panel_end=P.panel_end_session())
+    granted = record["allowances_granted"]["股價0817-0828.zip"]
+    assert granted["granted_to_consumers"] == [P.CONSUMER_L2_PANEL]
+    assert granted["denied_to_consumers"] == [P.CONSUMER_L3_PROSPECTIVE]
+    # checked ONCE PER GRANTED CONSUMER, and never for a denied one
+    assert sorted(granted["checked"]) == [P.CONSUMER_L2_PANEL]
+    assert granted["checked"][P.CONSUMER_L2_PANEL]["consumer"] == \
+        P.CONSUMER_L2_PANEL
+    assert P.CONSUMER_L3_PROSPECTIVE in granted["not_granted_to_consumers_because"]
+
+
+def test_the_refusal_list_covers_every_consumer_including_the_empty_ones():
+    """A consumer looks itself up by name. Absent from the map must not be
+    readable as 'nothing refused for me'."""
+    record = P.reconcile_declarations_with_sealed_contract(
+        payload=_payload(), panel_end=P.panel_end_session())
+    denied = record["archives_denied_to_consumer"]
+    assert sorted(denied) == sorted(P.LEAF_CONSUMERS) == record["leaf_consumers"]
+    assert denied[P.CONSUMER_L2_PANEL] == []
+    assert denied[P.CONSUMER_L3_PROSPECTIVE] == ["股價0817-0828.zip"]
+
+
+def _regrant(monkeypatch, **over):
+    key = ("股價0817-0828.zip", _payload()["contract"]["content_sha256"])
+    monkeypatch.setitem(
+        P.ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES, key,
+        dict(P.ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES[key], **over))
+
+
+def test_the_clip_may_not_be_granted_to_a_consumer_whose_end_is_unknowable(
+        monkeypatch):
+    """The defect, expressed as the edit that would hide it again.
+
+    Adding the L3 route to the grant would make the leaf say the archive is
+    allowed there — while `read_end < covers[0]` cannot even be evaluated,
+    because §19.2's endpoint belongs to a run this module does not know about."""
+    _regrant(monkeypatch, granted_to_consumers=(P.CONSUMER_L2_PANEL,
+                                                P.CONSUMER_L3_PROSPECTIVE))
+    with pytest.raises(ManifestError, match="NOT derivable in this module"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session())
+
+
+def test_an_allowance_that_names_no_consumer_is_refused(monkeypatch):
+    """A leaf-wide allowance is the same defect one level in."""
+    _regrant(monkeypatch, granted_to_consumers=())
+    with pytest.raises(ManifestError, match="names no consumer"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session())
+
+
+def test_a_consumer_outside_the_declared_set_is_refused(monkeypatch):
+    _regrant(monkeypatch, granted_to_consumers=("SOME_OTHER_READER",))
+    with pytest.raises(ManifestError, match="not in the declared consumer set"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session())
+
+
+def test_a_consumer_added_later_forces_the_allowance_to_be_re_adjudicated(
+        monkeypatch):
+    """The hole this closes: a third reader appears and inherits a silence."""
+    monkeypatch.setitem(P.LEAF_CONSUMERS, "L4_SOME_FUTURE_READER", {
+        "reads_through": "?", "read_end_derivation": "?",
+        "read_end_is_derivable_here": False, "derived_by": "?",
+        "why_not_derivable_here": "fixture"})
+    with pytest.raises(ManifestError, match="neither grants nor explains"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session())
+
+
+def test_a_consumer_that_claims_a_derivable_end_must_actually_be_derived(
+        monkeypatch):
+    """Fail-closed the other way: a consumer declared derivable but never given
+    a read end would be skipped on every allowance."""
+    monkeypatch.setitem(P.LEAF_CONSUMERS, "L4_SOME_FUTURE_READER", {
+        "reads_through": "?", "read_end_derivation": "?",
+        "read_end_is_derivable_here": True, "derived_by": "?"})
+    with pytest.raises(ManifestError, match="produces no read end"):
+        P.reconcile_declarations_with_sealed_contract(
+            payload=_payload(), panel_end=P.panel_end_session())
 
 
 @pytest.mark.parametrize("panel_end", ["2026-08-18", "2026-09-30"])
@@ -778,3 +1003,34 @@ def test_the_reconciliation_is_recorded_in_the_leaf():
     assert rec["panel_end_checked"] == "2026-04-01"
     assert "R-W1-1" in rec["allowances_granted"]["股價0817-0828.zip"][
         "why_the_contract_was_not_reissued"]
+    # ...and the consumer scope travels with it, so the L3 route can read its
+    # own refusal out of the leaf rather than re-deriving the allowance logic.
+    assert rec["archives_denied_to_consumer"][P.CONSUMER_L3_PROSPECTIVE] == [
+        "股價0817-0828.zip"]
+    assert rec["archives_denied_to_consumer"][P.CONSUMER_L2_PANEL] == []
+
+
+@live
+def test_the_leaf_always_publishes_the_consumer_scope(tmp_path):
+    """The route's gate reads this record. `build()` reconciles unconditionally,
+    so the scope cannot be absent from a leaf this module produced."""
+    import ast
+
+    leaf = P.build(RUN, AS_OF)
+    assert "archives_denied_to_consumer" in \
+        leaf["policies"]["sealed_source_reconciliation"]
+
+    tree = ast.parse(open(P.__file__, encoding="utf-8").read())
+    build_fn = next(n for n in tree.body
+                    if isinstance(n, ast.FunctionDef) and n.name == "build")
+    calls = [n for n in ast.walk(build_fn) if isinstance(n, ast.Call)
+             and getattr(n.func, "id", "")
+             == "reconcile_declarations_with_sealed_contract"]
+    assert len(calls) == 1
+    # and it is not guarded by anything
+    assert not [n for n in ast.walk(build_fn)
+                if isinstance(n, (ast.If, ast.Try))
+                and any(isinstance(c, ast.Call)
+                        and getattr(c.func, "id", "")
+                        == "reconcile_declarations_with_sealed_contract"
+                        for c in ast.walk(n))]

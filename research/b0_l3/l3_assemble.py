@@ -255,12 +255,33 @@ def price_coverage_floor(px) -> str:
     return str(px["date"].min())
 
 
+# §2.8.3 · the two halves, spelled the way the corpus spells them.
+# `build_prices_leaf` stamps these strings on every consumed entry and
+# `l3_readers.read_prices` dispatches on them. Naming them here rather than
+# repeating the literals is what keeps the guard and the leaf from drifting into
+# two vocabularies that agree by coincidence.
+LEG_PRE_2019 = "pre-2019"
+LEG_2019_PLUS = "2019+"
+
+
 def assert_both_price_legs_are_declared(run_dir: str) -> dict:
     """§2.8.3's lineage has two halves, and a leaf must declare both.
 
     The actionable form of the floor problem. Measured on the 2026-03 state
     while only the 2019+ leg was declared: 1,706 of 1,958 spell starts MOVED,
     most of them to 2019-01-02 — the corpus edge wearing a listing date.
+
+    ⚠ BOTH ABSENCES ARE NAMED, because only one of them used to be. This guard
+    checked the pre-2019 half and let the other fall through to `read_prices`,
+    which builds the archive leg out of `frames[1:]` and therefore reached
+    `pandas.concat([])`. Reproduced on a leaf carrying the cache leg alone:
+
+        ValueError: No objects to concatenate      l3_readers.py:421
+
+    Same class of absence as the one above, arriving as a library traceback that
+    names neither the leaf, nor the leg, nor the run — while the sibling case
+    names all three. An operator cannot act on the first message and can act on
+    the second, and which one they get was decided by which half went missing.
     """
     from l3_readers import consumed_entries
     from source_ownership_manifest import LEAF_FILENAME, load_leaf
@@ -268,13 +289,24 @@ def assert_both_price_legs_are_declared(run_dir: str) -> dict:
     leaf = load_leaf(os.path.join(run_dir, LEAF_FILENAME % "prices"))
     legs = collections.Counter(e.get("leg") or "unlabelled"
                                for e in consumed_entries(leaf))
-    if "pre-2019" not in legs:
+    if LEG_PRE_2019 not in legs:
         raise AssemblyError(
             "abort: the prices leaf declares no pre-2019 leg (legs present: "
             "%s). §2.8.3 splits the price lineage at 2019-01-01 and the halves "
             "live in different trees; with only the later half declared, every "
             "listing spell for a security already listed in 2018 opens at the "
             "first covered session." % dict(legs))
+    if LEG_2019_PLUS not in legs:
+        raise AssemblyError(
+            "abort: the prices leaf declares no 2019+ leg (legs present: %s). "
+            "§2.8.3 splits the price lineage at 2019-01-01 and the halves live "
+            "in different trees; with only the earlier half declared the price "
+            "frame stops at 2018-12-31, so the decision date carries no mark, "
+            "no ADV20 and no sigma20d for any security, and the §6.5 execution "
+            "session has no opening price at all. An entry that carries no "
+            "`leg` is not this half: `read_prices` sends every unlabelled entry "
+            "down the 2019+ archive path, which is the declaration this leaf "
+            "did not make." % dict(legs))
     return dict(legs)
 
 
@@ -906,6 +938,17 @@ def build_production_sources(assembled: dict, run_dir: str, attestation):
     # hold. Truncating here would also leave §6.5's execution session outside
     # the calendar that is supposed to contain it.
     sessions = tuple(read_calendar(run_dir))
+    # The same asymmetry as the price legs, one family over: the status table
+    # below names its own emptiness and this one did not. `SourceContract` takes
+    # `date_min=sessions[0]` and `date_max=sessions[-1]`, so a calendar leaf that
+    # parsed to nothing arrived as `IndexError: tuple index out of range` from a
+    # dataclass constructor — naming neither the family nor the run.
+    if not sessions:
+        raise AssemblyError(
+            "abort: the declared calendar leaf yielded no sessions. An empty "
+            "calendar and a calendar nobody built are not the same fact, and "
+            "the difference decides §6.5's execution session, every spell "
+            "boundary and the month-end reach.")
 
     calendar = TradingCalendar(
         sessions=sessions,

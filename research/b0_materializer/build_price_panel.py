@@ -212,6 +212,19 @@ def cache_leg(date_min: str, date_max: str):
         d["stock_id"] = d["stock_id"].astype(str)
         d["volume_shares"] = pd.to_numeric(d["Trading_Volume"], errors="coerce")
         frames.append(d[["stock_id", "date", "open", "close", "volume_shares"]])
+    # The same shape as the missing-file abort above, for the absence that leaves
+    # the files in place: every declared parquet read, every row filtered away by
+    # the era cut or the panel span. Without this the leg died one line down in
+    # `pandas.concat([])` with `ValueError: No objects to concatenate`, which
+    # names neither the cache, nor the span, nor the boundary that emptied it.
+    if not frames:
+        raise SystemExit(
+            "abort: the %d per-security parquet(s) under %s yielded no row "
+            "dated before %s inside the panel span %s .. %s. A pre-2019 leg "
+            "that contributes nothing is a corpus that stops at the boundary, "
+            "not a shorter panel: every listing spell would open at the first "
+            "2019 session." % (len(files), OLD_CACHE, VINTAGE_BOUNDARY,
+                               date_min, date_max))
     out = pd.concat(frames, ignore_index=True)
     bad = out[out["date"] >= VINTAGE_BOUNDARY]
     if len(bad):
@@ -283,6 +296,58 @@ def declared_zip_inventory(zip_dir: str = ""):
     return [found[n] for n in sorted(declared)], upstream
 
 
+# --- how many members a declared archive may hold -------------------------------
+#
+# ONE — and the producer now says so, because it used to say it by taking
+# `namelist()[0]` and dropping everything after it. `l3_readers.read_prices` has
+# always required exactly one ("the price leg expects exactly one CSV per
+# archive"), so a two-member export made this file build a panel silently short
+# of the second member's rows while the reader REFUSED the identical corpus.
+# Measured on a two-member fixture: the producer returned 1 row and 1 security,
+# the reader aborted naming the archive and the count.
+#
+# WHY SINGLE-MEMBER IS THE NORMATIVE ANSWER, even though
+# `build_prices_leaf.observed_archive_span` streams EVERY member of every
+# declared archive:
+#
+#   * the declaration vocabulary is PER ARCHIVE. `leg`, `roster_basis` and the
+#     `declared_properties` limitation are declared once per zip, and
+#     `DECLARED_SPAN_VERIFICATION["does_not_catch"]` states outright that
+#     neither `leg` nor `roster_basis` is derivable from the rows. A second
+#     member would therefore be admitted under a basis nothing measured — a
+#     current-roster snapshot inheriting ROSTER_BASIS_BULK_HISTORICAL is exactly
+#     the citation D1-6 forbids.
+#   * reading every member is what makes a second member INVISIBLE. The span
+#     check reads all of them so that one cannot hide; it is a detector, not a
+#     licence, and its own blind spot is recorded (a second member falling
+#     entirely inside the declared span moves neither end).
+#   * the two rules are not in conflict: measure across every member, admit
+#     exactly one. All-members admission would instead require deleting the
+#     reader's abort, the only assertion in the corpus that fails on this today.
+#
+# The count is taken the way the leaf takes it: `build_prices_leaf._members`
+# lists every `infolist()` entry, directories included, and the reader counts
+# that list — so a directory entry aborts at both ends rather than at one.
+ARCHIVE_MEMBERS_EXPECTED = 1
+
+
+def sole_archive_member(zf: zipfile.ZipFile, locator: str) -> str:
+    """The one member of a declared archive, or an abort naming the archive."""
+    members = sorted(i.filename for i in zf.infolist())
+    if len(members) != ARCHIVE_MEMBERS_EXPECTED:
+        raise SystemExit(
+            "abort: %s holds %d member(s) %s; the 2019+ price leg is exactly "
+            "one CSV per archive — the same contract l3_readers.read_prices "
+            "enforces on the leaf side, which until now this builder met by "
+            "reading the first member and dropping the rest. `leg` and "
+            "`roster_basis` are declared per archive and neither is derivable "
+            "from the rows, so a second member cannot be admitted under this "
+            "declaration: publish it as its own declared archive in "
+            "build_prices_leaf.CONSUMED_ARCHIVE_DECLARATIONS."
+            % (locator, len(members), members))
+    return members[0]
+
+
 def zip_leg(date_min: str, date_max: str):
     """>= 2019 leg. 成交量(千股) -> shares, to match the frozen adv20 lineage."""
     import pandas as pd
@@ -291,7 +356,7 @@ def zip_leg(date_min: str, date_max: str):
     frames = []
     for z in zips:
         with zipfile.ZipFile(z) as zf:
-            name = zf.namelist()[0]
+            name = sole_archive_member(zf, os.path.basename(z))
             with zf.open(name) as fh:
                 txt = fh.read().decode("utf-16")
         d = pd.read_csv(io.StringIO(txt), sep="\t", dtype=str,

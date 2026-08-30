@@ -86,7 +86,8 @@ for _p in (REPO, os.path.join(REPO, "research", "b0_materializer")):
 from core.b0_canonical_hash import file_sha256                  # noqa: E402
 from source_ownership_manifest import (                          # noqa: E402
     LEAF_FILENAME, SELF_HASH_FIELD, ManifestError,
-    assert_archive_members_match, load_leaf,
+    assert_archive_members_match, assert_resolves_inside,
+    assert_single_path_component, load_leaf,
 )
 
 # The frozen 2019+ price columns and the unit restoration. Named rather than
@@ -105,12 +106,152 @@ def _leaf_and_landing(run_dir: str, dataset: str):
     landing = leaf["landing_directory"]
     if not os.path.isabs(landing):
         landing = os.path.join(REPO, landing)
+    assert_landing_surfaces_match(leaf, landing)
     return leaf, landing
+
+
+# --- the landing surface, re-checked at READ time -------------------------------
+#
+# P1-2. `assert_landing_dir_matches()` is the writer's rule for this and it has
+# never had a caller: every reader went straight from the leaf to
+# `os.path.join`, so at read time NOTHING compared the leaf against the
+# directory it names. A file that appeared in a landing directory after the leaf
+# was written was invisible — the same silent inclusion `*.zip` was replaced to
+# stop, one layer later.
+#
+# It could not simply be wired in as it stands, and the reason is a fact about
+# this corpus rather than a preference:
+#
+#   `calendar`'s landing is a SHARED cache root (`~/market_cache`) holding five
+#   sibling SUBDIRECTORIES that belong to other consumers. `build_flat_leaves`
+#   knows them (`declared_subdirectories`) and refuses a sixth; the LEAF does
+#   not carry that list, so at read time a subdirectory cannot be told from an
+#   undeclared one. `assert_landing_dir_matches` counts every non-file entry as
+#   undeclared and would abort on all five.
+#
+#   `valuation` declares TWO board payloads out of a per-session store that
+#   holds 542 files, and `prices` reads two legs out of two different trees
+#   (§2.8.3), only one of which the leaf names at leaf level.
+#
+# So this is per LANDING GROUP, and in the undeclared direction it runs only
+# where the leaf demonstrates that it ENUMERATED its surface — by naming at
+# least one `not_consumed` file, which is a statement that can only be made by a
+# producer that looked at every file and ruled on each. A leaf that names only
+# what it consumes (`valuation`, `financials`) declares a NAMED SUBSET of a
+# store, and asking it to account for the whole store would abort every honest
+# read.
+#
+# ⚠ WHAT THIS DOES NOT CATCH, stated rather than implied:
+#   * subdirectories, anywhere — the leaf cannot say which were declared;
+#   * a new file under a NAMED-SUBSET surface (`valuation`, `financials`);
+#   * a file whose extension no entry of that group uses.
+# The declared direction — present, a real file, not a link, inside the
+# directory, byte-identical — is enforced for EVERY entry of EVERY family,
+# `not_consumed` ones included, which is new: until now a not_consumed
+# declaration was never checked against anything at read time at all.
+
+def _landing_groups(leaf: dict, landing: str) -> dict:
+    """Effective landing directory -> the entries declared against it."""
+    groups: dict = {}
+    for e in leaf["entries"]:
+        groups.setdefault(_entry_landing(landing, e), []).append(e)
+    return groups
+
+
+def assert_landing_surfaces_match(leaf: dict, landing: str) -> dict:
+    """Reconcile every landing directory this leaf addresses. See above."""
+    groups = _landing_groups(leaf, landing)
+    accepted_leafwide = tuple(str(x).lower()
+                              for x in leaf.get("accepted_extensions", ()))
+
+    for directory, entries in sorted(groups.items()):
+        if not os.path.isdir(directory):
+            raise ReaderError(
+                "abort: leaf %s declares landing directory %s, which does not "
+                "exist. A declared surface that is gone must be noticed, not "
+                "absorbed." % (leaf["dataset"], directory))
+
+        declared = {e["locator"] for e in entries}
+        enumerated = [e for e in entries
+                      if e["disposition"] == "not_consumed"]
+        # Every declared file: present, a real file, not a link, inside the
+        # directory. The BYTES of a consumed entry are re-hashed where it is
+        # actually opened (`_verified_path`); a not_consumed entry is opened
+        # nowhere, so this is the only place its declaration is ever checked
+        # against the disk — and it is checked in full.
+        for e in entries:
+            (_verified_path if e["disposition"] == "not_consumed"
+             else _declared_path)(directory, e)
+
+        if not enumerated:
+            continue
+
+        # The extensions this group actually speaks. The leaf-level
+        # `accepted_extensions` is the producer's own enumeration surface; an
+        # entry-level group (the pre-2019 price leg) carries none, so its own
+        # declared locators are the surface.
+        surface = set(accepted_leafwide) or set()
+        surface |= {os.path.splitext(n)[1].lower() for n in declared}
+
+        undeclared = []
+        for name in sorted(os.listdir(directory)):
+            p = os.path.join(directory, name)
+            if os.path.isdir(p) and not os.path.islink(p):
+                continue                       # see ⚠ above
+            if name in declared:
+                continue
+            if os.path.splitext(name)[1].lower() in surface:
+                undeclared.append(name)
+        if undeclared:
+            raise ReaderError(
+                "abort: %d entr(y/ies) in the landing directory are not "
+                "declared by leaf %s:\n%s\n  landing directory: %s\n"
+                "The leaf named %d file(s) it deliberately does not consume, so "
+                "it enumerated this surface; a file it never ruled on is a "
+                "source nobody ruled on. A new export is a NEW RUN MANIFEST, "
+                "not a file that quietly joins an existing one."
+                % (len(undeclared), leaf["dataset"],
+                   "\n".join("    %s" % n for n in undeclared), directory,
+                   len(enumerated)))
+    return groups
 
 
 def consumed_entries(leaf: dict) -> list:
     """Only what the manifest said to read. Order is the leaf's, not the disk's."""
     return [e for e in leaf["entries"] if e["disposition"] == "consumed"]
+
+
+def _entry_landing(landing: str, entry: dict) -> str:
+    """An entry's effective landing surface: its own if it has one, else the leaf's."""
+    directory = entry.get("landing_directory") or landing
+    if not os.path.isabs(directory):
+        directory = os.path.join(REPO, directory)
+    return directory
+
+
+def _declared_path(landing: str, entry: dict) -> str:
+    """Where an entry's locator addresses, ADDRESSING ONLY — no bytes read.
+
+    Split out from `_verified_path` so the landing reconciliation can check
+    every declared entry cheaply: hashing every entry of every family on every
+    reader call would re-read the pre-2019 leg's thousands of parquets and the
+    270 MB archives twice per read.
+    """
+    directory = _entry_landing(landing, entry)
+    try:
+        path = assert_resolves_inside(directory, entry["locator"],
+                                      owner="a declared source entry")
+    except ManifestError as exc:
+        raise ReaderError(str(exc))
+    if os.path.islink(path):
+        raise ReaderError(
+            "abort: declared source %s is a symbolic link. A link is an "
+            "address, not a source: the bytes it reaches can be replaced "
+            "without the landing directory changing at all." % entry["locator"])
+    if not os.path.isfile(path):
+        raise ReaderError("abort: declared source %s is not present"
+                          % entry["locator"])
+    return path
 
 
 def _verified_path(landing: str, entry: dict) -> str:
@@ -123,14 +264,14 @@ def _verified_path(landing: str, entry: dict) -> str:
     An entry may name its own landing directory. `prices` needs that: §2.8.3
     splits its lineage at 2019-01-01 and the two halves live in different trees,
     so one landing per leaf cannot address both.
+
+    P1-3. The join used to be plain, so a locator of `..\\outside.txt` resolved
+    OUTSIDE the landing directory and the hash below still matched — it hashes
+    whatever file was reached. The locator is now constrained to a single
+    component that still resolves inside its directory after `realpath`, in
+    `_declared_path`.
     """
-    landing = entry.get("landing_directory") or landing
-    if not os.path.isabs(landing):
-        landing = os.path.join(REPO, landing)
-    path = os.path.join(landing, entry["locator"])
-    if not os.path.isfile(path):
-        raise ReaderError("abort: declared source %s is not present"
-                          % entry["locator"])
+    path = _declared_path(landing, entry)
     got = file_sha256(path)
     if got != entry["raw_sha256"]:
         raise ReaderError(

@@ -762,15 +762,17 @@ def test_an_unknown_assembly_contract_is_an_abort_not_a_guess():
 # source-ownership manifest; the first run of a lineage declares that it has
 # none, and that declaration is recorded rather than skipped.
 
-def _source_entry(locator, sha, vintage):
-    return {"locator": locator, "format": "parquet", "raw_sha256": sha,
-            "export_vintage": vintage,
-            "observed_at": "2026-08-31T00:00:00+08:00",
-            "source_family": "TEJ", "authority": "AUTHORITATIVE",
-            "disposition": "consumed"}
+def _source_entry(locator, sha, vintage, **over):
+    e = {"locator": locator, "format": "parquet", "raw_sha256": sha,
+         "export_vintage": vintage,
+         "observed_at": "2026-08-31T00:00:00+08:00",
+         "source_family": "TEJ", "authority": "AUTHORITATIVE",
+         "disposition": "consumed"}
+    e.update(over)
+    return e
 
 
-def _source_run(root, run_id, entries, dataset="calendar"):
+def _source_run(root, run_id, entries, dataset="calendar", policies=None):
     """A real run directory with a real leaf and a real aggregate.
 
     Built through the manifest engine rather than by writing JSON, so the
@@ -784,7 +786,8 @@ def _source_run(root, run_id, entries, dataset="calendar"):
     d = os.path.join(str(root), run_id)
     os.makedirs(d)
     write_leaf(d, build_leaf(dataset=dataset, run_id=run_id,
-                             as_of="2026-08-31", entries=entries))
+                             as_of="2026-08-31", entries=entries,
+                             policies=policies))
     write_aggregate(d, assemble_aggregate(
         run_dir=d, run_id=run_id, as_of="2026-08-31",
         purpose=PURPOSE_DIAGNOSTIC, required={dataset}))
@@ -896,6 +899,214 @@ def test_the_stop_rule_is_reached_through_the_shared_primitive():
              if isinstance(n, ast.Call)
              and getattr(n.func, "id", "") == "assert_append_only_continuity"]
     assert calls, "the runner does not call the stop rule"
+
+
+# --- S-2 · continuity compares DECISION SEMANTICS, not only source identity -------
+#
+# `raw_sha256` names the bytes. It says nothing about the declaration constants
+# written beside them, and two of those decide what the bytes MEAN: `leg` picks
+# the unit convention (成交量(千股) x1000 vs shares already), `roster_basis` says
+# whether the archive can evidence delisted coverage. Neither is derivable from
+# the rows -- `assert_declared_span.does_not_catch` says so in as many words --
+# so an entry whose bytes and locator never moved could flip either one and pass
+# an append-only check built on identity alone.
+
+def _price_entry(locator="px.zip", sha="a" * 64, vintage="2026-08-17", **over):
+    e = _source_entry(locator, sha, vintage, format="zip",
+                      members=[{"name": "px.csv", "size": 10,
+                                "crc32": "deadbeef"}],
+                      leg="2019+", covers=["2019-01-02", "2026-08-17"],
+                      roster_basis="BULK_HISTORICAL_QUERY")
+    e.update(over)
+    return e
+
+
+def _continuity(tmp_path, before, after):
+    base = _source_run(tmp_path, "L3-BASE", [before], dataset="prices")
+    now = _source_run(tmp_path, "L3-NOW", [after], dataset="prices")
+    return R.assert_source_continuity(
+        now, prior_manifest=_baseline_manifest(base), no_prior_declared=False)
+
+
+def test_the_projection_carries_the_fields_that_decide_what_the_bytes_MEAN():
+    for field in ("leg", "roster_basis", "covers"):
+        assert field in R.SOURCE_CONTINUITY_PROJECTED_FIELDS
+    # and the deliberate exclusions stay excluded, each for a stated reason
+    for field in ("observed_at", "members", "covers_verified",
+                  "declared_properties", "landing_directory"):
+        assert field not in R.SOURCE_CONTINUITY_PROJECTED_FIELDS
+
+
+def test_a_leg_flip_on_unchanged_bytes_is_a_stop(tmp_path):
+    """The 1000x one. Same locator, same `raw_sha256`, same vintage -- and
+    `l3_readers` would send the archive down the other leg's unit convention,
+    moving every security across §4.2's absolute NTD liquidity floor."""
+    with pytest.raises(R.L3RunAbort) as exc:
+        _continuity(tmp_path, _price_entry(), _price_entry(leg="pre-2019"))
+    assert "HISTORICAL_SOURCE_REVISION" in str(exc.value)
+    assert "prices" in str(exc.value)
+
+
+def test_a_roster_basis_flip_on_unchanged_bytes_is_a_stop(tmp_path):
+    """D1-6 survivorship, re-entering through a constant: an archive that
+    cannot evidence delisted coverage, re-declared as one that can."""
+    with pytest.raises(R.L3RunAbort, match="HISTORICAL_SOURCE_REVISION"):
+        _continuity(tmp_path, _price_entry(),
+                    _price_entry(roster_basis="CURRENT_ROSTER_SNAPSHOT"))
+
+
+def test_a_re_declared_span_on_unchanged_bytes_is_a_stop(tmp_path):
+    """S-9 re-measures `covers` in the CURRENT build. The baseline is a prior
+    run's manifest, which a builder from before S-9 may have written -- so this
+    rule does not assume another gate ran in a run it cannot inspect."""
+    with pytest.raises(R.L3RunAbort, match="HISTORICAL_SOURCE_REVISION"):
+        _continuity(tmp_path, _price_entry(),
+                    _price_entry(covers=["2019-01-02", "2026-08-28"]))
+
+
+def test_declaring_a_field_and_declaring_nothing_are_different_rows(tmp_path):
+    """`leg` is None on a not_consumed workbook and absent on most families.
+    Absence is a named marker, so 'no leg declared' and 'leg declared' cannot
+    compare equal."""
+    with pytest.raises(R.L3RunAbort, match="HISTORICAL_SOURCE_REVISION"):
+        _continuity(tmp_path, _price_entry(leg=None), _price_entry())
+
+
+def test_a_declared_value_may_not_spell_the_absence_marker(tmp_path):
+    run = _source_run(tmp_path, "L3-MARKER",
+                      [_price_entry(leg=R.SOURCE_CONTINUITY_ABSENT)],
+                      dataset="prices")
+    with pytest.raises(R.L3RunAbort, match="absence marker"):
+        R.declared_source_rows(run)
+
+
+def test_a_byte_derived_rendering_is_not_reported_as_a_source_revision(
+        tmp_path):
+    """`members` is DERIVED from the archive by the builder, so equal bytes
+    entail an equal inventory. What a change there would signal is a change in
+    the BUILDER -- a code fact the route seal owns -- and calling that a
+    historical source revision would name the wrong failure."""
+    got = _continuity(
+        tmp_path, _price_entry(),
+        _price_entry(members=[{"name": "px.csv", "size": 11,
+                               "crc32": "deadbeef"}]))
+    assert got["per_dataset"]["prices"]["status"] == "APPEND_ONLY"
+
+
+def test_an_unchanged_declaration_still_appends_cleanly(tmp_path):
+    """The projection must not turn every second run into a stop."""
+    base = _source_run(tmp_path, "L3-BASE", [_price_entry()], dataset="prices")
+    later = _source_run(
+        tmp_path, "L3-LATER",
+        [_price_entry(), _price_entry(locator="px2.zip", sha="b" * 64,
+                                      vintage="2026-08-28")],
+        dataset="prices")
+    got = R.assert_source_continuity(later,
+                                     prior_manifest=_baseline_manifest(base),
+                                     no_prior_declared=False)
+    assert got["per_dataset"]["prices"]["appended_rows"] == 1
+
+
+# --- S-8 · an allowance earned by another reader is not this route's --------------
+#
+# The clip-based allowance was verified against `panel_end_session()` -- the L2
+# composed panel's end. This route reads through the period's EXECUTION session
+# and inherits no window, so the archive the panel clips away is read in full
+# here. The leaf publishes who each allowance was checked for; this route reads
+# its own name out of that list and refuses.
+
+def _reconciliation(denied=(), *, scope=True, consumer=None):
+    import build_prices_leaf as P
+
+    key = P.CONSUMER_L3_PROSPECTIVE if consumer is None else consumer
+    record = {"rule": "THE_DECLARED_ARCHIVE_SET_MUST_RECONCILE_WITH_THE_SEALED_CONTRACT",
+              "sealed_contract_name": "b0_price_universe_20260817"}
+    if scope:
+        record["archives_denied_to_consumer"] = {
+            P.CONSUMER_L2_PANEL: [], key: list(denied)}
+    return {R.SOURCE_RECONCILIATION_POLICY: record}
+
+
+def test_the_route_looks_itself_up_under_the_leafs_own_consumer_name():
+    """Not a second copy of the string: a name that could drift would look
+    itself up under a key nobody grants or denies."""
+    import build_prices_leaf as P
+
+    tree = ast.parse(open(R.__file__, encoding="utf-8").read())
+    fn = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
+              and n.name == "assert_declared_sources_admit_this_route")
+    imported = {a.name for n in ast.walk(fn)
+                if isinstance(n, ast.ImportFrom) for a in n.names}
+    assert "CONSUMER_L3_PROSPECTIVE" in imported
+    assert P.CONSUMER_L3_PROSPECTIVE in P.LEAF_CONSUMERS
+
+
+def test_a_route_may_not_read_an_archive_it_was_not_granted(tmp_path):
+    """The defect, at the consumer that is actually at risk."""
+    run = _source_run(tmp_path, "L3-DENIED", [_price_entry()], dataset="prices",
+                      policies=_reconciliation(denied=["股價0817-0828.zip"]))
+    with pytest.raises(R.L3RunAbort) as exc:
+        R.assert_declared_sources_admit_this_route(run)
+    assert "股價0817-0828.zip" in str(exc.value)
+    assert "another consumer of the same leaf" in str(exc.value)
+    assert "R-W1-1" in str(exc.value)
+
+
+def test_a_leaf_that_never_considered_this_consumer_is_not_permission(tmp_path):
+    run = _source_run(tmp_path, "L3-SILENT", [_price_entry()], dataset="prices",
+                      policies=_reconciliation(consumer="SOMEBODY_ELSE"))
+    with pytest.raises(R.L3RunAbort, match="Silence is not a grant"):
+        R.assert_declared_sources_admit_this_route(run)
+
+
+def test_a_reconciliation_without_a_consumer_scope_is_refused(tmp_path):
+    """A record from before the scope existed says the allowance was checked
+    for SOME reader, and this route is not necessarily that reader."""
+    run = _source_run(tmp_path, "L3-OLD", [_price_entry()], dataset="prices",
+                      policies=_reconciliation(scope=False))
+    with pytest.raises(R.L3RunAbort, match="no `archives_denied_to_consumer`"):
+        R.assert_declared_sources_admit_this_route(run)
+
+
+def test_a_prices_leaf_must_reconcile_against_its_sealed_contract(tmp_path):
+    """Deleting the record must remove the gate's SUBJECT, not the gate."""
+    run = _source_run(tmp_path, "L3-NOPOLICY", [_price_entry()],
+                      dataset="prices")
+    with pytest.raises(R.L3RunAbort, match="carries no `sealed_source"):
+        R.assert_declared_sources_admit_this_route(run)
+
+
+def test_a_family_with_no_sealed_contract_needs_no_reconciliation(tmp_path):
+    """Only prices has one today. The positive half, so the gate is not simply
+    'always abort'."""
+    run = _source_run(tmp_path, "L3-CAL",
+                      [_source_entry("taiex.parquet", "a" * 64, "2026-08-17")])
+    got = R.assert_declared_sources_admit_this_route(run)
+    assert got["datasets_with_a_reconciliation_record"] == []
+    assert got["archives_refused_to_this_route"] == {}
+
+
+def test_a_route_that_is_granted_everything_it_declares_proceeds(tmp_path):
+    run = _source_run(tmp_path, "L3-OK", [_price_entry()], dataset="prices",
+                      policies=_reconciliation())
+    got = R.assert_declared_sources_admit_this_route(run)
+    assert got["datasets_with_a_reconciliation_record"] == ["prices"]
+    assert got["consumer"] == "L3_PROSPECTIVE_ROUTE"
+
+
+def test_the_admission_gate_is_reached_from_preflight_and_from_provenance():
+    """A gate whose passage is not recorded is a gate nobody can audit later."""
+    tree = ast.parse(open(R.__file__, encoding="utf-8").read())
+    reached = set()
+    for fn in ast.walk(tree):
+        if not isinstance(fn, ast.FunctionDef):
+            continue
+        if any(isinstance(n, ast.Call)
+               and getattr(n.func, "id", "")
+               == "assert_declared_sources_admit_this_route"
+               for n in ast.walk(fn)):
+            reached.add(fn.name)
+    assert {"preflight", "_provenance"} <= reached
 
 
 def test_a_continuation_may_not_declare_that_it_has_no_source_baseline(tmp_path):

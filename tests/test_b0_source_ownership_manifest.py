@@ -346,3 +346,254 @@ def test_the_l3_engine_does_not_import_the_l2_constant():
 
 def test_the_two_contracts_are_separately_versioned():
     assert L3_CONTRACT_VERSION == "L3_PROSPECTIVE_SOURCE_MANIFEST_CONTRACT_V1"
+
+
+# --- P1-1 · the floor is derived from the PURPOSE, never from the caller --------
+#
+# The reviewer's case: `assemble_aggregate(..., required=("prices",))` against a
+# run directory holding one leaf produced an aggregate that recorded
+# `required_datasets: ["prices"]` and `readiness: READY`, and BOTH reading gates
+# believed it — `verify_aggregate` re-checked only the leaves the aggregate had
+# chosen to index, `assert_ready` read the readiness string the same aggregate
+# had written. A run could declare a one-family floor and be told it was ready.
+
+
+def test_the_two_purposes_have_two_DIFFERENT_derived_floors():
+    """C-71 · §20.8 vs §20.3. The narrower capture inventory is legitimate and
+    must keep working; what may not happen is either floor being chosen per run."""
+    from core.b0_l3_lineage_capture import (
+        FLOOR_CAPTURE_REQUIRED_DATASETS, PURPOSE_CAPTURE,
+    )
+    from source_ownership_manifest import normative_floor
+
+    assert normative_floor(PURPOSE_CAPTURE) == tuple(
+        sorted(FLOOR_CAPTURE_REQUIRED_DATASETS)) == ("calendar", "prices")
+    assert normative_floor(PURPOSE_PRODUCTION) == tuple(sorted(REQUIRED_DATASETS))
+    assert normative_floor(PURPOSE_DIAGNOSTIC) == tuple(sorted(REQUIRED_DATASETS))
+    assert normative_floor(PURPOSE_CAPTURE) != normative_floor(PURPOSE_PRODUCTION)
+
+    with pytest.raises(ManifestError, match="purpose"):
+        normative_floor("WHATEVER")
+
+
+@pytest.mark.parametrize("purpose,binding", [
+    (PURPOSE_PRODUCTION, {"route_seal_id": "L3SEAL-" + "a" * 64}),
+    ("LINEAGE_FLOOR_CAPTURE", {"capture_authority": None}),
+])
+def test_NEGATIVE_a_lineage_making_purpose_may_not_narrow_its_floor(
+        tmp_path, purpose, binding):
+    """A caller that could shorten the requirement could omit a source and still
+    look complete. Refused BEFORE any binding is checked, because a narrowed
+    floor is not a binding problem — it is a different run."""
+    run_dir = _full_run(tmp_path, ("prices",))
+    with pytest.raises(ManifestError, match="derived from the PURPOSE"):
+        assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
+                           purpose=purpose, required=("prices",), **binding)
+
+
+def test_the_capture_inventory_is_fixed_in_BOTH_directions(tmp_path):
+    """C-71. Short lets an off-calendar row set the floor; long puts a hash that
+    cannot move the floor into the lineage identity. `assert_capture_inventory`
+    owns the rule and is CALLED — this asserts the wiring, not a restatement."""
+    from core.b0_l3_lineage_capture import CAPTURE_AUTHORITY, PURPOSE_CAPTURE
+
+    run_dir = _full_run(tmp_path, ("calendar", "prices"))
+    agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
+                             purpose=PURPOSE_CAPTURE,
+                             capture_authority=CAPTURE_AUTHORITY)
+    assert agg["required_datasets"] == ["calendar", "prices"]
+    assert agg["readiness"] == READY
+    write_aggregate(run_dir, agg)
+    assert_ready(verify_aggregate(run_dir))          # the capture floor CONSUMES
+
+    for wrong in (("prices",), ("calendar", "prices", "revenue")):
+        with pytest.raises(ManifestError):
+            assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
+                               purpose=PURPOSE_CAPTURE,
+                               capture_authority=CAPTURE_AUTHORITY,
+                               required=wrong)
+
+
+def test_NEGATIVE_a_diagnostic_may_narrow_but_may_never_be_CONSUMED(tmp_path):
+    """The reviewer's exact call. A diagnostic reads what it likes — that is what
+    a diagnostic is — but `assert_ready` re-derives the floor from the purpose
+    instead of reading the aggregate's account of itself."""
+    run_dir = _full_run(tmp_path, ("prices",))
+    agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
+                             purpose=PURPOSE_DIAGNOSTIC, required=("prices",))
+    assert agg["readiness"] == READY                 # honest about ITS OWN set
+    assert agg["required_datasets"] == ["prices"]
+
+    with pytest.raises(ManifestError, match="derived from the PURPOSE"):
+        assert_ready(agg)
+
+
+def test_NEGATIVE_READY_must_mean_every_required_leaf_is_indexed(tmp_path):
+    """The floor can be RIGHT and the index still short. `readiness` is one
+    string; the two fields it summarises are checked against each other rather
+    than trusted, because a READY that does not mean 'every required leaf is
+    here' means nothing."""
+    run_dir = _full_run(tmp_path)
+    agg = assemble_aggregate(run_dir=run_dir, run_id=RUN, as_of=AS_OF,
+                             purpose=PURPOSE_DIAGNOSTIC)
+    assert set(agg["required_datasets"]) == set(REQUIRED_DATASETS)
+    agg["leaves"].pop("prices")                  # floor intact, index short
+
+    with pytest.raises(ManifestError, match="means nothing"):
+        assert_ready(agg)
+
+
+def test_NEGATIVE_a_resealed_aggregate_cannot_shrink_its_own_index(tmp_path):
+    """The self hash proves only that nobody edited the file after it was
+    written. Recompute it and the aggregate is internally perfect — so the read
+    end reconciles it against the leaves that are actually in the run
+    directory, not against its own index."""
+    run_dir = _full_run(tmp_path)
+    write_aggregate(run_dir, assemble_aggregate(
+        run_dir=run_dir, run_id=RUN, as_of=AS_OF, purpose=PURPOSE_DIAGNOSTIC))
+
+    p = os.path.join(run_dir, AGGREGATE_FILENAME)
+    doc = json.load(open(p, encoding="utf-8"))
+    doc["required_datasets"] = ["prices"]
+    doc["leaves"] = {"prices": doc["leaves"]["prices"]}
+    doc.pop(SELF_HASH_FIELD)
+    doc[SELF_HASH_FIELD] = payload_sha256(doc)       # internally consistent
+    open(p, "w", encoding="utf-8", newline="\n").write(
+        json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1) + "\n")
+
+    load_aggregate(p)                                # the self hash still passes
+    with pytest.raises(ManifestError, match="not indexed by the aggregate"):
+        verify_aggregate(run_dir)
+
+
+def test_NEGATIVE_a_hand_written_readiness_is_recomputed_not_read(tmp_path):
+    """`readiness` is a fact about the source set, not a field the manifest may
+    assert about itself."""
+    run_dir = _full_run(tmp_path, tuple(d for d in REQUIRED_DATASETS
+                                        if d != "prices"))
+    write_aggregate(run_dir, assemble_aggregate(
+        run_dir=run_dir, run_id=RUN, as_of=AS_OF, purpose=PURPOSE_DIAGNOSTIC))
+
+    p = os.path.join(run_dir, AGGREGATE_FILENAME)
+    doc = json.load(open(p, encoding="utf-8"))
+    assert doc["readiness"] == NOT_READY
+    doc["readiness"] = READY
+    doc["missing_datasets"] = []
+    doc.pop(SELF_HASH_FIELD)
+    doc[SELF_HASH_FIELD] = payload_sha256(doc)
+    open(p, "w", encoding="utf-8", newline="\n").write(
+        json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1) + "\n")
+
+    with pytest.raises(ManifestError, match="records readiness"):
+        verify_aggregate(run_dir)
+
+
+# --- P1-2 · the reader boundary re-verifies the contract ------------------------
+#
+# `load_leaf` checked shape, the self hash and ownership overlap. It did not
+# re-run the closed vocabularies, so a leaf produced by an older or different
+# writer — or by hand — carried an illegal `source_family` straight through.
+# The payload hash proves the file has not changed since it was written; it
+# proves nothing about whether what was written was admissible.
+
+
+def _leaf_past_the_writer(tmp_path, mutate, dataset="prices"):
+    """Build a legal leaf, mutate it, write it. The self hash is recomputed by
+    `write_leaf`, so what lands on disk is internally consistent and illegal."""
+    leaf = _leaf(dataset)
+    mutate(leaf)
+    write_leaf(str(tmp_path), leaf)
+    return os.path.join(str(tmp_path), LEAF_FILENAME % dataset)
+
+
+@pytest.mark.parametrize("label,mutate,message", [
+    ("undefined source family",
+     lambda l: l["entries"][0].update(source_family="MADE_UP_VENDOR"),
+     "not one of"),
+    ("R-W1-2: live authority",
+     lambda l: l["entries"][0].update(source_family="LIVE",
+                                      authority="AUTHORITATIVE"),
+     "AUTHORITATIVE"),
+    ("undefined disposition",
+     lambda l: l["entries"][0].update(disposition="maybe"),
+     "not one of"),
+    ("consumed archive with no member inventory",
+     lambda l: l["entries"][0].update(format="zip"),
+     "no member inventory"),
+    ("another contract's leaf",
+     lambda l: l.update(contract_version="SOME_OTHER_CONTRACT_V9"),
+     "this engine enforces"),
+    ("a leaf that consumes nothing",
+     lambda l: l["entries"][0].update(disposition="not_consumed",
+                                      not_consumed_reason="none of it"),
+     "consumes nothing"),
+])
+def test_NEGATIVE_load_leaf_re_runs_the_writers_vocabulary(
+        tmp_path, label, mutate, message):
+    path = _leaf_past_the_writer(tmp_path, mutate)
+    with pytest.raises(ManifestError, match=message):
+        load_leaf(path)
+
+
+# --- P1-3 · a locator names ONE file inside its landing directory ---------------
+
+
+@pytest.mark.parametrize("locator", [
+    r"..\outside.txt", "../outside.txt", "sub/inner.xlsx", r"sub\inner.xlsx",
+    "..", ".", "", "C:\\Windows\\win.ini", "/etc/passwd",
+])
+def test_NEGATIVE_a_locator_may_not_be_a_path_expression(locator):
+    """`os.path.join(landing, locator)` treats a locator as a path expression, so
+    `..\\x` resolves outside the landing directory — and the raw_sha256 check
+    does NOT notice, because it hashes whatever file was reached."""
+    from source_ownership_manifest import assert_single_path_component
+
+    with pytest.raises(ManifestError):
+        assert_single_path_component(locator, owner="a test")
+
+
+def test_NEGATIVE_an_escaping_locator_is_refused_at_BOTH_ends(tmp_path):
+    with pytest.raises(ManifestError, match="separator"):
+        build_leaf(dataset="prices", run_id=RUN, as_of=AS_OF,
+                   entries=[_entry(r"..\outside.xlsx")])
+
+    path = _leaf_past_the_writer(
+        tmp_path, lambda l: l["entries"][0].update(locator=r"..\outside.xlsx"))
+    with pytest.raises(ManifestError, match="separator"):
+        load_leaf(path)
+
+
+def test_a_name_that_resolves_outside_its_directory_is_refused(tmp_path):
+    """Containment is decided by `realpath` + `commonpath`, not by inspecting the
+    joined string — a string test is exactly what a symlink passes."""
+    from source_ownership_manifest import assert_resolves_inside
+
+    landing = os.path.join(str(tmp_path), "landing")
+    os.makedirs(landing)
+    open(os.path.join(landing, "declared.xlsx"), "wb").write(b"legitimate\n")
+    open(os.path.join(str(tmp_path), "outside.xlsx"), "wb").write(b"not ours\n")
+
+    assert assert_resolves_inside(landing, "declared.xlsx") == os.path.join(
+        landing, "declared.xlsx")
+    with pytest.raises(ManifestError):
+        assert_resolves_inside(landing, os.path.join(str(tmp_path),
+                                                     "outside.xlsx"))
+
+
+def test_NEGATIVE_the_aggregates_leaf_path_is_the_same_kind_of_name(tmp_path):
+    """`leaves[...]["path"]` is a filename read out of JSON and joined to the run
+    directory — the identical shape, one tier up."""
+    run_dir = _full_run(tmp_path)
+    write_aggregate(run_dir, assemble_aggregate(
+        run_dir=run_dir, run_id=RUN, as_of=AS_OF, purpose=PURPOSE_DIAGNOSTIC))
+
+    p = os.path.join(run_dir, AGGREGATE_FILENAME)
+    doc = json.load(open(p, encoding="utf-8"))
+    doc["leaves"]["prices"]["path"] = r"..\source_manifest_prices.json"
+    doc.pop(SELF_HASH_FIELD)
+    doc[SELF_HASH_FIELD] = payload_sha256(doc)
+    open(p, "w", encoding="utf-8", newline="\n").write(
+        json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1) + "\n")
+
+    with pytest.raises(ManifestError, match="separator"):
+        verify_aggregate(run_dir)

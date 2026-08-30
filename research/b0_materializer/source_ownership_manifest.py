@@ -87,8 +87,13 @@ NOT_READY = "NOT_READY_REQUIRED_SOURCE_MANIFEST_MISSING"
 # `ProductionSources` fields and cross-checks it against the retrospective
 # materializer's `load_sources()`, and a test fails if the two disagree.
 #
-# This is the aggregate's floor, not the caller's suggestion: `assemble_aggregate`
-# takes `required=` for tests only.
+# This is the aggregate's floor, not the caller's suggestion. P1-1: it used to
+# be `assemble_aggregate`'s DEFAULT, which is a different thing — a default is
+# overridable, and `required=("prices",)` produced a one-family source set that
+# called itself READY and was believed by both reading gates. The floor is now
+# derived from the declared PURPOSE (`normative_floor`), re-derived independently
+# at the reading end, and `required=` may only ever restate what the purpose
+# already fixed.
 from route_closure import REQUIRED_DATASET_FLOOR as REQUIRED_DATASETS  # noqa: E402
 
 SELF_HASH_FIELD = "payload_sha256"
@@ -123,6 +128,89 @@ REQUIRED_AGGREGATE_FIELDS: tuple[str, ...] = (
 
 class ManifestError(SystemExit):
     """Fail-loud: the manifest and the world disagree, or the manifest is unfit."""
+
+
+# --- addressing ----------------------------------------------------------------
+#
+# P1-3. A locator NAMES ONE FILE INSIDE its landing directory; it is not a path
+# expression. `os.path.join(landing, locator)` treats it as one, so `..\x` and
+# `C:\x` both resolve OUTSIDE the landing directory — and the hash check does
+# not notice, because the hash is of whatever file was reached. The bytes then
+# match, the manifest looks honest, and the source that was read is one the
+# landing directory never held.
+#
+# The same shape appears wherever a name out of a manifest is joined to a
+# directory: the aggregate's `leaves[...]["path"]` and a leaf's
+# `derived_dependencies[...]["leaf"]` are both filenames read from JSON and
+# joined to the run directory. One check, every such name.
+
+_SEPARATORS = tuple(sorted({"/", "\\", os.sep, os.altsep or "/"}))
+
+
+def assert_single_path_component(name, *, what: str = "locator",
+                                 owner: str = "") -> str:
+    """A manifest-supplied filename addresses one entry of one directory.
+
+    Rejects the empty name, `.` and `..`, anything carrying a path separator on
+    EITHER platform's spelling, and anything drive- or root-anchored. Checked by
+    construction rather than by inspecting the joined string afterwards: a
+    string test on the result has to guess how the OS will normalise it.
+    """
+    text = str(name or "")
+    where = (" in %s" % owner) if owner else ""
+    if not text:
+        raise ManifestError(
+            "abort: an empty %s%s addresses no file. A name that resolves to "
+            "the directory itself is not a source." % (what, where))
+    if text in (os.curdir, os.pardir):
+        raise ManifestError(
+            "abort: %s %r%s addresses a DIRECTORY, not a file in it."
+            % (what, text, where))
+    hit = [s for s in _SEPARATORS if s in text]
+    if hit:
+        raise ManifestError(
+            "abort: %s %r%s contains the path separator(s) %s. A %s names one "
+            "file INSIDE its directory; a path expression can leave it, and "
+            "the hash check cannot tell — it hashes whatever file was reached."
+            % (what, text, where, hit, what))
+    if os.path.isabs(text) or os.path.splitdrive(text)[0]:
+        raise ManifestError(
+            "abort: %s %r%s is an absolute or drive-anchored path. A manifest "
+            "addresses its own landing surface, never the filesystem."
+            % (what, text, where))
+    return text
+
+
+def assert_resolves_inside(directory: str, name: str, *, what: str = "locator",
+                           owner: str = "") -> str:
+    """`name` is a single component AND still lands inside `directory`.
+
+    The component check alone is not enough: a symlink or junction named
+    innocently inside the landing directory points wherever it likes, and
+    `os.path.join` says nothing about that. So the resolved path is compared
+    against the resolved directory with `realpath` + `commonpath` — never by
+    inspecting the joined string, which is exactly the test that a symlink
+    passes.
+    """
+    assert_single_path_component(name, what=what, owner=owner)
+    real_dir = os.path.realpath(directory)
+    joined = os.path.join(directory, str(name))
+    real_path = os.path.realpath(joined)
+    try:
+        shared = os.path.commonpath([real_dir, real_path])
+    except ValueError:                      # different drives on Windows
+        shared = ""
+    inside = (os.path.normcase(shared) == os.path.normcase(real_dir)
+              and os.path.normcase(os.path.dirname(real_path))
+              == os.path.normcase(real_dir))
+    if not inside:
+        raise ManifestError(
+            "abort: %s %r%s resolves to %s, which is OUTSIDE its declared "
+            "directory %s.\nA hash that matches there is a hash of a file the "
+            "manifest never declared."
+            % (what, name, (" in %s" % owner) if owner else "", real_path,
+               real_dir))
+    return joined
 
 
 # --- period algebra ------------------------------------------------------------
@@ -240,6 +328,7 @@ def build_leaf(*, dataset: str, run_id: str, as_of: str, entries,
             "abort: leaf %s declares %s more than once" % (dataset, dupes))
 
     for e in entries:
+        assert_single_path_component(e["locator"], owner="leaf %s" % dataset)
         _assert_entry_vocabulary(dataset, e)
         _assert_archive_inventory(dataset, e)
 
@@ -277,7 +366,21 @@ def build_leaf(*, dataset: str, run_id: str, as_of: str, entries,
 
 
 def load_leaf(path: str) -> dict:
-    """Read, validate shape, verify the leaf's own payload hash."""
+    """Read, and re-run EVERY rule `build_leaf` runs, against the bytes on disk.
+
+    P1-2. This used to check shape, the self hash and ownership overlap only —
+    so a leaf whose `source_family` was a value nobody defined, or whose
+    consumed archive carried no member inventory, was accepted at read time
+    while `build_leaf` would have refused to write it. Writer-side validation is
+    not read-side validation: the artefact may have been produced by an older
+    writer, a different writer, or by hand. The payload hash proves only that
+    the file has not changed since IT was written, never that what was written
+    was admissible.
+
+    So the vocabulary checks below are the same functions `build_leaf` calls, on
+    the same fields, in the same order — deliberately not a second, weaker
+    transcription of them.
+    """
     doc = _load_json(path)
     _require_fields(path, doc, REQUIRED_LEAF_FIELDS)
     if doc["schema_version"] != LEAF_SCHEMA_VERSION:
@@ -286,11 +389,39 @@ def load_leaf(path: str) -> dict:
             "from another schema must be read by that schema's engine, not "
             "reinterpreted by this one." % (path, doc["schema_version"],
                                             LEAF_SCHEMA_VERSION))
-    for i, e in enumerate(doc["entries"]):
+    if doc["contract_version"] != L3_CONTRACT_VERSION:
+        raise ManifestError(
+            "abort: %s declares contract %r, this engine enforces %r. The two "
+            "L3 contracts are versioned separately precisely so they may "
+            "drift; reading one under the other's rules is how a drift becomes "
+            "invisible." % (path, doc["contract_version"], L3_CONTRACT_VERSION))
+    entries = list(doc["entries"])
+    if not entries:
+        raise ManifestError("abort: %s declares no entries" % path)
+    for i, e in enumerate(entries):
         absent = [f for f in REQUIRED_ENTRY_FIELDS if not e.get(f)]
         if absent:
             raise ManifestError("abort: %s entry %d is missing %s"
                                 % (path, i, absent))
+
+    locators = [e["locator"] for e in entries]
+    if len(set(locators)) != len(locators):
+        dupes = sorted({x for x in locators if locators.count(x) > 1})
+        raise ManifestError(
+            "abort: leaf %s declares %s more than once" % (path, dupes))
+
+    for e in entries:
+        assert_single_path_component(
+            e["locator"], owner="leaf %s" % doc["dataset"])
+        _assert_entry_vocabulary(doc["dataset"], e)
+        _assert_archive_inventory(doc["dataset"], e)
+
+    if not [e for e in entries if e["disposition"] == "consumed"]:
+        raise ManifestError(
+            "abort: leaf %s consumes nothing. A leaf that declares only "
+            "not_consumed entries is a dataset with no source, which is not "
+            "the same fact as a dataset nobody declared." % doc["dataset"])
+
     _verify_self_hash(path, doc)
     assert_no_overlapping_ownership(doc)
     return doc
@@ -415,7 +546,18 @@ def assert_no_overlapping_ownership(leaf: dict) -> None:
 
 
 def assert_landing_dir_matches(leaf: dict, landing_dir: str = "") -> list:
-    """Directory and leaf must describe the same files, byte for byte."""
+    """Directory and leaf must describe the same files, byte for byte.
+
+    ⚠ P1-2 · THIS FUNCTION STILL HAS NO CALLER, and that is now a measured fact
+    rather than an oversight. It assumes ONE landing directory holding ONLY
+    files, all of them declared, and two of the nine families cannot satisfy it:
+    `calendar` lands in a shared cache root with five declared SUBDIRECTORIES
+    the leaf does not carry, and `valuation` names two board payloads out of a
+    per-session store of several hundred. It is left exactly as it stands
+    because it is the strictest statement of the rule; the reader boundary is
+    wired to `l3_readers.assert_landing_surfaces_match`, which reconciles per
+    landing GROUP and says in its own comment what it therefore cannot catch.
+    """
     landing = landing_dir or leaf.get("landing_directory", "")
     if not landing:
         raise ManifestError(
@@ -485,16 +627,66 @@ def write_leaf(run_dir: str, leaf: dict) -> dict:
 
 
 # --- aggregate -----------------------------------------------------------------
+#
+# P1-1 · THE FLOOR IS A PROPERTY OF THE PURPOSE, NEVER OF THE CALLER.
+#
+# `required=` used to default to the module constant and accept anything else,
+# so `required=("prices",)` produced an aggregate that indexed one leaf,
+# recorded `required_datasets: ["prices"]`, and called itself READY. Both
+# reading gates then believed it: `verify_aggregate` re-checked only the leaves
+# the aggregate had chosen to index, and `assert_ready` read the `readiness`
+# string the same aggregate had written about itself. A run could declare a
+# one-family floor and be told its source set was complete.
+#
+# The floor is now derived HERE, from the declared purpose, and the reading end
+# derives it again independently rather than trusting the record.
+
+def normative_floor(purpose: str) -> tuple:
+    """The dataset floor a manifest of this purpose must declare to be CONSUMED.
+
+    Two purposes, two floors, and the distinction is causal, not cosmetic:
+
+        LINEAGE_FLOOR_CAPTURE   C-71 · §20.8. Exactly `calendar` + `prices` —
+                                the floor's causal closure. Neither shorter (an
+                                off-calendar row could set the floor) nor longer
+                                (a hash that cannot move the floor would enter
+                                the lineage identity). `assert_capture_inventory`
+                                owns that rule and is called, not restated.
+        PRODUCTION_RUN          all nine families of `REQUIRED_DATASET_FLOOR`.
+                                A decision taken without a source that would
+                                have changed it is not an observation.
+        UNSEALED_DIAGNOSTIC     a diagnostic may READ a narrower set — that is
+                                what a diagnostic is — but it may not be
+                                CONSUMED as a source set, so its floor for the
+                                purpose of `assert_ready` is the full nine.
+    """
+    from core.b0_l3_lineage_capture import (                       # noqa: E402
+        FLOOR_CAPTURE_REQUIRED_DATASETS, MANIFEST_PURPOSES, PURPOSE_CAPTURE,
+        PURPOSE_DIAGNOSTIC, PURPOSE_PRODUCTION,
+    )
+    if purpose == PURPOSE_CAPTURE:
+        return tuple(sorted(FLOOR_CAPTURE_REQUIRED_DATASETS))
+    if purpose in (PURPOSE_PRODUCTION, PURPOSE_DIAGNOSTIC):
+        return tuple(sorted(REQUIRED_DATASETS))
+    raise ManifestError(
+        "abort: manifest purpose %r is not one of %s, so no source floor is "
+        "defined for it. A run whose purpose is unknown is a run whose floor "
+        "nobody can derive." % (purpose, list(MANIFEST_PURPOSES)))
+
 
 def assemble_aggregate(*, run_dir: str, run_id: str, as_of: str,
                        purpose: str, route_seal_id=None,
                        capture_authority=None,
-                       required=REQUIRED_DATASETS) -> dict:
+                       required=None) -> dict:
     """Index every leaf present in `run_dir` and state readiness honestly.
 
-    `required` exists for tests, not for callers narrowing the floor: a run that
-    could shorten its own requirement could omit a source and still look
-    complete. Production callers take the module constant.
+    `required` is NOT a floor knob. For the two purposes that make lineage —
+    `LINEAGE_FLOOR_CAPTURE` and `PRODUCTION_RUN` — a value that disagrees with
+    `normative_floor(purpose)` is REFUSED rather than adopted, so passing it is
+    only ever a restatement of what the purpose already fixed. Only an
+    `UNSEALED_DIAGNOSTIC` may narrow it, because a diagnostic reads sources to
+    check something; the narrowing is recorded in the aggregate and
+    `assert_ready` then refuses to let the result be consumed as a source set.
 
     §20 / C-70 · TWO PURPOSES, TWO BINDINGS. `purpose` is required because the
     two runs that read these sources answer to different authorities:
@@ -507,17 +699,30 @@ def assemble_aggregate(*, run_dir: str, run_id: str, as_of: str,
                                 audit that only checks the field is present.
     """
     from core.b0_l3_lineage_capture import (                       # noqa: E402
-        FLOOR_CAPTURE_REQUIRED_DATASETS, PURPOSE_CAPTURE,
+        PURPOSE_CAPTURE, PURPOSE_DIAGNOSTIC,
         RATIFIED_INVENTORY_AUTHORITY, LineageCaptureError,
         assert_capture_inventory, assert_manifest_binding,
     )
 
+    floor = normative_floor(purpose)            # raises on an unknown purpose
+    if purpose == PURPOSE_DIAGNOSTIC:
+        required = floor if required is None else tuple(sorted(set(required)))
+    elif required is not None and tuple(sorted(set(required))) != floor:
+        raise ManifestError(
+            "abort: a %s manifest reads exactly %s, and this caller asked for "
+            "%s. The floor is derived from the PURPOSE, never supplied: a run "
+            "that could shorten its own requirement could omit a source and "
+            "still look complete, which is the failure the floor exists to "
+            "prevent." % (purpose, list(floor),
+                          list(tuple(sorted(set(required or ()))))))
+    else:
+        required = floor
+
     if purpose == PURPOSE_CAPTURE:
         # C-71 · §20.8. The capture inventory is the floor's causal closure and
-        # it is FIXED: `required` is not a knob here, and a caller that passes a
-        # different set is refused rather than quietly overridden.
-        if required is REQUIRED_DATASETS:
-            required = FLOOR_CAPTURE_REQUIRED_DATASETS
+        # it is FIXED. Called rather than assumed: the rule lives in
+        # `b0_l3_lineage_capture`, and deriving the floor from it above must not
+        # become a second, drifting statement of it.
         try:
             required = assert_capture_inventory(required)
         except LineageCaptureError as exc:
@@ -628,10 +833,64 @@ def load_aggregate(path: str) -> dict:
 
 
 def verify_aggregate(run_dir: str) -> dict:
-    """Re-check an aggregate against the leaves actually on disk."""
+    """Re-check an aggregate against the leaves actually on disk.
+
+    P1-1. This used to iterate `agg["leaves"]` and nothing else, so an aggregate
+    that had simply chosen to index fewer leaves verified perfectly — it was
+    re-checked against its own choice. The index is now reconciled BOTH ways:
+    against `required_datasets`, against the leaf files present in the run
+    directory, and against the `readiness` string, which is RECOMPUTED here
+    rather than read.
+    """
     agg = load_aggregate(os.path.join(run_dir, AGGREGATE_FILENAME))
+
+    declared = sorted(agg.get("required_datasets") or ())
+    if not declared:
+        raise ManifestError(
+            "abort: aggregate in %s requires no dataset at all. An empty floor "
+            "is satisfied by an empty source set." % run_dir)
+    indexed = sorted(agg["leaves"])
+
+    stray = [d for d in indexed if d not in declared]
+    if stray:
+        raise ManifestError(
+            "abort: aggregate indexes leaf(s) %s that its own "
+            "required_datasets does not name. A source nobody required is a "
+            "source nobody has ruled on." % stray)
+
+    absent = [d for d in declared if d not in agg["leaves"]]
+    expected = NOT_READY if absent else READY
+    if agg["readiness"] != expected:
+        raise ManifestError(
+            "abort: aggregate in %s records readiness %r, but %d of the %d "
+            "dataset(s) it requires are not indexed (%s). Readiness is a fact "
+            "about the source set, not a field the manifest may assert about "
+            "itself." % (run_dir, agg["readiness"], len(absent), len(declared),
+                         absent or "none"))
+    if sorted(agg.get("missing_datasets") or ()) != absent:
+        raise ManifestError(
+            "abort: aggregate in %s lists missing_datasets %s, recomputed %s."
+            % (run_dir, sorted(agg.get("missing_datasets") or ()), absent))
+
+    # A leaf sitting in the run directory that the aggregate does not index is
+    # the shape P1-1 exploited: nine leaves on disk, one named in the floor.
+    unindexed = sorted(
+        n[len("source_manifest_"):-len(".json")]
+        for n in os.listdir(run_dir)
+        if n.startswith("source_manifest_") and n.endswith(".json")
+        and n[len("source_manifest_"):-len(".json")] not in agg["leaves"])
+    if unindexed:
+        raise ManifestError(
+            "abort: %d source manifest(s) in %s are not indexed by the "
+            "aggregate: %s\nA source set assembled from a subset of the leaves "
+            "that are present is a subset nobody declared."
+            % (len(unindexed), run_dir, unindexed))
+
     for dataset, rec in sorted(agg["leaves"].items()):
-        path = os.path.join(run_dir, rec["path"])
+        path = assert_single_path_component(
+            rec.get("path"), what="leaf path",
+            owner="the aggregate's index of %s" % dataset)
+        path = os.path.join(run_dir, path)
         if not os.path.isfile(path):
             raise ManifestError(
                 "abort: aggregate indexes leaf %s at %s, which is not present."
@@ -652,7 +911,15 @@ def verify_aggregate(run_dir: str) -> dict:
 
 
 def assert_ready(aggregate: dict) -> None:
-    """A run may not consume an incomplete source set."""
+    """A run may not consume an incomplete source set.
+
+    P1-1. `readiness` alone is what the aggregate SAYS ABOUT ITSELF, and an
+    aggregate assembled against a shrunken floor says READY truthfully about a
+    floor nobody authorised. So the floor is re-derived from the declared
+    purpose and compared, and the index is required to cover it exactly. Note
+    the order: a partial set of the RIGHT floor still reports NOT_READY first,
+    because that is the more informative failure.
+    """
     if aggregate["readiness"] != READY:
         raise ManifestError(
             "abort: source set is %s — missing %s.\n"
@@ -661,6 +928,26 @@ def assert_ready(aggregate: dict) -> None:
             "observation, it is an accident."
             % (aggregate["readiness"],
                ", ".join(aggregate.get("missing_datasets", [])) or "unknown"))
+
+    declared = tuple(sorted(aggregate.get("required_datasets") or ()))
+    indexed = tuple(sorted(aggregate.get("leaves") or {}))
+    if declared != indexed:
+        raise ManifestError(
+            "abort: the aggregate calls itself %s while requiring %s and "
+            "indexing %s. A READY that does not mean 'every required leaf is "
+            "here' means nothing." % (READY, list(declared), list(indexed)))
+
+    floor = normative_floor(aggregate.get("purpose"))
+    if declared != floor:
+        raise ManifestError(
+            "abort: a %s source set is exactly %s; this aggregate declares %s "
+            "(missing %s, extra %s).\n"
+            "The floor is derived from the PURPOSE and re-derived HERE rather "
+            "than read off the aggregate: a run that could record a shorter "
+            "requirement could omit a source and be told it was complete."
+            % (aggregate.get("purpose"), list(floor), list(declared),
+               sorted(set(floor) - set(declared)),
+               sorted(set(declared) - set(floor))))
 
 
 # --- shared plumbing -----------------------------------------------------------

@@ -565,3 +565,182 @@ def test_the_overlapping_month_is_decided_by_ownership_not_by_order(tmp_path):
     # the archive was read rather than merely declared.
     for stock_id in ("2838", "6020"):
         assert len(july[july["stock_id"] == stock_id]) == 1
+
+
+# --- P1-3 · a locator may not leave its landing directory -----------------------
+#
+# `_verified_path` did `os.path.join(landing, entry["locator"])` directly. A
+# locator of `..\outside.txt` therefore resolved OUTSIDE the landing directory
+# and the raw_sha256 check that follows did not notice — it hashes whatever file
+# was reached, so the manifest looked honest about a file its landing surface
+# never held.
+
+def _escape_fixture(tmp_path):
+    from core.b0_canonical_hash import file_sha256
+
+    root = str(tmp_path)
+    landing = os.path.join(root, "landing")
+    os.makedirs(landing)
+    outside = os.path.join(root, "outside.txt")
+    open(outside, "wb").write(b"bytes the manifest never declared\n")
+    inside = os.path.join(landing, "declared.txt")
+    open(inside, "wb").write(b"legitimate\n")
+    return landing, outside, inside, file_sha256
+
+
+@pytest.mark.parametrize("locator", [
+    r"..\outside.txt", "../outside.txt", "..", ".", "", "sub/outside.txt",
+])
+def test_NEGATIVE_a_locator_cannot_escape_the_landing_directory(
+        tmp_path, locator):
+    landing, outside, _, file_sha256 = _escape_fixture(tmp_path)
+    entry = {"locator": locator, "raw_sha256": file_sha256(outside),
+             "disposition": "consumed"}
+
+    with pytest.raises(R.ReaderError):
+        R._verified_path(landing, entry)
+
+
+def test_NEGATIVE_an_absolute_locator_is_refused(tmp_path):
+    """The hash MATCHES here — that is the point. Escaping is not caught by
+    checking bytes, because the bytes checked are the ones that were reached."""
+    landing, outside, _, file_sha256 = _escape_fixture(tmp_path)
+    entry = {"locator": outside, "raw_sha256": file_sha256(outside),
+             "disposition": "consumed"}
+
+    with pytest.raises(R.ReaderError, match="absolute"):
+        R._verified_path(landing, entry)
+
+
+def test_a_single_component_locator_inside_the_landing_still_reads(tmp_path):
+    """The guard must not cost the legitimate case."""
+    landing, _, inside, file_sha256 = _escape_fixture(tmp_path)
+    entry = {"locator": "declared.txt", "raw_sha256": file_sha256(inside),
+             "disposition": "consumed"}
+
+    assert R._verified_path(landing, entry) == inside
+
+
+def test_NEGATIVE_a_symlinked_source_is_refused(tmp_path):
+    """A link is an ADDRESS, not a source: the bytes behind it can be replaced
+    without the landing directory changing at all. Containment is therefore
+    decided after `realpath`, not on the joined string."""
+    landing, outside, _, file_sha256 = _escape_fixture(tmp_path)
+    link = os.path.join(landing, "innocent.txt")
+    try:
+        os.symlink(outside, link)
+    except (OSError, NotImplementedError, AttributeError) as exc:
+        pytest.skip("this account cannot create symlinks: %s" % exc)
+
+    entry = {"locator": "innocent.txt", "raw_sha256": file_sha256(outside),
+             "disposition": "consumed"}
+    with pytest.raises(R.ReaderError):
+        R._verified_path(landing, entry)
+
+
+# --- P1-2 · the reader boundary reconciles the landing surface ------------------
+#
+# `assert_landing_dir_matches` had NO caller anywhere in the tree: every reader
+# went from the leaf straight to a join, so at read time nothing compared the
+# leaf against the directory it names. A file that appeared after the leaf was
+# written was invisible — the silent inclusion `*.zip` was replaced to stop, one
+# layer later.
+
+def _enumerated_leaf(tmp_path, dataset="industry"):
+    """A leaf that ENUMERATED its surface: it names a file it does not consume,
+    which only a producer that ruled on every file can do."""
+    from core.b0_canonical_hash import file_sha256
+    from source_ownership_manifest import build_leaf
+
+    root = str(tmp_path)
+    landing = os.path.join(root, "landing")
+    run = os.path.join(root, "run")
+    os.makedirs(landing)
+    os.makedirs(run)
+    for name in ("used.xlsx", "spare.xlsx"):
+        open(os.path.join(landing, name), "wb").write(
+            ("bytes of %s\n" % name).encode())
+
+    def entry(name, disposition):
+        e = {"locator": name, "format": "xlsx",
+             "raw_sha256": file_sha256(os.path.join(landing, name)),
+             "export_vintage": "2026-08-06",
+             "observed_at": "2026-08-26T19:00:00+08:00",
+             "source_family": "TEJ", "authority": "AUTHORITATIVE",
+             "disposition": disposition}
+        if disposition == "not_consumed":
+            e["not_consumed_reason"] = "declared and deliberately unused"
+        return e
+
+    write_leaf(run, build_leaf(
+        dataset=dataset, run_id=RUN, as_of=AS_OF,
+        landing_directory=landing, accepted_extensions=(".xlsx",),
+        entries=[entry("used.xlsx", "consumed"),
+                 entry("spare.xlsx", "not_consumed")]))
+    return run, landing
+
+
+def test_the_reader_boundary_accepts_a_surface_that_still_agrees(tmp_path):
+    run, _ = _enumerated_leaf(tmp_path)
+    leaf, landing = R._leaf_and_landing(run, "industry")
+    assert {e["locator"] for e in leaf["entries"]} == {"used.xlsx", "spare.xlsx"}
+    assert len(R._landing_groups(leaf, landing)) == 1
+
+
+def test_NEGATIVE_a_file_that_joined_the_landing_directory_is_caught(tmp_path):
+    """The O-H defect one layer later: the leaf ruled on every file in this
+    directory, so one it never ruled on is a source nobody ruled on."""
+    run, landing = _enumerated_leaf(tmp_path)
+    open(os.path.join(landing, "arrived_later.xlsx"), "wb").write(b"unruled\n")
+
+    with pytest.raises(R.ReaderError, match="not declared by leaf"):
+        R._leaf_and_landing(run, "industry")
+
+
+def test_NEGATIVE_a_replaced_not_consumed_source_is_caught(tmp_path):
+    """A not_consumed entry is opened nowhere, so the landing reconciliation is
+    the only place its declaration is ever checked against the disk."""
+    run, landing = _enumerated_leaf(tmp_path)
+    open(os.path.join(landing, "spare.xlsx"), "wb").write(b"replaced in place\n")
+
+    with pytest.raises(R.ReaderError, match="changed between declaration"):
+        R._leaf_and_landing(run, "industry")
+
+
+def test_NEGATIVE_a_declared_source_that_disappeared_is_caught(tmp_path):
+    run, landing = _enumerated_leaf(tmp_path)
+    os.remove(os.path.join(landing, "spare.xlsx"))
+
+    with pytest.raises(R.ReaderError, match="not present"):
+        R._leaf_and_landing(run, "industry")
+
+
+@sources
+def test_every_family_still_passes_the_landing_reconciliation(tmp_path):
+    """The check must hold for all nine REAL declarations, not only a fixture.
+    Two shapes it deliberately tolerates and one it does not:
+
+        calendar   a SHARED cache root with five sibling subdirectories that
+                   belong to other consumers. The leaf does not carry
+                   `declared_subdirectories`, so subdirectories are skipped.
+        valuation  TWO board payloads named out of a per-session store holding
+                   hundreds of files — a NAMED SUBSET, not an enumeration, so
+                   the undeclared direction does not run for it.
+        prices     TWO landing groups (§2.8.3), reconciled separately.
+    """
+    run = str(tmp_path)
+    for ds in sorted(F.FLAT_FAMILIES):
+        write_leaf(run, F.build(ds, RUN, AS_OF))
+    for mod in (FIN, P, B, V):
+        write_leaf(run, mod.build(RUN, AS_OF))
+    write_leaf(run, CA.build(RUN, AS_OF, run_dir=run))
+
+    groups = {}
+    for ds in sorted(F.FLAT_FAMILIES) + ["financials", "prices",
+                                         "bonus_shares", "valuation",
+                                         "corporate_actions"]:
+        leaf, landing = R._leaf_and_landing(run, ds)      # must not raise
+        groups[ds] = len(R._landing_groups(leaf, landing))
+
+    assert groups["prices"] == 2                    # 2019+ and the pre-2019 leg
+    assert groups["calendar"] == 1

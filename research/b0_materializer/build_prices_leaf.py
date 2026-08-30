@@ -507,6 +507,95 @@ FROZEN_TRADING_CALENDAR = os.path.join("data", "b0", "trading_calendar.csv")
 ALLOWANCE_CONDITION_PANEL_CLIPS = (
     "PANEL_END_IS_STRICTLY_BEFORE_THE_ARCHIVES_FIRST_COVERED_SESSION")
 
+# --- WHOSE clip? ----------------------------------------------------------------
+#
+# ⚠ A CLIP-BASED ALLOWANCE IS A STATEMENT ABOUT A READER, NOT ABOUT AN ARCHIVE.
+#
+# The condition above WAS re-verified every build — against `panel_end_session()`,
+# which is the L2 composed panel's end and nothing else. The L2 panel is not the
+# only consumer of this leaf:
+#
+#   L2 composed price panel   `build_price_panel.panel_span()` ends at
+#                             `panel_end_session()` = the first session after the
+#                             FROZEN `window_end`, 2026-04-01. Derivable HERE,
+#                             from frozen inputs.
+#   L3 prospective route      `l3_assemble._assemble` calls
+#                             `l3_readers.read_prices(run_dir, SOURCE_DEPTH_PROBE,
+#                             price_span[1])`, and §19.2 fixes `price_span[1]` as
+#                             the period's EXECUTION session. That route never
+#                             inherits `window_end` at all.
+#
+# Measured for Month 1 (U-2: decision 2026-09-30, execution 2026-10-01): the L3
+# read end is 2026-10-01, so ALL 17,586 rows of 股價0817-0828.zip (1,954
+# securities x 9 sessions, 2026-08-18 .. 08-28) enter the decision input, while
+# the same archive contributes 0 rows to the L2 panel. Both are true at once —
+# and the allowance's stated reason was only ever checked against the second.
+# "The clip is checked, not assumed" was true of the CHECK and false of the
+# consumer at risk.
+#
+# This is not a Month-1 accident. `run_l3_prospective._assert_intent_claim_is_today`
+# forces a prospective decision date to be TODAY in Asia/Taipei and §19.2 puts the
+# read end at the execution session after it, so on the L3 route the read end is
+# bounded BELOW by the day the run happens. An archive of sessions that have
+# already occurred can therefore NEVER satisfy `read_end < covers[0]` there. The
+# clip condition is not merely false for L3 today; it is unsatisfiable on that
+# route, permanently.
+#
+# So an allowance is granted TO NAMED CONSUMERS. A consumer whose read end this
+# module cannot derive may not be named on a clip-based allowance at all —
+# "checked" would otherwise mean "checked against a value that was never
+# computed", which is the defect rather than a fix for it. The consumers an
+# allowance is NOT granted to are recorded by name and travel in the leaf, and
+# `run_l3_prospective` refuses to run a period whose declared source set names
+# this route among them.
+CONSUMER_L2_PANEL = "L2_COMPOSED_PRICE_PANEL"
+CONSUMER_L3_PROSPECTIVE = "L3_PROSPECTIVE_ROUTE"
+
+LEAF_CONSUMERS = {
+    CONSUMER_L2_PANEL: {
+        "reads_through": "build_price_panel.panel_span()[1]",
+        "read_end_derivation": "FIRST_SESSION_AFTER_THE_FROZEN_WINDOW_END",
+        "read_end_is_derivable_here": True,
+        "derived_by": "build_prices_leaf.panel_end_session",
+    },
+    CONSUMER_L3_PROSPECTIVE: {
+        "reads_through":
+            "l3_readers.read_prices(run_dir, SOURCE_DEPTH_PROBE, price_span[1])",
+        "read_end_derivation": "EXECUTION_SESSION_OF_THE_DECISION_PERIOD",
+        "read_end_is_derivable_here": False,
+        "derived_by": "core.b0_l3_price_span.price_span, once per run",
+        "why_not_derivable_here": (
+            "the endpoint is the period's execution session (§19.2), which "
+            "belongs to a run this module knows nothing about. It is bounded "
+            "BELOW by that run's own decision date — a prospective intent may be "
+            "claimed only on today's Asia/Taipei date — so on this route "
+            "`read_end < covers[0]` is unsatisfiable for any archive of sessions "
+            "that have already happened, not merely false today. A consumer like "
+            "this is refused at ITS OWN gate; it is never allowed here."),
+    },
+}
+
+CONSUMER_SCOPED_ALLOWANCE_RULE = {
+    "rule": "AN_ALLOWANCE_IS_GRANTED_TO_NAMED_CONSUMERS_NEVER_TO_THE_LEAF",
+    "why": (
+        "the one allowance condition is a predicate over a READER's end, and "
+        "this leaf has consumers that stop in different places. Verified "
+        "against one and relied on by another, an allowance records 'checked' "
+        "about a consumer that was never checked — measured: the L2 panel takes "
+        "0 rows from 股價0817-0828.zip while the L3 prospective route takes all "
+        "17,586 of them for Month 1."),
+    "hard_aborts": [
+        "an allowance naming no consumer",
+        "an allowance naming a consumer outside LEAF_CONSUMERS",
+        "an allowance naming a consumer whose read end is not derivable here",
+        "an allowance that neither grants nor explains a declared consumer",
+    ],
+    "consumers": sorted(LEAF_CONSUMERS),
+    "denied_consumers_are_gated_by": (
+        "the consumer itself. This module publishes the refusal; the L3 route "
+        "enforces it in run_l3_prospective.assert_declared_sources_admit_this_route."),
+}
+
 DIVERGENCE_NOT_IN_CONTRACT = "NOT_NAMED_BY_THE_SEALED_CONTRACT"
 DIVERGENCE_BEYOND_DATE_MAX = "COVERAGE_ENDS_AFTER_THE_CONTRACT_DATE_MAX"
 
@@ -530,6 +619,27 @@ ARCHIVE_BEYOND_SEALED_CONTRACT_ALLOWANCES = {
      "2646356f406a585c53954430eb5ad2967ddebc5c20ef12ea51f4333009d63549"): {
         "sealed_contract_name": "b0_price_universe_20260817",
         "condition": ALLOWANCE_CONDITION_PANEL_CLIPS,
+        # WHO this is granted to. The clip is a fact about the L2 panel's end,
+        # so it is granted to the L2 panel and to nothing else. The L3 route is
+        # refused BY NAME below rather than inheriting a permission earned by a
+        # reader that stops four months earlier.
+        "granted_to_consumers": (CONSUMER_L2_PANEL,),
+        "not_granted_to_consumers_because": {
+            CONSUMER_L3_PROSPECTIVE: (
+                "the L3 route reads [lineage_price_floor, execution_session] and "
+                "never inherits `window_end`. For Month 1 (U-2: decision "
+                "2026-09-30, execution 2026-10-01) it reads through 2026-10-01 "
+                "and therefore takes all 17,586 rows of this archive — the "
+                "clip that the allowance rests on does not exist on that route, "
+                "and cannot: §19.2's endpoint is bounded below by the run's own "
+                "decision date. The archive is ROSTER_SNAPSHOT_DERIVED, so a "
+                "decision taken over it stands on rows whose survivorship "
+                "properties are outside what D-1 verified and B-21 sealed. "
+                "Resolving that means recomposing the corpus and re-registering "
+                "the contract under data/b0/, which R-W1-1 freezes — so the L3 "
+                "route ABORTS on this archive (§7, A-8) instead of reading it "
+                "under an allowance earned by a different reader."),
+        },
         "granted_because": (
             "the archive covers 2026-08-18 .. 2026-08-28 and the sealed "
             "contract stops at 2026-08-17, so it is declared and read while "
@@ -571,9 +681,13 @@ SEALED_SOURCE_RECONCILIATION_RULE = {
         "an allowance whose stated condition no longer holds",
         "an allowance for this fingerprint that no longer describes a "
         "divergence — a spent allowance is removed, not left lying about",
+        "an allowance that does not name the consumers it is granted to, names "
+        "one outside the closed set, names one whose read end is not derivable "
+        "here, or leaves a declared consumer unaddressed",
     ],
     "allowance_conditions": [ALLOWANCE_CONDITION_PANEL_CLIPS],
     "allowance_key": "(archive locator, sealed contract content_sha256)",
+    "allowance_scope": CONSUMER_SCOPED_ALLOWANCE_RULE["rule"],
 }
 
 
@@ -621,30 +735,87 @@ def sealed_contract_payload(path: str = "") -> dict:
         return json.load(fh)
 
 
-def _check_panel_clips(*, locator, covers, panel_end, date_max):
-    """The one allowance condition, checked — never assumed."""
+def _check_clip_holds_for_consumer(*, locator, covers, consumer, read_end,
+                                   date_max):
+    """The one allowance condition, checked — for ONE NAMED CONSUMER.
+
+    The predicate is `read_end < covers[0]`, and `read_end` belongs to a reader.
+    It is therefore taken from the consumer the allowance names, never from
+    "the" panel end: the same archive is clipped away by one consumer of this
+    leaf and read in full by another, so a clip verified without a consumer is
+    a clip verified for whichever reader happened to be in the author's mind.
+    """
     checks = {
-        "panel_end": panel_end,
+        "consumer": consumer,
+        "read_end": read_end,
+        "read_end_derivation": LEAF_CONSUMERS[consumer]["read_end_derivation"],
         "archive_first_covered_session": covers[0],
         "contract_date_max": date_max,
-        "panel_end_before_archive_start": panel_end < covers[0],
-        "panel_end_within_contract_date_max": panel_end <= date_max,
+        "read_end_before_archive_start": read_end < covers[0],
+        "read_end_within_contract_date_max": read_end <= date_max,
     }
-    if not checks["panel_end_before_archive_start"]:
+    if not checks["read_end_before_archive_start"]:
         raise ManifestError(
-            "abort: the allowance for %s states that the panel clips it away, "
-            "and that is no longer true: the panel end is %s, which is NOT "
-            "before the archive's first covered session %s. The panel would "
-            "carry rows the sealed contract (date_max %s) does not describe. "
-            "This is the future edit the allowance was written to catch — "
-            "re-register the price source or withdraw the archive; do not widen "
-            "the allowance." % (locator, panel_end, covers[0], date_max))
-    if not checks["panel_end_within_contract_date_max"]:
+            "abort: the allowance for %s states that %s clips it away, and that "
+            "is no longer true: that consumer's read end is %s, which is NOT "
+            "before the archive's first covered session %s. It would carry rows "
+            "the sealed contract (date_max %s) does not describe. This is the "
+            "future edit the allowance was written to catch — re-register the "
+            "price source or withdraw the archive; do not widen the allowance."
+            % (locator, consumer, read_end, covers[0], date_max))
+    if not checks["read_end_within_contract_date_max"]:
         raise ManifestError(
-            "abort: the panel end %s is after the sealed contract's date_max "
-            "%s, so the composed panel reaches past what D-1 verified and B-21 "
-            "sealed, whatever %s contributes." % (panel_end, date_max, locator))
+            "abort: %s reads through %s, which is after the sealed contract's "
+            "date_max %s, so it reaches past what D-1 verified and B-21 sealed, "
+            "whatever %s contributes." % (consumer, read_end, date_max, locator))
     return checks
+
+
+def _allowance_consumers(locator: str, allowance: dict) -> tuple:
+    """The consumers an allowance is granted to. Closed, checked, exhaustive."""
+    raw = allowance.get("granted_to_consumers")
+    if not isinstance(raw, (list, tuple)) or not raw:
+        raise ManifestError(
+            "abort: the allowance for %s names no consumer. Its condition (%s) "
+            "is a predicate over a READER's end, and this leaf has %d readers "
+            "(%s) that stop in different places. A leaf-wide allowance is the "
+            "S-8 defect one level in: checked against one consumer and relied "
+            "on by another."
+            % (locator, ALLOWANCE_CONDITION_PANEL_CLIPS, len(LEAF_CONSUMERS),
+               sorted(LEAF_CONSUMERS)))
+    consumers = {str(c) for c in raw}
+    unknown = sorted(consumers - set(LEAF_CONSUMERS))
+    if unknown:
+        raise ManifestError(
+            "abort: the allowance for %s is granted to %s, which %s not in the "
+            "declared consumer set %s. A consumer this module cannot describe "
+            "is a consumer whose read end it cannot check."
+            % (locator, unknown, "is" if len(unknown) == 1 else "are",
+               sorted(LEAF_CONSUMERS)))
+    undecidable = sorted(c for c in consumers
+                         if not LEAF_CONSUMERS[c]["read_end_is_derivable_here"])
+    if undecidable:
+        raise ManifestError(
+            "abort: the allowance for %s is granted to %s, whose read end is "
+            "NOT derivable in this module.\n%s\nThe condition %s is verified as "
+            "`read_end < covers[0]`, so granting it to such a consumer would "
+            "record 'checked' beside a value that was never computed — which is "
+            "the defect this scope exists to remove, not a fix for it. A "
+            "consumer like that is refused at its own gate."
+            % (locator, undecidable,
+               "\n".join("  %s: %s" % (c, LEAF_CONSUMERS[c].get(
+                   "why_not_derivable_here", "")) for c in undecidable),
+               ALLOWANCE_CONDITION_PANEL_CLIPS))
+    explained = set(allowance.get("not_granted_to_consumers_because") or {})
+    unaddressed = sorted(set(LEAF_CONSUMERS) - consumers - explained)
+    if unaddressed:
+        raise ManifestError(
+            "abort: the allowance for %s neither grants nor explains %s. Every "
+            "declared consumer must be named on one side, so that a consumer "
+            "added to this module forces every standing allowance to be "
+            "re-adjudicated instead of inheriting a silence."
+            % (locator, unaddressed))
+    return tuple(sorted(consumers))
 
 
 def reconcile_declarations_with_sealed_contract(
@@ -679,6 +850,20 @@ def reconcile_declarations_with_sealed_contract(
 
     panel_end = str(panel_end).strip() or panel_end_session()
     _iso_day(panel_end, "the panel end")
+    # The read end of every consumer this module can derive one for. A consumer
+    # absent from this map cannot hold a clip-based allowance, and
+    # `_allowance_consumers` refuses to name it rather than defaulting it.
+    read_ends = {CONSUMER_L2_PANEL: panel_end}
+    underivable = sorted(c for c, d in LEAF_CONSUMERS.items()
+                         if d["read_end_is_derivable_here"] and c not in read_ends)
+    if underivable:
+        raise ManifestError(
+            "abort: %s %s declared read_end_is_derivable_here but this "
+            "reconciliation produces no read end for %s. A consumer that claims "
+            "a derivable end and is then not derived would be silently skipped "
+            "on every allowance." % (underivable,
+                                     "is" if len(underivable) == 1 else "are",
+                                     "it" if len(underivable) == 1 else "them"))
 
     absent = sorted(n for n in named if n not in declarations)
     if absent:
@@ -743,11 +928,21 @@ def reconcile_declarations_with_sealed_contract(
                 "not one of %s. An allowance is granted by a condition this "
                 "module CHECKS, never by a reason written in prose."
                 % (locator, condition, [ALLOWANCE_CONDITION_PANEL_CLIPS]))
+        consumers = _allowance_consumers(locator, allowance)
         granted[locator] = {
             "condition": condition,
-            "checked": _check_panel_clips(
-                locator=locator, covers=covers, panel_end=panel_end,
-                date_max=date_max),
+            "granted_to_consumers": list(consumers),
+            "denied_to_consumers": [c for c in sorted(LEAF_CONSUMERS)
+                                    if c not in consumers],
+            # One checked record PER GRANTED CONSUMER, against that consumer's
+            # own read end. There is no consumer-free "checked".
+            "checked": {
+                consumer: _check_clip_holds_for_consumer(
+                    locator=locator, covers=covers, consumer=consumer,
+                    read_end=read_ends[consumer], date_max=date_max)
+                for consumer in consumers},
+            "not_granted_to_consumers_because": dict(
+                allowance.get("not_granted_to_consumers_because") or {}),
             "reasons": divergences[locator]["reasons"],
             "covers": covers,
             "granted_because": allowance.get("granted_because", ""),
@@ -768,8 +963,21 @@ def reconcile_declarations_with_sealed_contract(
             "but no longer describe a divergence. A spent allowance is removed, "
             "not left standing." % (spent, fingerprint[:16]))
 
+    # The refusal list, published PER CONSUMER and covering every declared
+    # consumer, including the ones with nothing refused. A consumer looks itself
+    # up by name: absent from this map is not "nothing refused", it is "this
+    # leaf does not know you", and the consumer's own gate treats that as an
+    # abort rather than as permission.
+    denied_by_consumer = {c: [] for c in sorted(LEAF_CONSUMERS)}
+    for locator in sorted(granted):
+        for consumer in granted[locator]["denied_to_consumers"]:
+            denied_by_consumer[consumer].append(locator)
+
     return {
         "rule": SEALED_SOURCE_RECONCILIATION_RULE["rule"],
+        "consumer_scope_rule": CONSUMER_SCOPED_ALLOWANCE_RULE,
+        "leaf_consumers": sorted(LEAF_CONSUMERS),
+        "archives_denied_to_consumer": denied_by_consumer,
         "sealed_contract_name": name,
         "sealed_contract_content_sha256": fingerprint,
         "sealed_contract_date_max": date_max,

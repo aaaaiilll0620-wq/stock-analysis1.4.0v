@@ -154,6 +154,95 @@ def test_a_prices_leaf_without_the_pre_2019_leg_is_refused(tmp_path):
         A.assert_both_price_legs_are_declared(str(tmp_path))
 
 
+@sources
+def test_a_prices_leaf_without_the_2019_leg_is_refused(run_dir, tmp_path):
+    """The OTHER half of the same absence, which used to have no name.
+
+    Reproduced on a leaf carrying the cache leg alone: this guard returned
+    `{'pre-2019': 1}` without a word and `read_prices` then died at
+    `l3_readers.py:421` with `ValueError: No objects to concatenate`, because
+    the archive leg is built from `frames[1:]`. Same class of absence as the
+    pre-2019 case, and the only difference in what an operator was told.
+    """
+    from source_ownership_manifest import LEAF_FILENAME, load_leaf
+
+    leaf = load_leaf(os.path.join(run_dir, LEAF_FILENAME % "prices"))
+    write_leaf(str(tmp_path), {**leaf,
+                               "entries": [e for e in leaf["entries"]
+                                           if e.get("leg") == "pre-2019"]})
+    with pytest.raises(A.AssemblyError, match=r"no 2019\+ leg"):
+        A.assert_both_price_legs_are_declared(str(tmp_path))
+
+
+@sources
+def test_an_unlabelled_entry_declares_neither_leg(run_dir, tmp_path):
+    """`read_prices` sends every entry that is not labelled `pre-2019` down the
+    2019+ archive path, so an unlabelled entry would be READ as the later half
+    while declaring neither. The leg is the declaration, not the dispatch."""
+    from source_ownership_manifest import LEAF_FILENAME, load_leaf
+
+    leaf = load_leaf(os.path.join(run_dir, LEAF_FILENAME % "prices"))
+    entries = [e for e in leaf["entries"] if e.get("leg") == "pre-2019"]
+    entries += [dict(e, leg=None) for e in leaf["entries"]
+                if e.get("leg") == "2019+"]
+    write_leaf(str(tmp_path), {**leaf, "entries": entries})
+    with pytest.raises(A.AssemblyError, match=r"unlabelled"):
+        A.assert_both_price_legs_are_declared(str(tmp_path))
+
+
+@sources
+def test_a_two_member_archive_is_refused_at_both_ends(run_dir, tmp_path,
+                                                      monkeypatch):
+    """P1-6. The producer and the reader must disagree with the CORPUS, not
+    with each other.
+
+    Measured before the fix, on this one fixture: `build_price_panel.zip_leg`
+    returned 1 row carrying only 1101 and dropped 9999's row in silence, while
+    `read_prices` aborted on the identical archive. A corpus that violates the
+    one-member contract now fails loud at both ends.
+    """
+    import hashlib
+    import zipfile
+
+    import build_price_panel as BP
+    import l3_readers as R
+    from source_ownership_manifest import LEAF_FILENAME, load_leaf
+
+    header = "\t".join(("證券代碼", "年月日", "開盤價(元)", "收盤價(元)",
+                        "成交量(千股)"))
+
+    def member(row):
+        return ("\n".join([header, "\t".join(row)]) + "\n").encode("utf-16")
+
+    path = os.path.join(str(tmp_path), "two_member.zip")
+    with zipfile.ZipFile(path, "w") as z:
+        z.writestr("a.csv", member(("1101 台泥", "20190102", "10", "11", "5")))
+        z.writestr("b.csv", member(("9999 乙", "20190103", "20", "21", "7")))
+    raw = hashlib.sha256(open(path, "rb").read()).hexdigest()
+
+    assert BP.ARCHIVE_MEMBERS_EXPECTED == 1
+    monkeypatch.setattr(BP, "declared_zip_inventory",
+                        lambda zip_dir="": ([path], {"two_member.zip": raw}))
+    with pytest.raises(SystemExit, match="holds 2 member"):
+        BP.zip_leg("2019-01-01", "2019-12-31")
+
+    with zipfile.ZipFile(path) as zf:
+        members = [{"name": i.filename, "size": int(i.file_size),
+                    "crc32": "%08x" % i.CRC}
+                   for i in sorted(zf.infolist(), key=lambda i: i.filename)]
+
+    leaf = load_leaf(os.path.join(run_dir, LEAF_FILENAME % "prices"))
+    template = next(e for e in leaf["entries"] if e.get("leg") == "2019+")
+    entry = dict(template, locator="two_member.zip", raw_sha256=raw,
+                 landing_directory=str(tmp_path),
+                 covers=["2019-01-02", "2019-01-03"], members=members)
+    entry.pop("covers_verified", None)
+    entries = [e for e in leaf["entries"] if e.get("leg") == "pre-2019"][:1]
+    write_leaf(str(tmp_path), {**leaf, "entries": entries + [entry]})
+    with pytest.raises(R.ReaderError, match="expects exactly one CSV"):
+        R.read_prices(str(tmp_path), "0001-01-01", "2026-03-31")
+
+
 def test_the_two_legs_disagree_about_what_a_volume_number_means():
     """Applying either convention to the other does not raise — it moves every
     security 1000x across §4.2's absolute NTD liquidity floor."""
@@ -172,6 +261,18 @@ def test_the_quarantined_era_is_a_date_not_a_file():
     declared cannot express the restriction."""
     assert P.QUARANTINED_ERA_POLICY["boundary"] == "2019-01-01"
     assert P.QUARANTINED_ERA_POLICY["applies_to_leg"] == "pre-2019"
+
+
+def test_a_calendar_that_parsed_to_nothing_aborts_by_name(tmp_path, monkeypatch):
+    """The price legs' asymmetry, one family over: the status table named its
+    own emptiness and the calendar did not. `SourceContract` is handed
+    `date_min=sessions[0]`, so an empty calendar leaf arrived as
+    `IndexError: tuple index out of range` from a dataclass constructor —
+    naming neither the family nor the run."""
+    monkeypatch.setattr(A, "read_calendar", lambda run_dir: ())
+    with pytest.raises(A.AssemblyError, match="yielded no sessions"):
+        A.build_production_sources({"period": {"as_of": AS_OF}, "rows": []},
+                                   str(tmp_path), attestation=None)
 
 
 # --- definition B ---------------------------------------------------------------
