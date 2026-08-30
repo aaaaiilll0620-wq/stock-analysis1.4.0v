@@ -243,3 +243,190 @@ def test_an_undeclared_archive_in_the_directory_would_be_caught(tmp_path):
     # not_consumed WITH a reason — never silently swept into the panel.
     assert rogue[0]["disposition"] == "not_consumed"
     assert rogue[0]["not_consumed_reason"]
+
+
+# --- the 2026-08 slice: declared, and declared LIMITED --------------------------
+#
+# 股價0817-0828.zip is admissible as prices and inadmissible as evidence of
+# coverage, and nothing in its bytes says so. Both halves are pinned here.
+
+def test_the_filename_is_not_the_span():
+    """The archive is named 0817-0828 and does not contain 2026-08-17 at all.
+    `covers` is measured (17,586 rows over 9 sessions, 2026-08-18 .. 08-28), so
+    a reader who trusts the name is contradicted by the declaration rather than
+    by a surprise further downstream."""
+    d = P.CONSUMED_ARCHIVE_DECLARATIONS["股價0817-0828.zip"]
+    assert tuple(d["covers"]) == ("2026-08-18", "2026-08-28")
+    assert d["leg"] == "2019+"
+
+
+def test_the_roster_snapshot_limitation_is_a_named_declared_property():
+    """A current-roster query cannot contain anything that left the exchange
+    before it ran, at any session count. Same eleven columns, same real prices,
+    a different fact — and the difference never raises."""
+    lim = P.ROSTER_SNAPSHOT_LIMITATION
+    assert lim["property"] == (
+        "ROSTER_SNAPSHOT_DERIVED_DOES_NOT_EVIDENCE_DELISTED_COVERAGE")
+    assert lim["roster_basis"] == P.ROSTER_BASIS_CURRENT_SNAPSHOT
+    assert "1,954" in lim["measured"]
+    assert "1589" in lim["corroboration"]          # padded, not omitted
+    assert "includes_delisted" in lim["inadmissible_as"]
+    assert "2019-2025" in lim["does_not_change_includes_delisted"]
+
+
+def test_the_family_policy_names_which_archives_may_not_be_cited():
+    """Derived from the declarations, so the family-level statement cannot drift
+    from the per-archive one. It does NOT restate the D1-6 verdict: whether the
+    COMPOSED corpus includes delisted securities is decided by
+    `assert_price_source_admissible`, never by one archive's entry."""
+    pol = P.DELISTED_COVERAGE_POLICY
+    assert pol["may_not_be_cited_toward_includes_delisted"] == [
+        "股價0817-0828.zip"]
+    assert pol["roster_basis_by_archive"]["股價2023-20260817.zip"] == (
+        P.ROSTER_BASIS_BULK_HISTORICAL)
+    assert pol["d1_6_gate_owner"].endswith("assert_price_source_admissible")
+    assert set(pol["declared_limitations"]) == {"股價0817-0828.zip"}
+
+
+@live
+def test_the_limitation_travels_on_the_entry_and_in_the_leaf():
+    """A future reader must see 'roster-snapshot-derived' without re-deriving it
+    from the row counts, so it rides the entry AND the family's policies."""
+    leaf = P.build(RUN, AS_OF)
+    by = {e["locator"]: e for e in leaf["entries"]}
+    e = by["股價0817-0828.zip"]
+    assert e["disposition"] == "consumed" and e["leg"] == "2019+"
+    assert e["roster_basis"] == P.ROSTER_BASIS_CURRENT_SNAPSHOT
+    assert e["covers"] == ["2026-08-18", "2026-08-28"]
+    assert e["declared_properties"]["delisted_coverage"]["property"] == (
+        "ROSTER_SNAPSHOT_DERIVED_DOES_NOT_EVIDENCE_DELISTED_COVERAGE")
+    assert by["股價2023-20260817.zip"]["roster_basis"] == (
+        P.ROSTER_BASIS_BULK_HISTORICAL)
+    assert leaf["policies"]["delisted_coverage"][
+        "may_not_be_cited_toward_includes_delisted"] == ["股價0817-0828.zip"]
+
+
+# --- export_vintage is read off the file, not chosen by a branch ----------------
+
+def test_a_zip_vintage_comes_from_its_own_member_timestamps(tmp_path):
+    """The old stamp was `"2026-08-18" if consumed else "2026-08-06"` — a
+    coincidence encoded as a rule. 股價0817-0828.zip was packed 2026-08-30 and
+    would have inherited 2026-08-18 the moment it became consumed: a date 12
+    days before the file existed, with nothing to raise about it."""
+    p = os.path.join(str(tmp_path), "z.zip")
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr(zipfile.ZipInfo("early.csv", (2026, 8, 18, 3, 37, 4)), "a\n")
+        z.writestr(zipfile.ZipInfo("late.csv", (2026, 8, 30, 3, 31, 22)), "b\n")
+    assert P.export_vintage(p, "zip", "0" * 64) == "2026-08-30"
+
+
+def test_a_workbook_with_no_recorded_vintage_is_refused():
+    """The `else` branch was a guess too — 23 of the 24 workbooks were exported
+    2026-07-14/15, not 2026-08-06. A workbook whose bytes the capture manifest
+    does not know now aborts BY NAME rather than taking a default."""
+    with pytest.raises(ManifestError, match="not recorded"):
+        P.export_vintage("nowhere/新增.xlsx", "xlsx", "f" * 64)
+
+
+@live
+def test_every_archive_carries_its_own_vintage():
+    leaf = P.build(RUN, AS_OF)
+    by = {e["locator"]: e["export_vintage"] for e in leaf["entries"]
+          if e.get("leg") != "pre-2019"}
+    assert by["股價0817-0828.zip"] == "2026-08-30"        # not 2026-08-18
+    assert by["股價2023-20260817.zip"] == "2026-08-18"
+    assert by["股價 2019-2022.zip"] == "2026-08-18"
+    assert by["2004DataExport.xlsx"] == "2026-07-15"      # not 2026-08-06
+    assert by["2019DataExport.xlsx"] == "2026-07-14"
+    assert by["個股股價、本益比20260715-0806.xlsx"] == "2026-08-06"
+    # The ternary could produce exactly two distinct values over the directory.
+    assert len(set(by.values())) > 2
+
+
+@live
+def test_a_declared_archive_is_declared_by_its_bytes(tmp_path):
+    """Same name, different bytes is a different source. A name-only inventory
+    waves the swap through; the hash names it."""
+    import shutil
+
+    staged = os.path.join(str(tmp_path), "landing")
+    shutil.copytree(LANDING, staged)
+    with zipfile.ZipFile(os.path.join(staged, "股價0817-0828.zip"), "w") as z:
+        z.writestr("20260830033123.csv", "not the real export\n")
+    with pytest.raises(ManifestError, match="hashes to"):
+        P.build(RUN, AS_OF, landing_dir=staged)
+
+
+# --- the panel's count guard is now an inventory --------------------------------
+
+def _panel():
+    import build_price_panel
+
+    return build_price_panel
+
+
+def _declared_dir(tmp, names):
+    B = _panel()
+    decl = {}
+    for i, name in enumerate(names):
+        p = os.path.join(tmp, name)
+        with zipfile.ZipFile(p, "w") as z:
+            z.writestr("m.csv", "row%d\n" % i)
+        decl[name] = {"leg": "2019+", "raw_sha256": B._file_sha(p),
+                      "covers": ("2019-01-02", "2026-08-28"),
+                      "roster_basis": P.ROSTER_BASIS_BULK_HISTORICAL}
+    return B, decl
+
+
+def test_three_declared_archives_pass_where_a_count_guard_refused_them(
+        tmp_path, monkeypatch):
+    """`len(zips) != 2` admitted ANY two zips and refused the right three. An
+    inventory passes a declared archive at any count."""
+    B, decl = _declared_dir(str(tmp_path), ("a.zip", "b.zip", "c.zip"))
+    monkeypatch.setattr(B, "CONSUMED_ARCHIVE_DECLARATIONS", decl)
+    paths, upstream = B.declared_zip_inventory(str(tmp_path))
+    assert len(paths) == 3
+    assert set(upstream) == set(decl)
+
+
+def test_an_undeclared_archive_aborts_the_panel_by_name(tmp_path, monkeypatch):
+    """The failure a bare count cannot see: a stray file that keeps the total
+    plausible. It is named, not counted."""
+    B, decl = _declared_dir(str(tmp_path), ("a.zip", "b.zip", "c.zip"))
+    monkeypatch.setattr(B, "CONSUMED_ARCHIVE_DECLARATIONS", decl)
+    with zipfile.ZipFile(os.path.join(str(tmp_path), "股價_extra.zip"), "w") as z:
+        z.writestr("rogue.csv", "x\n")
+    with pytest.raises(SystemExit, match="股價_extra"):
+        B.declared_zip_inventory(str(tmp_path))
+
+
+def test_a_declared_archive_that_is_absent_aborts_by_name(tmp_path, monkeypatch):
+    """Fail-closed in the other direction too: a declared source that is not
+    there is a silent skip, not a shorter panel."""
+    B, decl = _declared_dir(str(tmp_path), ("a.zip", "b.zip"))
+    decl["c.zip"] = {"leg": "2019+", "raw_sha256": "0" * 64,
+                     "covers": ("2019-01-02", "2026-08-28"),
+                     "roster_basis": P.ROSTER_BASIS_BULK_HISTORICAL}
+    monkeypatch.setattr(B, "CONSUMED_ARCHIVE_DECLARATIONS", decl)
+    with pytest.raises(SystemExit, match="absent"):
+        B.declared_zip_inventory(str(tmp_path))
+
+
+def test_a_declared_archive_whose_bytes_changed_aborts(tmp_path, monkeypatch):
+    B, decl = _declared_dir(str(tmp_path), ("a.zip", "b.zip"))
+    monkeypatch.setattr(B, "CONSUMED_ARCHIVE_DECLARATIONS", decl)
+    with zipfile.ZipFile(os.path.join(str(tmp_path), "b.zip"), "w") as z:
+        z.writestr("m.csv", "swapped\n")
+    with pytest.raises(SystemExit,
+                       match="different bytes is a different source"):
+        B.declared_zip_inventory(str(tmp_path))
+
+
+@live
+def test_the_real_directory_holds_exactly_the_declared_archives():
+    B = _panel()
+    paths, upstream = B.declared_zip_inventory()
+    assert sorted(os.path.basename(p) for p in paths) == sorted(
+        P.CONSUMED_ARCHIVE_DECLARATIONS)
+    assert upstream["股價0817-0828.zip"] == P.CONSUMED_ARCHIVE_DECLARATIONS[
+        "股價0817-0828.zip"]["raw_sha256"]

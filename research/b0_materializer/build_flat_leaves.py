@@ -15,7 +15,11 @@ be established does not get a guessed one — see `corporate_actions`.
 ⚠ W1 measured that all six of these builders enumerate with a glob today, so
 each is an O-H instance waiting to happen:
 
-    build_monthly_revenue_pit.py:70   CORPUS/*.xlsx
+    build_monthly_revenue_pit.py:70   CORPUS/*.xlsx   ← CLOSED 2026-08-30. It
+                                      fired: 月營收7月完整.zip matched nothing
+                                      and raised nothing. That builder now
+                                      enumerates and classifies against this
+                                      module's own revenue declaration.
     build_price_panel.py:159          OLD_CACHE/*.parquet
     build_bonus_share_panel.py:81     RAW/<pattern>
     build_market_state.py:117         SUSP_DIR/暫停交易*.zip
@@ -43,16 +47,71 @@ _TEJ = os.path.join("tej_exports", "DataExport0806")
 
 # `consumed` is a tuple of exact filenames — never a pattern. A pattern is how a
 # file joins the panel without anyone deciding that it should.
+#
+# `declarations` is optional and keyed by one of those exact filenames. It
+# carries the per-file source semantics the engine cannot derive from a
+# directory listing — a `format` that the extension understates, and the
+# `owns`/`yields` period algebra — in the same shape
+# `build_financials_leaf.DECLARATION` uses. A family whose sources address
+# their members some other way (an archive inventory, a payload key) declares
+# none, and `assert_no_overlapping_ownership` then has nothing to check.
 FLAT_FAMILIES: dict = {
     "revenue": {
         "landing": os.path.join(_TEJ, "月營收2004-202608"),
-        "extensions": (".xlsx",),
-        "consumed": ("20260806091706.xlsx",),
+        "extensions": (".xlsx", ".zip"),
+        "consumed": ("20260806091706.xlsx", "月營收7月完整.zip"),
+        # A MIXED-FORMAT source with a contested period, declared the way
+        # `build_financials_leaf.DECLARATION` declares its own:
+        # `20260806090633.xlsx` owns `<= 202603` and YIELDS 202606 to
+        # `2026 0826 2385家.csv` (declared `"format": "csv:utf-16:tab"`), which
+        # OWNS it. Same shape here, for the same reason.
+        #
+        # Measured 2026-08-30, so a later reader need not re-derive it:
+        #
+        #   20260806091706.xlsx  478,127 rows, 271 months 200401..202607.
+        #                        Its 202607 is PARTIAL — 406 securities, all
+        #                        announced 2026-08-01..2026-08-06, i.e. only
+        #                        what had been published when it was exported.
+        #   月營收7月完整.zip     one member 20260830033323.csv, 2,002 rows,
+        #                        exactly ONE month (202607), announced
+        #                        2026-08-01..2026-08-17.
+        #
+        #   On 202607 the archive is a STRICT SUPERSET: only-xlsx = 0,
+        #   only-zip = 1,596, shared = 406. On those 406 the two disagree on 3
+        #   revenue values — 2838 and 6020 are "." (not yet published) in the
+        #   workbook and carry real figures in the archive, and 3003 was
+        #   REVISED 658,000 -> 657,875 千元. The later export carries the
+        #   finalised month, so it OWNS 202607 and the workbook YIELDS it.
+        #
+        # ⚠ The two `owns` clauses must stay DISJOINT: `assert_no_overlapping_
+        # ownership` checks them against each other at build_leaf time, and
+        # `build_monthly_revenue_pit` enforces them row-by-row against the
+        # bytes, so neither month has two claimants.
+        "declarations": {
+            "20260806091706.xlsx": {
+                "owns": "<= 202606",
+                "yields": ["202607"],
+            },
+            "月營收7月完整.zip": {
+                # A zip by container, a UTF-16LE tab-separated csv by content:
+                # BOM ff fe, zero commas, 9 tabs in the header row, CRLF. The
+                # `csv:utf-16:tab` half is the financials idiom; the `zip:`
+                # prefix is what keeps `_assert_archive_inventory` demanding a
+                # member inventory for it.
+                "format": "zip:csv:utf-16:tab",
+                "owns": ["202607"],
+                "yields": [],
+            },
+        },
         "not_consumed_reason": "not the declared monthly-revenue export",
         "notes": (
-            "exported 2026-08-06, so it does NOT contain July 2026 revenue "
-            "(announced ~08-10). An L3 decision at an as_of after that date "
-            "needs a newer export, and this leaf is where that shows up."),
+            "20260806091706.xlsx was exported 2026-08-06, so its July 2026 "
+            "month is PARTIAL — 406 of 2,002 securities, only those that had "
+            "announced by then. 月營收7月完整.zip is the completed 202607 "
+            "export: it OWNS that month, the workbook YIELDS it and owns "
+            "<= 202606. An L3 decision at an as_of after ~08-10 that read only "
+            "the workbook would see a July that is 80% absent and looks "
+            "complete."),
     },
     "industry": {
         "landing": os.path.join(_TEJ, "產業類別"),
@@ -234,6 +293,31 @@ def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "",
             "%s. A declared source that disappears must be noticed."
             % (dataset, missing, landing))
 
+    # Per-file source semantics, if the family declares any. A declaration for
+    # a file the family does not consume is a decision aimed at nothing — it
+    # would sit in the spec looking authoritative while the engine ignored it,
+    # so it is refused rather than dropped.
+    declarations = dict(spec.get("declarations", {}))
+    aimless = [n for n in sorted(declarations) if n not in spec["consumed"]]
+    if aimless:
+        raise ManifestError(
+            "abort: %s declares source semantics for %s, which it does not "
+            "consume. A declaration the engine never applies is worse than "
+            "none: it reads as a decision that was made."
+            % (dataset, aimless))
+    # Ownership is a family-wide property or it is nothing: an entry WITHOUT
+    # `owns` is invisible to `assert_no_overlapping_ownership`, so one such
+    # entry beside declared ones would be an undeclared claimant that no
+    # overlap check can see.
+    owning = [n for n in spec["consumed"] if "owns" in declarations.get(n, {})]
+    if owning and len(owning) != len(spec["consumed"]):
+        raise ManifestError(
+            "abort: %s declares period ownership for %s but not for %s. Within "
+            "one family ownership is declared for every consumed source or for "
+            "none; an entry without `owns` is one the overlap check cannot see."
+            % (dataset, owning,
+               [n for n in spec["consumed"] if n not in owning]))
+
     entries = []
     for name in present:
         p = os.path.join(landing, name)
@@ -249,9 +333,17 @@ def build(dataset: str, run_id: str, as_of: str, landing_dir: str = "",
             "authority": "AUTHORITATIVE",
             "disposition": "consumed" if consumed else "not_consumed",
         }
-        if not consumed:
+        if consumed:
+            entry.update(declarations.get(name, {}))
+        else:
             entry["not_consumed_reason"] = spec["not_consumed_reason"]
-        if entry["format"] == "zip" and consumed:
+        # `startswith`, not `==`: a declared format may QUALIFY the container
+        # ("zip:csv:utf-16:tab" says what the member is), and the manifest
+        # engine's own archive rules key off the same prefix
+        # (`_assert_archive_inventory`, `assert_landing_dir_matches`). Matching
+        # on equality here would let a qualified zip skip its inventory while
+        # the validator still demanded one.
+        if str(entry["format"]).startswith("zip") and consumed:
             # The archive rule is the engine's, not prices': a zip must
             # inventory its members whichever family it belongs to. Two of these
             # families land as archives, and a member appearing inside one is as

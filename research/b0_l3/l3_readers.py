@@ -140,6 +140,123 @@ def _verified_path(landing: str, entry: dict) -> str:
     return path
 
 
+# --- declared-format dispatch ---------------------------------------------------
+#
+# WHICH PARSER opens a file is a property of the DECLARATION, never of the name.
+# Two files in this corpus lie by extension and neither lies loudly:
+#
+#     2026 0826 2385家.csv    BOM ff fe, zero commas, TAB separated
+#     月營收7月完整.zip        a zip wrapping exactly that dialect
+#
+# `pd.read_excel` on the archive raises, which is the lucky case. The unlucky
+# case is the one this dispatch exists for: a csv opened with the wrong
+# encoding/separator pair returns a SINGLE-COLUMN frame and raises nothing, and
+# every guard downstream — required columns, period algebra, duplicate keys —
+# then reports on a frame that was never read.
+#
+# So the leaf's `format` string selects the reader, and a format with no
+# registered reader ABORTS naming both the format and the file. It never falls
+# back to a guess: a guess that happens to be wrong is indistinguishable from a
+# guess that happens to be right until a number moves.
+#
+# The vocabulary is the one the producers write:
+#   `build_financials_leaf.DECLARATION`      "xlsx", "csv:utf-16:tab"
+#   `build_flat_leaves.FLAT_FAMILIES`        extension-derived, plus the
+#                                            per-file `declarations` override
+#                                            "zip:csv:utf-16:tab"
+# and `source_ownership_manifest` keys its archive rules off the `zip` PREFIX
+# (`_assert_archive_inventory`), which is why the qualified form keeps it.
+
+CSV_UTF16_TAB_ENCODING = "utf-16"
+CSV_UTF16_TAB_SEPARATOR = "\t"
+
+
+def _assert_declared_format(entry: dict, accepted: tuple, reader_name: str):
+    """A reader may only open what its own transcription declares it can.
+
+    Not decoration. `read_revenue` read every consumed entry with
+    `pd.read_excel` for as long as the family held one workbook, and the day a
+    second format was declared the assumption became a crash on the L3
+    prospective path and stayed invisible on the sealed L2 path (which clips at
+    `window_end` and never reaches the new month).
+    """
+    fmt = str(entry.get("format", ""))
+    if fmt not in accepted:
+        raise ReaderError(
+            "abort: %s is declared format %r, and %s has no reader for it (it "
+            "transcribes %s). A reader that guessed a dialect here would not "
+            "raise — a wrong encoding/separator pair yields a single-column "
+            "frame — so an unhandled declared format aborts instead."
+            % (entry.get("locator", "<entry>"), fmt, reader_name,
+               ", ".join(repr(a) for a in accepted)))
+    return fmt
+
+
+def _table_xlsx(path: str, entry: dict):
+    import pandas as pd
+
+    return pd.read_excel(path, engine="openpyxl")
+
+
+def _table_csv_utf16_tab(path: str, entry: dict):
+    import pandas as pd
+
+    return pd.read_csv(path, encoding=CSV_UTF16_TAB_ENCODING,
+                       sep=CSV_UTF16_TAB_SEPARATOR)
+
+
+def _table_zip_csv_utf16_tab(path: str, entry: dict):
+    """The same dialect one container down: one csv per DECLARED member.
+
+    The member inventory is checked first and the members are read in the
+    inventory's order — not `namelist()`'s. A member that appeared inside a
+    declared archive is as invisible as a file that appeared in a declared
+    directory, and `assert_archive_members_match` is where that is caught.
+    """
+    import pandas as pd
+
+    declared = [m["name"] for m in (entry.get("members") or ())]
+    if not declared:
+        raise ReaderError(
+            "abort: %s is declared %r but carries no member inventory. A "
+            "qualified archive format is a promise about what is INSIDE the "
+            "container, and it cannot be honoured against an unlisted member "
+            "set." % (entry.get("locator", "<entry>"), entry.get("format")))
+    assert_archive_members_match(path, entry)
+
+    frames = []
+    with zipfile.ZipFile(path) as zf:
+        for name in declared:
+            txt = zf.read(name).decode(CSV_UTF16_TAB_ENCODING)
+            frames.append(pd.read_csv(io.StringIO(txt),
+                                      sep=CSV_UTF16_TAB_SEPARATOR))
+    return pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
+
+
+# The registry IS the contract. A format may not be declared without an entry
+# here, and an entry here is a statement that the dialect was transcribed.
+DECLARED_TABLE_READERS = {
+    "xlsx": _table_xlsx,
+    "csv:utf-16:tab": _table_csv_utf16_tab,
+    "zip:csv:utf-16:tab": _table_zip_csv_utf16_tab,
+}
+
+
+def _read_declared_table(entry: dict, path: str):
+    """Open one consumed entry as a frame, chosen by its DECLARED format."""
+    fmt = str(entry.get("format", ""))
+    reader = DECLARED_TABLE_READERS.get(fmt)
+    if reader is None:
+        raise ReaderError(
+            "abort: no reader is registered for declared format %r (%s). A "
+            "format may not be declared without a reader that can honour it, "
+            "and guessing one from the extension is how a UTF-16/TAB export "
+            "becomes a silent single-column frame. Register the dialect in "
+            "DECLARED_TABLE_READERS or do not declare it."
+            % (fmt, entry.get("locator", os.path.basename(path))))
+    return reader(path, entry)
+
+
 # --- shared TEJ dialect ---------------------------------------------------------
 #
 # THREE different "parse a number" rules live in this module, and they are three
@@ -240,6 +357,14 @@ def _split_id_name(df):
 
 
 # --- archive_with_member_inventory: prices --------------------------------------
+#
+# The two legs are two FORMATS as well as two eras, and the reader hardcodes a
+# dialect per leg. Naming the formats it transcribes is what makes a third one
+# an abort instead of a misparse (`build_prices_leaf` writes "zip" for the
+# 2019+ archives and "parquet" for the pre-2019 cache).
+PRICES_ARCHIVE_FORMATS = ("zip",)
+PRICES_CACHE_FORMATS = ("parquet",)
+
 
 def read_prices(run_dir: str, date_min: str, date_max: str):
     """Both price legs, from the sources the leaf declares.
@@ -265,6 +390,8 @@ def read_prices(run_dir: str, date_min: str, date_max: str):
     for entry in entries:
         if entry.get("leg") == "pre-2019":
             continue
+        _assert_declared_format(entry, PRICES_ARCHIVE_FORMATS,
+                                "the 2019+ price leg")
         path = _verified_path(landing, entry)
         # The member inventory is the contract one level down.
         assert_archive_members_match(path, entry)
@@ -334,6 +461,8 @@ def _read_pre_2019_leg(landing: str, entries, date_min: str, date_max: str):
 
     frames = []
     for entry in declared:
+        _assert_declared_format(entry, PRICES_CACHE_FORMATS,
+                                "the pre-2019 price leg")
         path = _verified_path(landing, entry)
         d = pd.read_parquet(path, columns=list(PRE_2019_COLUMNS))
         if d.empty:
@@ -363,6 +492,9 @@ def _read_pre_2019_leg(landing: str, entries, date_min: str, date_max: str):
 
 # --- board_date_payload_key: valuation ------------------------------------------
 
+VALUATION_FORMATS = ("json:exchange_payload",)
+
+
 def read_valuation(run_dir: str) -> dict:
     """{stock_id: {'per_tse', 'pbr_tse', 'board'}} for the leaf's session.
 
@@ -377,6 +509,7 @@ def read_valuation(run_dir: str) -> dict:
     leaf, landing = _leaf_and_landing(run_dir, "valuation")
     out = {}
     for entry in consumed_entries(leaf):
+        _assert_declared_format(entry, VALUATION_FORMATS, "the valuation reader")
         path = _verified_path(landing, entry)
         with open(path, encoding="utf-8") as fh:
             doc = json.load(fh)
@@ -412,6 +545,9 @@ def _num(value):
 
 # --- flat_directory_filename: calendar ------------------------------------------
 
+CALENDAR_FORMATS = ("parquet",)
+
+
 def read_calendar(run_dir: str) -> tuple:
     """Sessions from the declared TAIEX series — never `data/b0/`."""
     import pandas as pd
@@ -422,6 +558,7 @@ def read_calendar(run_dir: str) -> tuple:
         raise ReaderError(
             "abort: the calendar leaf declares %d consumed sources; exactly one "
             "series defines the sessions." % len(entries))
+    _assert_declared_format(entries[0], CALENDAR_FORMATS, "the calendar reader")
     path = _verified_path(landing, entries[0])
     df = pd.read_parquet(path)
     return tuple(sorted({str(d) for d in df["date"]}))
@@ -431,6 +568,10 @@ def read_calendar(run_dir: str) -> tuple:
 
 SUSPENSION_COLUMNS = ("證券代碼", "年月日", "恢復交易日", "暫停交易原因")
 STATUS_SOURCE_LABEL = "TEJ 暫停交易"
+# `_zip_tsv_rows` hardcodes UTF-16 + TAB one level inside the container. The
+# plain `zip` this family declares carries that dialect; a QUALIFIED zip
+# (`zip:csv:big5:comma`, say) would not, and must not be read by this path.
+STATUS_ARCHIVE_FORMATS = ("zip",)
 
 # O-E-1, declared rather than assumed: available_from = 年月日, and the guard
 # then lets a record explain only sessions STRICTLY AFTER that date. This export
@@ -460,6 +601,8 @@ def read_security_status(run_dir: str) -> list:
 
     rows = []
     for entry in entries:
+        _assert_declared_format(entry, STATUS_ARCHIVE_FORMATS,
+                                "the security_status reader")
         path = _verified_path(landing, entry)
         assert_archive_members_match(path, entry)
         for r in _zip_tsv_rows(path, SUSPENSION_COLUMNS):
@@ -527,6 +670,9 @@ REORGANIZATION_EXIT_REASONS = {
     "併入控股公司下市": "HOLDING_COMPANY_CONVERSION",
 }
 
+# Same UTF-16 archive dialect as security_status, and the same reason to name it.
+CA_ARCHIVE_FORMATS = ("zip",)
+
 LEDGER_COLUMNS = ("stock_id", "kind", "source_field", "ex_or_effective_date",
                   "reconstructibility", "reason", "credit_tradable_date",
                   "new_shares_thousands", "share_multiplier", "cash_per_share",
@@ -573,6 +719,8 @@ def _ca_load_rows(run_dir: str) -> list:
 
     rows = []
     for entry in entries:
+        _assert_declared_format(entry, CA_ARCHIVE_FORMATS,
+                                "the corporate_actions reader")
         path = _verified_path(landing, entry)
         assert_archive_members_match(path, entry)
         with zipfile.ZipFile(path) as zf:
@@ -754,6 +902,9 @@ def _bonus_num(v):
     return None if f != f else f
 
 
+BONUS_FORMATS = ("json:harvested_envelope",)
+
+
 def _bonus_envelopes(run_dir: str, layer_prefix: str):
     """Declared envelopes of one layer, hash-checked, in leaf order."""
     import json
@@ -762,6 +913,7 @@ def _bonus_envelopes(run_dir: str, layer_prefix: str):
     for entry in consumed_entries(leaf):
         if not entry["payload_key"].startswith(layer_prefix):
             continue
+        _assert_declared_format(entry, BONUS_FORMATS, "the bonus_shares reader")
         path = _verified_path(landing, entry)
         with open(path, encoding="utf-8") as fh:
             yield entry, json.load(fh)
@@ -1053,24 +1205,6 @@ def _owns_predicate(declaration):
         % (declaration,))
 
 
-def _read_declared_table(path: str, fmt: str):
-    """Dispatch on the leaf's DECLARED format, not on the file extension.
-
-    `2026 0826 2385家.csv` is a csv only by extension: BOM ff fe, zero commas,
-    tab-separated. Its leaf entry says `csv:utf-16:tab`, so the dialect is read
-    off the declaration rather than sniffed off the bytes.
-    """
-    import pandas as pd
-
-    if fmt == "xlsx":
-        return pd.read_excel(path, engine="openpyxl")
-    if fmt == "csv:utf-16:tab":
-        return pd.read_csv(path, encoding="utf-16", sep="\t")
-    raise ReaderError(
-        "abort: no reader for declared format %r. A format may not be declared "
-        "without a reader that can honour it." % fmt)
-
-
 def read_financials(run_dir: str):
     """Quarterly fundamentals with their real announcement date (§2.2).
 
@@ -1092,7 +1226,7 @@ def read_financials(run_dir: str):
     for entry in entries:
         name = entry["locator"]
         path = _verified_path(landing, entry)
-        df = _read_declared_table(path, entry["format"])
+        df = _read_declared_table(entry, path)
         df = _normalize_aliases(df, name)
         df = _split_id_name(df)
 
@@ -1212,6 +1346,21 @@ def read_revenue(run_dir: str):
     §2.2, quoted: 月營收：讀真實 `release_date`，不得使用固定 lag 代理. A month
     without one is dropped, never given a proxy — and §2.1 makes where those
     dates begin (2013-01) the binding constraint on the whole window.
+
+    MIXED FORMATS, one family. Since 2026-08-30 this family declares two
+    sources and they are not the same kind of file: a workbook and a zip
+    wrapping a UTF-16/TAB csv (`zip:csv:utf-16:tab`). The parser therefore comes
+    from the DECLARED format, exactly as it does for financials — reading every
+    entry with `pd.read_excel` was what crashed the prospective path the day
+    July's completed export was declared.
+
+    OWNERSHIP, not de-duplication. The two sources OVERLAP on 202607: the
+    workbook was exported 2026-08-06 and carries a PARTIAL month (406 of 2,002
+    securities), the archive carries the completed one and OWNS it. On the 406
+    they share, the archive is not merely wider — it is REVISED (3003:
+    658,000 -> 657,875 千元). Which value survives may therefore not be decided
+    by concat order, `drop_duplicates` or the duplicate-key guard below: it is
+    decided by the leaf's `owns`/`yields` declaration, applied here.
     """
     import pandas as pd
 
@@ -1220,11 +1369,25 @@ def read_revenue(run_dir: str):
     if not entries:
         raise ReaderError("abort: the revenue leaf consumes nothing")
 
-    frames = []
+    # Ownership is a family-wide property or it is nothing — the same rule
+    # `build_flat_leaves.build` enforces at declare time. An entry without
+    # `owns` beside entries that have one is a claimant no overlap check can
+    # see, so a partial declaration aborts rather than being half-applied.
+    owning = [e for e in entries if "owns" in e]
+    if owning and len(owning) != len(entries):
+        raise ReaderError(
+            "abort: the revenue leaf declares period ownership for %s but not "
+            "for %s. Within one family ownership is declared for every consumed "
+            "source or for none; an entry without `owns` is an undeclared "
+            "claimant, and the row it wins would be decided by concat order."
+            % ([e["locator"] for e in owning],
+               [e["locator"] for e in entries if "owns" not in e]))
+
+    frames, owned_by = [], {}
     for entry in entries:
         name = entry["locator"]
         path = _verified_path(landing, entry)
-        raw = pd.read_excel(path, engine="openpyxl")
+        raw = _read_declared_table(entry, path)
         raw = _normalize_aliases(raw, name)
         raw = _split_id_name(raw)
         missing = [c for c in REVENUE_REQUIRED_COLUMNS
@@ -1248,6 +1411,32 @@ def read_revenue(run_dir: str):
             format=REVENUE_RELEASE_FORMAT, errors="coerce")
         df["revenue"] = pd.to_numeric(raw[REVENUE_AMOUNT_COL],
                                       errors="coerce") * THOUSANDS
+
+        if owning:
+            # `_norm_period` on BOTH sides of the comparison, deliberately: two
+            # normalisers for the two halves of one predicate is how a declared
+            # period stops matching the period it names.
+            periods = raw[REVENUE_PERIOD_COL].map(_norm_period)
+            owns = _owns_predicate(entry["owns"])
+            yields_ = {_norm_period(p) for p in (entry.get("yields") or ())}
+            stray = sorted({p for p in periods.unique()
+                            if not owns(p) and p not in yields_})
+            if stray:
+                raise ReaderError(
+                    "abort: %s contains month(s) %s that it neither owns nor "
+                    "yields. Dropping them would be a silent skip; keeping them "
+                    "would make two exports canonical for one month. Declare "
+                    "which it is." % (name, ", ".join(stray)))
+            keep = periods.map(owns)
+            for p in periods[keep].unique():
+                if owned_by.get(p, name) != name:
+                    raise ReaderError(
+                        "abort: month %s was contributed by both %s and %s; "
+                        "ownership did not partition the sources."
+                        % (p, owned_by[p], name))
+                owned_by[p] = name
+            df = df[keep]
+
         frames.append(df[list(REVENUE_CARRY)])
 
     panel = pd.concat(frames, ignore_index=True)
@@ -1272,6 +1461,9 @@ INDUSTRY_CHANGE_PAIRS = (("前三次TSE產業變更", "前三次TSE產業變更�
                          ("前一次TSE產業變更", "前一次TSE產業變更日"))
 INDUSTRY_NO_HISTORY_EFFECTIVE_FROM = "1900-01-01"
 INDUSTRY_CURRENT_COL = "TSE產業_代碼"
+# Cell-addressed through openpyxl rather than through a frame, so this reader
+# does not go via DECLARED_TABLE_READERS — but it is bound by the same rule.
+INDUSTRY_FORMATS = ("xlsx",)
 
 
 def _ind_code(v):

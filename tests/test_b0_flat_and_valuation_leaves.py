@@ -170,6 +170,114 @@ def test_only_consumed_archives_need_a_member_inventory():
     assert seen_consumed and seen_skipped, "this export exercises both branches"
 
 
+# --- revenue: a mixed-format family with a contested month ---------------------
+#
+# `月營收7月完整.zip` arrived 2026-08-30 and was REFUSED by the enumeration until
+# it was declared — the correct behaviour, and the reason these tests pin the
+# declaration rather than the abort.
+
+def _revenue_leaf():
+    landing = os.path.join(REPO, F.FLAT_FAMILIES["revenue"]["landing"])
+    if not os.path.isdir(landing):
+        pytest.skip("revenue export not present")
+    return F.build("revenue", RUN, AS_OF)
+
+
+def test_the_completed_july_archive_is_a_declared_source():
+    """The workbook was exported 2026-08-06 and its July is PARTIAL: 406 of
+    2,002 securities, only those that had announced by then. A panel built from
+    it alone at an as_of after 08-10 would look complete and be 80% short."""
+    by = {e["locator"]: e for e in _revenue_leaf()["entries"]}
+    assert by["20260806091706.xlsx"]["disposition"] == "consumed"
+    assert by["月營收7月完整.zip"]["disposition"] == "consumed"
+
+
+def test_the_archive_declares_what_its_member_actually_is():
+    """A zip by container, a UTF-16LE tab csv by content — the financials idiom
+    (`2026 0826 2385家.csv` is declared `csv:utf-16:tab` for the same reason).
+    The `zip:` prefix is what keeps the member inventory mandatory."""
+    entry = {e["locator"]: e
+             for e in _revenue_leaf()["entries"]}["月營收7月完整.zip"]
+    assert entry["format"] == "zip:csv:utf-16:tab"
+    assert [m["name"] for m in entry["members"]] == ["20260830033323.csv"]
+
+
+def test_the_two_revenue_sources_own_disjoint_months():
+    """Both files carry 202607. Exactly one may be canonical for it: the later
+    export OWNS it (2,002 securities, a strict superset — only-xlsx = 0) and the
+    workbook YIELDS it."""
+    from source_ownership_manifest import owns_predicate
+
+    by = {e["locator"]: e for e in _revenue_leaf()["entries"]}
+    book, zipped = by["20260806091706.xlsx"], by["月營收7月完整.zip"]
+    assert book["owns"] == "<= 202606" and book["yields"] == ["202607"]
+    assert zipped["owns"] == ["202607"]
+
+    owns_book, _ = owns_predicate(book["owns"])
+    owns_zip, _ = owns_predicate(zipped["owns"])
+    for period in ("202605", "202606", "202607"):
+        assert not (owns_book(period) and owns_zip(period)), period
+    assert owns_zip("202607") and not owns_book("202607")
+
+
+def _staged_revenue_landing(tmp_path):
+    """A stand-in landing with the two declared names; the archive is a real
+    zip because a consumed archive must inventory its members."""
+    import zipfile
+
+    open(os.path.join(str(tmp_path), "20260806091706.xlsx"), "wb").close()
+    with zipfile.ZipFile(
+            os.path.join(str(tmp_path), "月營收7月完整.zip"), "w") as z:
+        z.writestr("20260830033323.csv", "x")
+    return str(tmp_path)
+
+
+def test_a_second_claimant_for_one_month_is_refused(tmp_path, monkeypatch):
+    """Negative control on the split above: let the workbook keep 202607 and the
+    leaf must not build."""
+    landing = _staged_revenue_landing(tmp_path)
+    monkeypatch.setitem(F.FLAT_FAMILIES["revenue"], "declarations", {
+        "20260806091706.xlsx": {"owns": "<= 202607"},
+        "月營收7月完整.zip": {"format": "zip:csv:utf-16:tab",
+                              "owns": ["202607"]},
+    })
+    with pytest.raises(ManifestError, match="OWNED by both"):
+        F.build("revenue", RUN, AS_OF, landing_dir=landing)
+
+
+def test_ownership_is_declared_for_every_consumed_source_or_for_none(
+        tmp_path, monkeypatch):
+    """An entry without `owns` is invisible to `assert_no_overlapping_ownership`
+    — an undeclared claimant no overlap check can see. Families that address
+    their members some other way (security_status' six archives) declare none,
+    and that stays legal."""
+    landing = _staged_revenue_landing(tmp_path)
+    monkeypatch.setitem(F.FLAT_FAMILIES["revenue"], "declarations", {
+        "月營收7月完整.zip": {"format": "zip:csv:utf-16:tab",
+                              "owns": ["202607"]},
+    })
+    with pytest.raises(ManifestError, match="ownership is declared for every"):
+        F.build("revenue", RUN, AS_OF, landing_dir=landing)
+
+    assert "declarations" not in F.FLAT_FAMILIES["security_status"]
+    if os.path.isdir(os.path.join(
+            REPO, F.FLAT_FAMILIES["security_status"]["landing"])):
+        F.build("security_status", RUN, AS_OF)
+
+
+def test_a_declaration_aimed_at_a_file_the_family_does_not_consume_is_refused(
+        tmp_path, monkeypatch):
+    """It would sit in the spec looking like a decision that was made, while the
+    engine applied nothing."""
+    landing = _staged_revenue_landing(tmp_path)
+    monkeypatch.setitem(F.FLAT_FAMILIES["revenue"], "declarations", {
+        **F.FLAT_FAMILIES["revenue"]["declarations"],
+        "20260901000000.xlsx": {"owns": ["202608"]},
+    })
+    with pytest.raises(ManifestError, match="which it does not consume"):
+        F.build("revenue", RUN, AS_OF, landing_dir=landing)
+
+
 def test_an_undeclared_extension_in_the_landing_dir_aborts(tmp_path):
     landing = str(tmp_path)
     open(os.path.join(landing, "20260806091706.xlsx"), "wb").close()

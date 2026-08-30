@@ -36,8 +36,8 @@ import build_prices_leaf as P                                    # noqa: E402
 import build_valuation_leaf as V                                 # noqa: E402
 import l3_snapshot as S                                          # noqa: E402
 from source_ownership_manifest import (                          # noqa: E402
-    AGGREGATE_FILENAME, ManifestError, assemble_aggregate, write_aggregate,
-    write_leaf,
+    AGGREGATE_FILENAME, LEAF_FILENAME, ManifestError, assemble_aggregate,
+    write_aggregate, write_leaf,
 )
 
 RUN = "L3-0000000000000001"
@@ -59,6 +59,55 @@ def _run(tmp_path, as_of=AS_OF, seal="PENDING", full=True):
     if full:
         write_aggregate(d, assemble_aggregate(
             run_dir=d, run_id=RUN, as_of=as_of, purpose=PURPOSE_DIAGNOSTIC))
+    return d
+
+
+def _calendar_source_through(dest: str, last_session: str) -> str:
+    """The REAL declared TAIEX series, truncated after `last_session`.
+
+    Not a stubbed session tuple: this writes a parquet the leaf builder then
+    reads, hashes and declares, and that `l3_snapshot` re-hashes before parsing.
+    Truncation is the condition under test — a calendar whose last observed
+    session IS the decision date — and it is the one thing that has to be
+    manufactured, because the harvested cache always runs past the month-ends
+    the valuation payloads exist for.
+    """
+    import pandas as pd
+
+    landing = os.path.join(REPO, F.FLAT_FAMILIES["calendar"]["landing"])
+    df = pd.read_parquet(os.path.join(landing, "taiex_daily.parquet"))
+    kept = df[[str(d) <= last_session for d in df["date"]]]
+    os.makedirs(dest, exist_ok=True)
+    kept.to_parquet(os.path.join(dest, "taiex_daily.parquet"), index=False)
+    return dest
+
+
+def _run_observed_through(tmp_path, last_session: str, as_of=AS_OF, drop=()):
+    """A real nine-family run whose declared calendar stops at `last_session`.
+
+    Every leaf is built by its own producer from the real exports, and the
+    aggregate is assembled and verified for real, so `verify_aggregate`,
+    `assert_ready` and `_sessions_from_declared_calendar` all run. `drop` removes
+    a leaf AFTER the others are built — the same order `assemble_aggregate` is
+    asked to notice — so readiness is decided by what is on disk.
+    """
+    base = str(tmp_path)
+    d = os.path.join(base, "run")
+    os.makedirs(d, exist_ok=True)
+    calendar_dir = _calendar_source_through(
+        os.path.join(base, "declared_calendar"), last_session)
+
+    for ds in sorted(F.FLAT_FAMILIES):
+        extra = {"landing_dir": calendar_dir} if ds == "calendar" else {}
+        write_leaf(d, F.build(ds, RUN, as_of, **extra))
+    for mod in (FIN, P, B):
+        write_leaf(d, mod.build(RUN, as_of))
+    write_leaf(d, V.build(RUN, as_of))
+    write_leaf(d, CA.build(RUN, as_of, run_dir=d))
+    for ds in drop:
+        os.remove(os.path.join(d, LEAF_FILENAME % ds))
+    write_aggregate(d, assemble_aggregate(
+        run_dir=d, run_id=RUN, as_of=as_of, purpose=PURPOSE_DIAGNOSTIC))
     return d
 
 
@@ -105,12 +154,46 @@ def _declared(monkeypatch, sessions, manifest_as_of):
 COVERED = ("2026-08-27", "2026-08-28", "2026-08-31")
 
 
-def test_a_period_that_is_not_over_is_refused(tmp_path, monkeypatch):
+@sources
+def test_a_period_that_is_not_over_is_refused(tmp_path):
     """§6.5 executes at the open of the session AFTER the decision date. If the
-    declared calendar has no such session, the month has not finished."""
-    _declared(monkeypatch, COVERED, "2026-08-28")
-    with pytest.raises(S.L3SnapshotError, match="period is not over"):
-        S.plan(str(tmp_path), RUN, "2026-08-31")
+    declared calendar has no such session, the month has not finished.
+
+    Run on REAL inputs, and deliberately not on `_declared`. That helper
+    monkeypatches `verify_aggregate`, `assert_ready` AND
+    `_sessions_from_declared_calendar` — every dependency `plan()` has between
+    its arguments and its answer — so the version of this test that used it
+    would have passed with `assert_ready` deleted from the module and with no
+    declared calendar in existence. A gate test that stubs the gate's own
+    collaborators certifies the stub.
+
+    So all three run for real here: nine leaves built by their own producers, an
+    aggregate assembled and re-verified from the bytes on disk, and a declared
+    calendar the snapshot re-hashes before parsing. Both refusals `plan()` owes
+    on that path are asserted, in the order it owes them.
+    """
+    # 1. readiness comes first, and it is REACHED rather than assumed: a run
+    #    missing one of the nine is refused by the manifest engine before any
+    #    question about the period is asked.
+    partial = _run_observed_through(tmp_path / "partial", DECISION,
+                                    drop=("prices",))
+    with pytest.raises(ManifestError, match="NOT_READY"):
+        S.plan(partial, RUN, DECISION)
+
+    # 2. with a ready source set, the declared calendar is real enough to
+    #    resolve as_of through: coverage reaches the decision date exactly.
+    d = _run_observed_through(tmp_path / "ready", DECISION)
+    assert S._sessions_from_declared_calendar(d)[-1] == DECISION
+    intent = S.plan_decision_intent(d, RUN, DECISION)
+    assert intent["as_of"] == AS_OF                 # §6.6, latest completed
+    assert intent["execution_date"] is None
+    assert intent["calendar_last_session"] == DECISION
+
+    # 3. ...and the executable path still refuses, because §6.5's session does
+    #    not exist. The refusal names the calendar end rather than guessing one.
+    with pytest.raises(S.L3SnapshotError, match="period is not over") as excinfo:
+        S.plan(d, RUN, DECISION)
+    assert DECISION in str(excinfo.value)
 
 
 def test_a_decision_intent_does_not_invent_the_future_execution_session(

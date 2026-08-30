@@ -834,6 +834,13 @@ class CorporateActionTransitionResult:
     ledger: tuple                                  # tuple[TransitionRecord, ...]
     applied_event_ids: tuple
     skipped_unexposed: tuple                       # NOT_RECONSTRUCTIBLE, no exposure
+    # §6.1.6 case 2: claims whose declared maturity date is strictly after
+    # `as_of` and was recorded UNRESOLVED because the caller declared its
+    # calendar stops at `as_of`. Empty on every run that did not declare it, so
+    # a reader can tell "no deferral happened" from "this route cannot defer".
+    # Carried here rather than in a TransitionRecord field so that no hashed
+    # receipt payload moves; see `_apply_one`.
+    deferred_release_points: tuple = ()
 
 
 def ca_economic_interest_applies(state, event: "CorporateActionEvent", *,
@@ -1043,6 +1050,93 @@ def _first_session_on_or_after(date: str, sessions: Sequence[str]) -> str:
         detail={"date": date})
 
 
+# --- §6.1.6 · the ONE non-failure case of an unresolvable release point --------
+#
+# `_first_session_on_or_after` conflates two situations that are not the same
+# fact, and the conflation is only visible on the two-phase prospective route.
+#
+#   1. THE CALENDAR IS COMPLETE AND THE RELEASE POINT IS NOT IN IT. The sealed
+#      historical replay runs against a calendar that already extends past every
+#      as_of it will be asked about. A credit or payment date that still finds no
+#      session there is a fact the sources cannot support: nothing later will
+#      supply it. That is a genuine `CorporateActionReconstructionBlock` and it
+#      stays one. This is the GENERAL path and it is not moved here.
+#
+#   2. THE CALENDAR DELIBERATELY STOPS AT `as_of`. The L3 route splits one
+#      monthly decision in two. Phase A ("decision intent") runs ON the decision
+#      date: the next trading session has not been observed, so the declared
+#      calendar legitimately ends at `as_of` and contains no execution session.
+#      A claim maturing after `as_of` therefore has no session to snap to -- not
+#      because the fact is unrecoverable, but because the phase is defined not to
+#      look there. Phase B, with the calendar one session longer, resolves it by
+#      construction.
+#
+# Case 2 was reaching case 1's outcome, so an ordinary stock dividend whose
+# credit date landed on the execution session made the whole period undecidable:
+# the intent could never be published at all. Failing closed is not the same as
+# being right, and "this matures on a session that has not happened yet" is a
+# KNOWN FUTURE EVENT, not a missing fact.
+#
+# The separation is a CALLER DECLARATION, never an inference. This module does
+# not guess whether an execution session exists, what date it would be, or
+# whether the claim would mature on it -- there is no weekday arithmetic and no
+# holiday table anywhere below. The caller states that its calendar stops at
+# `as_of`, `transition_portfolio` VERIFIES that statement against the calendar it
+# was actually handed, and only then may a release point strictly after `as_of`
+# be DEFERRED instead of snapped. A caller that says nothing gets today's
+# behaviour exactly.
+#
+# Deferring records the claim's own declared maturity date, unresolved. It is not
+# a fourth state: §6.1.4's three-way split already has the right one. The claim is
+# OWNED (it is a `SecurityReceivable` / `CashReceivable`, so it counts in NAV and
+# in `held_securities`), it is NOT TRADABLE (`shares` is untouched, so
+# `PortfolioState.tradable_shares` cannot see it) and it is NOT SPENDABLE (`cash`
+# is untouched, so `PortfolioState.spendable_cash` cannot see it). Because the
+# deferral is only ever taken for a date strictly greater than `as_of`,
+# `_release_matured` keeps it and I-CA-05 passes for the same reason it does for
+# any other future-dated claim: nothing that enters the decision at `as_of` moves
+# by one share or one dollar.
+#
+# The deferred date is also behaviourally equivalent to the snap it did not take:
+# `_release_matured` releases on the first as_of >= `credit_tradable_date`, and
+# the first as_of on or after a date IS the first session on or after it.
+
+
+def _resolve_release_point(date, sessions: Sequence[str], *, as_of: str,
+                           forward_sessions_unobserved: bool):
+    """(release point, was_deferred) -- §6.1.6's snap, or case 2 above.
+
+    Every path that is not case 2 goes through `_first_session_on_or_after`
+    unchanged, which includes every call made under the default declaration.
+    """
+    if forward_sessions_unobserved and str(date) > str(as_of):
+        return str(date), True
+    return _first_session_on_or_after(date, sessions), False
+
+
+def assert_forward_calendar_declaration(sessions: Sequence[str], as_of: str,
+                                        forward_sessions_unobserved: bool) -> None:
+    """A declaration that its own calendar contradicts is not a declaration.
+
+    `forward_sessions_unobserved=True` says "sessions after `as_of` have not been
+    observed, so the calendar I handed you stops there". If the calendar DOES
+    carry a later session the caller is either mislabelling an execution-phase
+    run or hiding a calendar it could have snapped against, and either way the
+    deferral would be taken where a real release point existed. Checked rather
+    than trusted, so that the execution phase is structurally incapable of
+    entering the deferral branch and is therefore byte-identical to today.
+    """
+    if not forward_sessions_unobserved:
+        return
+    later = sorted({str(s) for s in sessions if str(s) > str(as_of)})
+    if later:
+        raise CorporateActionTransitionError(
+            "§6.1.6: the caller declared that sessions after %s are unobserved, "
+            "but the calendar it handed in carries %d of them (%s...). A "
+            "release point that this calendar can resolve must be resolved, not "
+            "deferred." % (as_of, len(later), later[0]))
+
+
 # --- §6.1.6 step 1/3 - releasing matured claims --------------------------------
 
 def _release_matured(state, as_of: str):
@@ -1111,12 +1205,17 @@ def _release_matured(state, as_of: str):
 # --- §6.1.7 - the transition table ---------------------------------------------
 
 def _apply_one(state, event: "CorporateActionEvent", as_of: str,
-               sessions: Sequence[str]):
+               sessions: Sequence[str], *,
+               forward_sessions_unobserved: bool = False):
     """One holder-affecting event -> transformed state + audit fields.
 
     Atomic (I-CA-13): the new state is constructed in full and validated by
     PortfolioState.__post_init__ before it is returned. Nothing is mutated in
     place, so a raise leaves the caller holding the pre-state.
+
+    `forward_sessions_unobserved` is the caller declaration described above
+    `_resolve_release_point`. It defaults to False, so every existing caller
+    keeps §6.1.6's snap and its block.
     """
     from core.b0_state import CashReceivable, PortfolioState, SecurityReceivable
 
@@ -1132,6 +1231,18 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
     sec_recv = list(state.security_receivables)
     cash_recv = list(state.cash_receivables)
     created_sec, created_cash = [], []
+    deferred = []
+
+    def release_point(date, leg):
+        point, was_deferred = _resolve_release_point(
+            date, sessions, as_of=as_of,
+            forward_sessions_unobserved=forward_sessions_unobserved)
+        if was_deferred:
+            deferred.append({"event_id": eid, "security_id": sid,
+                             "event_kind": kind, "leg": leg,
+                             "declared_maturity_date": point, "as_of": str(as_of),
+                             "matured_as_of": False})
+        return point
 
     # Entitlement-bearing shares: what an event acts on. Uncredited claims on the
     # SAME security are entitlement-bearing too, which is what makes a chained
@@ -1145,8 +1256,8 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
         ratio = Fraction(event.stock_ratio)
         new_claim = entitlement * ratio
         if new_claim > 0:
-            credit = _first_session_on_or_after(
-                event.credit_tradable_date, sessions)
+            credit = release_point(event.credit_tradable_date,
+                                   "credit_tradable_date")
             sec_recv.append(SecurityReceivable(
                 security_id=sid, shares=new_claim, credit_tradable_date=credit,
                 event_id=eid,
@@ -1183,8 +1294,8 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
         if kind == "capital_reduction" and event.cash_per_share:
             amount = float(entitlement) * float(event.cash_per_share)
             if amount > 0:
-                avail = _first_session_on_or_after(
-                    event.cash_available_date, sessions)
+                avail = release_point(event.cash_available_date,
+                                      "cash_available_date")
                 cash_recv.append(CashReceivable(
                     amount=amount, cash_available_date=avail, event_id=eid,
                     source_security_id=sid))
@@ -1205,8 +1316,8 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
         sec_recv = [r for r in sec_recv if r.security_id != sid]
         new_claim = entitlement * ratio
         if new_claim > 0:
-            credit = _first_session_on_or_after(
-                event.credit_tradable_date, sessions)
+            credit = release_point(event.credit_tradable_date,
+                                   "credit_tradable_date")
             sec_recv.append(SecurityReceivable(
                 security_id=successor, shares=new_claim,
                 credit_tradable_date=credit, event_id=eid,
@@ -1218,9 +1329,9 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
         if event.cash_per_share:
             amount = float(entitlement) * float(event.cash_per_share)
             if amount > 0:
-                avail = _first_session_on_or_after(
+                avail = release_point(
                     event.cash_available_date or event.ex_or_effective_date,
-                    sessions)
+                    "cash_available_date")
                 cash_recv.append(CashReceivable(
                     amount=amount, cash_available_date=avail, event_id=eid,
                     source_security_id=sid))
@@ -1249,6 +1360,11 @@ def _apply_one(state, event: "CorporateActionEvent", as_of: str,
         "created_cash_receivables": tuple(created_cash),
         "pending_exit_before": pre_pending,
         "pending_exit_after": int(new.pending_exit.get(target, 0)),
+        # Deliberately NOT a TransitionRecord field: the ledger rows are written
+        # into the L3 portfolio-side receipt verbatim, and widening that row is a
+        # schema change nobody asked for. The deferral surfaces on the RESULT
+        # instead, where it can be read without moving a hashed payload.
+        "deferred_release_points": tuple(deferred),
     }
 
 
@@ -1412,7 +1528,9 @@ def _order_same_day(events: Sequence["CorporateActionEvent"]):
 
 def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
                          as_of: str, sessions: Sequence[str],
-                         period: str = "") -> "CorporateActionTransitionResult":
+                         period: str = "",
+                         forward_sessions_unobserved: bool = False,
+                         ) -> "CorporateActionTransitionResult":
     """PortfolioState[t-1] + today's events -> validated PortfolioState[t].
 
     The order in §6.1.6 is not a style choice. Releasing matured claims first is
@@ -1420,11 +1538,22 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
     before the mark is what stops a post-ex holding being valued on pre-ex share
     counts; validating before returning is what makes a wrong transition an abort
     rather than a number.
+
+    `forward_sessions_unobserved` is the caller's declaration that `sessions`
+    deliberately stops at `as_of` because the next session has not been observed
+    (§6.1.6 case 2, above `_resolve_release_point`). It defaults to False -- the
+    sealed historical replay and every diagnostic keep §6.1.6's snap and its
+    block untouched -- and when it is True it is CHECKED against `sessions`
+    before anything else happens.
     """
     from core.b0_state import PortfolioState
 
+    assert_forward_calendar_declaration(sessions, as_of,
+                                        forward_sessions_unobserved)
+
     pre = state
     pre_hash = _state_hash(pre)
+    deferred_points = []
 
     # 1. release claims created in earlier periods that matured on or before today
     work, released_sec, released_cash = _release_matured(pre, as_of)
@@ -1486,7 +1615,10 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
         assert_no_look_ahead(ev, as_of)
         assert_transition_fields_present(ev)
         before = work
-        work, audit = _apply_one(work, ev, as_of, sessions)
+        work, audit = _apply_one(
+            work, ev, as_of, sessions,
+            forward_sessions_unobserved=forward_sessions_unobserved)
+        deferred_points.extend(audit["deferred_release_points"])
         applied.append(ev.canonical_event_id())
         ledger.append(TransitionRecord(
             period=period or as_of,
@@ -1543,7 +1675,8 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
 
     return CorporateActionTransitionResult(
         state=work, ledger=tuple(ledger), applied_event_ids=tuple(applied),
-        skipped_unexposed=tuple(skipped))
+        skipped_unexposed=tuple(skipped),
+        deferred_release_points=tuple(deferred_points))
 
 
 def redate(state, as_of: str):

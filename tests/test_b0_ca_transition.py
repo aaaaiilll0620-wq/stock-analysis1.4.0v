@@ -363,3 +363,181 @@ def test_an_unmarkable_successor_receivable_fails_closed():
                           marks={"1101": 10.0}, adv20={}, sigma20d={})
     with pytest.raises(Exception):
         mark_portfolio(st, snap, ())
+
+
+# --- §6.1.6 case 2 · a release point on a session that has not happened yet ----
+#
+# The two-phase L3 route runs the SAME decision twice. Phase A ("decision
+# intent") runs ON the decision date, so its declared calendar legitimately ends
+# at `as_of` and holds no execution session. Phase B runs after that session is
+# observed, with the calendar one session longer.
+#
+# `_first_session_on_or_after` could not tell "the sources cannot support this
+# fact" from "this phase is defined not to look at the session this matures on",
+# so an ordinary stock dividend crediting on the execution session made the
+# whole period undecidable: phase A could never publish an intent for it.
+#
+# The tests below pin BOTH halves of the distinction. If a later change makes
+# the intent phase proceed on a genuinely unreconstructible event, or makes
+# phase B resolve anything differently, one of them fails.
+
+INTENT_AS_OF = "2020-01-06"                  # phase A decision date
+EXECUTION_SESSION = "2020-01-07"             # observed only in phase B
+PHASE_A_SESSIONS = tuple(s for s in S if s <= INTENT_AS_OF)
+PHASE_B_SESSIONS = tuple(s for s in S if s <= EXECUTION_SESSION)
+
+
+def _intent(state, events):
+    """Phase A: the calendar stops at the decision date, and says so."""
+    return transition_portfolio(
+        redate(state, INTENT_AS_OF), events, as_of=INTENT_AS_OF,
+        sessions=PHASE_A_SESSIONS, period=INTENT_AS_OF[:7],
+        forward_sessions_unobserved=True)
+
+
+def _execute(state, events):
+    """Phase B: one session longer, and no declaration to make."""
+    return transition_portfolio(
+        redate(state, INTENT_AS_OF), events, as_of=INTENT_AS_OF,
+        sessions=PHASE_B_SESSIONS, period=INTENT_AS_OF[:7])
+
+
+def _maturing_on_the_execution_session():
+    return _ev("stock_dividend", INTENT_AS_OF, stock_ratio=Fraction(1, 10),
+               credit_tradable_date=EXECUTION_SESSION)
+
+
+def test_the_intent_phase_used_to_be_unable_to_decide_this_period_at_all():
+    """The defect, kept as a negative control: no declaration, no relief."""
+    with pytest.raises(CorporateActionReconstructionBlock,
+                       match="outside the canonical calendar"):
+        transition_portfolio(
+            redate(_p(), INTENT_AS_OF), [_maturing_on_the_execution_session()],
+            as_of=INTENT_AS_OF, sessions=PHASE_A_SESSIONS,
+            period=INTENT_AS_OF[:7])
+
+
+def test_the_intent_phase_carries_the_claim_instead_of_blocking():
+    r = _intent(_p(), [_maturing_on_the_execution_session()])
+
+    # it decided at all -- which is the whole point
+    assert r.applied_event_ids == ("1101|stock_dividend|2020-01-06",)
+
+    # OWNED: the claim exists, is exact, and reaches the mark
+    claims = r.state.security_receivables
+    assert len(claims) == 1
+    assert claims[0].security_id == "1101"
+    assert claims[0].shares == Fraction(100)
+    assert "1101" in r.state.held_securities
+
+    # ... with its maturity date recorded, unresolved rather than invented
+    assert claims[0].credit_tradable_date == EXECUTION_SESSION
+
+    # NOT MATURED as of the decision date, so §6.1.4's other two are untouched
+    assert claims[0].credit_tradable_date > INTENT_AS_OF
+    assert r.state.tradable_shares("1101") == 1000, "NOT tradable at as_of"
+    assert dict(r.state.shares) == {"1101": 1000}
+    assert r.state.spendable_cash() == 10_000.0, "NOT spendable at as_of"
+
+    # and it is visible AS a deferral, not as an ordinary future claim
+    assert len(r.deferred_release_points) == 1
+    d = r.deferred_release_points[0]
+    assert d["leg"] == "credit_tradable_date"
+    assert d["declared_maturity_date"] == EXECUTION_SESSION
+    assert d["as_of"] == INTENT_AS_OF
+    assert d["matured_as_of"] is False
+
+
+def test_the_execution_phase_resolves_the_same_claim_exactly_as_before():
+    r = _execute(_p(), [_maturing_on_the_execution_session()])
+    claims = r.state.security_receivables
+    assert len(claims) == 1
+    assert claims[0].shares == Fraction(100)
+    assert claims[0].credit_tradable_date == EXECUTION_SESSION
+    assert dict(r.state.shares) == {"1101": 1000}
+    assert r.deferred_release_points == (), "phase B never defers"
+
+
+def test_the_two_phases_agree_on_the_state_the_decision_stands_on():
+    """`portfolio_side_sha256` is a COMPARED field of the decision contract.
+
+    A deferral that moved the post-transition state would have turned an
+    unpublishable intent into an unexecutable one.
+    """
+    from core.b0_corporate_actions import _state_hash
+
+    a = _intent(_p(), [_maturing_on_the_execution_session()])
+    b = _execute(_p(), [_maturing_on_the_execution_session()])
+    assert _state_hash(a.state) == _state_hash(b.state)
+
+
+def test_a_cash_leg_maturing_on_the_execution_session_is_owned_not_spendable():
+    ev = _ev("capital_reduction", INTENT_AS_OF, share_multiplier=0.8,
+             cash_per_share=2.0, cash_payment_date=EXECUTION_SESSION)
+    r = _intent(_p(), [ev])
+    assert len(r.state.cash_receivables) == 1
+    assert r.state.cash_receivables[0].cash_available_date == EXECUTION_SESSION
+    assert r.state.spendable_cash() == 10_000.0, "the refund is not cash yet"
+    assert [d["leg"] for d in r.deferred_release_points] == [
+        "cash_available_date"]
+
+
+def test_a_genuinely_unreconstructible_event_still_blocks_in_both_phases():
+    """The hard stop stays hard: NOT_RECONSTRUCTIBLE plus exposure."""
+    ev = CorporateActionEvent(
+        "1101", "stock_dividend", INTENT_AS_OF, NOT_RECONSTRUCTIBLE,
+        knowledge_ts="2019-12-01", stock_ratio=Fraction(1, 10),
+        credit_tradable_date=EXECUTION_SESSION,
+        reason="bonus ratio absent from source")
+    for phase in (_intent, _execute):
+        with pytest.raises(CorporateActionReconstructionBlock,
+                           match="NOT_RECONSTRUCTIBLE"):
+            phase(_p(), [ev])
+
+
+def test_an_event_with_no_credit_date_at_all_still_blocks_in_both_phases():
+    """§6.1.7: when it becomes tradable is not inferable, in either phase."""
+    ev = _ev("stock_dividend", INTENT_AS_OF, stock_ratio=Fraction(1, 10),
+             credit_tradable_date="")
+    for phase in (_intent, _execute):
+        with pytest.raises(CorporateActionReconstructionBlock,
+                           match="credit_tradable_date"):
+            phase(_p(), [ev])
+
+
+def test_the_declaration_may_not_contradict_the_calendar_it_came_with():
+    """A phase-B calendar cannot claim to be a phase-A one, so phase B is
+    STRUCTURALLY incapable of deferring."""
+    with pytest.raises(CorporateActionTransitionError, match="unobserved"):
+        transition_portfolio(
+            redate(_p(), INTENT_AS_OF), [_maturing_on_the_execution_session()],
+            as_of=INTENT_AS_OF, sessions=PHASE_B_SESSIONS,
+            period=INTENT_AS_OF[:7], forward_sessions_unobserved=True)
+
+
+def test_a_release_point_on_or_before_as_of_is_never_deferred():
+    """The deferral is only ever for a claim that has NOT matured at `as_of`.
+
+    A credit date the declared calendar can still resolve must be resolved: this
+    one snaps to a real session and is released into tradable shares.
+    """
+    ev = _ev("stock_dividend", "2020-01-03", stock_ratio=Fraction(1, 10),
+             credit_tradable_date="2020-01-04")
+    r = _intent(_p(), [ev])
+    assert r.deferred_release_points == ()
+    assert dict(r.state.shares) == {"1101": 1100}, "matured and released"
+
+
+def test_the_default_declaration_leaves_the_general_path_alone():
+    """No caller that says nothing gets different behaviour.
+
+    The sealed historical replay and every diagnostic call `transition_portfolio`
+    without the declaration, against a calendar that already covers their whole
+    horizon. A release point still outside THAT calendar is a fact the sources
+    cannot supply, and it must stay a block.
+    """
+    ev = _ev("stock_dividend", "2020-01-06", stock_ratio=Fraction(1, 10),
+             credit_tradable_date="2021-06-01")
+    with pytest.raises(CorporateActionReconstructionBlock,
+                       match="outside the canonical calendar"):
+        _run(_p(), [ev], "2020-01-06")

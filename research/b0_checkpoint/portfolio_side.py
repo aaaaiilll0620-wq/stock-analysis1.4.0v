@@ -422,6 +422,34 @@ class PortfolioSide:
     claim_only_securities: tuple
     held_without_market_row: tuple
     transition_ledger: tuple
+    # §6.1.6 case 2, verbatim from the transition result. Diagnostics and
+    # provenance only: it is NOT in `portfolio_side_payload`, because that
+    # payload's hash is a COMPARED field of the two-phase decision contract and
+    # a phase-A-only annotation has no business inside a phase-invariant hash.
+    deferred_release_points: tuple = ()
+
+
+def forward_sessions_are_unobserved(sessions, as_of: str) -> bool:
+    """Does the DECLARED calendar stop at `as_of`? Read, never guessed.
+
+    This is the L3 route's half of §6.1.6 case 2 (see `_resolve_release_point`
+    in `core.b0_corporate_actions`). Phase A -- the decision-intent run -- is
+    handed a calendar that legitimately ends at the decision date, because the
+    execution session has not been observed. Phase B is handed the same calendar
+    one session longer.
+
+    The predicate is a statement ABOUT THE CALENDAR THAT WAS HANDED IN and about
+    nothing else: it does not know or ask whether an execution session exists,
+    what date it would carry, or which claims would mature on it. There is no
+    weekday arithmetic and no holiday table here or below. A calendar with any
+    session after `as_of` answers False, so the execution phase can never reach
+    the deferral branch and its transition is byte-identical to today's.
+
+    Kept here rather than inside the normative module because "the declared
+    calendar of an L3 phase" is this route's fact; `core.b0_corporate_actions`
+    receives it as an explicit declaration and re-checks it.
+    """
+    return not any(str(s) > str(as_of) for s in sessions)
 
 
 def transition(portfolio: PortfolioState, *, as_of: str, sessions,
@@ -432,13 +460,24 @@ def transition(portfolio: PortfolioState, *, as_of: str, sessions,
     thing this function adds is that the event set handed to the engine is
     derived from the REDATED state's entitlement securities, which is the
     domain B0.7 froze -- shares OR claims, not the spell ledger alone.
+
+    ... and the §6.1.6 case-2 declaration, which is the second thing it adds and
+    is derived from the calendar it was already given. Without it a held name
+    with a claim maturing on the unobserved execution session made the period
+    undecidable: `_first_session_on_or_after` found no session for the credit
+    date and raised `CorporateActionReconstructionBlock`, so the intent phase
+    could not publish at all. That block is for facts the sources cannot
+    support; a claim that matures on a session this phase is defined not to look
+    at is a known future event, and phase B resolves it by construction.
     """
     state = ca.redate(portfolio, str(as_of))
     held_events = [e for sid in state.entitlement_securities
                    for e in events_by_sid.get(sid, ())]
     return state, ca.transition_portfolio(
         state, held_events, as_of=str(as_of), sessions=tuple(sessions),
-        period=str(period))
+        period=str(period),
+        forward_sessions_unobserved=forward_sessions_are_unobserved(
+            sessions, str(as_of)))
 
 
 def build_portfolio_side(assembled: dict, portfolio: PortfolioState, *,
@@ -526,7 +565,13 @@ def with_transition_ledger(side: PortfolioSide, tr) -> PortfolioSide:
     return replace(
         side,
         transition_ledger=tuple(dict(rec.__dict__) for rec in tr.ledger),
-        applied_ca_event_ids=tuple(sorted(tr.applied_event_ids)))
+        applied_ca_event_ids=tuple(sorted(tr.applied_event_ids)),
+        # Carried so that a deferred release point is visible as a deferral
+        # rather than as an ordinary future-dated claim. `getattr` because an
+        # older result object predates the field and a missing annotation must
+        # not take down a period.
+        deferred_release_points=tuple(
+            getattr(tr, "deferred_release_points", ()) or ()))
 
 
 def complete_sources(market_sources, side: PortfolioSide):

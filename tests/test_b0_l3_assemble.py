@@ -138,7 +138,9 @@ def test_both_price_legs_must_be_declared(run_dir):
     trees, so one landing directory cannot address both."""
     legs = A.assert_both_price_legs_are_declared(run_dir)
     assert legs["pre-2019"] > 2000            # one parquet per security
-    assert legs["2019+"] == 2                 # the two declared archives
+    # Was 2; 股價0817-0828.zip (2026-08-18 .. 2026-08-28) is the third declared
+    # archive. The count is asserted from the declaration, not chosen here.
+    assert legs["2019+"] == len(P.CONSUMED_ARCHIVE_DECLARATIONS) == 3
 
 
 @sources

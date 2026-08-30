@@ -669,3 +669,117 @@ def test_delivery_is_over_the_economic_interest_set_not_the_share_ledger():
     assert "9999" in reached
     assert "5555" not in reached
 
+
+# --- §6.1.6 case 2 · the intent phase must be able to decide at all -------------
+#
+# `SESSIONS` above already has the phase-A shape: it ends at `AS_OF`, because a
+# decision-intent run is executed ON the decision date and the next trading
+# session has not been observed. Phase B is handed the same calendar one session
+# longer.
+#
+# Before the fix, a held name with a claim maturing exactly on that unobserved
+# session made the period undecidable: `_first_session_on_or_after` found no
+# session for the credit date and the transition raised
+# `CorporateActionReconstructionBlock`, which is the outcome reserved for facts
+# the sources cannot support. A known future event is not one of those.
+
+EXECUTION_SESSION = "2026-04-01"
+PHASE_B_SESSIONS = SESSIONS + (EXECUTION_SESSION,)
+
+
+def _ca_event(sid="2330", *, reconstructibility=None, credit=EXECUTION_SESSION,
+              reason=""):
+    return CorporateActionEvent(
+        sid, "stock_dividend", AS_OF,
+        reconstructibility or RECONSTRUCTIBLE,
+        knowledge_ts=AS_OF, stock_ratio=Fraction(1, 10),
+        credit_tradable_date=credit, reason=reason)
+
+
+def test_the_declaration_is_read_off_the_calendar_and_never_guessed():
+    assert ps.forward_sessions_are_unobserved(SESSIONS, AS_OF) is True
+    assert ps.forward_sessions_are_unobserved(PHASE_B_SESSIONS, AS_OF) is False
+    # a calendar that stops BEFORE as_of is still "nothing observed after as_of"
+    assert ps.forward_sessions_are_unobserved(SESSIONS[:-1], AS_OF) is True
+
+
+def test_the_intent_phase_decides_a_period_whose_claim_matures_on_execution():
+    _, tr = ps.transition(_state(), as_of=AS_OF, sessions=SESSIONS,
+                          events_by_sid={"2330": (_ca_event(),)},
+                          period="2026-03")
+    assert tr.applied_event_ids == ("2330|stock_dividend|2026-03-31",)
+
+    new = [r for r in tr.state.security_receivables if r.security_id == "2330"]
+    assert len(new) == 1
+    assert new[0].shares == Fraction(100)                    # OWNED
+    assert new[0].credit_tradable_date == EXECUTION_SESSION  # maturity recorded
+    assert new[0].credit_tradable_date > AS_OF               # not matured at as_of
+    assert "2330" in tr.state.held_securities
+
+    # NOT tradable and NOT spendable at as_of -- §6.1.4's other two are untouched
+    assert tr.state.tradable_shares("2330") == 1000
+    assert dict(tr.state.shares) == {"2330": 1000, "1101": 500}
+    assert tr.state.spendable_cash() == 1_000_000.0
+
+    assert [d["declared_maturity_date"] for d in tr.deferred_release_points] == [
+        EXECUTION_SESSION]
+    assert all(d["matured_as_of"] is False for d in tr.deferred_release_points)
+
+
+def test_the_execution_phase_resolves_it_and_defers_nothing():
+    _, tr = ps.transition(_state(), as_of=AS_OF, sessions=PHASE_B_SESSIONS,
+                          events_by_sid={"2330": (_ca_event(),)},
+                          period="2026-03")
+    new = [r for r in tr.state.security_receivables if r.security_id == "2330"]
+    assert len(new) == 1
+    assert new[0].shares == Fraction(100)
+    assert new[0].credit_tradable_date == EXECUTION_SESSION
+    assert tr.deferred_release_points == ()
+
+
+def test_both_phases_stand_on_the_same_post_transition_state():
+    """`portfolio_side_sha256` is COMPARED across the two phases."""
+    _, a = ps.transition(_state(), as_of=AS_OF, sessions=SESSIONS,
+                         events_by_sid={"2330": (_ca_event(),)}, period="2026-03")
+    _, b = ps.transition(_state(), as_of=AS_OF, sessions=PHASE_B_SESSIONS,
+                         events_by_sid={"2330": (_ca_event(),)}, period="2026-03")
+    assert ca._state_hash(a.state) == ca._state_hash(b.state)
+    assert checkpoint_hash(a.state) == checkpoint_hash(b.state)
+
+
+def test_a_genuinely_unreconstructible_claim_still_blocks_in_both_phases():
+    ev = _ca_event(reconstructibility=NOT_RECONSTRUCTIBLE,
+                   reason="bonus ratio absent from source")
+    for sessions in (SESSIONS, PHASE_B_SESSIONS):
+        with pytest.raises(ca.CorporateActionReconstructionBlock,
+                           match="NOT_RECONSTRUCTIBLE"):
+            ps.transition(_state(), as_of=AS_OF, sessions=sessions,
+                          events_by_sid={"2330": (ev,)}, period="2026-03")
+
+
+def test_an_absent_credit_date_still_blocks_in_both_phases():
+    ev = _ca_event(credit="")
+    for sessions in (SESSIONS, PHASE_B_SESSIONS):
+        with pytest.raises(ca.CorporateActionReconstructionBlock,
+                           match="credit_tradable_date"):
+            ps.transition(_state(), as_of=AS_OF, sessions=sessions,
+                          events_by_sid={"2330": (ev,)}, period="2026-03")
+
+
+def test_the_deferral_is_carried_onto_the_portfolio_side_but_not_into_its_hash():
+    """Provenance, not a decision input.
+
+    `portfolio_side_payload` is an explicit whitelist and the deferral is not on
+    it, because that payload's hash must be identical in both phases by
+    construction.
+    """
+    _, tr = ps.transition(_state(), as_of=AS_OF, sessions=SESSIONS,
+                          events_by_sid={"2330": (_ca_event(),)},
+                          period="2026-03")
+    side = ps.build_portfolio_side(
+        _assembled([_row("2330"), _row("1101")]), tr.state, sessions=SESSIONS,
+        events_by_sid={})
+    side = ps.with_transition_ledger(side, tr)
+    assert len(side.deferred_release_points) == 1
+    assert side.deferred_release_points[0]["security_id"] == "2330"
+    assert "deferred_release_points" not in ps.portfolio_side_payload(side)

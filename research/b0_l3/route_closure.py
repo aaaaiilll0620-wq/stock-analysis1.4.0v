@@ -46,6 +46,7 @@ two inventories must agree family for family.
 from __future__ import annotations
 
 import ast
+import json
 import os
 import sys
 
@@ -266,6 +267,170 @@ def assert_inventories_agree() -> None:
             % (len(extra), extra))
 
 
+# --- what is still owed, DERIVED ----------------------------------------------
+#
+# The owed list used to be four sentences somebody typed, and it went stale in
+# both directions: it kept naming the v1.32 freeze after v1.37 landed, and when
+# the entries were cleared it was cleared to a literal `[]`. A literal empty list
+# makes `l3_route_seal.assert_route_is_sealable()` — its only consumer, and a
+# PASS line the runner prints — unable to fail under any input. A gate that
+# cannot fail is not a gate; it is a decoration on the preflight.
+#
+# So the list is derived from facts that can be READ, the same way the code
+# closure and the dataset inventory are. Two families of fact:
+#
+#   the master freeze   `master_prereg_freeze.json` is the record every spec-sha
+#                       preflight consults. If it is unreadable, not frozen, or
+#                       carries an unmet blocking requirement, the route is not
+#                       sealable and this says so in the freeze's own words.
+#   route components    the files behind each `done` claim below. Existence is
+#                       checked, and where a claim is about BEHAVIOUR rather than
+#                       presence ("the runner invokes the native decision
+#                       route") the file must still reference the symbol that
+#                       makes the claim true.
+#
+# The component table is hand-written, which is the thing this module argues
+# against everywhere else. It is admissible here only because it fails CLOSED:
+# a wrong or stale path cannot make the route look sealable, it can only make
+# the gate refuse and name the path it could not find.
+
+MASTER_FREEZE_PATH = os.path.join(
+    REPO, "research", "b0_registry", "master_prereg_freeze.json")
+
+FROZEN_STATUS = "NORMATIVE_FROZEN"
+
+ROUTE_COMPONENTS: dict = {
+    "leaf producers + aggregate assembler (W6a/W4)": {
+        "path": os.path.join("research", "b0_materializer",
+                             "source_ownership_manifest.py"),
+        "must_reference": ("REQUIRED_DATASETS", "assemble_aggregate"),
+    },
+    "L3 run-scoped immutable run layout (W7)": {
+        "path": os.path.join("core", "b0_l3_run_layout.py"),
+        "must_reference": ("create_run_dir",),
+    },
+    "W6b snapshot receipt, period derivation and guards": {
+        "path": os.path.join("research", "b0_l3", "l3_snapshot.py"),
+        "must_reference": ("plan", "assert_ready"),
+    },
+    "W6b-2 readers for all nine families": {
+        "path": os.path.join("research", "b0_l3", "l3_readers.py"),
+        "must_reference": ("read_calendar",),
+    },
+    "W6b-2 market-side assembly": {
+        "path": os.path.join("research", "b0_l3", "l3_assemble.py"),
+        "must_reference": ("build_decision_input",),
+    },
+    "portfolio-side checkpoint materialization (B7)": {
+        "path": os.path.join("research", "b0_checkpoint", "portfolio_side.py"),
+        "must_reference": ("PortfolioState",),
+    },
+    "prospective runner invoking the native decision route": {
+        "path": os.path.join("research", "b0_l3_runner",
+                             "run_l3_prospective.py"),
+        "must_reference": ("run_decision",),
+    },
+}
+
+
+def _referenced_names(path: str) -> set:
+    """Every identifier a file binds, imports, defines or reads.
+
+    Read from the AST rather than by substring: `run_decision` appears in this
+    runner's prose as well as in its call, and a claim satisfied by a comment is
+    not satisfied.
+    """
+    tree = ast.parse(open(path, encoding="utf-8").read())
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name):
+            out.add(node.id)
+        elif isinstance(node, ast.Attribute):
+            out.add(node.attr)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                               ast.ClassDef)):
+            out.add(node.name)
+        elif isinstance(node, ast.alias):
+            out.add(node.name.split(".")[-1])
+            if node.asname:
+                out.add(node.asname)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            out.add(node.module.split(".")[-1])
+    return out
+
+
+def master_freeze_record() -> dict:
+    """The freeze record as it is on disk. Raises rather than defaulting."""
+    with open(MASTER_FREEZE_PATH, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def still_owed_before_a_seal_may_be_taken() -> tuple:
+    """What the route still owes, read off the repository. Never a literal.
+
+    Empty means every checked fact holds RIGHT NOW, not that someone once
+    decided there was nothing left. If the freeze regains an unmet blocking
+    requirement, or a component behind a `done` claim goes missing or stops
+    doing what the claim says, it reappears here and the seal gate refuses.
+    """
+    owed: list = []
+
+    # --- the master freeze -----------------------------------------------------
+    try:
+        record = master_freeze_record()
+    except Exception as exc:                                  # noqa: BLE001
+        owed.append(
+            "MASTER FREEZE: %s could not be read (%s: %s). It is the record "
+            "every spec-sha preflight consults; a route cannot be sealed "
+            "against a freeze nobody can read."
+            % (os.path.relpath(MASTER_FREEZE_PATH, REPO).replace("\\", "/"),
+               type(exc).__name__, str(exc)[:120]))
+        record = None
+
+    if record is not None:
+        status = record.get("status")
+        if status != FROZEN_STATUS:
+            owed.append(
+                "MASTER FREEZE: the freeze record (v%s) records status %r, not "
+                "%r. A seal taken against an unfrozen specification binds a "
+                "route whose spec may still move under it."
+                % (record.get("version"), status, FROZEN_STATUS))
+        unmet = [str(k) for k in (record.get("unmet_blocking_requirements")
+                                  or ())]
+        if unmet:
+            owed.append(
+                "MASTER FREEZE: the freeze record (v%s) carries %d unmet "
+                "blocking requirement(s): %s. Satisfaction there is derived "
+                "from the data by a verifier, so this is the data saying it has "
+                "not arrived — not a flag anyone can clear."
+                % (record.get("version"), len(unmet), ", ".join(sorted(unmet))))
+
+    # --- the components behind each `done` claim -------------------------------
+    for name, spec in sorted(ROUTE_COMPONENTS.items()):
+        rel = str(spec["path"]).replace("\\", "/")
+        path = os.path.join(REPO, spec["path"])
+        if not os.path.isfile(path):
+            owed.append(
+                "ROUTE COMPONENT: %s — %s is not on disk. The closure claims "
+                "this landed; the repository does not carry it." % (name, rel))
+            continue
+        try:
+            names = _referenced_names(path)
+        except SyntaxError as exc:
+            owed.append(
+                "ROUTE COMPONENT: %s — %s does not parse (%s). A component that "
+                "cannot be read cannot be sealed." % (name, rel, str(exc)[:120]))
+            continue
+        absent = [s for s in spec.get("must_reference", ()) if s not in names]
+        if absent:
+            owed.append(
+                "ROUTE COMPONENT: %s — %s no longer references %s. The file is "
+                "present but the claim it stands for is not."
+                % (name, rel, ", ".join(sorted(absent))))
+
+    return tuple(owed)
+
+
 # --- what a seal would bind ----------------------------------------------------
 
 def seal_payload() -> dict:
@@ -274,8 +439,12 @@ def seal_payload() -> dict:
     This does NOT take a seal: A2 ruled the closure is the whole replayable
     route. What it does is fix WHAT is sealed, so the boundary is not
     renegotiated at sealing time.  Lineage/capture existence is enforced by the
-    route-seal writer itself and therefore is not duplicated as a stale text
-    item here.
+    route-seal writer itself (`write_route_seal` -> `verified_capture_binding`)
+    and therefore is not duplicated as a stale text item here.
+
+    `still_owed_before_a_seal_may_be_taken` is DERIVED on every call, never a
+    literal: it is the one field `l3_route_seal.assert_route_is_sealable()`
+    refuses on, and a hardcoded `[]` there would leave that gate unable to fail.
     """
     closure = assert_closure_is_wholly_normative()
     assert_inventories_agree()
@@ -290,7 +459,8 @@ def seal_payload() -> dict:
         "dataset_families": {
             k: {"feeds": list(v["feeds"]), "locator_form": v["locator_form"]}
             for k, v in sorted(DATASET_FAMILIES.items())},
-        "still_owed_before_a_seal_may_be_taken": [],
+        "still_owed_before_a_seal_may_be_taken":
+            list(still_owed_before_a_seal_may_be_taken()),
         "done": [
             "nine dataset leaf producers + aggregate assembler (W6a/W4)",
             "L3 run-scoped immutable run layout (W7)",
@@ -308,6 +478,4 @@ def seal_payload() -> dict:
 
 
 if __name__ == "__main__":
-    import json
-
     print(json.dumps(seal_payload(), ensure_ascii=False, indent=1))

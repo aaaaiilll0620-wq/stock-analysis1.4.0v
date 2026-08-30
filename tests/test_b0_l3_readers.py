@@ -223,17 +223,25 @@ def test_every_family_has_a_reader_and_none_is_undeclared():
 @sources
 def test_a_reader_reads_only_what_the_leaf_marked_consumed():
     """Six of seven for status — 事件+下市.zip is a different source
-    (build_market_state.py:52) and must stay unread. For prices, 2 of the 26
+    (build_market_state.py:52) and must stay unread. For prices, 3 of the 27
     entries in the export directory, plus the whole pre-2019 cache leg, which
-    lives in a different tree entirely (§2.8.3)."""
+    lives in a different tree entirely (§2.8.3).
+
+    The 2019+ leg was 2 of 26 until 股價0817-0828.zip (2026-08-18 .. 2026-08-28)
+    was declared. The not_consumed count stays 24 because the new archive
+    entered as CONSUMED — it never sat in the rejected pile — so this line is
+    the one that must move, not that one.
+    """
     import collections
 
     prices = P.build(RUN, AS_OF)
     legs = collections.Counter(e.get("leg") for e in R.consumed_entries(prices))
-    assert legs["2019+"] == 2
+    assert legs["2019+"] == 3
     assert legs["pre-2019"] > 2000
     assert sum(1 for e in prices["entries"]
                if e["disposition"] == "not_consumed") == 24
+    assert len([e for e in prices["entries"]
+                if e.get("leg") != "pre-2019"]) == 27
 
     status = F.build("security_status", RUN, AS_OF)
     consumed = [e["locator"] for e in R.consumed_entries(status)]
@@ -487,3 +495,73 @@ def test_price_parity_against_the_sealed_panel(run_dir):
     got = VP.verify_prices(run_dir)
     assert got["rows"] > 3_000_000
     assert got["columns_checked"] == ["open", "close", "volume_shares"]
+
+
+# --- mixed declared formats within one family -----------------------------------
+#
+# These three are deliberately NOT @heavy. The defect they cover — read_revenue
+# calling pd.read_excel on every consumed entry — shipped precisely because its
+# only coverage sat behind B0_L3_PARITY=1, so the default suite was green on the
+# day a second format was declared into the family.
+
+
+def test_an_unregistered_declared_format_aborts_naming_it(tmp_path):
+    """Guessing a parser from the extension is how a UTF-16/TAB export becomes a
+    silent one-column frame. A declared format with no registered reader must
+    therefore abort, and must name both the format and the file so the operator
+    knows which of the two to change."""
+    path = os.path.join(str(tmp_path), "revenue.parquet")
+    open(path, "wb").close()
+    entry = {"locator": "revenue.parquet", "format": "parquet:snappy"}
+
+    with pytest.raises(R.ReaderError) as excinfo:
+        R._read_declared_table(entry, path)
+
+    message = str(excinfo.value)
+    assert "parquet:snappy" in message
+    assert "revenue.parquet" in message
+
+
+@sources
+def test_the_revenue_family_reads_both_of_its_declared_formats(tmp_path):
+    """The family declares a workbook AND a zip wrapping a UTF-16/TAB csv. The
+    completed July export exists only in the archive, and the reader does not
+    clip by window_end — that belongs to the panel builder — so July arriving
+    here is what the L3 prospective path actually depends on."""
+    run = str(tmp_path)
+    write_leaf(run, F.build("revenue", RUN, AS_OF))
+
+    formats = {e["locator"]: e.get("format")
+               for e in R.consumed_entries(R._leaf_and_landing(run, "revenue")[0])}
+    assert set(formats.values()) == {"xlsx", "zip:csv:utf-16:tab"}
+
+    frame = R.read_revenue(run)
+    july = frame[frame["date"].astype(str).str.startswith("2026-07")]
+    assert len(july) == 2002
+    assert july["stock_id"].nunique() == 2002
+
+
+@sources
+def test_the_overlapping_month_is_decided_by_ownership_not_by_order(tmp_path):
+    """Both sources carry 202607: the workbook holds a PARTIAL 406 securities
+    frozen at its 2026-08-06 export, the archive holds the completed 2,002 and
+    OWNS the month. On the 406 they share they also DISAGREE — 3003 was revised
+    658,000 -> 657,875 千元 — so that security is the discriminator. If concat
+    order, drop_duplicates or a first-wins guard were deciding this, the stale
+    figure could win and nothing would raise."""
+    run = str(tmp_path)
+    write_leaf(run, F.build("revenue", RUN, AS_OF))
+
+    frame = R.read_revenue(run)
+    july = frame[frame["date"].astype(str).str.startswith("2026-07")]
+
+    revised = july[july["stock_id"] == "3003"]["revenue"]
+    assert len(revised) == 1
+    assert float(revised.iloc[0]) == 657_875_000.0
+    assert float(revised.iloc[0]) != 658_000_000.0
+
+    # The workbook left these two unpublished ("."); only the owning source has
+    # a figure at all, so their presence is a second, independent witness that
+    # the archive was read rather than merely declared.
+    for stock_id in ("2838", "6020"):
+        assert len(july[july["stock_id"] == stock_id]) == 1

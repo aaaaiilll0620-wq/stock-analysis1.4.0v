@@ -167,11 +167,27 @@ def test_the_ca_block_is_reached_before_the_unexplained_gap_path():
 
     from core import b0_route
 
-    src = inspect.getsource(b0_route.run_decision)
-    ca_at = src.index("assert_exposure_reconstructible")
-    gap_at = src.index("assert_no_unexplained_gap_in_holdings")
-    mark_at = src.index("mark_portfolio(")
+    owner = inspect.getsource(b0_route.build_decision_intent)
+    ca_at = owner.index("assert_exposure_reconstructible")
+    gap_at = owner.index("assert_no_unexplained_gap_in_holdings")
+    mark_at = owner.index("mark_portfolio(")
     assert ca_at < gap_at < mark_at
+
+    # The three moved wholesale into `build_decision_intent` when the
+    # decision/execution split landed (2026-08-30), and reading only
+    # `run_decision` stopped seeing them -- the ordering held, the test did
+    # not. Asserting the order in its new home is therefore only half: a
+    # second, unordered path through `run_decision` would satisfy it while the
+    # guarantee was gone. So also require that the caller reaches a decision
+    # ONLY through the owner, and that it holds no second call site of its own.
+    caller = inspect.getsource(b0_route.run_decision)
+    assert "build_decision_intent(" in caller
+    for symbol in ("assert_exposure_reconstructible",
+                   "assert_no_unexplained_gap_in_holdings"):
+        assert symbol not in caller, (
+            "%s is called from run_decision as well as build_decision_intent; "
+            "two call sites mean the ordering asserted above no longer "
+            "constrains what the route actually does" % symbol)
 
 
 def test_share_unit_treatment_is_identity_change_not_a_multiplier():

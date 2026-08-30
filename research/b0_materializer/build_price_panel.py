@@ -7,10 +7,19 @@ worth stating precisely, because the fix is not "stop touching that path":
 
     the composed canonical source IS
         <= 2018   ~/tej_cache/price_valuation, restricted to date < 2019-01-01
-        >= 2019   股價 2019-2022.zip + 股價2023-20260817.zip
+        >= 2019   the archives DECLARED in
+                  build_prices_leaf.CONSUMED_ARCHIVE_DECLARATIONS
     and the D-1 quarantine is on the 2019+ ERA of that cache, not on the cache
     as an object. `research/d1_price_universe/register_price_source.py` composes
     exactly these two legs and fingerprints them as `b0_price_universe_20260817`.
+
+The 2019+ leg is an INVENTORY, never a count and never a glob — see
+`declared_zip_inventory`. It also carries a roster basis per archive: an archive
+queried as "the last N sessions" cannot contain anything that left the exchange
+before the query, so it is admissible as prices and inadmissible as evidence of
+delisted coverage. `DELISTED_COVERAGE_POLICY` travels into the receipt for that
+reason; D1-6's `includes_delisted` remains a property of the composed corpus,
+decided by `assert_price_source_admissible`, not by any one archive.
 
 So the cutoff is the whole point, and it is enforced mechanically here rather
 than trusted: every row from the cache leg is asserted to be pre-2019, every row
@@ -48,6 +57,7 @@ import zipfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, REPO)
+sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(REPO, "research", "d1_price_universe"))
 
 from core.b0_master_prereg import spec as frozen_spec          # noqa: E402
@@ -55,6 +65,13 @@ from core.b0_price_universe import (                            # noqa: E402
     CONTAMINATED_CORPUS_SHA256,
     PriceSourceContract,
     assert_price_source_admissible,
+)
+# The archive inventory is OWNED by the leaf producer and imported here, not
+# restated. Two copies of "which zips may be read" is two places to update and
+# one place to forget, and the forgotten one is the one that globs.
+from build_prices_leaf import (                                 # noqa: E402
+    CONSUMED_ARCHIVE_DECLARATIONS,
+    DELISTED_COVERAGE_POLICY,
 )
 
 IMPORTER_VERSION = "price_panel_importer_v1"
@@ -188,17 +205,71 @@ def cache_leg(date_min: str, date_max: str):
     return out
 
 
+def declared_zip_inventory(zip_dir: str = ""):
+    """The 2019+ archives this panel may read — BY NAME AND BY HASH.
+
+    ⚠ THIS REPLACES A COUNT, AND THE COUNT WAS THE DEFECT.
+
+    The guard here used to be `len(zips) != 2`. It looked strict and was not: a
+    count says nothing about WHICH files it counted, so it admits any two zips in
+    the directory and refuses the right three. Two failure modes it cannot tell
+    apart — a stray archive dropped in beside the real ones, and a real archive
+    swapped for something else — are exactly the ones `glob("*.zip")` creates.
+    Turning it into `!= 3` would move the same defect forward one file.
+
+    So the inventory is the declaration in `build_prices_leaf`, and the checks
+    are about identity rather than arithmetic:
+
+        undeclared present   ABORT, naming the file
+        declared absent      ABORT, naming the file
+        declared, bytes differ from the declaration   ABORT, naming both hashes
+
+    A declared archive passes at ANY count, and an undeclared one fails at any
+    count. Fail-closed in both directions: nothing is read that was not declared,
+    and nothing declared is quietly skipped.
+    """
+    zip_dir = zip_dir or ZIP_DIR
+    declared = CONSUMED_ARCHIVE_DECLARATIONS
+    found = {os.path.basename(p): p
+             for p in sorted(glob.glob(os.path.join(zip_dir, "*.zip")))}
+
+    undeclared = sorted(n for n in found if n not in declared)
+    if undeclared:
+        raise SystemExit(
+            "abort: %d archive(s) under %s are not in the declared price "
+            "inventory: %s. `*.zip` is not a contract and a count is not an "
+            "inventory — declare the archive in "
+            "build_prices_leaf.CONSUMED_ARCHIVE_DECLARATIONS (locator, bytes, "
+            "leg, measured span, roster basis) or take it out of the directory."
+            % (len(undeclared), zip_dir, undeclared))
+
+    missing = sorted(n for n in declared if n not in found)
+    if missing:
+        raise SystemExit(
+            "abort: declared price archive(s) %s are absent from %s. A declared "
+            "source that is not there is a silent skip, not a shorter panel."
+            % (missing, zip_dir))
+
+    upstream = {}
+    for name in sorted(declared):
+        sha = _file_sha(found[name])
+        if sha != declared[name]["raw_sha256"]:
+            raise SystemExit(
+                "abort: %s hashes to %s but the inventory declares %s. Same "
+                "name, different bytes is a different source; declare the new "
+                "bytes rather than reading them under the old declaration."
+                % (name, sha[:16], declared[name]["raw_sha256"][:16]))
+        upstream[name] = sha
+    return [found[n] for n in sorted(declared)], upstream
+
+
 def zip_leg(date_min: str, date_max: str):
     """>= 2019 leg. 成交量(千股) -> shares, to match the frozen adv20 lineage."""
     import pandas as pd
 
-    zips = sorted(glob.glob(os.path.join(ZIP_DIR, "*.zip")))
-    if len(zips) != 2:
-        raise SystemExit("abort: expected the two D-1 replacement zips, found %d"
-                         % len(zips))
-    frames, upstream = [], {}
+    zips, upstream = declared_zip_inventory()
+    frames = []
     for z in zips:
-        upstream[os.path.basename(z)] = _file_sha(z)
         with zipfile.ZipFile(z) as zf:
             name = zf.namelist()[0]
             with zf.open(name) as fh:
@@ -305,8 +376,18 @@ def main() -> None:
         "composition": {
             "pre_2019": "~/tej_cache/price_valuation, date < %s" % VINTAGE_BOUNDARY,
             "from_2019": sorted(zip_upstream),
+            "from_2019_declared_inventory": {
+                name: {"covers": list(d["covers"]),
+                       "roster_basis": d["roster_basis"]}
+                for name, d in sorted(CONSUMED_ARCHIVE_DECLARATIONS.items())},
             "boundary_enforced_mechanically": True,
+            "inventory_checked_by_name_and_hash_not_by_count": True,
         },
+        # Carried into the receipt so the limitation is readable at the artefact
+        # a consumer actually opens, not only in the leaf. `includes_delisted`
+        # above is the COMPOSED corpus's D1-6 standing; this says which archives
+        # may be cited toward it.
+        "delisted_coverage": DELISTED_COVERAGE_POLICY,
         "upstream_zip_sha256": zip_upstream,
         "quarantined_corpus_sha256": CONTAMINATED_CORPUS_SHA256,
         "quarantined_era_rows_dropped": True,

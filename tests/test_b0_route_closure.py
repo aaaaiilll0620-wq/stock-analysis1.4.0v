@@ -18,6 +18,7 @@ derivation catches what a list would not.
 from __future__ import annotations
 
 import ast
+import json
 import os
 import sys
 
@@ -26,7 +27,9 @@ import pytest
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "research", "b0_l3"))
 sys.path.insert(0, os.path.join(REPO, "research", "b0_materializer"))
+sys.path.insert(0, os.path.join(REPO, "research", "b0_l3_runner"))
 
+import l3_route_seal as rs                                        # noqa: E402
 from core.b0_master_prereg import NORMATIVE_MODULES              # noqa: E402
 from route_closure import (                                       # noqa: E402
     DATASET_FAMILIES,
@@ -40,7 +43,10 @@ from route_closure import (                                       # noqa: E402
     production_route_code_closure,
     retrospective_source_families,
     seal_payload,
+    still_owed_before_a_seal_may_be_taken,
 )
+
+ROUTE_CLOSURE_PY = os.path.join(REPO, "research", "b0_l3", "route_closure.py")
 
 
 # --- the derivation bug that made the first closure under-inclusive ------------
@@ -189,19 +195,139 @@ def test_the_manifest_engine_uses_the_derived_floor():
 
 # --- what a seal would bind ----------------------------------------------------
 
-def test_the_seal_payload_no_longer_repeats_landed_or_writer_owned_gates():
-    """Code closure is complete; capture existence is checked by the writer."""
+def test_the_seal_payload_owes_nothing_while_nothing_is_genuinely_outstanding():
+    """Direction one of the honesty check: empty, and empty for a REASON.
+
+    Emptiness here is a measurement — every fact behind a `done` claim was
+    re-checked on this call — not a decision someone recorded once. The three
+    items cleared since v1.34 (the master freeze, the portfolio side, the
+    runner) are each re-derived; the fourth, the `lineage_price_floor` capture,
+    was re-homed to `write_route_seal`'s `verified_capture_binding`, which is a
+    mechanical gate rather than a sentence, and is deliberately not restated
+    here.
+    """
     payload = seal_payload()
     assert payload["closure_kind"] == \
         "PRODUCTION_ROUTE_COMPLETE_REPLAYABLE_CLOSURE"
     owed = payload["still_owed_before_a_seal_may_be_taken"]
-    assert owed == []
+    assert owed == [], owed
+
+    # ... and on that basis the seal gate accepts, rather than being unable to
+    # refuse.
+    assert rs.assert_route_is_sealable()["code_closure_size"] > 0
 
     # What has landed must appear in `done` and NOT in `owed`.
     done = " ".join(payload["done"]).lower()
     for finished in ("leaf producers", "readers", "assembly", "portfolio",
                      "runner", "freeze"):
         assert finished in done, finished
+    for finished in ("leaf producer", "reader"):
+        assert not any(finished in o.lower() for o in owed), finished
+
+
+def test_a_freeze_that_regains_an_unmet_blocker_is_owed_and_the_gate_refuses(
+        tmp_path, monkeypatch):
+    """Direction two, injected as a real condition rather than stubbed.
+
+    A REAL freeze record — the repository's own, with one field changed to what
+    it would say if a blocking data requirement's verifier stopped being
+    satisfied — is written to disk and the module is pointed at it. Nothing
+    about `seal_payload` or `assert_route_is_sealable` is replaced; they read
+    the injected fact and must both react to it.
+    """
+    import route_closure as rc
+
+    with open(rc.MASTER_FREEZE_PATH, encoding="utf-8") as fh:
+        record = json.load(fh)
+    assert record["unmet_blocking_requirements"] == [], \
+        "the repository freeze is expected to be clean before injection"
+    record["unmet_blocking_requirements"] = ["price_universe_cross_source_audit"]
+
+    injected = os.path.join(str(tmp_path), "master_prereg_freeze.json")
+    with open(injected, "w", encoding="utf-8") as fh:
+        json.dump(record, fh, ensure_ascii=False)
+    monkeypatch.setattr(rc, "MASTER_FREEZE_PATH", injected)
+
+    owed = rc.seal_payload()["still_owed_before_a_seal_may_be_taken"]
+    assert owed, "an unmet blocking requirement must be declared, not swallowed"
+    assert any("price_universe_cross_source_audit" in o for o in owed), owed
+
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_route_is_sealable()
+    assert "price_universe_cross_source_audit" in str(exc.value)
+
+
+def test_a_route_component_that_went_missing_is_owed_and_the_gate_refuses(
+        monkeypatch):
+    """The other half of direction two: a `done` claim with nothing behind it.
+
+    The runner's entry is repointed at a path that does not exist — which is
+    what the repository would look like if the runner were removed — and the
+    gate must refuse and name it.
+    """
+    import route_closure as rc
+
+    gone = dict(rc.ROUTE_COMPONENTS)
+    name = "prospective runner invoking the native decision route"
+    assert name in gone, sorted(gone)
+    gone[name] = {
+        "path": os.path.join("research", "b0_l3_runner",
+                             "run_l3_prospective_removed.py"),
+        "must_reference": ("run_decision",),
+    }
+    monkeypatch.setattr(rc, "ROUTE_COMPONENTS", gone)
+
+    owed = rc.seal_payload()["still_owed_before_a_seal_may_be_taken"]
+    assert any("run_l3_prospective_removed.py" in o for o in owed), owed
+
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_route_is_sealable()
+    assert "not on disk" in str(exc.value)
+
+
+def test_a_component_that_stops_doing_what_its_claim_says_is_owed(monkeypatch):
+    """Presence is not the claim. `done` says the runner INVOKES the native
+    decision route, so a file that no longer references `run_decision` owes it —
+    checked against a real file in the repository that genuinely does not."""
+    import route_closure as rc
+
+    hollow = dict(rc.ROUTE_COMPONENTS)
+    hollow["prospective runner invoking the native decision route"] = {
+        # a real, present, parseable module that does not call run_decision
+        "path": os.path.join("research", "b0_l3", "route_closure.py"),
+        "must_reference": ("run_decision",),
+    }
+    monkeypatch.setattr(rc, "ROUTE_COMPONENTS", hollow)
+
+    owed = rc.seal_payload()["still_owed_before_a_seal_may_be_taken"]
+    assert any("run_decision" in o and "no longer references" in o
+               for o in owed), owed
+    with pytest.raises(rs.RouteSealError):
+        rs.assert_route_is_sealable()
+
+
+def test_the_owed_list_is_derived_on_every_call_not_written_down():
+    """The regression this file exists to prevent a second time.
+
+    The list was once replaced by the literal `[]`, which left the gate that
+    reads it unable to fail under any input. A literal there — empty or not — is
+    the defect, so the payload's value must be a CALL.
+    """
+    tree = ast.parse(open(ROUTE_CLOSURE_PY, encoding="utf-8").read())
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "seal_payload")
+    values = [v for ret in ast.walk(fn) if isinstance(ret, ast.Return)
+              and isinstance(ret.value, ast.Dict)
+              for k, v in zip(ret.value.keys, ret.value.values)
+              if isinstance(k, ast.Constant)
+              and k.value == "still_owed_before_a_seal_may_be_taken"]
+    assert len(values) == 1, "the owed key must be produced exactly once"
+    assert isinstance(values[0], ast.Call), \
+        "the owed list is a literal again; the seal gate cannot fail on it"
+
+    # and the derivation is callable on its own, returning a container the gate
+    # can be empty or non-empty about
+    assert isinstance(still_owed_before_a_seal_may_be_taken(), tuple)
 
 
 def test_the_seal_payload_carries_both_halves():

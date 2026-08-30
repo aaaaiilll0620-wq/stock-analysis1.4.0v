@@ -46,6 +46,22 @@ guessed.
     `SENTINEL_ZERO_POLICY` records that ruling next to the source it constrains,
     so the consumer cannot read the leaf without meeting it.
 
+4 · AN ARCHIVE ALSO EVIDENCES A ROSTER, AND NOT EVERY ARCHIVE EVIDENCES THE
+    SAME ONE
+    Two archives can carry the same eleven columns and still stand for different
+    facts. A multi-year bulk pull carries the securities that existed across the
+    years it spans, exits included. A query run today for "the last N sessions"
+    carries the roster that exists TODAY — and nothing that left before today can
+    appear in it, however many sessions it covers.
+
+    Nothing in the bytes raises when the second is mistaken for the first: the
+    columns match, the dates are real, the prices are real. What is absent is a
+    population, and an absent population is exactly the D-1 defect
+    (`core/b0_price_universe.py`). So the roster basis is DECLARED per archive
+    (`roster_basis`), and an archive that cannot evidence delisted coverage says
+    so in its own entry (`declared_properties.delisted_coverage`) rather than
+    leaving a future reader to re-derive it from the row counts.
+
     python research/b0_materializer/build_prices_leaf.py <run_dir> <run_id> <as_of>
 """
 from __future__ import annotations
@@ -123,7 +139,110 @@ POPULATION_AUTHORITY = {
 # enough to say". Measured on the 2026-03 state: 1,706 of 1,958 securities got a
 # fabricated spell start of 2019-01-02.
 
-CONSUMED_ARCHIVES = ("股價 2019-2022.zip", "股價2023-20260817.zip")
+# The roster an archive can evidence. Declared, because it is not visible in the
+# bytes: both bases produce the same eleven columns and the same real prices.
+ROSTER_BASIS_BULK_HISTORICAL = "BULK_HISTORICAL_QUERY"
+ROSTER_BASIS_CURRENT_SNAPSHOT = "CURRENT_ROSTER_SNAPSHOT"
+
+# ⚠ A NAMED, DECLARED LIMITATION OF 股價0817-0828.zip — not a caveat in prose.
+#
+# Measured here on 2026-08-30, not inferred: this archive's 1,954 securities are
+# EXACTLY the 1,954 present on 2026-08-17, the last session of
+# 股價2023-20260817.zip. Zero added over nine sessions, zero dropped. A corpus
+# that carries exits does not stay perfectly balanced by accident; a roster
+# queried today does, by construction.
+#
+# It is therefore admissible as PRICES and inadmissible as EVIDENCE OF COVERAGE.
+# The distinction has to survive in the manifest, because the next reader will
+# see nine clean sessions of a perfectly balanced panel — which is what a
+# complete corpus and a survivorship-filtered one look like from outside.
+ROSTER_SNAPSHOT_LIMITATION = {
+    "property": "ROSTER_SNAPSHOT_DERIVED_DOES_NOT_EVIDENCE_DELISTED_COVERAGE",
+    "roster_basis": ROSTER_BASIS_CURRENT_SNAPSHOT,
+    "measured": (
+        "17,586 rows = 1,954 securities x 9 sessions, 2026-08-18 .. 2026-08-28, "
+        "every session carrying all 1,954. The security set is identical to the "
+        "1,954 on 2026-08-17, the final session of 股價2023-20260817.zip: 0 "
+        "added, 0 dropped. That is the signature of a current-roster query run "
+        "on 2026-08-30, not of a corpus that carries exits."),
+    "corroboration": (
+        "TEJ pads non-trading names instead of omitting them, so balance is not "
+        "evidence of trading either: 1589 and 4804 carry frozen OHLC (5.5400 "
+        "and 3.2700) with 0 成交量(千股) on all nine sessions."),
+    "admissible_as": "prices for securities listed on 2026-08-17",
+    "inadmissible_as": (
+        "evidence that the composed corpus carries securities that left the "
+        "exchange. It may never be cited toward D1-6 includes_delisted."),
+    "does_not_change_includes_delisted": (
+        "PriceSourceContract.includes_delisted for b0_price_universe_20260817 "
+        "was earned by the 2019-2025 era of the other two legs and re-verified "
+        "by rebuild_audit_new_source; nine sessions in 2026-08 add no year to "
+        "the C1 window (2019-2025) and no termination to the 2018-12-28 C2 "
+        "cluster, so they can neither support the standing nor withdraw it. A "
+        "slice that cannot move a gate must not be read as having passed it."),
+}
+
+# ⚠ THE INVENTORY IS BY NAME AND BY HASH, NEVER BY COUNT.
+#
+# `build_price_panel.zip_leg` used to guard the same directory with
+# `len(zips) != 2`. A count is not an inventory: it admits any two zips and
+# refuses the right three, which is how a stray file gets to matter. Every
+# archive that may be read is named here with the bytes it must have, the leg it
+# belongs to, the span it actually covers, and the roster it can evidence.
+#
+# `covers` is MEASURED, not taken from the filename. 股價0817-0828.zip is named
+# for 0817 and does not contain 2026-08-17 at all.
+CONSUMED_ARCHIVE_DECLARATIONS = {
+    "股價 2019-2022.zip": {
+        "leg": "2019+",
+        "raw_sha256":
+            "41ef1cce47ffb8dc9f58fb9c47cfd579b00fbeab61b61cb3a4fc5df0e0823413",
+        "covers": ("2019-01-02", "2022-12-30"),
+        "roster_basis": ROSTER_BASIS_BULK_HISTORICAL,
+    },
+    "股價2023-20260817.zip": {
+        "leg": "2019+",
+        "raw_sha256":
+            "049881046ef564e856c3564244337b00bc284707744d0595d8ced0842e19e409",
+        "covers": ("2023-01-03", "2026-08-17"),
+        "roster_basis": ROSTER_BASIS_BULK_HISTORICAL,
+    },
+    "股價0817-0828.zip": {
+        "leg": "2019+",
+        "raw_sha256":
+            "c8aad1da263300838a8eb6817f5b20d72e7f55fa20cd992cdb7500447741d2f0",
+        "covers": ("2026-08-18", "2026-08-28"),
+        "roster_basis": ROSTER_BASIS_CURRENT_SNAPSHOT,
+        "declared_properties": {"delisted_coverage": ROSTER_SNAPSHOT_LIMITATION},
+    },
+}
+
+CONSUMED_ARCHIVES = tuple(CONSUMED_ARCHIVE_DECLARATIONS)
+
+# Derived from the declarations, so the family-level statement cannot drift from
+# the per-archive one. D1-6's `includes_delisted` is a property of the COMPOSED
+# corpus and is not restated here — restating it would be a second place to
+# update and one place to forget. What is stated is which archives can and
+# cannot be cited toward it.
+DELISTED_COVERAGE_POLICY = {
+    "rule": "ROSTER_BASIS_IS_DECLARED_PER_ARCHIVE",
+    "detail": (
+        "an archive queried as 'the last N sessions' carries the roster that "
+        "exists at query time; nothing that left the exchange before then can "
+        "appear in it, at any session count. Same eleven columns, same real "
+        "prices, different fact — and the difference does not raise."),
+    "roster_basis_by_archive": {
+        name: d["roster_basis"]
+        for name, d in sorted(CONSUMED_ARCHIVE_DECLARATIONS.items())},
+    "may_not_be_cited_toward_includes_delisted": sorted(
+        name for name, d in CONSUMED_ARCHIVE_DECLARATIONS.items()
+        if d["roster_basis"] == ROSTER_BASIS_CURRENT_SNAPSHOT),
+    "declared_limitations": {
+        name: d["declared_properties"]["delisted_coverage"]
+        for name, d in sorted(CONSUMED_ARCHIVE_DECLARATIONS.items())
+        if d.get("declared_properties", {}).get("delisted_coverage")},
+    "d1_6_gate_owner": "core.b0_price_universe.assert_price_source_admissible",
+}
 
 NOT_CONSUMED_REASON = (
     "yearly/period workbook superseded by the two 2019+ archives and the "
@@ -169,6 +288,83 @@ LEG_UNIT_CONVENTIONS = {
         "floor (§4.2). Applying either leg's convention to the other does not "
         "raise — it moves every security across the liquidity floor by 1000x."),
 }
+
+
+# ⚠ `export_vintage` USED TO BE A TERNARY, AND BOTH BRANCHES WERE GUESSES.
+#
+#     "export_vintage": "2026-08-18" if consumed else "2026-08-06"
+#
+# The folder is named 0806, the two big archives were repacked on 2026-08-18, and
+# the ternary encoded that coincidence as a rule. The moment a THIRD archive is
+# consumed it inherits 2026-08-18 — 股價0817-0828.zip was packed 2026-08-30, so
+# the stamp would have been 12 days wrong on the first day and wronger on every
+# later one. The `else` branch was no better: 23 of the 24 workbooks were exported
+# 2026-07-14/15, not 2026-08-06.
+#
+# A vintage is a fact about a file, so it is read off that file:
+#
+#   .zip   the archive's own member timestamps. They are inside the bytes the
+#          entry already hashes, so the stamp is clone-stable by construction and
+#          cannot drift from `raw_sha256`.
+#   .xlsx  a workbook carries no packing stamp this module can read without
+#          opening it, and `os.path.getmtime` is a property of THIS clone's
+#          filesystem, not of the export. The capture manifest recorded each
+#          workbook's mtime at harvest time, in the repository, keyed by content
+#          hash — so the lookup is content-addressed and survives a rename, a
+#          re-copy, or the 0806/0817 directory-name drift. A workbook whose bytes
+#          that record does not know ABORTS BY NAME rather than being guessed at.
+WORKBOOK_VINTAGE_MANIFEST = os.path.join("tej_exports",
+                                         "DataExport0806_manifest.csv")
+
+_WORKBOOK_VINTAGES: dict = {}
+
+
+def _workbook_vintages() -> dict:
+    """content sha256 -> recorded export date, from the in-repo capture manifest."""
+    if not _WORKBOOK_VINTAGES:
+        import csv
+
+        path = os.path.join(REPO, WORKBOOK_VINTAGE_MANIFEST)
+        if not os.path.isfile(path):
+            raise ManifestError(
+                "abort: the capture manifest %s is absent, so no workbook in the "
+                "prices landing directory can be given an export vintage that is "
+                "a recorded fact rather than a guess."
+                % WORKBOOK_VINTAGE_MANIFEST)
+        with open(path, encoding="utf-8-sig", newline="") as fh:
+            for row in csv.DictReader(fh):
+                sha = str(row.get("sha256", "")).strip().lower()
+                stamp = str(row.get("mtime_utc", "")).strip()
+                if sha and stamp:
+                    _WORKBOOK_VINTAGES[sha] = stamp[:10]
+    return _WORKBOOK_VINTAGES
+
+
+def _zip_export_vintage(path: str) -> str:
+    """The archive's own packing date, from its member timestamps."""
+    with zipfile.ZipFile(path) as z:
+        stamps = [i.date_time for i in z.infolist()]
+    if not stamps:
+        raise ManifestError(
+            "abort: %s holds no members, so it carries no packing date and its "
+            "export vintage cannot be established." % os.path.basename(path))
+    y, m, d = max(stamps)[:3]
+    return "%04d-%02d-%02d" % (y, m, d)
+
+
+def export_vintage(path: str, fmt: str, raw_sha256: str) -> str:
+    """Per-archive vintage, derived from the file — never from a branch."""
+    if fmt == "zip":
+        return _zip_export_vintage(path)
+    stamp = _workbook_vintages().get(str(raw_sha256).lower())
+    if not stamp:
+        raise ManifestError(
+            "abort: %s (sha %s) is present in the prices landing directory but "
+            "its bytes are not recorded in %s, so its export vintage is not a "
+            "known fact. Record it there rather than letting the leaf stamp a "
+            "guess." % (os.path.basename(path), str(raw_sha256)[:12],
+                        WORKBOOK_VINTAGE_MANIFEST))
+    return stamp
 
 
 def _members(path: str) -> list:
@@ -268,23 +464,43 @@ def build(run_id: str, as_of: str, landing_dir: str = "",
     entries = []
     for name in present:
         p = os.path.join(landing, name)
-        consumed = name in CONSUMED_ARCHIVES
+        declaration = CONSUMED_ARCHIVE_DECLARATIONS.get(name)
+        consumed = declaration is not None
+        fmt = "zip" if name.lower().endswith(".zip") else "xlsx"
+        raw = file_sha256(p)
+        # A declared archive is declared BY ITS BYTES. Same name, different
+        # bytes is a different source, and it is the case a name-only inventory
+        # would wave through.
+        if consumed and raw != declaration["raw_sha256"]:
+            raise ManifestError(
+                "abort: %s hashes to %s but the declared inventory names %s for "
+                "that locator. An archive replaced in place is a new source, not "
+                "an updated one; declare the new bytes rather than reading them "
+                "under the old declaration. file: %s"
+                % (name, raw[:16], declaration["raw_sha256"][:16], p))
         entry = {
             "locator": name,
-            "format": "zip" if name.lower().endswith(".zip") else "xlsx",
-            "raw_sha256": file_sha256(p),
-            # The export directory is dated 0806 but the archives were repacked
-            # 2026-08-18; taken from the member timestamps, not the folder name.
-            "export_vintage": "2026-08-18" if consumed else "2026-08-06",
+            "format": fmt,
+            "raw_sha256": raw,
+            "export_vintage": export_vintage(p, fmt, raw),
             "observed_at": observed_at,
             "source_family": "TEJ",
             "authority": "AUTHORITATIVE",
             "disposition": "consumed" if consumed else "not_consumed",
-            "leg": "2019+" if consumed else None,
+            "leg": declaration["leg"] if consumed else None,
         }
-        if not consumed:
+        if consumed:
+            # MEASURED span and DECLARED roster basis travel with the entry. The
+            # filename is not evidence of either: 股價0817-0828.zip covers
+            # 2026-08-18 .. 2026-08-28 and does not contain 2026-08-17.
+            entry["covers"] = list(declaration["covers"])
+            entry["roster_basis"] = declaration["roster_basis"]
+            if declaration.get("declared_properties"):
+                entry["declared_properties"] = dict(
+                    declaration["declared_properties"])
+        else:
             entry["not_consumed_reason"] = NOT_CONSUMED_REASON
-        if entry["format"] == "zip":
+        if fmt == "zip":
             entry["members"] = _members(p)
         entries.append(entry)
 
@@ -318,6 +534,11 @@ def build(run_id: str, as_of: str, landing_dir: str = "",
             "population_authority": POPULATION_AUTHORITY,
             "quarantined_era": QUARANTINED_ERA_POLICY,
             "leg_unit_conventions": LEG_UNIT_CONVENTIONS,
+            # Named at leaf level as well as on the entry it constrains: a
+            # reader who looks at the family's policies must not have to open
+            # every archive entry to learn that one of the 2019+ archives
+            # cannot evidence delisted coverage.
+            "delisted_coverage": DELISTED_COVERAGE_POLICY,
         })
 
 
