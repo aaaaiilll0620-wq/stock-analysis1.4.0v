@@ -26,9 +26,13 @@ L3 的 decision-intent / execution 拆分是**你**寫的，Claude 覆核並修�
 worktree   C:\Users\aaaai\Documents\Codex\2026-08-22\referenced-chatgpt-conversation-this-is-an\work\l3_formal_v138
 branch     codex/l3-september-readiness
 base       216d62db   Frozen B0 Master v1.37
-HEAD       93e928e4
 tree       clean
 ```
+
+⚠ **範圍以 `base..target` 的 range 為準，不要用「HEAD」。**
+本分支的文件本身也會 commit，所以任何寫死的 HEAD 在該文件被 commit 的瞬間就過期一格
+（前一版正是這樣：brief 寫 `93e928e4`、選項書寫 `39218cda`，而實際 HEAD 是 `0f4751aa`，
+三者不一致，覆核範圍不可重現）。**target 由使用者在交付時指定。**
 
 要覆核的六個 commit：
 
@@ -101,7 +105,8 @@ docs/L3_v138_AdjudicationOptions_2026-08-31.md 九項裁決選項
 - **N-3**：`build_price_panel.main()` 本體從未被執行（它會寫 `data/b0/`）。
 - **N-5**：`build_period(cohort_id="")` + GENESIS 會跳過 checkpoint 的 cohort 檢查；
   `main()` 一律具名，但 `tests/test_b0_l3_runner_end_to_end.py` 正是直接呼叫。
-- **五個以上 pinned 規範模組相對 v1.37 漂移**。這是升版進行中的預期狀態，但請確認漂移範圍與宣稱一致。
+- **33 個 pinned 規範模組中恰好 4 個漂移**：`b0_corporate_actions`、`b0_route`、
+  `b0_adapter_production`、`b0_l3_lineage_capture`。這是升版進行中的預期狀態，但請確認範圍與宣稱一致。
 
 ### 3.4 突變檢驗
 

@@ -6,7 +6,8 @@
 所有選項全部保留，不刪除。**每一項的「建議」是建議，不是裁決。**
 
 前置閱讀：`docs/L3_v138_WorkList_2026-08-30.md`（三輪覆核與修正的完整紀錄）。
-分支 `codex/l3-september-readiness`，HEAD `39218cda`，基底 `216d62db` = Frozen B0 Master v1.37。
+分支 `codex/l3-september-readiness`，基底 `216d62db` = Frozen B0 Master v1.37。
+（本文件不寫 HEAD：文件自身的 commit 會推進 HEAD，寫死必然過期。範圍以 base..target range 為準。）
 
 ---
 
