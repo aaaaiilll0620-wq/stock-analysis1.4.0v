@@ -95,17 +95,32 @@ def test_a_producer_outside_the_sealed_set_is_refused():
 
 def test_the_producer_set_is_read_from_disk_not_hand_listed(tmp_path,
                                                             monkeypatch):
-    """A list nobody derived is a list nobody checked."""
-    extra = os.path.join(REPO, "research", "b0_materializer",
-                         "build_zzz_probe_leaf.py")
-    try:
-        with open(extra, "w", encoding="utf-8") as fh:
-            fh.write("# probe\n")
-        assert "research/b0_materializer/build_zzz_probe_leaf.py" \
-            in rs.source_producer_files()
-    finally:
-        if os.path.exists(extra):
-            os.remove(extra)
+    """A list nobody derived is a list nobody checked.
+
+    Read off a SYNTHETIC tree, never by writing into this one. The original
+    created research/b0_materializer/build_zzz_probe_leaf.py inside the repo and
+    removed it in a `finally`, and that path is inside `sealed_file_set()`: a run
+    that died between the two -- SIGKILL, power loss, or a sandbox that denies
+    the removal -- left behind a producer file the closure reaches and no seal
+    ever bound, which is exactly the state `assert_seal_binds_current_route`
+    refuses. It also made this file unrunnable wherever the tree is read-only,
+    which is where an independent reviewer runs it: measured, 7 PermissionError
+    failures and no assertion failures.
+
+    Both halves of the property are still checked, and the real-tree half is
+    checked FIRST so a broken glob cannot hide behind the synthetic one.
+    """
+    assert "research/b0_materializer/build_prices_leaf.py" \
+        in rs.source_producer_files(), "the globs no longer reach the real tree"
+
+    materializer = tmp_path / "research" / "b0_materializer"
+    materializer.mkdir(parents=True)
+    (materializer / "build_zzz_probe_leaf.py").write_text(
+        "# probe\n", encoding="utf-8")
+    monkeypatch.setattr(rs, "REPO", str(tmp_path))
+
+    assert "research/b0_materializer/build_zzz_probe_leaf.py" \
+        in rs.source_producer_files()
 
 
 # --- the route's own "still owed" declaration ------------------------------------------
