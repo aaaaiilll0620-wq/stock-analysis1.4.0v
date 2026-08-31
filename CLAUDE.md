@@ -1,30 +1,62 @@
-# FinMind Stock Analysis Project
+# Project 1 — 台股量化研究與部署
 
-## Project Structure & Architecture
-This is a multi-modular Python quantitative stock analysis and backtesting system.
-- `config`: Handles environment variables, parameters, and FinMind API initialization.
-- `data_provider`: Fetches and caches clean market data from FinMind.
-- `crawler`: Handles external or fallback web scraping tasks.
-- `fundamentals`: Analyzes financial statements and company health metrics.
-- `technical_analysis`: Calculates technical indicators (e.g., Moving Averages, RSI).
-- `market_sentiment`: Tracks market breadth, institutional investors, and sentiment.
-- `sector`: Analyzes industry sector performance and cash flow.
-- `tdcc_provider`: Processes Taiwan TDCC (Taiwan Depository & Clearing Corporation) shareholding distribution data.
-- `valuation`: Computes intrinsic values and price fair ranges.
-- `scoring_manager`: Consolidates multi-dimensional signals into a unified stock score.
-- `models`: Houses predictive or mathematical models for strategy alignment.
-- `backtest`: Executes trading strategy simulation, tracks entry/exit signals, and calculates cost basis.
-- `advisor`: Generates actionable insights or final portfolio recommendations based on scores.
-- `main`: Main entry point or execution controller for the entire workflow.
+本檔每個 session 都會被載入，**刻意保持短**。細節在它指向的文件裡，不要往這裡搬。
 
-## Core Data Conventions
-- Stock ID format: Taiwan stock codes (e.g., "2330").
-- FinMind standard columns: `date` (str), `stock_id` (str), `open`, `max`, `min`, `close`, `Trading_Volume`.
-- Dataframes must be vectorized via Pandas for calculations; avoid using iterative loops.
+## 這個 repo 有兩條線，不要混用
 
-## AI Instructions & Token Optimization Style
-- **Cache-First**: Leverage file attachments via `@` in Claude Desktop to reuse module code.
-- **Incremental Output**: DO NOT rewrite the entire file. ONLY output the specific methods, functions, or lines of code that need modification.
-- **Short Context**: Keep answers dense and direct. Use pseudo-code or logic steps before writing large code blocks if requested.
+| | 是什麼 | 入口 |
+|---|---|---|
+| **應用線** | Streamlit 選股 app | `app.py`、`main.py`、`core/advisor.py`、`deploy_scores.py` |
+| **研究線（目前九成的工作）** | Frozen B0 / L2 / L3 前瞻線 —— 有預註冊、有裁決、有封印 | `core/b0_*.py`（62 個模組裡多數）、`research/b0_*/`、`docs/` |
 
-動手前請先閱讀 docs/研究紀律_ResearchDiscipline.md，嚴格遵循專案硬規則與單發射擊制
+`docs/` 的 99 份文件裡有 30 份預註冊、27 份 closure、1 份否決紀錄 ——
+**那些是裁決本體，不是筆記。** 不要刪、不要改名、不要「整理」。
+
+## 動手前必讀（依序）
+
+1. **`docs/研究紀律_ResearchDiscipline.md`** —— 硬規則。本專案史上四次結論作廢**全部沒有報錯**。
+2. **`docs/系統全景圖_SystemMap.md`** —— 上游資料 → 因子 → 篩選 → 投組的全景，每個數字附 `file:line`。
+3. **`docs/FrozenB0_MasterPreregistration.md`** —— 研究線的規範本體。改它之前先確認你在改的是草案還是已凍結條款。
+
+四條最常被踩的線（完整版在研究紀律裡）：
+- 報酬線只能用 `exec_ret.fwd_x`；綜合分只能用真身 `real_composite`；判定報基準階梯三階。
+- 三個資料入口刻意設計成會 raise —— **那是功能不是 bug**，不要 try/except 繞過去。
+- **單發射擊制**：看到樣本外數字前，假設與門檻須先凍結在 `docs/預註冊_*.md`。
+- 重要結論要有第二條獨立實作能逐月對帳。
+
+## 資料慣例
+
+- 股票代號：台股代碼字串（`"2330"`）。
+- 標準欄位：`date`(str)、`stock_id`(str)、`open`、`max`、`min`、`close`、`Trading_Volume`。
+- 一律用 pandas 向量化，不要逐列迴圈。
+
+## 委派政策（省 token 的正確做法）
+
+**指揮官**：Opus 5 / effort high。**子代理**：Sonnet 5 (medium 或 high)、Haiku 4.5。
+
+子代理**不會自動省 token**——每次 spawn 都是冷啟動，要把指揮官已經知道的重讀一遍。
+它只在**一種形狀**下真的省：**大量讀取進去、一小段結論出來**。
+
+```
+該委派      掃 99 份文件找哪幾份提到 X；掃 94,430 個 artifact 找某個日期；
+            跑一輪大範圍 grep / 目錄盤點 / 測試蒐集
+不該委派    需要本對話累積脈絡的判斷；結果無論如何都要重驗的事；
+            三兩個檔案就能回答的問題（spawn 成本比省下來的多）
+升級        子代理回報「有異常但說不清」→ 交給 Sonnet 5 high；
+            涉及條款解釋、裁決、跨文件矛盾 → 回到指揮官，不要下放
+```
+
+### 兩條硬規則
+
+1. **子代理回傳「指標」，不回傳「判定」。**
+   要的是「`docs/A.md:88` 與 `docs/B.md:12` 提到它，原文如下」，
+   不是「這件事沒有人裁過」。指標指揮官可以一次廉價查證；判定只能整件重做，等於沒省。
+2. **來源必須標記。** 子代理的產出是「繼承自其他來源」，不是「本 session 驗證過」。
+   任何要寫進裁決文書、closure 或回報給使用者的事實，**指揮官必須自己重驗一次**。
+   這條不是禮貌問題：本專案最貴的 bug 是「數字看起來正常但口徑換了」，
+   而那種 bug 正好能通過一個只看局部的子代理。
+
+## 回報風格
+
+- 增量輸出：不要重寫整個檔案，只給改動的函式或行。
+- 密而直接。要寫大段程式碼前，先給邏輯步驟。
