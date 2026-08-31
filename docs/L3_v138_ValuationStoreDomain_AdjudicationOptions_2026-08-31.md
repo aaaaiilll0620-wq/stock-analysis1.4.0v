@@ -132,8 +132,41 @@ WINDOW_TO     = frozen_spec("window_end")[:7]        = 2026-03   （window_end 2
 ⇒ **不存在「補到窗外」的既有先例。** 唯一一次做到的操作已被否決。
 這使 R-W1-1 具名例外成為唯一的路，而非其中一條。
 
-⚠ **本項因此多欠一個處置裁決。** 否決 v1.33 時回滾了程式與 spec，
-**但沒有處置它產生的 artefact**。範圍已於同日清查，結果如下。
+⚠ **更正（2026-09-01）。** 上句原寫「否決 v1.33 時沒有處置它產生的 artefact」。
+**錯誤。** 否決書的〈目前 disposition〉表當天就裁了：
+
+```
+2026-04 ~ 07 artefact    另存為非 canonical retrospective diagnostic 範圍
+                         /mnt/c/dev/b0_ext145_noncanonical_20260826/
+```
+
+該目錄存在且執行完整：153 個檔案（`market_state/` 145 期、`price_panel.parquet`、
+`valuation_panel.parquet`、`closes_2019plus_route_91sessions.csv` —— 91 個 session，
+對照 canonical 的 87），另有 `README_NON_CANONICAL.md` 給出標定
+`RETROSPECTIVE_SUPPORTING_ONLY / L2-class ceiling`，並明文禁止稱為 OOS/holdout。
+README 末尾的〈追補（2026-08-26，W2）〉更顯示這個處置事後又補過一次
+（多找到一個 `harvest_ledger_window_both.json`），並寫明政策：
+
+> 依本目錄的處置一併移出 repo，**不刪除**：量測記錄本身有效，只是不具規範效力。
+
+⇒ **既有政策是「移出、不刪除」，已執行兩次，理由是被否決的是准入資格而非量測本身。**
+否決書自己的論證即引用該批量測（純 suffix、141 期 state hash 零變動、composed 未動）。
+
+**仍待裁的是一件範圍更窄的事**：store 裡那 28 個 raw payload 沒有被移出。
+兩種讀法，而第二種較強：
+
+1. **漏了** —— W2 追補證明這次清掃是人工的，漏第二次完全可能。
+2. **不算殘骸** —— 隔離目錄裡的都是**衍生產物**，檔案內容「帶有窗口」，用錯窗即為錯。
+   但 `twse_2026-04-30.json` 是交易所對某一天的回答，**裡面沒有窗口**，
+   與當時以為窗口多長無關；端點吃日期參數，任何時候重抓都是同一份位元組。
+   所以它們留在 store 裡，可能不是「被否決的窗口污染了 store」，
+   而只是 **store 領先於窗口** —— 而那正是本文件要裁的定義域問題本身。
+
+**本文件的立場**：採甲之後，2026-04-29 等 session 在窗口移動之前就落在裁定的定義域之外，
+**讀取端對照裁定的定義域檢查 store 內容**即可讓它大聲而非靜默 ——
+與 P1-1（`assert_ready` 重新導出 floor 而非相信 artefact）、
+P1-2（讀取時重新核對 landing 表面）同一形狀，本專案已用過兩次。
+刪除既牴觸「移出、不刪除」的先例，也解決不了下一份被否決草案留下的東西；讀取端檢查兩者都解決。
 
 ## 6 · v1.33 殘骸清查（2026-08-31 實測）
 
