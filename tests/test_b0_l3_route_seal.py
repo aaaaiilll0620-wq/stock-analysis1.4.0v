@@ -444,6 +444,67 @@ def test_the_execution_gate_cross_checks_the_declared_floor():
     raise AssertionError("the execution gate is gone")
 
 
+def test_the_gate_passes_the_CALLERS_floor_to_the_cross_check():
+    """Presence is not wiring, and only presence was pinned.
+
+    Mutation that motivated this: keep the call exactly as the test above
+    requires and pass `seal.get("lineage_price_floor")` in place of the callers
+    argument. The cross-check then compares the seal with itself, every
+    `--lineage-price-floor` is accepted whatever the capture said, and the whole
+    scope stayed green. The gate is reachable only once A-1 ratifies the
+    contract, so the wiring is pinned here rather than exercised.
+    """
+    tree = ast.parse(open(R.__file__, encoding="utf-8").read())
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.FunctionDef)
+                and node.name == "assert_route_execution_admissible"):
+            continue
+        for call in ast.walk(node):
+            if not (isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Attribute)
+                    and call.func.attr
+                    == "assert_declared_floor_is_the_captured_floor"):
+                continue
+            assert len(call.args) == 2, "the cross-check takes (seal, declared)"
+            declared = call.args[1]
+            assert isinstance(declared, ast.Name), (
+                "the declared floor must be the gate own parameter; a value "
+                "read back out of the seal compares the seal with itself")
+            assert declared.id == "lineage_price_floor"
+            return
+        raise AssertionError("the gate does not call the cross-check")
+    raise AssertionError("the execution gate is gone")
+
+
+def test_a_receipt_binding_refuses_a_floor_the_seal_did_not_capture(
+        tmp_path, monkeypatch, sealable):
+    """The one floor path that is REACHABLE while the contract is unratified.
+
+    `assert_route_execution_admissible` refuses on ratification before it can
+    reach its floor cross-check, so no behavioural test could stand there. This
+    one can: `route_seal_binding` is what puts the binding into every receipt,
+    and with ratification simulated it exercises the same cross-check on the
+    same two values.
+    """
+    import core.b0_l3_lineage_capture as lcap
+    from types import SimpleNamespace
+
+    ident, _ = _hand_crafted_seal(tmp_path, monkeypatch, sealable)
+    monkeypatch.setattr(lcap, "ROUTE_SEAL_CONTRACT_STATUS",
+                        rs.RATIFIED_ROUTE_SEAL_CONTRACT_STATUS)
+
+    agreed = R.route_seal_binding(SimpleNamespace(
+        mode="intent", route_seal_id=ident, lineage_price_floor="2004-02-11"))
+    assert agreed["lineage_price_floor"] == "2004-02-11"
+    assert agreed["lineage_price_floor_bound_by_a_capture"] is True
+
+    with pytest.raises(R.L3RunAbort) as exc:
+        R.route_seal_binding(SimpleNamespace(
+            mode="intent", route_seal_id=ident,
+            lineage_price_floor="2004-02-12"))
+    assert "2004-02-12" in str(exc.value)
+
+
 def test_the_receipt_fields_now_have_a_production_caller():
     """They existed to be published and were in no receipt at all."""
     source = open(R.__file__, encoding="utf-8").read()

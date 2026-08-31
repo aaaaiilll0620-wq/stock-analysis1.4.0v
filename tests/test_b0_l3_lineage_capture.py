@@ -601,6 +601,36 @@ def test_the_rename_itself_refuses_to_replace(tmp_path):
     assert destination.read_bytes() == b"old"
 
 
+def test_the_publication_refuses_a_final_path_that_appeared_mid_write(tmp_path):
+    """The guarantee is the rename, and only the rename was assumed to be it.
+
+    `publish_exclusively` says so about its own early check -- "it closes no
+    race and is NOT the guarantee -- the rename below is" -- and nothing tested
+    the claim. Mutation: swap `rename_no_replace` for a replacing `os.replace`
+    and the whole scope stayed green, because every existing case is refused by
+    the cheap check before the rename is ever reached.
+
+    Here the final path does NOT exist when the publication starts and appears
+    while the bytes are being written, which is the only way to arrive at the
+    rename with the destination already taken. A replacing rename destroys the
+    other writer record; a no-replace rename refuses and leaves it whole.
+    """
+    target = str(tmp_path / "record.json")
+
+    def _write_while_another_writer_wins(temporary):
+        with open(temporary, "wb") as fh:
+            fh.write(b"ours\n")
+        with open(target, "wb") as fh:
+            fh.write(b"theirs\n")
+        return b"ours\n"
+
+    with pytest.raises(FileExistsError):
+        publish_exclusively(target, _write_while_another_writer_wins)
+
+    assert open(target, "rb").read() == b"theirs\n", "the record was replaced"
+    assert os.listdir(str(tmp_path)) == ["record.json"], "a temporary survived"
+
+
 def test_an_interrupted_capture_record_can_still_be_captured(tmp_path,
                                                              monkeypatch):
     """The defect at its worst: a lineage id nothing could ever write again."""
