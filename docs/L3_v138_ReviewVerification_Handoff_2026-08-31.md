@@ -122,11 +122,16 @@ median 0、max 1、**7.7 年合計 9 檔**；92 個月末有 28 個為零。丟�
 
 **已提交（`work/l3_formal_v138`，分支 `codex/l3-september-readiness`，未 push）：**
 
+**範圍以 `8d727bdd..HEAD` 為準。本文件不寫當前 HEAD** —— 本文件自身的 commit 會推進它，
+寫死必然過期（這正是修訂 1 被外部覆核退回的形狀；慣例見九項選項書文首）。
+
 | commit | 內容 |
 |---|---|
 | `3742ad08` | 三個接線測試，+91 行，全在 `tests/`。production code 未改 |
 | `b52c5660` | Month 1 選項書 + 本交接文件（初版） |
-| 本次修訂 | P1-8 註解修正（`l3_route_seal.py`）、第十項選項書、本文件修訂 2 |
+| 其後 | P1-8 註解修正（`l3_route_seal.py`，**在 sealed closure 內，移動了 closure digest**）、第十項選項書、本文件歷次修訂 |
+
+實際清單以 `git log --oneline 8d727bdd..HEAD` 為準，不以本表為準。
 
 **簽字建議（含外部覆核第二輪的 disposition）：**
 - P1-8 **可簽** —— 文案已於本次修訂落地，見 §7。
