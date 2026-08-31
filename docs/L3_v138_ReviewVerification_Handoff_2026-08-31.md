@@ -120,7 +120,8 @@ median 0、max 1、**7.7 年合計 9 檔**；92 個月末有 28 個為零。丟�
 
 ## 6 · 交接清單
 
-**已提交（`work/l3_formal_v138`，分支 `codex/l3-september-readiness`，未 push）：**
+**已提交（`work/l3_formal_v138`，分支 `codex/l3-september-readiness`）。**
+推送狀態同樣不寫死，理由與 HEAD 相同：以 `git status -sb` 為準。
 
 **範圍以 `8d727bdd..HEAD` 為準。本文件不寫當前 HEAD** —— 本文件自身的 commit 會推進它，
 寫死必然過期（這正是修訂 1 被外部覆核退回的形狀；慣例見九項選項書文首）。
