@@ -38,8 +38,10 @@ create anything, and the run-scoped evidence of that refusal is preserved.
 
 from __future__ import annotations
 
+import errno
 import os
 import re
+import tempfile
 
 CONTRACT_VERSION = "L3_LINEAGE_FLOOR_CAPTURE_CONTRACT_V1"
 
@@ -60,6 +62,156 @@ DIAGNOSTIC_EXPECTED_FLOOR = "2004-01-02"
 
 class LineageCaptureError(RuntimeError):
     """Fail-loud: a capture may not become a lineage fact on these terms."""
+
+
+# --- P2-11 · PUBLICATION IS A RENAME, NOT A CLAIM FOLLOWED BY A WRITE -------------
+#
+# Every immutable record in this route used to be published in two steps:
+#
+#     fd = os.open(final_path, O_CREAT | O_EXCL)   # claim
+#     ...write the bytes into it...                # publish
+#
+# The claim is atomic; the pair is not. A crash, a kill, a full disk or an
+# exception raised by the byte producer between the two leaves a ZERO-BYTE FILE
+# AT THE FINAL PATH -- and because every one of these records is immutable by
+# design, the next attempt finds the path taken and aborts. The failure mode is
+# therefore UNRECOVERABLE rather than retryable: the period can never be written
+# again under that name, and nothing on disk says why. Measured, not reasoned:
+# the interrupted attempt leaves 0 bytes and the retry aborts permanently.
+#
+# It is also a visibility defect. Between the claim and the last byte the final
+# path exists and is readable, so a concurrent reader -- another leaf builder,
+# the aggregate barrier, an operator -- can open a half-written or empty record
+# and get a JSON decode error attributed to the wrong cause.
+#
+# The publication below writes into a hidden temporary IN THE SAME DIRECTORY
+# (same filesystem, so the rename is a metadata operation), flushes and fsyncs
+# it, and only then makes it visible under its final name with an atomic
+# NO-REPLACE rename. The final path therefore only ever exists complete.
+#
+# TWO PROPERTIES THAT MUST BOTH SURVIVE, AND DO:
+#
+#   EXCLUSIVITY   publishing over an existing final path still FAILS. The
+#                 no-replace rename is the guarantee, not the early existence
+#                 check above it: the check is a cheap courtesy that closes no
+#                 race, the rename closes it. `FileExistsError` is raised
+#                 rather than a module-specific error so that every caller can
+#                 keep translating it into the exact refusal it already wrote.
+#
+#   BYTE IDENTITY the bytes are produced by whatever primitive already produced
+#                 them -- S-5 deliberately delegated decision-record bytes to
+#                 `core.b0_master_prereg.write_provenance_json` so that record
+#                 content stayed byte-identical, and that module is pinned. The
+#                 writer is therefore a CALLBACK handed a path: the same
+#                 primitive writes the same bytes, and this function only
+#                 changes WHICH NAME they are written under first.
+#
+# What is deliberately NOT done: falling back to a replacing rename. On a
+# filesystem that offers no no-replace primitive this refuses, because a
+# replacing publication would silently overwrite a frozen record -- exactly the
+# thing exclusivity exists to prevent.
+
+PUBLICATION_IS_ATOMIC_NO_REPLACE = True
+PARTIAL_PUBLICATION_SUFFIX = ".partial"
+
+
+def _fsync_file(path: str) -> None:
+    """Force this file's bytes to the device before it is given its real name."""
+    fd = os.open(path, os.O_RDWR | getattr(os, "O_BINARY", 0))
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _fsync_directory(directory: str) -> bool:
+    """Force the rename itself to the device. Not available on every platform."""
+    if os.name == "nt":
+        return False
+    try:
+        fd = os.open(directory, os.O_RDONLY)
+    except OSError:
+        return False
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    return True
+
+
+def rename_no_replace(source: str, destination: str) -> None:
+    """Publish `source` as `destination`, or raise. NEVER replaces.
+
+    `os.rename` is no-replace on Windows and SILENTLY REPLACING on POSIX, so it
+    cannot be used unguarded: the same call would enforce exclusivity on one
+    platform and destroy it on the other. `os.link` is atomic and fails with
+    `FileExistsError` when the destination is taken, which is the POSIX half.
+    """
+    if os.name == "nt":
+        os.rename(source, destination)
+        return
+    try:
+        os.link(source, destination)
+    except FileExistsError:
+        raise
+    except OSError as exc:
+        raise LineageCaptureError(
+            "abort: this filesystem offers no no-replace publication "
+            "primitive (os.link -> %s). Publishing with a replacing rename "
+            "would overwrite a record that is immutable by contract, so the "
+            "publication refuses rather than degrading to one." % exc) from exc
+    os.unlink(source)
+
+
+def publish_exclusively(path: str, writer):
+    """Write via a hidden same-directory temporary, then publish atomically.
+
+    `writer(temporary_path)` produces the bytes and returns whatever the caller
+    wants back (the blob, for the primitives that already returned one). The
+    final path appears complete or not at all, and a taken final path raises
+    `FileExistsError` for the caller to translate.
+    """
+    absolute = os.path.abspath(path)
+    directory, base = os.path.dirname(absolute), os.path.basename(absolute)
+    if not base:
+        raise LineageCaptureError(
+            "abort: %r names no file to publish" % (path,))
+    os.makedirs(directory, exist_ok=True)
+    # A cheap early refusal so the common collision costs no temporary file.
+    # It closes no race and is NOT the guarantee -- the rename below is.
+    if os.path.lexists(absolute):
+        raise FileExistsError(errno.EEXIST, "File exists", absolute)
+    fd, temporary = tempfile.mkstemp(
+        prefix="." + base + ".", suffix=PARTIAL_PUBLICATION_SUFFIX,
+        dir=directory)
+    os.close(fd)
+    try:
+        produced = writer(temporary)
+        _fsync_file(temporary)
+        rename_no_replace(temporary, absolute)
+    except BaseException:
+        # The temporary is the only thing this function created; a failed
+        # publication leaves the directory exactly as it found it.
+        try:
+            if os.path.lexists(temporary):
+                os.unlink(temporary)
+        except OSError:
+            pass
+        raise
+    _fsync_directory(directory)
+    return produced
+
+
+def publish_bytes_exclusively(path: str, blob: bytes) -> bytes:
+    """`publish_exclusively` for callers that already hold the exact bytes."""
+    def _write(temporary: str) -> bytes:
+        with open(temporary, "wb") as fh:
+            fh.write(blob)
+            fh.flush()
+            os.fsync(fh.fileno())
+        return blob
+
+    return publish_exclusively(path, _write)
 
 
 # --- manifest purposes ----------------------------------------------------------
@@ -559,7 +711,13 @@ def assert_record_is_admissible(record: dict) -> dict:
 
 
 def write_capture_record_exclusively(artifact_root: str, record: dict) -> tuple:
-    """O_EXCL write. Returns (payload_sha256, raw_sha256).
+    """Atomic exclusive publication. Returns (payload_sha256, raw_sha256).
+
+    P2-11. The claim used to be `O_CREAT | O_EXCL` on the FINAL path with the
+    bytes written afterwards, so an interruption between the two froze a
+    ZERO-BYTE capture record under a lineage id that can never be captured
+    again. `publish_exclusively` keeps the refusal -- a taken path still fails
+    -- and makes the record appear whole or not at all.
 
     Refuses an inadmissible record even when handed one directly — see
     `assert_record_is_admissible`. `capture_lineage_floor` is the sanctioned
@@ -576,14 +734,21 @@ def write_capture_record_exclusively(artifact_root: str, record: dict) -> tuple:
             if k not in ("capture_record_payload_sha256",)}
     body["capture_record_payload_sha256"] = canonical_sha256(body)
     blob = json.dumps(body, ensure_ascii=False, indent=1, sort_keys=True)
+
+    def _write(temporary: str) -> None:
+        # Byte-for-byte the write this function has always performed;
+        # only the NAME it is written under first has changed.
+        with open(temporary, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(blob + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+
     try:
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
+        publish_exclusively(path, _write)
     except FileExistsError:
         raise LineageCaptureError(
             "abort: %s already exists. A capture record is written once; "
             "overwriting one rewrites a frozen lineage fact." % path)
-    with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(blob + "\n")
     return body["capture_record_payload_sha256"], file_sha256(path)
 
 

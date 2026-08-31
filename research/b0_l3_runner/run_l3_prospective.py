@@ -98,6 +98,9 @@ from core.b0_canonical_hash import canonical_sha256, file_sha256   # noqa: E402
 from core.b0_declaration_conformance import (                      # noqa: E402
     assert_declarations_conform,
 )
+from core.b0_l3_lineage_capture import (                           # noqa: E402
+    publish_bytes_exclusively, publish_exclusively,
+)
 from core.b0_master_prereg import (                                # noqa: E402
     NORMATIVE_MODULES, append_provenance_record, normative_module_hashes,
     spec_document_sha256, write_provenance_json,
@@ -437,22 +440,38 @@ def write_decision_record(path: str, payload) -> bytes:
     "exclusive", and the specification requires exclusive creation for lineage
     and decision records.
 
-    The claim is a separate `O_CREAT | O_EXCL` call and the BYTES are still
-    written by the provenance primitive, so the record's content is byte-
-    identical to what it has always been. `core/b0_master_prereg.py` is not
-    editable from here, which is why the exclusivity is expressed as a claim
-    around it rather than as a mode change inside it.
+    The BYTES are still written by the provenance primitive, so the record's
+    content is byte-identical to what it has always been. `core/b0_master_prereg.py`
+    is not editable from here, which is why exclusivity is expressed around it
+    rather than as a mode change inside it.
+
+    P2-11 · WHY THIS IS NO LONGER A CLAIM FOLLOWED BY A WRITE.
+
+    The claim used to be a separate `O_CREAT | O_EXCL` on the FINAL path,
+    followed by `write_provenance_json` filling it in. Those two operations are
+    each atomic and the PAIR is not: an interruption between them -- a crash, a
+    kill, a full disk, or `write_provenance_json` itself raising -- left a
+    ZERO-BYTE FILE at the final path. Because these records are immutable by
+    contract, the next attempt found the path taken and aborted, so the failure
+    was UNRECOVERABLE rather than retryable and the run directory was poisoned
+    under a name nothing could ever write again.
+
+    `publish_exclusively` hands the provenance primitive a hidden temporary in
+    the SAME directory and publishes it under the final name with an atomic
+    no-replace rename. S-5's property is preserved exactly: the same pinned
+    primitive produces the same bytes, and only the name it writes them under
+    first has changed. Exclusivity is preserved too -- the rename refuses a
+    taken final path, and the refusal below is unchanged.
     """
     try:
-        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        return publish_exclusively(
+            path, lambda temporary: write_provenance_json(temporary, payload))
     except FileExistsError as exc:
         raise L3RunAbort(
             "abort: %s already exists in this run directory. Decision and "
             "lineage records are claimed exclusively; re-deciding a period is "
             "a NEW run, never an overwrite of the record of the first one."
             % os.path.basename(path)) from exc
-    os.close(fd)
-    return write_provenance_json(path, payload)
 
 
 def declared_master_version(path: str = MASTER_DOC) -> str:
@@ -599,8 +618,31 @@ def span_derivation_state() -> dict:
     }
 
 
-def assert_route_execution_admissible(aggregate=None, seal_id: str = "") -> list:
+def assert_route_execution_admissible(aggregate=None, seal_id: str = "",
+                                      lineage_price_floor: str = "") -> list:
     """The gate on the FIRST execution of the L3 strategy route.
+
+    P1-8 - THE RATIFICATION GATE SITS HERE, FIRST, AND NOT ONLY IN THE WRITER.
+
+    `l3_route_seal.assert_route_seal_contract_ratified()` used to be asked by
+    the seal WRITER alone -- and that writer is deliberately unreachable from
+    this runner (its name is deliberately absent from this file, which
+    `test_the_runner_never_takes_a_route_seal` pins as a substring of the whole
+    source), so the only door the gate stood in front of was the one door
+    nobody has to walk through. A hand-written seal file that
+    hashes to its own name, plus a source aggregate naming it, was loaded and
+    honoured with the contract still NOT_YET_RATIFIED.
+
+    C-72 (Master 9.6e(c)) already ruled on this exact shape one layer in: "only
+    adding the gate to the core API is not enough -- the entry points that
+    actually create the run directory and the opening claim never asked it",
+    and the remedy was to put the guard at the REAL boundary, before anything
+    else that boundary does. THIS function is the real boundary for a route
+    seal: it is what decides whether the first prospective observation of this
+    strategy may happen. So the guard is the first statement below -- before
+    the closure transaction is measured, before any seal is looked up, before
+    any capture is inspected -- and `tests/test_b0_l3_route_seal.py` pins that
+    ordering with AST rather than trusting this docstring.
 
     Refuses, with the measured reason, while any of the following holds:
 
@@ -620,7 +662,21 @@ def assert_route_execution_admissible(aggregate=None, seal_id: str = "") -> list
     point: a prospective observation happens once, and the identity it binds
     has to exist before it happens.
     """
+    # FIRST. Not after the measurements, not after a lookup: an unratified
+    # contract admits no execution, and a refusal that arrives after the run has
+    # read a candidate seal has already treated that seal as a thing that could
+    # count. Ratifying is A-1's adjudication, not this gate's business.
+    try:
+        rs.assert_route_seal_contract_ratified()
+    except rs.RouteSealError as exc:
+        raise L3RunAbort(
+            "L3 PREFLIGHT FAILED - %s - route seal contract not ratified: %s"
+            % (ROUTE_EXECUTION_GATE, exc)) from exc
+
     checks = []
+    checks.append(_require(
+        True, "%s - route seal contract is ratified" % ROUTE_EXECUTION_GATE,
+        rs.RATIFIED_ROUTE_SEAL_CONTRACT_STATUS))
     tx = closure_transaction_state()
     checks.append(_require(
         not tx["in_transaction"],
@@ -695,7 +751,77 @@ def assert_route_execution_admissible(aggregate=None, seal_id: str = "") -> list
     checks.append(_require(
         True, "%s · source aggregate names this route seal"
         % ROUTE_EXECUTION_GATE, str(aggregate.get("route_seal_id"))[:16]))
+
+    # P1-7. The seal has always carried `lineage_price_floor`, taken from the
+    # verified capture record; nothing ever compared it with the floor the
+    # caller hands `l3_assemble`. The span-derivation check above has already
+    # established that the assembly is on the section 19 / C-68 contract, so
+    # `--lineage-price-floor` is the one span argument in force and this is the
+    # value that will set `spell_start`.
+    bound_floor = rs.assert_declared_floor_is_the_captured_floor(
+        seal, lineage_price_floor)
+    checks.append(_require(
+        True, "%s · declared lineage floor is the captured floor"
+        % ROUTE_EXECUTION_GATE, bound_floor))
     return checks
+
+
+# --- P1-7 (second half) - the seal's receipt fields had no production caller ----
+#
+# `l3_route_seal.route_seal_receipt_fields` exists to put the capture/seal/repo
+# binding into a period receipt, and nothing in this repository called it, so
+# those fields were in no receipt at all. A run could pass the whole execution
+# gate and then publish records that named a `route_seal_id` string and nothing
+# the seal actually binds -- no lineage id, no capture record digests, no
+# repository identity, and no floor.
+#
+# It is called HERE, from the provenance every receipt embeds, and it is
+# recomputed rather than carried through from the preflight's return value: the
+# receipt has to record that the binding held for the bytes THIS run is
+# publishing, not that a gate passed somewhere earlier. The modes that name no
+# seal record that fact explicitly instead of leaving the fields absent, because
+# an absent field and an unbound floor look identical in an audit.
+
+NO_ROUTE_SEAL_IN_FORCE = "NO_ROUTE_SEAL_IN_FORCE_FOR_THIS_MODE"
+
+
+def route_seal_binding(args) -> dict:
+    """Exactly what the seal binds, for this run's receipts. Never a claim."""
+    mode = str(getattr(args, "mode", ""))
+    declared_floor = str(getattr(args, "lineage_price_floor", "") or "")
+    if mode not in ("intent", "execute"):
+        return {
+            "route_seal_in_force": False,
+            "reason": NO_ROUTE_SEAL_IN_FORCE,
+            "mode": mode,
+            "declared_lineage_price_floor": declared_floor,
+            # Said out loud: in these modes nothing checked the floor against a
+            # capture, and `evidence_class` already says the run is not L3
+            # evidence. A blank field would read as "checked and agreed".
+            "lineage_price_floor_bound_by_a_capture": False,
+        }
+    seal_id = str(getattr(args, "route_seal_id", "") or "").strip()
+    # Translated to this runner's own refusal so the CLI's abort path reports it
+    # like every other stop rather than as an unhandled exception. The gate is
+    # `load_route_seal`'s and stays there; this only names the reporter.
+    try:
+        seal = rs.load_route_seal(seal_id)
+        fields = rs.route_seal_receipt_fields(
+            seal, raw_sha256=file_sha256(rs.seal_path(seal_id)))
+        bound_floor = rs.assert_declared_floor_is_the_captured_floor(
+            seal, declared_floor)
+    except rs.RouteSealError as exc:
+        raise L3RunAbort(
+            "abort: this run cannot record what its route seal binds: %s"
+            % exc) from exc
+    return {
+        "route_seal_in_force": True,
+        "mode": mode,
+        "declared_lineage_price_floor": declared_floor,
+        "lineage_price_floor_bound_by_a_capture": True,
+        "lineage_price_floor": bound_floor,
+        **fields,
+    }
 
 
 # --- an allowance earned by another reader is not this route's ------------------
@@ -1251,7 +1377,8 @@ def preflight(args) -> tuple:
                   % (why[:90], aggregate.get("route_seal_id"))})
 
     if args.mode in ("intent", "execute"):
-        checks += assert_route_execution_admissible(aggregate, args.route_seal_id)
+        checks += assert_route_execution_admissible(
+            aggregate, args.route_seal_id, args.lineage_price_floor)
         if args.sealed_evidence is None:
             raise L3RunAbort(
                 "abort: --sealed-evidence / --no-sealed-evidence must be "
@@ -1744,18 +1871,19 @@ def commit_publication(directory: str, run_id: str, mode: str,
         "files": dict(sorted(files.items())),
     }
     path = os.path.join(directory, PUBLICATION_COMMIT)
+    raw = ((json.dumps(marker, ensure_ascii=False, sort_keys=True, indent=1)
+            + "\n").replace("\r\n", "\n").encode("utf-8"))
+    # P2-11. This is the SINGLE aggregate barrier: one marker, published last,
+    # binding every member's raw bytes. It is published the same way as the
+    # members it binds -- hidden temporary, fsync, atomic no-replace rename --
+    # so the marker's own presence can never be a half-written file that makes
+    # an incomplete bundle look committed.
     try:
-        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        publish_bytes_exclusively(path, raw)
     except FileExistsError as exc:
         raise L3RunAbort(
             "abort: publication commit already exists; a completed bundle is "
             "immutable") from exc
-    raw = ((json.dumps(marker, ensure_ascii=False, sort_keys=True, indent=1)
-            + "\n").replace("\r\n", "\n").encode("utf-8"))
-    with os.fdopen(fd, "wb") as fh:
-        fh.write(raw)
-        fh.flush()
-        os.fsync(fh.fileno())
     return marker
 
 
@@ -1806,6 +1934,9 @@ def _provenance(args, directory, aggregate, tx, spans_state, spans,
         "source_route_admission": assert_declared_sources_admit_this_route(
             directory),
         "aggregate_route_seal_id": aggregate.get("route_seal_id"),
+        # P1-7. The fields `route_seal_receipt_fields` exists to publish, in the
+        # receipt it exists to publish them into.
+        "route_seal_binding": route_seal_binding(args),
         "normative_module_count": len(NORMATIVE_MODULES),
         "decision_layer_invoked": False,
         "performance_computed": False,

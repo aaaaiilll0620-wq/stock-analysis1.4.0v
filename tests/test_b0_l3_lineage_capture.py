@@ -538,3 +538,123 @@ def test_the_d1_quarantine_is_a_rule_not_a_dataset_family():
     assert not any("quarantine" in d for d in FLOOR_CAPTURE_REQUIRED_DATASETS)
     assert "research/b0_materializer/build_prices_leaf.py" in FLOOR_CAPTURE_CODE_CLOSURE
     assert "research/b0_l3/l3_readers.py" in FLOOR_CAPTURE_CODE_CLOSURE
+
+
+# --- P2-11 · publication is a rename, not a claim followed by a write -----------
+#
+# `write_capture_record_exclusively` claimed the FINAL path with O_EXCL and then
+# wrote the bytes. An interruption between the two froze a ZERO-BYTE capture
+# record at a lineage-scoped path that, by §20's own rule, may never be written
+# again -- so a power loss could permanently destroy a lineage identity, and the
+# only trace would be an empty file.
+
+from core.b0_l3_lineage_capture import (                          # noqa: E402
+    PARTIAL_PUBLICATION_SUFFIX, PUBLICATION_IS_ATOMIC_NO_REPLACE,
+    publish_bytes_exclusively, publish_exclusively, rename_no_replace,
+)
+
+
+class _PowerLoss(RuntimeError):
+    """Whatever kills a process between the claim and the last byte."""
+
+
+def test_an_interrupted_publication_leaves_the_final_path_untouched(tmp_path):
+    target = str(tmp_path / "record.json")
+
+    def _die(_temporary):
+        raise _PowerLoss("between the claim and the bytes")
+
+    with pytest.raises(_PowerLoss):
+        publish_exclusively(target, _die)
+
+    assert not os.path.exists(target)
+    assert os.listdir(str(tmp_path)) == [], "a temporary was left behind"
+
+    publish_bytes_exclusively(target, b"whole\n")
+    assert open(target, "rb").read() == b"whole\n"
+
+
+def test_publication_never_replaces_an_existing_final_path(tmp_path):
+    """The exclusivity guarantee had to survive the change, and does."""
+    target = str(tmp_path / "record.json")
+    publish_bytes_exclusively(target, b"first\n")
+
+    with pytest.raises(FileExistsError):
+        publish_bytes_exclusively(target, b"second\n")
+    assert open(target, "rb").read() == b"first\n"
+    assert os.listdir(str(tmp_path)) == ["record.json"]
+
+
+def test_the_rename_itself_refuses_to_replace(tmp_path):
+    """The guarantee is the rename, not the existence check above it.
+
+    `os.rename` is no-replace on Windows and SILENTLY REPLACING on POSIX, so
+    this is the one line whose behaviour is not portable by default.
+    """
+    source = tmp_path / "src"
+    destination = tmp_path / "dst"
+    source.write_bytes(b"new")
+    destination.write_bytes(b"old")
+
+    with pytest.raises(FileExistsError):
+        rename_no_replace(str(source), str(destination))
+    assert destination.read_bytes() == b"old"
+
+
+def test_an_interrupted_capture_record_can_still_be_captured(tmp_path,
+                                                             monkeypatch):
+    """The defect at its worst: a lineage id nothing could ever write again."""
+    import core.b0_l3_lineage_capture as lcap
+
+    root = str(tmp_path / "artifacts")
+    record = build_capture_record(
+        _full_basis(), capture_date="2026-08-27",
+        required_datasets_provenance=RATIFIED_INVENTORY_AUTHORITY,
+        tracked_clean=True, untracked_clean=True)
+    create_lineage_dir_exclusively(root, record["lineage_id"])
+    path = capture_path(root, record["lineage_id"])
+
+    def _die(_path, _writer):
+        raise _PowerLoss("between the claim and the bytes")
+
+    monkeypatch.setattr(lcap, "publish_exclusively", _die)
+    with pytest.raises(_PowerLoss):
+        write_capture_record_exclusively(root, record)
+    monkeypatch.undo()
+
+    assert not os.path.exists(path), "a zero-byte capture record survived"
+
+    payload_sha, raw_sha = write_capture_record_exclusively(root, record)
+    assert len(payload_sha) == 64 and len(raw_sha) == 64
+    loaded = load_and_verify_capture_record(path)
+    assert loaded["record"]["lineage_id"] == record["lineage_id"]
+
+    with pytest.raises(LineageCaptureError, match="already exists"):
+        write_capture_record_exclusively(root, record)
+    assert not [f for f in os.listdir(os.path.dirname(path))
+                if f.endswith(PARTIAL_PUBLICATION_SUFFIX)]
+
+
+def test_the_capture_record_bytes_did_not_move(tmp_path):
+    """The record's content is a lineage fact; publication may not touch it."""
+    import json
+
+    root = str(tmp_path / "artifacts")
+    record = build_capture_record(
+        _full_basis(), capture_date="2026-08-27",
+        required_datasets_provenance=RATIFIED_INVENTORY_AUTHORITY,
+        tracked_clean=True, untracked_clean=True)
+    create_lineage_dir_exclusively(root, record["lineage_id"])
+    write_capture_record_exclusively(root, record)
+
+    from core.b0_canonical_hash import canonical_sha256
+
+    body = {k: v for k, v in record.items()
+            if k != "capture_record_payload_sha256"}
+    body["capture_record_payload_sha256"] = canonical_sha256(body)
+    expected = (json.dumps(body, ensure_ascii=False, indent=1, sort_keys=True)
+                + "\n").encode("utf-8")
+
+    with open(capture_path(root, record["lineage_id"]), "rb") as fh:
+        assert fh.read() == expected
+    assert PUBLICATION_IS_ATOMIC_NO_REPLACE is True

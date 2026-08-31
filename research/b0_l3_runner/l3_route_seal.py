@@ -159,13 +159,70 @@ def verified_capture_binding(capture_record_path: str) -> dict:
     }
 
 
+# --- P1-8 - RATIFICATION PROTECTED THE WRITER AND NOBODY HAS TO BE THE WRITER ----
+#
+# `assert_route_seal_contract_ratified()` was called from `write_route_seal` and
+# from nowhere else. `write_route_seal` is deliberately unreachable from the
+# runner, which means the ONE door the gate stood in front of is the one door
+# nobody has to walk through. Everything downstream -- reading a seal file,
+# verifying it against the working tree, matching it to a source aggregate,
+# copying its fields into a period receipt -- asked nothing. A hand-written,
+# internally self-consistent seal file plus an aggregate naming it was therefore
+# LOADED AND HONOURED while the contract was still `NOT_YET_RATIFIED`. Measured,
+# not reasoned: all four consumer calls returned successfully on such a file.
+#
+# THIS IS C-72'S SHAPE, ONE LAYER OUT. C-72's first landing was rejected with
+# "the gate was added to the core API, but the real opening boundary was never
+# asked": `assert_reopening_admissible` existed, and `scripts/b0_open_l2.py` and
+# `scripts/b0_baseline_seal.py` -- the entry points that actually created run
+# directories, opening claims and seals -- never called it. The ruling (Master
+# section 9.6e, "the gate must be set at the real opening boundary") fixed it by
+# putting the guard at the real boundaries, BEFORE anything else those entry
+# points do, and pinning with AST that they ask it.
+#
+# So the gate now stands at both ends of the contract, in three places:
+#
+#   WRITER    `write_route_seal`                     -- unchanged, still first
+#   READER    `load_route_seal`                      -- the only door to a seal
+#                                                       ARTEFACT
+#   EXECUTION `run_l3_prospective.assert_route_execution_admissible`
+#                                                    -- the real boundary: the
+#                                                       function that decides
+#                                                       whether the first
+#                                                       prospective observation
+#                                                       may happen at all
+#
+# And, following 9.6e(b), the MECHANISM stays separately reachable so it can be
+# tested without a fictitious ratification: `read_seal_artifact`,
+# `assert_seal_binds_current_route`, `assert_aggregate_names_this_seal`,
+# `assert_declared_floor_is_the_captured_floor`, `route_seal_receipt_fields` and
+# `route_seal_payload` answer "is this seal well-formed / does it bind this tree
+# / does it match these sources / does it match this floor" and never answer
+# "may a seal be honoured at all". A test that needed the gate widened in order
+# to reach the mechanism would be a test that widens the gate.
+#
+# This RATIFIES NOTHING. `ROUTE_SEAL_CONTRACT_STATUS` is still
+# `NOT_YET_RATIFIED` (A-1, an open adjudication); the change is that the
+# fail-closed state is now actually closed at the doors that get used.
+
+# The boundaries required to ask the gate before doing anything else. Declared
+# as data so the tests can pin them with AST rather than by reading a comment.
+RATIFICATION_GATED_BOUNDARIES = (
+    "write_route_seal",
+    "load_route_seal",
+)
+
+
 def assert_route_seal_contract_ratified() -> str:
-    """The writer stays unreachable until the normative contract is ratified."""
+    """No seal may be TAKEN, READ or HONOURED until the contract is ratified."""
     from core.b0_l3_lineage_capture import ROUTE_SEAL_CONTRACT_STATUS
     if ROUTE_SEAL_CONTRACT_STATUS != RATIFIED_ROUTE_SEAL_CONTRACT_STATUS:
         raise RouteSealError(
-            "abort: route-seal contract status is %r, not %r; actual seal "
-            "creation remains fail-closed."
+            "abort: route-seal contract status is %r, not %r; seal creation "
+            "AND the honouring of an existing seal both remain fail-closed. A "
+            "seal file that hashes to its own name is still only a well-formed "
+            "artefact of a contract nobody has ratified, and anyone can write "
+            "one."
             % (ROUTE_SEAL_CONTRACT_STATUS,
                RATIFIED_ROUTE_SEAL_CONTRACT_STATUS))
     return ROUTE_SEAL_CONTRACT_STATUS
@@ -365,22 +422,31 @@ def write_route_seal(capture_record_path: str) -> tuple:
     path = seal_path(ident)
     body = (json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=1)
             + "\n").encode("utf-8")
+    # P2-11. Same bytes, same refusal on a taken path; the difference is that
+    # the seal file appears complete or not at all. A zero-byte seal at a
+    # content-addressed path would be permanently unwritable, and a route seal
+    # is exactly the artefact nobody can re-take under a different name.
+    from core.b0_l3_lineage_capture import publish_bytes_exclusively
+
     try:
-        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY
-                     | getattr(os, "O_BINARY", 0))
+        publish_bytes_exclusively(path, body)
     except FileExistsError as exc:
         raise RouteSealError(
             "abort: %s already exists. A route seal is content-addressed, so a "
             "collision means this exact route is already sealed." % path
         ) from exc
-    try:
-        os.write(fd, body)
-    finally:
-        os.close(fd)
     return ident, path
 
 
-def load_route_seal(seal_id: str) -> dict:
+def read_seal_artifact(seal_id: str) -> dict:
+    """MECHANISM: is there a seal file at this id, and does it hash to its name?
+
+    Separated from `load_route_seal` for 9.6e(b)'s reason. This answers "is this
+    artefact well-formed"; it never answers "may a seal be honoured", which is
+    the gate's question and the gate's alone. Keeping the two apart is what lets
+    the well-formedness tests keep running without any test needing the
+    ratification gate widened in order to reach them.
+    """
     path = seal_path(seal_id)
     if not os.path.exists(path):
         raise RouteSealError(
@@ -398,6 +464,18 @@ def load_route_seal(seal_id: str) -> dict:
             "seal has been altered since it was taken."
             % (path, recomputed[:16]))
     return seal
+
+
+def load_route_seal(seal_id: str) -> dict:
+    """The only door to a seal ARTEFACT. The gate first, then the mechanism.
+
+    P1-8. Ratification is asked HERE and not only in `write_route_seal`, because
+    the writer is deliberately unreachable from the runner and the reader is
+    not. Anyone can hand-write a JSON file that hashes to its own name; what
+    they cannot do is make an unratified contract admit it.
+    """
+    assert_route_seal_contract_ratified()
+    return read_seal_artifact(seal_id)
 
 
 def assert_seal_binds_current_route(seal) -> dict:
@@ -468,6 +546,57 @@ def route_seal_receipt_fields(seal: dict, *, raw_sha256: str) -> dict:
     }
 
 
+# --- P1-7 - THE SEAL CARRIES THE FLOOR AND NOTHING COMPARED THE TWO -------------
+#
+# `verified_capture_binding` puts `lineage_price_floor` into the seal straight
+# out of the verified capture record, so the seal has always KNOWN the floor.
+# The runner nevertheless took `--lineage-price-floor` from its caller and
+# handed it to `l3_assemble` without ever comparing the two.
+#
+# The floor is not bookkeeping. C-68 froze `price_span[0]` as the
+# lineage-inception corpus coverage floor; it feeds `spell_start`, `spell_start`
+# decides via `n_in_spell` whether ADV20 and sigma20d go NA, and O-G blanks
+# month-end prices on the same basis. A floor one session away from the captured
+# one is a DIFFERENT ELIGIBLE POPULATION and a different state hash, arrived at
+# silently, in a run whose receipt would say it was bound to that capture.
+#
+# Declaration plus verification, not derivation: the caller still has to state
+# the floor it believes it is running on -- the same shape as
+# `--prior-source-manifest` -- and the seal decides whether it was right.
+
+def assert_declared_floor_is_the_captured_floor(seal, declared_floor) -> str:
+    """The section 19 / C-68 floor a run assembles on must be the CAPTURED one.
+
+    Reads the seal's `lineage_price_floor`, which arrived there through
+    `verified_capture_binding` -> `load_and_verify_capture_record`, so this
+    compares against the capture record rather than against a copy of it.
+    """
+    captured = str((seal or {}).get("lineage_price_floor") or "").strip()
+    if not captured:
+        raise RouteSealError(
+            "abort: the route seal carries no lineage_price_floor, so nothing "
+            "binds the floor this run would assemble on. A seal that cannot "
+            "name the captured floor cannot admit a caller's.")
+    declared = str(declared_floor or "").strip()
+    if not declared:
+        raise RouteSealError(
+            "abort: no --lineage-price-floor was declared, and it has no "
+            "default. The capture bound to this seal froze %s; a run must "
+            "state the floor it believes it is executing on so that the seal "
+            "can refuse a different one." % captured)
+    if declared != captured:
+        raise RouteSealError(
+            "abort: this run declares --lineage-price-floor %s and the lineage "
+            "capture bound to route seal %s froze %s. The floor sets "
+            "spell_start, spell_start decides via n_in_spell whether ADV20 and "
+            "sigma20d go NA and whether O-G blanks month-end prices, so the "
+            "two floors select DIFFERENT ELIGIBLE POPULATIONS. C-68 froze this "
+            "value at lineage inception; it is not a per-run argument."
+            % (declared, str((seal or {}).get("route_seal_id", ""))[:16],
+               captured))
+    return captured
+
+
 def assert_aggregate_names_this_seal(aggregate, seal_id: str) -> str:
     """The run's sources must be tied to THIS route, not to a placeholder.
 
@@ -497,6 +626,7 @@ __all__ = [
     "ENTRY_POINTS",
     "MODULE_ROOTS",
     "PLACEHOLDER_SEAL_IDS",
+    "RATIFICATION_GATED_BOUNDARIES",
     "RATIFIED_ROUTE_SEAL_CONTRACT_STATUS",
     "ROUTE_SEAL_CONTRACT_VERSION",
     "ROUTE_SEAL_ID_PREFIX",
@@ -504,12 +634,14 @@ __all__ = [
     "SOURCE_PRODUCER_GLOBS",
     "RouteSealError",
     "assert_aggregate_names_this_seal",
+    "assert_declared_floor_is_the_captured_floor",
     "assert_no_producer_is_unbound",
     "assert_route_is_sealable",
     "assert_route_seal_contract_ratified",
     "assert_seal_binds_current_route",
     "current_repo_identity",
     "load_route_seal",
+    "read_seal_artifact",
     "route_closure_files",
     "sealed_file_set",
     "route_seal_id",

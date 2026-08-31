@@ -62,6 +62,9 @@ if _L3 not in sys.path:
     sys.path.insert(0, _L3)
 
 from core.b0_canonical_hash import canonical_sha256, file_sha256   # noqa: E402
+from core.b0_l3_lineage_capture import (                          # noqa: E402
+    publish_bytes_exclusively,
+)
 
 LEAF_SCHEMA_VERSION = "b0_source_manifest_leaf@1"
 AGGREGATE_SCHEMA_VERSION = "b0_source_ownership_manifest@1"
@@ -272,27 +275,30 @@ def payload_sha256(doc: dict) -> str:
 
 
 def _write_immutable(path: str, doc: dict) -> tuple:
-    """Exclusive create. Returns (payload_sha256, raw_sha256).
+    """Atomic exclusive publication. Returns (payload_sha256, raw_sha256).
 
-    `O_EXCL` rather than a mode string: "immutable once written" is enforced by
-    the filesystem call, not by everyone remembering.
+    P2-11. "Immutable once written" is still enforced by the filesystem rather
+    than by everyone remembering -- but a bare `O_EXCL` claim on the FINAL path
+    followed by the bytes is not one operation. An interruption between the two
+    left a ZERO-BYTE manifest at the final path, which (a) can never be written
+    again, because a manifest is immutable, and (b) is READABLE to a concurrent
+    leaf builder or to the aggregate barrier before the bytes land. The bytes
+    are unchanged; they are written into a hidden same-directory temporary and
+    published by an atomic no-replace rename, so the final path only ever
+    exists complete and a taken final path still refuses.
     """
     body = {k: v for k, v in doc.items() if k != SELF_HASH_FIELD}
     body[SELF_HASH_FIELD] = payload_sha256(body)
 
-    directory = os.path.dirname(path)
-    if directory:
-        os.makedirs(directory, exist_ok=True)
+    blob = ((json.dumps(body, ensure_ascii=False, sort_keys=True, indent=1)
+             + "\n").replace("\r\n", "\n").encode("utf-8"))
     try:
-        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        publish_bytes_exclusively(path, blob)
     except FileExistsError:
         raise ManifestError(
             "abort: a manifest already exists at %s. Manifests are immutable; a "
             "changed source set gets a NEW run manifest, never an overwrite."
             % path)
-    with os.fdopen(fd, "wb") as fh:
-        fh.write((json.dumps(body, ensure_ascii=False, sort_keys=True, indent=1)
-                  + "\n").replace("\r\n", "\n").encode("utf-8"))
     return body[SELF_HASH_FIELD], file_sha256(path)
 
 

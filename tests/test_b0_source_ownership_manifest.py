@@ -597,3 +597,80 @@ def test_NEGATIVE_the_aggregates_leaf_path_is_the_same_kind_of_name(tmp_path):
 
     with pytest.raises(ManifestError, match="separator"):
         verify_aggregate(run_dir)
+
+
+# --- P2-11 · a manifest is published, not claimed and then filled in ------------
+#
+# `_write_immutable` claimed the FINAL path with O_EXCL and wrote afterwards.
+# Two consequences, both measured: an interruption between the two left a
+# ZERO-BYTE manifest that (a) could never be rewritten, because manifests are
+# immutable, and (b) was already READABLE -- a concurrent leaf builder or the
+# aggregate barrier could open it and fail on a JSON decode error attributed to
+# the wrong cause.
+
+class _PowerLoss(RuntimeError):
+    """Whatever kills a process between the claim and the last byte."""
+
+
+def test_an_interrupted_manifest_leaves_nothing_and_is_retryable(tmp_path,
+                                                                 monkeypatch):
+    import source_ownership_manifest as som
+
+    path = str(tmp_path / (LEAF_FILENAME % "prices"))
+
+    def _die(_path, _blob):
+        raise _PowerLoss("between the claim and the bytes")
+
+    monkeypatch.setattr(som, "publish_bytes_exclusively", _die)
+    with pytest.raises(_PowerLoss):
+        som._write_immutable(path, {"a": 1})
+    monkeypatch.undo()
+
+    assert not os.path.exists(path)
+    assert os.listdir(str(tmp_path)) == [], "a temporary was left behind"
+
+    payload, raw = som._write_immutable(path, {"a": 1})
+    assert len(payload) == 64 and len(raw) == 64
+    assert json.load(open(path, encoding="utf-8"))["a"] == 1
+
+
+def test_a_manifest_is_never_visible_half_written(tmp_path):
+    """Whatever appears at the final name is complete, or nothing is there."""
+    import source_ownership_manifest as som
+
+    path = str(tmp_path / (LEAF_FILENAME % "prices"))
+    som._write_immutable(path, {"a": 1, "b": "\u503c"})
+
+    # The temporary carries a distinguishing suffix and does not survive.
+    assert os.listdir(str(tmp_path)) == [os.path.basename(path)]
+    doc = json.load(open(path, encoding="utf-8"))
+    assert doc["b"] == "\u503c" and SELF_HASH_FIELD in doc
+
+
+def test_publishing_over_an_existing_manifest_still_fails(tmp_path):
+    """Immutability was the whole point and had to survive the change."""
+    import source_ownership_manifest as som
+
+    path = str(tmp_path / (LEAF_FILENAME % "prices"))
+    som._write_immutable(path, {"a": 1})
+    before = open(path, "rb").read()
+
+    with pytest.raises(ManifestError, match="already exists"):
+        som._write_immutable(path, {"a": 2})
+    assert open(path, "rb").read() == before
+
+
+def test_the_manifest_bytes_did_not_move(tmp_path):
+    """Every leaf and aggregate hash in this project is a hash of these bytes."""
+    import source_ownership_manifest as som
+
+    doc = {"schema_version": "x", "z": [1, {"k": "\u503c"}], "a": None}
+    path = str(tmp_path / "leaf.json")
+    som._write_immutable(path, doc)
+
+    body = {k: v for k, v in doc.items() if k != SELF_HASH_FIELD}
+    body[SELF_HASH_FIELD] = som.payload_sha256(body)
+    expected = ((json.dumps(body, ensure_ascii=False, sort_keys=True, indent=1)
+                 + "\n").replace("\r\n", "\n").encode("utf-8"))
+    with open(path, "rb") as fh:
+        assert fh.read() == expected

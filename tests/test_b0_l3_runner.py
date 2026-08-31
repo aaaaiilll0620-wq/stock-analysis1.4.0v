@@ -560,7 +560,17 @@ def test_route_execution_is_refused_while_the_specification_is_mid_transaction()
         sealable = True
     except rs.RouteSealError:
         sealable = False
-    should_refuse = (tx["in_transaction"]
+    # P1-8 added a fourth term, and it belongs in the LOGIC rather than in the
+    # verdict: while the route-seal contract is unratified the gate must refuse
+    # whatever the other three say. Leaving it out would let this test go on
+    # passing for a reason that had stopped being the reason.
+    try:
+        rs.assert_route_seal_contract_ratified()
+        ratified = True
+    except rs.RouteSealError:
+        ratified = False
+    should_refuse = (not ratified
+                     or tx["in_transaction"]
                      or not spans["spans_have_a_registered_derivation"]
                      or not sealable)
 
@@ -1277,3 +1287,143 @@ def test_the_runner_binds_its_own_bytes_and_its_own_path():
     from core.b0_canonical_hash import file_sha256
 
     assert file_sha256(os.path.join(REPO, R.HARNESS_PATH)) == _sha(R.__file__)
+
+
+# --- P2-11 · publication is a rename, not a claim followed by a write -----------
+#
+# Every immutable record here used to be published in two steps -- an O_EXCL
+# claim on the FINAL path, then the bytes. Each step is atomic; the pair is not.
+# An interruption between them left a ZERO-BYTE file at the final path, and
+# because these records are immutable the next attempt found the path taken and
+# aborted, so the failure was UNRECOVERABLE rather than retryable.
+
+
+class _PowerLoss(RuntimeError):
+    """Whatever kills a process between the claim and the last byte."""
+
+
+def test_an_interrupted_decision_record_leaves_nothing_and_is_retryable(
+        tmp_path, monkeypatch):
+    path = str(tmp_path / R.PORTFOLIO_RECEIPT)
+
+    def _die(*_a, **_k):
+        raise _PowerLoss("between the claim and the bytes")
+
+    monkeypatch.setattr(R, "write_provenance_json", _die)
+    with pytest.raises(_PowerLoss):
+        R.write_decision_record(path, {"record": "X"})
+    monkeypatch.undo()
+
+    # The old behaviour: a 0-byte file here, and the retry below aborting forever.
+    assert not os.path.exists(path)
+    assert os.listdir(str(tmp_path)) == [], "a temporary was left behind"
+
+    R.write_decision_record(path, {"record": "X"})
+    assert os.path.getsize(path) > 0
+
+
+def test_publishing_over_an_existing_decision_record_still_fails(tmp_path):
+    """The exclusivity guarantee had to survive the change, and does."""
+    path = str(tmp_path / R.PORTFOLIO_RECEIPT)
+    R.write_decision_record(path, {"record": "first"})
+    before = open(path, "rb").read()
+
+    with pytest.raises(R.L3RunAbort) as exc:
+        R.write_decision_record(path, {"record": "second"})
+    assert "already exists" in str(exc.value)
+    assert open(path, "rb").read() == before, "the first record was overwritten"
+    assert os.listdir(str(tmp_path)) == [R.PORTFOLIO_RECEIPT]
+
+
+def test_the_published_bytes_are_the_provenance_primitive_s_bytes(tmp_path):
+    """S-5 delegated the BYTES on purpose; publication may not change them.
+
+    `core/b0_master_prereg.write_provenance_json` is pinned, and S-5 routed
+    decision-record content through it so the records stayed byte-identical.
+    Atomic publication moves which NAME the primitive writes under first and
+    nothing else -- asserted here rather than argued.
+    """
+    from core.b0_master_prereg import write_provenance_json
+
+    payload = {"record": "B0_L3_OPENING_RECORD", "run_id": "L3-X",
+               "nested": [1, 2, {"k": "\u503c"}], "flag": True, "none": None}
+    published = str(tmp_path / "published.json")
+    direct = str(tmp_path / "direct.json")
+
+    returned = R.write_decision_record(published, payload)
+    expected = write_provenance_json(direct, payload)
+
+    assert open(published, "rb").read() == open(direct, "rb").read()
+    assert returned == expected
+
+
+def test_an_interrupted_publication_commit_leaves_no_marker(tmp_path,
+                                                            monkeypatch):
+    """A half-written barrier would make an incomplete bundle look committed."""
+    from core import b0_l3_lineage_capture as lcap
+
+    directory = str(tmp_path)
+    for name in (R.SNAPSHOT_RECEIPT, R.PORTFOLIO_RECEIPT, R.OPENING_RECORD,
+                 R.FINAL_RESULT):
+        with open(os.path.join(directory, name), "w", encoding="utf-8") as fh:
+            fh.write("{}")
+
+    def _die(_path, _blob):
+        raise _PowerLoss("between the claim and the bytes")
+
+    monkeypatch.setattr(R, "publish_bytes_exclusively", _die)
+    with pytest.raises(_PowerLoss):
+        R.commit_publication(directory, "L3-X", "assemble", "2026-09-30",
+                             {"route_seal_id": "PENDING"},
+                             (R.SNAPSHOT_RECEIPT, R.PORTFOLIO_RECEIPT,
+                              R.OPENING_RECORD, R.FINAL_RESULT))
+    monkeypatch.undo()
+    assert not os.path.exists(os.path.join(directory, R.PUBLICATION_COMMIT))
+
+    marker = R.commit_publication(directory, "L3-X", "assemble", "2026-09-30",
+                                  {"route_seal_id": "PENDING"},
+                                  (R.SNAPSHOT_RECEIPT, R.PORTFOLIO_RECEIPT,
+                                   R.OPENING_RECORD, R.FINAL_RESULT))
+    assert marker["run_id"] == "L3-X"
+    assert os.path.getsize(os.path.join(directory, R.PUBLICATION_COMMIT)) > 0
+
+    with pytest.raises(R.L3RunAbort):
+        R.commit_publication(directory, "L3-X", "assemble", "2026-09-30",
+                             {"route_seal_id": "PENDING"},
+                             (R.SNAPSHOT_RECEIPT, R.PORTFOLIO_RECEIPT,
+                              R.OPENING_RECORD, R.FINAL_RESULT))
+    assert lcap.PUBLICATION_IS_ATOMIC_NO_REPLACE is True
+
+
+def test_no_writer_in_these_modules_claims_the_final_path_and_writes_after():
+    """AST pin, the S-5 shape: a new naked claim-then-write may not creep back.
+
+    Not a string search -- an `os.open(..., O_EXCL)` inside these modules is the
+    exact construct that produced the zero-byte-then-permanent-abort failure,
+    and the point of the pin is that a future edit reintroducing it is a test
+    failure rather than a review question.
+    """
+    modules = [
+        os.path.join(REPO, "research", "b0_l3_runner", "run_l3_prospective.py"),
+        os.path.join(REPO, "research", "b0_l3_runner", "l3_route_seal.py"),
+        os.path.join(REPO, "research", "b0_l3_runner", "capture_l3_floor.py"),
+        os.path.join(REPO, "research", "b0_materializer",
+                     "source_ownership_manifest.py"),
+    ]
+    offenders = []
+    for path in modules:
+        tree = ast.parse(open(path, encoding="utf-8").read())
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            name = (func.attr if isinstance(func, ast.Attribute)
+                    else getattr(func, "id", ""))
+            if name != "open" or not isinstance(func, ast.Attribute):
+                continue
+            flags = {n.attr for n in ast.walk(node) if isinstance(n, ast.Attribute)}
+            if "O_EXCL" in flags:
+                offenders.append("%s:%d" % (os.path.basename(path), node.lineno))
+    assert offenders == [], (
+        "a final-path O_EXCL claim is back; publication must go through "
+        "core.b0_l3_lineage_capture.publish_exclusively: %s" % offenders)

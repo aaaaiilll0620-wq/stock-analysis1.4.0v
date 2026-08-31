@@ -57,6 +57,7 @@ from core.b0_l3_lineage_capture import (  # noqa: E402
     RATIFIED_INVENTORY_AUTHORITY, assert_floor_is_a_trading_session,
     assert_prices_are_on_calendar, derive_leg_summaries,
     floor_capture_code_closure_sha256, next_attempt_run_id,
+    publish_exclusively,
 )
 from research.b0_l3.l3_readers import read_calendar, read_prices  # noqa: E402
 from research.b0_materializer import build_flat_leaves, build_prices_leaf  # noqa: E402
@@ -490,11 +491,21 @@ def _preserve_failed_capture(root: str, *, staging_root: str, run_id: str,
         "notes": notes,
     }
     evidence_path = os.path.join(destination, FAILURE_EVIDENCE_FILENAME)
-    try:
-        os.makedirs(destination, exist_ok=True)
-        with open(evidence_path, "x", encoding="utf-8", newline="\n") as fh:
+    def _write_evidence(temporary: str) -> None:
+        # P2-11. Byte-for-byte the write this has always performed. The mode
+        # was "x" -- exclusive create on the FINAL path, bytes afterwards -- so
+        # an interruption froze a zero-byte evidence file that could never be
+        # rewritten, and FAILED_CAPTURE_PRESERVATION would then be recorded as
+        # satisfied by an empty file.
+        with open(temporary, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(evidence, fh, ensure_ascii=False, indent=1, sort_keys=True)
             fh.write("\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+
+    try:
+        os.makedirs(destination, exist_ok=True)
+        publish_exclusively(evidence_path, _write_evidence)
     except Exception as write_error:           # noqa: BLE001 — never mask `exc`
         evidence["preservation_contract_satisfied"][
             FAILED_CAPTURE_PRESERVATION[2]] = False

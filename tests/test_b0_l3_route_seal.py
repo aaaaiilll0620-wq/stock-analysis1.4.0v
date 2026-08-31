@@ -247,12 +247,21 @@ def test_the_seal_id_is_content_addressed(sealable):
 
 
 def test_loading_a_seal_that_does_not_exist_names_no_fallback():
+    """MECHANISM (Master 9.6e(b)): `read_seal_artifact`, not `load_route_seal`.
+
+    `load_route_seal` is now the ratification-gated boundary and refuses before
+    it looks at any path (P1-8), so a test of well-formedness has to call the
+    mechanism directly. The alternative -- widening the gate so the mechanism
+    stays reachable through it -- is what C-72 refused: a guard that a test may
+    walk around has stopped being a guard. The assertions are unchanged.
+    """
     with pytest.raises(rs.RouteSealError) as exc:
-        rs.load_route_seal("L3SEAL-" + "f" * 64)
+        rs.read_seal_artifact("L3SEAL-" + "f" * 64)
     assert "no 'latest'" in str(exc.value)
 
 
 def test_a_tampered_seal_file_is_refused(tmp_path, monkeypatch, sealable):
+    """MECHANISM: see `test_loading_a_seal_that_does_not_exist_names_no_fallback`."""
     monkeypatch.setattr(rs, "SEAL_ROOT", str(tmp_path))
     ident = rs.route_seal_id(sealable)
     payload = {**sealable, "route_seal_id": ident,
@@ -260,14 +269,215 @@ def test_a_tampered_seal_file_is_refused(tmp_path, monkeypatch, sealable):
     path = os.path.join(str(tmp_path), ident + ".json")
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(payload, fh)
-    assert rs.load_route_seal(ident)["route_seal_id"] == ident
+    assert rs.read_seal_artifact(ident)["route_seal_id"] == ident
 
     payload["file_count"] = payload["file_count"] + 1
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(payload, fh)
     with pytest.raises(rs.RouteSealError) as exc:
-        rs.load_route_seal(ident)
+        rs.read_seal_artifact(ident)
     assert "altered since it was taken" in str(exc.value)
+
+
+# --- P1-8 - ratification protects the writer, and nobody has to be the writer ---
+
+def _hand_crafted_seal(tmp_path, monkeypatch, sealable) -> tuple:
+    """A seal file nobody was authorised to take, internally self-consistent.
+
+    Exactly the artefact the review described: written by hand rather than by
+    the (deliberately unreachable) writer, hashing to its own filename, with a
+    source aggregate that names it.
+    """
+    monkeypatch.setattr(rs, "SEAL_ROOT", str(tmp_path))
+    ident = rs.route_seal_id(sealable)
+    seal = {**sealable, "route_seal_id": ident,
+            "route_seal_payload_sha256": ident[7:]}
+    with open(os.path.join(str(tmp_path), ident + ".json"), "w",
+              encoding="utf-8") as fh:
+        json.dump(seal, fh)
+    return ident, seal
+
+
+def test_the_hand_crafted_seal_really_is_internally_self_consistent(
+        tmp_path, monkeypatch, sealable):
+    """The premise of the defect, pinned: nothing is WRONG with this file.
+
+    If this stopped holding, the refusal below would start passing for the
+    wrong reason -- a malformed seal -- and would no longer be evidence that
+    ratification is what refuses it.
+    """
+    ident, seal = _hand_crafted_seal(tmp_path, monkeypatch, sealable)
+
+    assert rs.read_seal_artifact(ident)["route_seal_id"] == ident
+    assert rs.assert_seal_binds_current_route(seal)["verified_files"] > 0
+    assert rs.assert_aggregate_names_this_seal(
+        {"route_seal_id": ident}, ident) == ident
+    assert rs.route_seal_receipt_fields(
+        seal, raw_sha256="d" * 64)["route_seal_id"] == ident
+
+
+def test_a_self_consistent_seal_is_refused_while_the_contract_is_unratified(
+        tmp_path, monkeypatch, sealable):
+    """P1-8. The consumer door was never asked, and now it is."""
+    from core.b0_l3_lineage_capture import ROUTE_SEAL_CONTRACT_STATUS
+
+    assert ROUTE_SEAL_CONTRACT_STATUS != rs.RATIFIED_ROUTE_SEAL_CONTRACT_STATUS
+    ident, _ = _hand_crafted_seal(tmp_path, monkeypatch, sealable)
+
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.load_route_seal(ident)
+    assert ROUTE_SEAL_CONTRACT_STATUS in str(exc.value)
+
+
+def _first_statement_calls(module_path: str, function: str, callee: str) -> bool:
+    """Does `function`'s FIRST executable statement call `callee`?
+
+    Ordering, not presence. C-72 ruled the refusal must happen BEFORE the
+    boundary does anything -- "the refusal must occur before the seal is
+    obtained, because once obtained it is already a fact in the ledger" -- so a
+    guard called somewhere in the body would not satisfy it.
+    """
+    tree = ast.parse(open(module_path, encoding="utf-8").read())
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if node.name != function:
+            continue
+        body = list(node.body)
+        if body and isinstance(body[0], ast.Expr) and \
+                isinstance(body[0].value, ast.Constant) and \
+                isinstance(body[0].value.value, str):
+            body = body[1:]                      # the docstring
+        if not body:
+            return False
+        first = body[0]
+        for sub in ast.walk(first):
+            if isinstance(sub, ast.Call):
+                func = sub.func
+                name = (func.attr if isinstance(func, ast.Attribute)
+                        else getattr(func, "id", ""))
+                if name == callee:
+                    return True
+        return False
+    raise AssertionError("%s defines no %s" % (module_path, function))
+
+
+@pytest.mark.parametrize("boundary", rs.RATIFICATION_GATED_BOUNDARIES)
+def test_every_gated_boundary_asks_the_gate_first(boundary):
+    """AST, not a comment: both seal doors ask ratification before anything."""
+    assert _first_statement_calls(rs.__file__, boundary,
+                                  "assert_route_seal_contract_ratified"), \
+        "%s does not ask the ratification gate first" % boundary
+
+
+def test_the_declared_boundaries_are_the_boundaries_that_exist():
+    """A boundary list that drifted from the module would gate nothing."""
+    assert set(rs.RATIFICATION_GATED_BOUNDARIES) == {"write_route_seal",
+                                                     "load_route_seal"}
+    for name in rs.RATIFICATION_GATED_BOUNDARIES:
+        assert callable(getattr(rs, name)), name
+
+
+def test_the_execution_boundary_asks_the_gate_before_anything_else():
+    """C-72(c): the gate belongs at the REAL boundary, not only in the API."""
+    assert _first_statement_calls(R.__file__,
+                                  "assert_route_execution_admissible",
+                                  "assert_route_seal_contract_ratified")
+
+
+def test_the_runner_execution_gate_refuses_a_self_consistent_seal(
+        tmp_path, monkeypatch, sealable):
+    """End of the chain: the run cannot be admitted on a hand-written seal."""
+    from core.b0_l3_lineage_capture import ROUTE_SEAL_CONTRACT_STATUS
+
+    ident, _ = _hand_crafted_seal(tmp_path, monkeypatch, sealable)
+    with pytest.raises(R.L3RunAbort) as exc:
+        R.assert_route_execution_admissible({"route_seal_id": ident}, ident,
+                                            "2004-02-11")
+    assert R.ROUTE_EXECUTION_GATE in str(exc.value)
+    assert ROUTE_SEAL_CONTRACT_STATUS in str(exc.value)
+
+
+# --- P1-7 - the seal binds the floor the runner assembles on -------------------
+
+def test_a_floor_that_disagrees_with_the_capture_is_refused(sealable):
+    """The captured floor is 2004-02-11; one session away is another universe."""
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_declared_floor_is_the_captured_floor(sealable, "2004-02-12")
+    message = str(exc.value)
+    assert "2004-02-12" in message and "2004-02-11" in message
+    assert "spell_start" in message
+
+
+def test_the_captured_floor_is_the_only_floor_accepted(sealable):
+    assert rs.assert_declared_floor_is_the_captured_floor(
+        sealable, "2004-02-11") == "2004-02-11"
+
+
+def test_an_undeclared_floor_is_refused_rather_than_defaulted(sealable):
+    """C-68 has no default, and the seal may not supply one silently."""
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_declared_floor_is_the_captured_floor(sealable, "")
+    assert "no default" in str(exc.value)
+
+
+def test_a_seal_carrying_no_floor_admits_nothing(sealable):
+    stripped = {k: v for k, v in sealable.items()
+                if k != "lineage_price_floor"}
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_declared_floor_is_the_captured_floor(stripped, "2004-02-11")
+    assert "no lineage_price_floor" in str(exc.value)
+
+
+def test_the_execution_gate_cross_checks_the_declared_floor():
+    """The gate must CALL the cross-check; a mechanism nobody calls is P1-7."""
+    source = open(R.__file__, encoding="utf-8").read()
+    tree = ast.parse(source)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and \
+                node.name == "assert_route_execution_admissible":
+            called = {n.func.attr for n in ast.walk(node)
+                      if isinstance(n, ast.Call)
+                      and isinstance(n.func, ast.Attribute)}
+            assert "assert_declared_floor_is_the_captured_floor" in called
+            return
+    raise AssertionError("the execution gate is gone")
+
+
+def test_the_receipt_fields_now_have_a_production_caller():
+    """They existed to be published and were in no receipt at all."""
+    source = open(R.__file__, encoding="utf-8").read()
+    called = {n.func.attr for n in ast.walk(ast.parse(source))
+              if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}
+    assert "route_seal_receipt_fields" in called
+
+
+def test_an_unsealed_mode_records_that_the_floor_was_never_bound():
+    """An absent field and an unbound floor look identical in an audit."""
+    from types import SimpleNamespace
+
+    binding = R.route_seal_binding(SimpleNamespace(
+        mode="assemble", route_seal_id="", lineage_price_floor="2004-02-11"))
+
+    assert binding["route_seal_in_force"] is False
+    assert binding["lineage_price_floor_bound_by_a_capture"] is False
+    assert binding["declared_lineage_price_floor"] == "2004-02-11"
+    assert binding["reason"] == R.NO_ROUTE_SEAL_IN_FORCE
+
+
+def test_a_decision_mode_cannot_produce_a_binding_while_unratified(
+        tmp_path, monkeypatch, sealable):
+    """The receipt path goes through the same gated door as the run gate."""
+    from types import SimpleNamespace
+
+    from core.b0_l3_lineage_capture import ROUTE_SEAL_CONTRACT_STATUS
+
+    ident, _ = _hand_crafted_seal(tmp_path, monkeypatch, sealable)
+    with pytest.raises(R.L3RunAbort) as exc:
+        R.route_seal_binding(SimpleNamespace(
+            mode="intent", route_seal_id=ident,
+            lineage_price_floor="2004-02-11"))
+    assert ROUTE_SEAL_CONTRACT_STATUS in str(exc.value)
 
 
 def test_capture_binding_is_verified_not_copied(monkeypatch):
