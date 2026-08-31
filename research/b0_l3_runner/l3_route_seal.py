@@ -207,6 +207,21 @@ def verified_capture_binding(capture_record_path: str) -> dict:
 
 # The boundaries required to ask the gate before doing anything else. Declared
 # as data so the tests can pin them with AST rather than by reading a comment.
+#
+# ⚠ HAND-MAINTAINED, AND THE TEST INHERITS THAT LIMIT. `8d727bdd`s message said
+# this list "enumerates the boundaries rather than naming one, so a future
+# unguarded boundary fails too". THE SECOND HALF IS NOT TRUE and is corrected
+# here because a commit message cannot be. The parametrised test walks THIS
+# TUPLE, not the modules functions, so a new consumer door that never asks the
+# gate is caught only once someone adds its name below. Measured 2026-08-31: a
+# new seal-reading function that skips the gate was added and all 138 tests in
+# the route-seal and runner files passed.
+#
+# It is left hand-maintained rather than derived: deriving it would mean
+# deciding from the source alone which functions are "consumer doors", and a
+# wrong derivation would silently EXCUSE a boundary rather than fail. A short
+# list somebody must edit is the smaller risk -- but it is a risk, so adding a
+# function that reads or honours a seal means adding it here in the same commit.
 RATIFICATION_GATED_BOUNDARIES = (
     "write_route_seal",
     "load_route_seal",

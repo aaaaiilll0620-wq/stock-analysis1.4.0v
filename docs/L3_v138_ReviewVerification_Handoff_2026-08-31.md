@@ -1,10 +1,14 @@
 # L3 v1.38 · 覆核復驗與交接（2026-08-31）
 
-**狀態：`UNCOMMITTED WORKING TREE — NOTHING SEALED, NOTHING RATIFIED`**
+**狀態：`COMMITTED — NOTHING SEALED, NOTHING RATIFIED`**
 
-分支 `codex/l3-september-readiness`，基底 HEAD `8d727bdd`。
-本 session 未 commit、未 stage、未取 seal、未建立 run、未改 prereg 或 `data/`。
-**production code 一行未改**；新增只有測試與文件。
+分支 `codex/l3-september-readiness`。未取 seal、未建立 run、未改 prereg 或 `data/`。
+
+⚠ **修訂 2（2026-08-31，回應外部覆核第二輪）。**
+本文件初版寫於變更尚未提交時，狀態欄寫 `UNCOMMITTED WORKING TREE`、基底 `8d727bdd`。
+外部覆核正確指出**那已是歷史快照，不是當時的工作樹狀態**。
+初版所述變更現已提交（見 §6），且本次修訂另有兩項新增，亦見 §6。
+**§1 的「十二項中十一項已關」是相對 `93e928e4` 而言的判定，該判定不受本次修訂影響。**
 
 ## 0 · 撰稿者揭露
 
@@ -116,27 +120,66 @@ median 0、max 1、**7.7 年合計 9 檔**；92 個月末有 28 個為零。丟�
 
 ## 6 · 交接清單
 
-**未提交的工作樹變更（`work/l3_formal_v138`，分支 `codex/l3-september-readiness`）：**
+**已提交（`work/l3_formal_v138`，分支 `codex/l3-september-readiness`，未 push）：**
 
-```
- M tests/test_b0_l3_lineage_capture.py                                    +30
- M tests/test_b0_l3_route_seal.py                                         +61
- ?? docs/L3_v138_Month1PriceBlocker_AdjudicationOptions_2026-08-31.md
- ?? docs/L3_v138_ReviewVerification_Handoff_2026-08-31.md
-```
+| commit | 內容 |
+|---|---|
+| `3742ad08` | 三個接線測試，+91 行，全在 `tests/`。production code 未改 |
+| `b52c5660` | Month 1 選項書 + 本交接文件（初版） |
+| 本次修訂 | P1-8 註解修正（`l3_route_seal.py`）、第十項選項書、本文件修訂 2 |
 
-⚠ codex 若要在此 worktree 開工，這 91 行需先接手或先 commit，否則會撞在一起。
-
-**簽字建議：**
-- P1-8 **可簽**，附上 §2 的宣稱修正。
-- P1-7、P2-11 **在 §3 三個測試進去之後可簽**。
+**簽字建議（含外部覆核第二輪的 disposition）：**
+- P1-8 **可簽** —— 文案已於本次修訂落地，見 §7。
+- P1-7、P2-11 **在目前 fail-closed 範圍內可簽**（`3742ad08` 的三個測試）；
+  **A-1 批准後補真正的端對端行為測試仍是明確待還事項**，AST 接線測試屆時保留為輔。
+- Month 1 **維持阻塞**：不得回溯決策日期，不得建立 production evidence。
+- 第十項（single-member ZIP）**維持 `OPTIONS ONLY`**，見下。
 
 **仍然開著：**
 - 九項裁決本身（A-1..A-9, N-1）—— 選項書仍是 `OPTIONS ONLY`。
   外部覆核的建議與選項書自身建議在九項上一致，唯一分歧 A-9 丁→乙已驗證為正確
   （釋放時點經 `_state_hash` 進入 COMPARED 的 `portfolio_side_sha256`，丁不可採）。
 - Month 1 阻塞的裁決（含 R-W1-1 具名例外）。
-- **第十項待裁**：single-member ZIP 是 `d9fda6af` 修復過程中做出的契約決定，
-  自陳 "Recorded, not resolved"，且**不在**九項選項書內。
+- **第十項待裁**：single-member ZIP。選項書已補：
+  `docs/L3_v138_SingleMemberArchive_AdjudicationOptions_2026-08-31.md`。
+  它是 `d9fda6af` 修復過程中做出的**來源格式契約決定**，producer 與 reader 現已一致
+  （`build_price_panel.py:331-348`），但**實作一致不等於條款已裁**。
+  不得併入九項序列，也不得標成已解決。
 - N-2 / N-3 / N-5 / S-9 / 真實九族 intent→execute phase-invariance。
 - Case B 的計數欄位（已降級，見 §5）。
+
+## 7 · 外部覆核第二輪的回應（2026-08-31）
+
+**接受並已落地：**
+1. **metadata 過期** —— 已於本次修訂改正，並保留初版狀態作為歷史說明（見文首）。
+2. **P1-8 文案** —— 需要修正的那句
+   （"the test that pins it enumerates the boundaries rather than naming one, so a
+   future unguarded boundary fails too"）**在 `8d727bdd` 的 commit message 裡，
+   不在程式碼裡**，而 commit message 不可改。故改在樹裡對應處說明：
+   `research/b0_l3_runner/l3_route_seal.py` 的 `RATIFICATION_GATED_BOUNDARIES`
+   上方現已明寫該半句不成立、量測依據、以及為何仍維持手動維護
+   （導出式列舉的錯誤方向是**默許**一個邊界而非失敗，風險更大）。
+3. **第十項** —— 已建立獨立選項書，維持 `OPTIONS ONLY`，並在 §6 標明不得併入九項序列。
+
+**測試結果的差異，據實記錄而非彌合：**
+
+覆核方回報 route-seal 單檔 40 passed / 1 skipped / **7 failures，全為 `PermissionError`**
+（Windows 禁止寫入 target tree 或 pytest temp），並表示七檔合併掃描過久、
+**無法獨立重現本文件 §3 的 `324 passed / 16 skipped`**。
+
+本文件的 324/16 是撰稿環境的量測，**至此仍未被獨立重現**，應如此看待。
+
+而那些 `PermissionError` **不是純環境噪音，它指向一個真實的測試衛生缺陷**：
+
+    tests/test_b0_l3_route_seal.py:95  test_the_producer_set_is_read_from_disk_not_hand_listed
+    → 寫入 research/b0_materializer/build_zzz_probe_leaf.py（REPO 樹內），
+      再於 finally 刪除。
+
+在**這個**專案裡這不是小事：該路徑落在 `sealed_file_set()` 量測的 route closure 之內，
+而 `assert_seal_binds_current_route` 對「閉包現在觸及、但 seal 從未綁定的檔案」是會拒絕的。
+`finally` 擋得住例外，擋不住 SIGKILL、斷電或沙箱拒絕刪除 ——
+**一次被中斷的測試執行會在樹裡留下一個多出來的 producer 檔案，使 seal 失效。**
+
+⚠ **本項僅記錄，未修。** 它不在覆核方列出的 disposition 內，
+且修法（把 producer glob 根目錄 monkeypatch 到 tmp_path，不寫 REPO）
+是測試行為的變更，應由裁決者決定是否納入，而非在交接途中順手改掉。
