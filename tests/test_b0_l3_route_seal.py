@@ -268,7 +268,10 @@ def test_the_runner_gate_refuses_while_anything_is_owed(monkeypatch):
 # --- placeholder route_seal_ids ---------------------------------------------------------
 
 @pytest.mark.parametrize("declared", ["", "   ", "PENDING", "pending", "TBD",
-                                      "none", "PLACEHOLDER", "-"])
+                                      "none", "PLACEHOLDER", "-",
+                                      # A-1b: admitted here until 2026-09-02,
+                                      # refused by core the whole time.
+                                      "TODO", "todo", "PENDING_SEAL", "0"])
 def test_a_placeholder_route_seal_id_names_no_route(declared):
     """`assemble_aggregate` only requires it to be non-empty, so it gets here."""
     with pytest.raises(rs.RouteSealError) as exc:
@@ -289,9 +292,54 @@ def test_the_matching_seal_id_is_accepted():
         {"route_seal_id": "a" * 64}, "a" * 64) == "a" * 64
 
 
+def test_the_placeholder_list_is_cores_and_not_a_copy():
+    """A-1b, ruled 2026-09-02 (§9.2). Two lists existed and had drifted.
+
+    Identity, not equality: a copy that happens to agree today is the state this
+    ruling removed. `l3_route_seal` consults the vocabulary; it does not own it.
+    """
+    from core.b0_l3_lineage_capture import PLACEHOLDER_ROUTE_SEAL_IDS
+
+    assert rs.placeholder_seal_ids() == frozenset(PLACEHOLDER_ROUTE_SEAL_IDS)
+
+
+def test_a_hand_copied_list_would_not_follow_core(monkeypatch):
+    """The test the equality check could not make.
+
+    A literal that agrees with core today passes every assertion about its
+    CONTENTS. Only a live read follows core when core moves, so that is what is
+    asserted: extend core's vocabulary in-process and this module must refuse
+    the new value without being touched.
+    """
+    import core.b0_l3_lineage_capture as lcap
+
+    monkeypatch.setattr(
+        lcap, "PLACEHOLDER_ROUTE_SEAL_IDS",
+        tuple(lcap.PLACEHOLDER_ROUTE_SEAL_IDS) + ("NOT_A_SEAL_YET",))
+    assert "NOT_A_SEAL_YET" in rs.placeholder_seal_ids()
+    with pytest.raises(rs.RouteSealError, match="names no route"):
+        rs.assert_aggregate_names_this_seal(
+            {"route_seal_id": "NOT_A_SEAL_YET"}, "a" * 64)
+
+
+def test_the_drift_ran_in_the_permissive_direction():
+    """Every string core refuses is refused here too.
+
+    This is the asymmetry that made the drift dangerous rather than merely
+    untidy: `assert_aggregate_names_this_seal` runs inside the runner's gate,
+    ahead of the manifest engine, so the WIDER list was the effective one.
+    """
+    from core.b0_l3_lineage_capture import PLACEHOLDER_ROUTE_SEAL_IDS
+
+    for declared in PLACEHOLDER_ROUTE_SEAL_IDS:
+        with pytest.raises(rs.RouteSealError):
+            rs.assert_aggregate_names_this_seal(
+                {"route_seal_id": declared}, "a" * 64)
+
+
 def test_the_fixture_route_seal_id_used_everywhere_is_a_placeholder():
     """`PENDING` is what every harvest and every fixture writes today."""
-    assert "PENDING" in rs.PLACEHOLDER_SEAL_IDS
+    assert "PENDING" in rs.placeholder_seal_ids()
 
 
 # --- verifying a seal against the working tree --------------------------------------------

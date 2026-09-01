@@ -60,9 +60,31 @@ SEAL_ROOT = os.path.join(REPO, "artifacts", "l3_route_seal", "seals")
 # A `route_seal_id` that names no seal. `source_ownership_manifest` accepts any
 # non-empty string, so these have to be refused HERE or a placeholder becomes an
 # identity.
-PLACEHOLDER_SEAL_IDS = frozenset({
-    "PENDING", "TBD", "NONE", "NULL", "PLACEHOLDER", "UNSEALED", "N/A", "-",
-})
+#
+# A-1b, ruled 2026-09-02 (§9.2). SINGLE SOURCE: the list is core's, imported,
+# never restated. Two copies of it existed and they had drifted -- this module
+# admitted `TODO`, `PENDING_SEAL` and `0`, which core refuses, so the same string
+# was a placeholder or an identity depending on which layer happened to look at
+# it first. And this layer looks first: `assert_aggregate_names_this_seal` runs
+# inside the runner's gate, ahead of the manifest engine, so the WIDER list was
+# the effective one. A drifting denylist drifts permissive.
+#
+# `core` is imported rather than the reverse because the vocabulary belongs to
+# the binding contract, not to the runner that consults it.
+def placeholder_seal_ids() -> frozenset:
+    """core's list, read at CALL time — deliberately not snapshotted at import.
+
+    A module-level `frozenset(_CORE_...)` would satisfy "single source" only
+    while somebody keeps typing it that way: a hand-copied literal that happens
+    to agree today is behaviourally identical to the import, so no test could
+    tell them apart, and the copy is exactly the state this ruling removed.
+    Reading at call time makes the dependency real — change core's list and this
+    module follows, in the same process — so a copy is a FAILING test rather
+    than a code-review opinion.
+    """
+    from core.b0_l3_lineage_capture import PLACEHOLDER_ROUTE_SEAL_IDS
+
+    return frozenset(PLACEHOLDER_ROUTE_SEAL_IDS)
 
 # Where a module named in an import may live. A file outside these roots is not
 # part of this repository's route and is reported rather than silently bound.
@@ -430,7 +452,7 @@ def assert_aggregate_names_this_seal(aggregate, seal_id: str) -> str:
     is therefore this module's job, not the manifest's.
     """
     declared = str((aggregate or {}).get("route_seal_id", "")).strip()
-    if not declared or declared.upper() in PLACEHOLDER_SEAL_IDS:
+    if not declared or declared.upper() in placeholder_seal_ids():
         raise RouteSealError(
             "abort: the source aggregate declares route_seal_id=%r, which "
             "names no route. `assemble_aggregate` only requires it to be "
@@ -453,7 +475,7 @@ __all__ = [
     "unauthoritative_floor_families",
     "ENTRY_POINTS",
     "MODULE_ROOTS",
-    "PLACEHOLDER_SEAL_IDS",
+    "placeholder_seal_ids",
     "ROUTE_SEAL_CONTRACT_VERSION",
     "SEAL_ROOT",
     "SOURCE_PRODUCER_GLOBS",

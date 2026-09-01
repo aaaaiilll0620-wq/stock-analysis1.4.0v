@@ -394,10 +394,19 @@ seal id = payload 的 `canonical_sha256`，並冠上 `L3SEAL-` 前綴。
 `l3_route_seal.PLACEHOLDER_SEAL_IDS`（8 項）改為自 core import，不再自行維護。
 
 - **消除的實測缺口**：`'TODO'`、`'0'` 目前被 `l3_route_seal` 放行而被 core 拒收。
-- **代價**：`research/b0_l3_runner` 因此對 `core` 產生一條新的 import。
-  該 import 會被 `route_closure_files()` 的推導看見 ⇒ **seal 的檔案閉包內容會變**。
-  落地時須重新量 `sealed_file_set()`，不可沿用本文件 §3 的 45 這個數字。
-- **落地順序**：必須在任何 seal 被取得**之前**完成，否則第一枚 seal 綁的是舊閉包。
+- ~~**代價**：`research/b0_l3_runner` 因此對 `core` 產生一條新的 import，會被
+  `route_closure_files()` 的推導看見 ⇒ seal 的檔案閉包內容會變，落地時須重新量
+  `sealed_file_set()`，不可沿用 §3 的 45。~~
+  **⟨M⟩ 2026-09-02 落地時實測否證：閉包未變。** before/after 皆為 **45 檔且逐檔相同**
+  （`identical: True`），因為 `core/b0_l3_lineage_capture.py` 早已在閉包內——
+  已有其他模組 import 它。§3 的 45 仍然有效。
+- **落地順序**：仍應在任何 seal 被取得**之前**完成 —— 不是因為閉包會變（已證明不會），
+  而是因為那三個字串在 seal 之後才補，等於承認第一枚 seal 是在較寬的規則下取得的。
+- **⚠ 落地時發現的實作要點**：`PLACEHOLDER_SEAL_IDS` 改為**呼叫時**向 core 取
+  （`placeholder_seal_ids()`），不在 import 時快照。理由是可測性：
+  一份「今天碰巧等值」的手抄清單在行為上與 import 無法區分，任何比對內容的測試都抓不到它，
+  而那正是本裁決要移除的狀態。實測確認——比對等值的測試放行了手抄版本，
+  改為呼叫時讀取之後才抓得到。
 
 ### 9.3 A-1c · 暫緩；先裁定 `research/b0_l2` 是否屬於 L3 route
 
