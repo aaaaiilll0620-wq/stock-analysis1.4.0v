@@ -204,6 +204,35 @@ def assert_no_producer_is_unbound(bound) -> tuple:
     return tuple(sorted(producers))
 
 
+N1_RULING = ("N1-1, ruled 2026-09-02 · "
+             "docs/A1N1_L3RouteSeal_AdjudicationOptions_2026-09-01.md §9.4")
+
+
+def unauthoritative_floor_families() -> tuple:
+    """Required dataset families whose DECLARED authority is not AUTHORITATIVE.
+
+    Derived from the declarations, never restated here. That is the whole point
+    of gating on it rather than on a prose item in
+    `route_closure.still_owed_before_a_seal_may_be_taken`: a sentence somebody
+    must remember to delete goes stale in the permissive direction, and this
+    repository has already demonstrated it -- that list still carried "MASTER
+    FREEZE records v1.32" long after `master_prereg_freeze.json` said 1.37.
+    A derived gate opens by itself, on the day the declaration changes, and
+    never before.
+
+    Only the flat families carry a per-family declaration (A-4). The other
+    producers declare authority per ENTRY, so a family-level statement about
+    them would be a claim this function cannot make.
+    """
+    from route_closure import REQUIRED_DATASET_FLOOR
+    import build_flat_leaves as flat
+
+    return tuple(sorted(
+        ds for ds in REQUIRED_DATASET_FLOOR
+        if ds in flat.FLAT_FAMILIES
+        and flat.FLAT_FAMILIES[ds].get("authority") != "AUTHORITATIVE"))
+
+
 def assert_route_is_sealable() -> dict:
     """The route's own closure module must declare nothing still owed.
 
@@ -211,7 +240,27 @@ def assert_route_is_sealable() -> dict:
     where A2's boundary is maintained, and a second copy of it here would go
     stale in exactly the direction that matters -- claiming sealable when the
     authority still says otherwise.
+
+    N1-1 is checked FIRST and separately, following `route_closure`'s own idiom
+    of listing the specification gap ahead of the code items "because no amount
+    of implementation closes it". It is not an owed item: nothing anyone builds
+    clears it, and it is not this route's boundary to move.
     """
+    unauthoritative = unauthoritative_floor_families()
+    if unauthoritative:
+        raise RouteSealError(
+            "abort: %s forbids taking a route seal while a required dataset "
+            "family has no authoritative leg. Declared non-AUTHORITATIVE: %s.\n"
+            "R-W1-2 gives authority to TEJ, and these families' bytes do not "
+            "come from TEJ, so nothing exists to reconcile them against. The "
+            "calendar decides WHEN, which decides everything else.\n"
+            "This gate is DERIVED from the family declarations in "
+            "build_flat_leaves.FLAT_FAMILIES, so it opens when a family "
+            "genuinely gains an authoritative leg and not by anyone editing a "
+            "list. Relabelling a family to clear it without changing where its "
+            "bytes come from is the defect A-4 was written to expose."
+            % (N1_RULING, ", ".join(unauthoritative)))
+
     from route_closure import seal_payload
 
     payload = seal_payload()
@@ -372,6 +421,8 @@ def assert_aggregate_names_this_seal(aggregate, seal_id: str) -> str:
 
 
 __all__ = [
+    "N1_RULING",
+    "unauthoritative_floor_families",
     "ENTRY_POINTS",
     "MODULE_ROOTS",
     "PLACEHOLDER_SEAL_IDS",

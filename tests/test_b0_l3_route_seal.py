@@ -114,10 +114,68 @@ def test_the_producer_set_is_read_from_disk_not_hand_listed(tmp_path,
         in rs.source_producer_files()
 
 
+# --- N1-1 · no seal while a required family has no authoritative leg -------------------
+
+def test_the_calendar_blocks_sealing_because_it_has_no_authoritative_leg():
+    """N1-1, ruled 2026-09-02. The family that decides WHEN reads LIVE /
+    SUPPLEMENTARY since A-4, R-W1-2 gives authority to TEJ, and the calendar's
+    bytes are not TEJ -- so nothing exists to reconcile it against."""
+    assert rs.unauthoritative_floor_families() == ("calendar",)
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_route_is_sealable()
+    assert "N1-1" in str(exc.value)
+    assert "calendar" in str(exc.value)
+
+
+def test_the_n1_gate_is_derived_from_the_declaration_not_from_a_list(monkeypatch):
+    """It must open when a family genuinely gains an authoritative leg, and
+    close again the moment one loses it -- without anyone editing a sentence.
+
+    A prose item in `route_closure.still_owed_before_a_seal_may_be_taken` would
+    need a human to delete it; that list carried "MASTER FREEZE records v1.32"
+    long after the freeze said 1.37.
+    """
+    import build_flat_leaves as flat
+
+    honest = dict(flat.FLAT_FAMILIES["calendar"])
+    honest.update(source_family="TEJ", authority="AUTHORITATIVE")
+    monkeypatch.setitem(flat.FLAT_FAMILIES, "calendar", honest)
+    assert rs.unauthoritative_floor_families() == ()
+
+    # ... and the owed list is what refuses next, not this gate.
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_route_is_sealable()
+    assert "N1-1" not in str(exc.value)
+    assert "still declares" in str(exc.value)
+
+
+def test_n1_is_checked_before_the_owed_list():
+    """`route_closure` lists its specification gap first "because no amount of
+    implementation closes it". N1-1 is that shape and is checked the same way:
+    it is not an owed item, and nothing anyone builds clears it."""
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_route_is_sealable()
+    assert "N1-1" in str(exc.value)
+    assert "still declares" not in str(exc.value)
+
+
 # --- the route's own "still owed" declaration ------------------------------------------
 
-def test_sealability_is_read_from_route_closure_not_restated():
-    """A copy of that list would go stale in the direction that matters."""
+def test_sealability_is_read_from_route_closure_not_restated(monkeypatch):
+    """A copy of that list would go stale in the direction that matters.
+
+    The N1-1 gate is checked ahead of the owed list and would otherwise refuse
+    first, so it is satisfied here rather than removed: this test is about where
+    the OWED list comes from, and neutering the gate to reach it would leave the
+    gate untested by everything that runs after.
+    """
+    import build_flat_leaves as flat
+
+    honest = dict(flat.FLAT_FAMILIES["calendar"])
+    honest.update(source_family="TEJ", authority="AUTHORITATIVE")
+    monkeypatch.setitem(flat.FLAT_FAMILIES, "calendar", honest)
+    assert rs.unauthoritative_floor_families() == ()
+
     from route_closure import seal_payload
 
     owed = list(seal_payload().get("still_owed_before_a_seal_may_be_taken") or ())
@@ -133,7 +191,13 @@ def test_sealability_is_read_from_route_closure_not_restated():
         assert payload["code_closure_size"] > 0
 
 
-def test_the_runner_gate_refuses_while_anything_is_owed():
+def test_the_runner_gate_refuses_while_anything_is_owed(monkeypatch):
+    import build_flat_leaves as flat
+
+    honest = dict(flat.FLAT_FAMILIES["calendar"])
+    honest.update(source_family="TEJ", authority="AUTHORITATIVE")
+    monkeypatch.setitem(flat.FLAT_FAMILIES, "calendar", honest)
+
     from route_closure import seal_payload
 
     owed = list(seal_payload().get("still_owed_before_a_seal_may_be_taken") or ())
