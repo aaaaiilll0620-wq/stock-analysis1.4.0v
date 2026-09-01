@@ -448,8 +448,18 @@ def test_a_seal_from_another_contract_version_is_refused(sealable):
 
 
 def test_the_seal_id_is_content_addressed(sealable):
+    """A-1a: this module's DIGEST, core's FORM.
+
+    The prefix is not decoration -- `core.b0_l3_lineage_capture` refuses an id
+    that does not match `ROUTE_SEAL_ID_RE`, and before the ruling every id this
+    module produced failed that check.
+    """
+    from core.b0_l3_lineage_capture import ROUTE_SEAL_ID_RE
+
     ident = rs.route_seal_id(sealable)
-    assert len(ident) == 64
+    assert ident.startswith(rs.ROUTE_SEAL_ID_PREFIX)
+    assert ROUTE_SEAL_ID_RE.match(ident), ident
+    assert len(ident) == len(rs.ROUTE_SEAL_ID_PREFIX) + 64
     # adding the id to the payload must not move the id
     assert rs.route_seal_id({**sealable, "route_seal_id": ident}) == ident
     # changing any bound file does move it

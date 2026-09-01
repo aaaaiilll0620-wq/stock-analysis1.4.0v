@@ -454,10 +454,28 @@ def route_seal_payload() -> dict:
     }
 
 
+ROUTE_SEAL_ID_PREFIX = "L3SEAL-"
+
+
 def route_seal_id(payload) -> str:
-    """Content-addressed, like the baseline seal. The payload IS the identity."""
-    return canonical_sha256({k: v for k, v in payload.items()
-                             if k != "route_seal_id"})
+    """Content-addressed, like the baseline seal. The payload IS the identity.
+
+    A-1a, ruled 2026-09-02 (§9.1). The DIGEST is this module's: the canonical
+    hash of the payload with its own id removed. The FORM is core's:
+    `L3SEAL-<64 hex>`, matching `core.b0_l3_lineage_capture.ROUTE_SEAL_ID_RE`.
+
+    The two modules had incompatible notions of "content-addressed" and each was
+    internally consistent, so nothing failed -- lock B refused every production
+    manifest before the disagreement could surface. This module hashed the
+    PAYLOAD; core recomputed the sha256 of the seal FILE, which can never equal
+    a payload hash, because the file additionally carries `route_seal_id` and is
+    serialised with `indent=1`. Adding the prefix alone would have satisfied
+    core's second layer and still failed its third. The ruling kept this
+    module's digest and core's form, so core's third layer now recomputes the
+    payload hash instead of hashing the bytes.
+    """
+    return ROUTE_SEAL_ID_PREFIX + canonical_sha256(
+        {k: v for k, v in payload.items() if k != "route_seal_id"})
 
 
 def seal_path(seal_id: str) -> str:
@@ -577,6 +595,7 @@ def assert_aggregate_names_this_seal(aggregate, seal_id: str) -> str:
 
 __all__ = [
     "N1_RULING",
+    "ROUTE_SEAL_ID_PREFIX",
     "assert_no_import_escapes_the_roots",
     "SEAL_BINDING_SCOPE",
     "SEAL_BINDING_DISCLOSURE",

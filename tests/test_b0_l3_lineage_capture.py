@@ -78,23 +78,93 @@ def test_a_plausible_string_is_not_a_seal():
             assert_manifest_binding(PURPOSE_PRODUCTION, route_seal_id=not_a_seal)
 
 
+def _seal_file(tmp_path, payload, name="seal.json"):
+    """A seal artefact written the way `l3_route_seal.write_route_seal` writes
+    one: the payload plus its own id, `sort_keys`, `indent=1`, trailing newline.
+
+    The indentation matters to the point being made. Layer 3 used to compare
+    `file_sha256` against the digest, and these bytes can never hash to any
+    payload's hash -- the file carries the id itself and is pretty-printed.
+    """
+    import json
+
+    from core.b0_canonical_hash import canonical_sha256
+
+    ident = "L3SEAL-" + canonical_sha256(
+        {k: v for k, v in payload.items() if k != "route_seal_id"})
+    art = tmp_path / name
+    art.write_text(
+        json.dumps({**payload, "route_seal_id": ident}, ensure_ascii=False,
+                   sort_keys=True, indent=1) + "\n", encoding="utf-8")
+    return ident, str(art)
+
+
 def test_a_well_formed_seal_still_fails_closed_until_the_contract_is_ratified(tmp_path):
     """Right form, right artefact, right digest — and still refused, because no
-    seal contract exists to admit it yet."""
-    from core.b0_canonical_hash import file_sha256
+    seal contract exists to admit it yet.
 
-    art = tmp_path / "seal.json"
-    art.write_text("{}", encoding="utf-8")
-    sid = "L3SEAL-" + file_sha256(str(art))
+    A-1a, ruled 2026-09-02: the digest is the canonical hash of the PAYLOAD with
+    its own id removed, not the sha256 of the file's bytes. Before that ruling
+    landed, this state was unreachable -- layer 3 refused a legitimately formed
+    seal first, so the terminal refusal below was never the reason.
+    """
+    sid, art = _seal_file(tmp_path, {"contract_version": "probe"})
     with pytest.raises(LineageCaptureError, match=ROUTE_SEAL_CONTRACT_STATUS):
         assert_manifest_binding(PURPOSE_PRODUCTION, route_seal_id=sid,
-                                route_seal_artifact=str(art))
+                                route_seal_artifact=art)
+    # A digest mismatch, isolated: this artefact carries no `route_seal_id` of
+    # its own, so the declared-id check has nothing to say and the recomputed
+    # payload hash is what refuses. With an id present that check fires first,
+    # which is the right order and is covered by its own test.
+    import json
+
+    bare = tmp_path / "bare.json"
+    bare.write_text(json.dumps({"contract_version": "probe"}), encoding="utf-8")
     with pytest.raises(LineageCaptureError, match="does not match its artefact"):
         assert_manifest_binding(PURPOSE_PRODUCTION,
                                 route_seal_id="L3SEAL-" + "a" * 64,
-                                route_seal_artifact=str(art))
+                                route_seal_artifact=str(bare))
     with pytest.raises(LineageCaptureError, match="names no artefact"):
         assert_manifest_binding(PURPOSE_PRODUCTION, route_seal_id=sid)
+
+
+def test_the_bytes_of_a_valid_seal_do_not_hash_to_its_own_id(tmp_path):
+    """Why layer 3 could not have stayed as it was.
+
+    Not a style point: under the old rule a correctly written seal was refused
+    for disagreeing with its artefact, so no production manifest could ever have
+    reached the ratification question at all.
+    """
+    from core.b0_canonical_hash import file_sha256
+
+    sid, art = _seal_file(tmp_path, {"contract_version": "probe"})
+    assert file_sha256(art) != sid.split("-", 1)[1]
+
+
+def test_a_seal_naming_a_different_seal_is_refused(tmp_path):
+    """The artefact's own `route_seal_id` must be the one being admitted."""
+    import json
+
+    sid, art = _seal_file(tmp_path, {"contract_version": "probe"})
+    doc = json.loads(open(art, encoding="utf-8").read())
+    doc["route_seal_id"] = "L3SEAL-" + "b" * 64
+    open(art, "w", encoding="utf-8").write(json.dumps(doc))
+    with pytest.raises(LineageCaptureError, match="declares route_seal_id"):
+        assert_manifest_binding(PURPOSE_PRODUCTION, route_seal_id=sid,
+                                route_seal_artifact=art)
+
+
+@pytest.mark.parametrize("body,match", [
+    ("not json at all", "could not be read as JSON"),
+    ("[1, 2, 3]", "does not hold an object"),
+])
+def test_a_seal_that_is_not_a_payload_is_refused(tmp_path, body, match):
+    art = tmp_path / "seal.json"
+    art.write_text(body, encoding="utf-8")
+    with pytest.raises(LineageCaptureError, match=match):
+        assert_manifest_binding(PURPOSE_PRODUCTION,
+                                route_seal_id="L3SEAL-" + "a" * 64,
+                                route_seal_artifact=str(art))
 
 
 def test_a_production_manifest_may_not_stand_on_the_capture_authority():

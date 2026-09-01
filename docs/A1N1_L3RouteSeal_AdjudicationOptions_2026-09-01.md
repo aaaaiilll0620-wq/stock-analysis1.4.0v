@@ -386,6 +386,24 @@ seal id = payload 的 `canonical_sha256`，並冠上 `L3SEAL-` 前綴。
 終端 raise 同一個函式。原任務指示 §2 明文禁止動該函式。
 ⇒ **此項落地需要一次明確的、單獨的授權**，且授權時應明說「只改第三層驗證方式，不動終端 raise」。
 
+**✅ 已於 2026-09-02 落地**（使用者以該句原文單獨授權）。
+
+| 動作 | 結果 |
+|---|---|
+| `route_seal_id()` 加 `L3SEAL-` 前綴 | ✅ 摘要仍是 payload（剔除 `route_seal_id`）的 canonical hash |
+| core 第二層（`ROUTE_SEAL_ID_RE`） | **未改**——加前綴後即相符，這是統一前綴的直接收益 |
+| core 第三層 | ✅ 由 `file_sha256(artifact) == digest` 改為「載入 JSON → 剔除 `route_seal_id` → 重算 canonical hash → 比對」，並新增「檔案自稱另一枚 seal 即拒收」 |
+| core 終端 raise `:237-242` | **一行未動**（`git diff` 對該段無輸出；mutation D 確認仍有測試看著它） |
+
+**決定性驗證**：一枚形式正確的 seal 現在**通過三層、只被終端 raise 擋下**。
+改之前它會在第三層就被打回——因為 seal 檔額外攜帶 `route_seal_id` 且以 `indent=1` 序列化，
+其位元組雜湊**依建構**不可能等於任何 payload 的雜湊。
+⇒ 舊規則下**沒有任何 production manifest 到得了「契約是否批准」這個問題**，
+兩個模組的不相容既真實又不可達。
+
+⚠ core 的重算是**自己做**，不呼叫 `l3_route_seal.route_seal_id()`：
+一個去呼叫生產者自身函式的檢查，檢查的是它與自己是否一致。
+
 ⚠ 本裁決**不**解除鎖 B。見 §9.4。
 
 ### 9.2 A-1b · 採 core 的完整 placeholder 清單，設為唯一來源

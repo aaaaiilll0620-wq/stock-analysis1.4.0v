@@ -200,7 +200,7 @@ def assert_route_seal_is_real(route_seal_id, *, artifact=None) -> str:
       1. not a placeholder (`PENDING`, `""`, ...) — necessary, nowhere near
          sufficient: `"x"` passes it;
       2. the ratified id form, `L3SEAL-<64 hex>`, so that the id IS the digest;
-      3. the artefact exists and hashes to that digest.
+      3. the artefact exists and its PAYLOAD recomputes to that digest.
 
     And then it FAILS CLOSED anyway, because no seal contract has been ratified:
     a production run cannot be admitted by a rule that does not exist yet. The
@@ -223,12 +223,47 @@ def assert_route_seal_is_real(route_seal_id, *, artifact=None) -> str:
         raise LineageCaptureError(
             "abort: route seal %s names no artefact. An id that nothing is "
             "checked against is a claim, not a seal." % route_seal_id)
-    from core.b0_canonical_hash import file_sha256
+    import json
+
+    from core.b0_canonical_hash import canonical_sha256
 
     if not os.path.isfile(artifact):
         raise LineageCaptureError(
             "abort: route seal artefact %s does not exist" % artifact)
-    got = file_sha256(artifact)
+    # A-1a, ruled 2026-09-02 (§9.1). The digest is the canonical hash of the
+    # seal's PAYLOAD with its own id removed -- NOT `file_sha256` of the bytes.
+    #
+    # This layer used to hash the file, and that could never have passed: a seal
+    # file carries the very `route_seal_id` being checked and is serialised with
+    # `indent=1`, so its byte hash is not any payload's hash by construction.
+    # Nothing failed because the terminal refusal below stops every production
+    # manifest first -- the disagreement was real and unreachable at the same
+    # time. Recomputed here rather than delegated to `l3_route_seal`, so that
+    # `core` can still verify a seal without depending on the runner that made
+    # it: a check that calls the producer's own function checks agreement with
+    # itself.
+    try:
+        with open(artifact, encoding="utf-8") as fh:
+            payload = json.load(fh)
+    except (OSError, ValueError) as exc:
+        raise LineageCaptureError(
+            "abort: route seal artefact %s could not be read as JSON (%s). A "
+            "seal that cannot be parsed cannot be checked." % (artifact, exc)
+        ) from exc
+    if not isinstance(payload, dict):
+        raise LineageCaptureError(
+            "abort: route seal artefact %s does not hold an object; a seal is "
+            "the hash of a payload, and %s has none."
+            % (artifact, type(payload).__name__))
+    declared = payload.get("route_seal_id")
+    if declared is not None and declared != route_seal_id:
+        raise LineageCaptureError(
+            "abort: route seal artefact %s declares route_seal_id=%r but is "
+            "being admitted as %r. A seal that names a different seal than the "
+            "one binding this run names neither."
+            % (artifact, declared, route_seal_id))
+    got = canonical_sha256(
+        {k: v for k, v in payload.items() if k != "route_seal_id"})
     if got != digest:
         raise LineageCaptureError(
             "abort: route seal %s does not match its artefact (%s hashes to "
