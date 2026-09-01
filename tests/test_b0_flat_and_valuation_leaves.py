@@ -122,6 +122,65 @@ def test_each_flat_family_builds_and_names_every_entry(dataset):
             assert e["not_consumed_reason"]
 
 
+# --- A-4 · provenance is declared per family, never defaulted -------------------
+
+@pytest.mark.parametrize("dataset", sorted(F.FLAT_FAMILIES))
+def test_each_flat_family_declares_its_own_provenance(dataset):
+    """A default cannot be told apart downstream from a deliberate declaration."""
+    spec = F.FLAT_FAMILIES[dataset]
+    for field in F._FAMILY_PROVENANCE_FIELDS:
+        assert spec.get(field), "%s declares no %s" % (dataset, field)
+
+
+def test_the_calendar_is_the_live_family_and_says_so():
+    """A-4. `~/market_cache/taiex_daily.parquet` is a FinMind seed plus daily
+    TWSE increments, not a TEJ export. Stamping it TEJ/AUTHORITATIVE made the
+    R-W1-2 audit unable to contradict a source swap in the one field that reads
+    provenance -- and it hid N-1, since the family that decides WHEN then has no
+    authoritative leg to reconcile against."""
+    spec = F.FLAT_FAMILIES["calendar"]
+    assert (spec["source_family"], spec["authority"]) == ("LIVE", "SUPPLEMENTARY")
+
+    landing = os.path.join(REPO, spec["landing"])
+    if not os.path.isdir(landing):
+        pytest.skip("calendar cache not present")
+    leaf = F.build("calendar", RUN, AS_OF)
+    assert leaf["entries"], "calendar leaf has no entries"
+    for e in leaf["entries"]:
+        assert (e["source_family"], e["authority"]) == ("LIVE", "SUPPLEMENTARY")
+
+
+@pytest.mark.parametrize("field", F._FAMILY_PROVENANCE_FIELDS)
+def test_a_family_that_declares_no_provenance_is_unbuildable(monkeypatch, field):
+    """Absence ABORTS. It may not fall back to the constant this replaced."""
+    spec = dict(F.FLAT_FAMILIES["industry"])
+    spec.pop(field)
+    monkeypatch.setitem(F.FLAT_FAMILIES, "industry", spec)
+
+    landing = os.path.join(REPO, spec["landing"])
+    if not os.path.isdir(landing):
+        pytest.skip("industry export not present")
+    with pytest.raises(ManifestError, match="declares no"):
+        F.build("industry", RUN, AS_OF)
+
+
+def test_a_live_family_may_not_declare_itself_authoritative():
+    """The engine already refuses the combination; A-4 must not route around it
+    by declaring one."""
+    spec = dict(F.FLAT_FAMILIES["calendar"])
+    spec["authority"] = "AUTHORITATIVE"
+    assert F._declared_provenance("calendar", spec) == {
+        "source_family": "LIVE", "authority": "AUTHORITATIVE"}, (
+        "_declared_provenance only checks ABSENCE; the combination is the "
+        "manifest engine's call")
+
+    from source_ownership_manifest import _assert_entry_vocabulary
+    entry = {"locator": "taiex_daily.parquet", "source_family": "LIVE",
+             "authority": "AUTHORITATIVE", "disposition": "consumed"}
+    with pytest.raises(ManifestError, match="AUTHORITATIVE"):
+        _assert_entry_vocabulary("calendar", entry)
+
+
 def test_the_current_industry_table_is_refused_as_a_source():
     """O-E: the live industry map is NOT_PIT_SAFE — 49.4% of names changed
     sector under it — so the CURRENT table must not be consumed."""
