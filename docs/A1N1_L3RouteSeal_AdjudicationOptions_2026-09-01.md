@@ -3,10 +3,12 @@
 **狀態（寫定於 2026-09-01，狀態行不隨時間變動）**
 
 ```
-PRE-RULING · OPTIONS ONLY
+ADJUDICATED 2026-09-02 — DOCUMENT ONLY；IMPLEMENTATION NOT AUTHORIZED
+裁決見 §9。四組原始選項全部保留，未刪除。
 本文件之外未變更任何 code / master prereg / data。
 未取 seal（write_route_seal() 未被呼叫）。
-ROUTE_SEAL_CONTRACT_STATUS 未被改動，仍為 NOT_YET_RATIFIED。
+ROUTE_SEAL_CONTRACT_STATUS 未被改動，仍為 NOT_YET_RATIFIED —— 依 §9 的 N-1
+裁決，這是刻意保留的，不是待辦。
 route_closure.py 的 owed 清單未被改動。
 未跑 --mode execute。
 ```
@@ -325,3 +327,109 @@ capture_authority → lineage_price_floor_capture_record → final_route_seal �
 斷言唯讀 seal 稽核成功，其前置條件是乾淨工作樹（C-47）。
 ⇒ 本檔存在期間該測試會紅，**那是前置條件失敗，不是程式碼失敗**。
 處置：commit 本文件，或在回報時明文標註為預期內的 precondition 失敗。
+
+---
+
+## 9 · 裁決（2026-09-02）
+
+> 裁決人：使用者。記錄人：本 session。
+> **本節是裁決本體，不是筆記。** 四組選項全部保留於上，未刪除。
+> 裁決確立「是什麼」，**不授權實作**——每一項的落地各自需要另一次授權。
+
+### 9.1 A-1a · 採 payload canonical hash 語義，統一 `L3SEAL-` 前綴
+
+即 §2.1 選項 **A1a-2 的語義 ＋ A1a-1 的形式**：
+seal id = payload 的 `canonical_sha256`，並冠上 `L3SEAL-` 前綴。
+
+**落地時必須做的事，以及各自的代價**
+
+| 動作 | 位置 | 代價 |
+|---|---|---|
+| `route_seal_id()` 回傳值加 `L3SEAL-` 前綴 | `l3_route_seal.py:253-256` | 小。但 `seal_path()`（`:259`）以 id 為檔名，前綴會進檔名 |
+| **放寬 core 的第三層** | `core/b0_l3_lineage_capture.py:226-236` | ⚠ **最大的一項**。第三層現為 `file_sha256(artifact) == digest`；採 payload hash 語義後這條**依建構永遠為假**（seal 檔內容 = payload ＋ `route_seal_id` 欄位，且 `indent=1` 序列化）。必須改成「載入該檔、剔除 `route_seal_id` 欄位、重算 canonical hash 後比對」 |
+| core 第二層 | 同檔 `:216-220` `ROUTE_SEAL_ID_RE` | **無需變更**——加了前綴後即相符。這是本裁決選擇統一前綴的直接收益 |
+
+⚠ **第三層的修改落在 `assert_route_seal_is_real()` 函式體內**，與 §1 那個 `:237-242` 的
+終端 raise 同一個函式。原任務指示 §2 明文禁止動該函式。
+⇒ **此項落地需要一次明確的、單獨的授權**，且授權時應明說「只改第三層驗證方式，不動終端 raise」。
+
+⚠ 本裁決**不**解除鎖 B。見 §9.4。
+
+### 9.2 A-1b · 採 core 的完整 placeholder 清單，設為唯一來源
+
+`core.b0_l3_lineage_capture.PLACEHOLDER_ROUTE_SEAL_IDS`（12 項）為唯一來源；
+`l3_route_seal.PLACEHOLDER_SEAL_IDS`（8 項）改為自 core import，不再自行維護。
+
+- **消除的實測缺口**：`'TODO'`、`'0'` 目前被 `l3_route_seal` 放行而被 core 拒收。
+- **代價**：`research/b0_l3_runner` 因此對 `core` 產生一條新的 import。
+  該 import 會被 `route_closure_files()` 的推導看見 ⇒ **seal 的檔案閉包內容會變**。
+  落地時須重新量 `sealed_file_set()`，不可沿用本文件 §3 的 45 這個數字。
+- **落地順序**：必須在任何 seal 被取得**之前**完成，否則第一枚 seal 綁的是舊閉包。
+
+### 9.3 A-1c · 暫緩；先裁定 `research/b0_l2` 是否屬於 L3 route
+
+**⟨M⟩ 2026-09-02 實測，供該次裁決使用：**
+
+```
+sealed_file_set()                      = 45
+其中來自 research/b0_l2                = 0
+把 research/b0_l2 移出 MODULE_ROOTS 後 = 45，且逐檔相同（identical: True）
+```
+
+⇒ **此項今日為 hash-neutral。** 要裁的不是任何現存檔案，而是一扇門：
+`research/b0_l2` 留在 `MODULE_ROOTS`（`l3_route_seal.py:69`）代表**將來**任何一條
+從 L3 進入 L2 的 import 會**自動**把已封印的回顧線拉進前瞻路由的身分裡，
+使 L2 的任何維護都改變 route seal。移出則該 import 會被 `assert_no_producer_is_unbound`
+一類的邊界回報而非靜默綁定。
+
+⚠ 因此本項雖「暫緩」，仍**必須在第一枚 seal 之前裁決**——seal 一旦取得，roots 的形狀就固定了。
+
+### 9.4 N-1 · 採 N1-1：日曆權威腿缺失時，route 不可 seal
+
+**這一項決定了其餘所有項目的時程。**
+
+- `ROUTE_SEAL_CONTRACT_STATUS` **維持 `NOT_YET_RATIFIED`**。
+  §9.1 與 §9.2 確立的是 seal 的**形式**，不是取得 seal 的**許可**。
+  鎖 B（`core:237-242`）**刻意保留**，它現在正是執行本裁決的機制。
+- **Month 1（decision 2026-09-30 / execution 2026-10-01）在日曆權威腿補上之前不會發生。**
+  U-2 明文「不得事後補記」⇒ 改期本身需要另一次裁決。
+- **解除條件**：日曆取得可對帳的權威腿。補法尚未裁定（§5.3 列出至少三個分支），
+  其中至少一個會回頭改動 `REQUIRED_DATASET_FLOOR`。
+- **附帶要求（本裁決的前提事實）**：§5.1 實測 `build_flat_leaves.py:197-198`
+  仍把**每一個** flat family 無條件標成 `TEJ / AUTHORITATIVE`，包含 landing 在
+  `~/market_cache` 的 `calendar`。**A-4 尚未落地。**
+  在假標籤還在的情況下，連「日曆缺權威腿」這件事本身在 manifest 上都看不出來。
+  ⇒ A-4 是本裁決可被稽核的前提，應優先於解除條件處理。
+
+### 9.5 N-2 · 不把每日變動的日曆綁進 route seal；明文揭露 ＋ 由 dataset/leaf lineage 綁定
+
+即 §4 選項 **N2-2 ＋ N2-3 的組合**，明確否決 N2-1。
+
+- **否決 N2-1 的理由（本裁決採用）**：`data/b0/trading_calendar.csv` 每個交易日都變
+  （⟨M⟩ `~/market_cache/taiex_daily.parquet` 末筆 2026-09-01，5,575 列，逐日增長）
+  ⇒ 綁進 seal 會使 seal 每日失效，與 `closure_kind =
+  PRODUCTION_ROUTE_COMPLETE_REPLAYABLE_CLOSURE` 的語意相衝突。
+- **採用的兩半**：
+  1. **明文揭露**「route seal 只綁程式碼」——揭露必須落在讀得到的地方
+     （seal payload 自身的欄位，而非只在 docstring），否則就是 N2-2 自陳的那個代價。
+  2. `data/b0/trading_calendar.csv` 與
+     `research/d1_price_universe/price_source_contract.json` 改由 **dataset / leaf
+     lineage** 承載綁定。
+- **代價（N2-3 原列，裁決承受）**：這會動到 `REQUIRED_DATASET_FLOOR`，
+  連動 `route_closure` 與 `FLOOR_CAPTURE_REQUIRED_DATASETS`（C-71 的 inventory 是 FIXED 的）。
+
+### 9.6 由本裁決產生的順序約束
+
+```
+A-4（誠實的 source_family / authority 標籤）
+  → N-2 落地（兩個資料檔改由 leaf lineage 綁定；REQUIRED_DATASET_FLOOR 變動）
+    → A-1b 落地（placeholder 單一來源；重新量 sealed_file_set）
+      → A-1c 裁決（b0_l2 是否留在 MODULE_ROOTS）
+        → A-1a 落地（前綴 ＋ core 第三層改為 payload hash 比對）
+          → A-2 floor capture
+            → 取 seal ── 仍受 N-1 解除條件擋著
+```
+
+⚠ **A-2（floor capture）不應早於 N-2 落地。**
+capture record 綁 `aggregate_manifest_payload_sha256`；N-2 會改變 aggregate 的形狀
+⇒ 先做的 capture 會被作廢。這一點修正了本文件 §6 原本「A-2 只受 A-1 影響」的說法。
