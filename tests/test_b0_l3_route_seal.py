@@ -159,6 +159,64 @@ def test_n1_is_checked_before_the_owed_list():
     assert "still declares" not in str(exc.value)
 
 
+# --- N-2 · the seal binds code, and says so where a reader of the seal sees it --------
+
+def _sealable(monkeypatch):
+    """Satisfy both bars so the payload can be built at all: the N1-1 gate and
+    `route_closure`'s owed list. Neither is removed -- each is given the state
+    it is waiting for, so nothing here weakens what the other tests check."""
+    import build_flat_leaves as flat
+    import route_closure
+
+    honest = dict(flat.FLAT_FAMILIES["calendar"])
+    honest.update(source_family="TEJ", authority="AUTHORITATIVE")
+    monkeypatch.setitem(flat.FLAT_FAMILIES, "calendar", honest)
+
+    real = route_closure.seal_payload
+
+    def cleared():
+        p = dict(real())
+        p["still_owed_before_a_seal_may_be_taken"] = []
+        return p
+
+    monkeypatch.setattr(route_closure, "seal_payload", cleared)
+
+
+def test_the_seal_declares_that_it_binds_code_and_not_data(monkeypatch):
+    """N-2, ruled 2026-09-02. Binding the calendar was REJECTED -- it gains a
+    row every trading day, so it would expire the seal daily. Disclosure was
+    taken instead, and it has to be readable FROM the seal: the failure it
+    guards against is somebody comparing leaf hashes across clones with no way
+    to learn that a leaf is not purely a function of the archives."""
+    _sealable(monkeypatch)
+    payload = rs.route_seal_payload()
+    assert payload["binding_scope"] == "PRODUCTION_ROUTE_CODE_ONLY"
+    assert "does NOT bind data" in payload["binding_disclosure"]
+
+
+def test_the_disclosure_is_inside_the_seals_own_digest(monkeypatch):
+    """A disclosure outside the digest is a comment: it could be edited after
+    the fact without the id moving, which is the one thing content-addressing
+    exists to prevent."""
+    _sealable(monkeypatch)
+    payload = rs.route_seal_payload()
+    ident = rs.route_seal_id(payload)
+
+    for field in ("binding_scope", "binding_disclosure"):
+        tampered = {**payload, field: "something else"}
+        assert rs.route_seal_id(tampered) != ident, (
+            "%s is outside the digest" % field)
+
+
+def test_the_seal_does_not_bind_the_two_data_files_n2_named(monkeypatch):
+    """The ruling names them. Neither may appear among the sealed files."""
+    _sealable(monkeypatch)
+    payload = rs.route_seal_payload()
+    for data_file in ("data/b0/trading_calendar.csv",
+                      "research/d1_price_universe/price_source_contract.json"):
+        assert data_file not in payload["files"], data_file
+
+
 # --- the route's own "still owed" declaration ------------------------------------------
 
 def test_sealability_is_read_from_route_closure_not_restated(monkeypatch):

@@ -275,6 +275,30 @@ def assert_route_is_sealable() -> dict:
     return payload
 
 
+# N-2, ruled 2026-09-02 (§9.5 of the A-1/N-1 options document). A route seal
+# binds CODE. It does not bind the bytes any particular run reads, and it may
+# not: `data/b0/trading_calendar.csv` gains a row every trading day, so binding
+# it would expire the seal daily and contradict
+# `PRODUCTION_ROUTE_COMPLETE_REPLAYABLE_CLOSURE`.
+#
+# The ruling took disclosure over binding, and required the disclosure to sit
+# somewhere a reader of the SEAL can see it rather than in a docstring, since
+# the failure it guards against is somebody comparing leaf hashes across clones
+# and having no way to learn that a leaf is no longer purely a function of the
+# archives. So it is a field, and being a field it is inside the seal's own
+# digest.
+SEAL_BINDING_SCOPE = "PRODUCTION_ROUTE_CODE_ONLY"
+SEAL_BINDING_DISCLOSURE = (
+    "This seal binds the CODE of the production route: the derived import "
+    "closure from `entry_points`, plus the source producers no import reaches. "
+    "It does NOT bind data. The bytes a given run reads are bound by that run's "
+    "leaf payload hashes and by the aggregate that indexes them, which live in "
+    "the run's own manifests and receipts, not here. Two runs of one sealed "
+    "route over different source bytes are the same route and different runs -- "
+    "and a leaf hash that differs across clones is therefore NOT evidence that "
+    "the route differs.")
+
+
 def route_seal_payload() -> dict:
     """Everything a route seal binds, ready to be hashed. Writes nothing."""
     from route_closure import (
@@ -287,6 +311,8 @@ def route_seal_payload() -> dict:
     return {
         "contract_version": ROUTE_SEAL_CONTRACT_VERSION,
         "closure_kind": "PRODUCTION_ROUTE_COMPLETE_REPLAYABLE_CLOSURE",
+        "binding_scope": SEAL_BINDING_SCOPE,
+        "binding_disclosure": SEAL_BINDING_DISCLOSURE,
         "entry_points": [e.replace("\\", "/") for e in ENTRY_POINTS],
         "core_decision_closure": list(production_route_code_closure()),
         "required_dataset_floor": list(REQUIRED_DATASET_FLOOR),
@@ -422,6 +448,8 @@ def assert_aggregate_names_this_seal(aggregate, seal_id: str) -> str:
 
 __all__ = [
     "N1_RULING",
+    "SEAL_BINDING_SCOPE",
+    "SEAL_BINDING_DISCLOSURE",
     "unauthoritative_floor_families",
     "ENTRY_POINTS",
     "MODULE_ROOTS",

@@ -226,6 +226,22 @@ producer 的 **CODE** 由 import 到不了，靠 glob 綁；
 > 與 `research/d1_price_universe/price_source_contract.json`。兩者都不在 `FLOOR_CAPTURE_CODE_CLOSURE`
 > （那是**程式**閉包）⇒ 跨 clone 比對 leaf hash 的人必須知道 leaf 已不再只是 archive 的函數。
 
+> ⚠ **更正（2026-09-02，落地時實測）。這段前提在主線上不成立。**
+> 本文件 §4 原文標 ⟨I⟩（繼承自工作單），落地前複驗發現它描述的是 **codex 分支**的狀態：
+>
+> | | 主線 `ea491a14`〜`dc3766a0` | `codex/l3-september-readiness` |
+> |---|---|---|
+> | `build_prices_leaf.py` | **315 行**，全檔未提及那兩個檔 | **1390 行**，含 `FROZEN_TRADING_CALENDAR`、`panel_end_session()`、contract 路徑 |
+>
+> 且 `research/b0_l3/l3_snapshot.py:78` 明文寫 L3 路徑**不讀** `data/b0/trading_calendar.csv`
+> （「that is L2's sealed artefact」）。主線上讀那兩個檔的是
+> `build_price_panel` / `build_valuation_panel` / `build_bonus_share_panel` /
+> `build_market_side_state` / `build_period1_full_input` —— **全是 L2 期面板建造器，不在 L3 leaf 鏈上**。
+>
+> ⇒ **N2-3（改由 dataset/leaf lineage 綁定）在主線沒有實作標的。**
+> 它是 codex 那批工作落地時的**約束條件**，不是可以現在執行的工單。
+> N2-2（明文揭露）不受影響，已實作。
+
 **要裁的**：
 
 - **選項 N2-1 · seal 一併綁這兩個資料檔**
@@ -474,6 +490,17 @@ sealed_file_set()                      = 45
      lineage** 承載綁定。
 - **代價（N2-3 原列，裁決承受）**：這會動到 `REQUIRED_DATASET_FLOOR`，
   連動 `route_closure` 與 `FLOOR_CAPTURE_REQUIRED_DATASETS`（C-71 的 inventory 是 FIXED 的）。
+
+**落地狀態（2026-09-02）**
+
+| 半邊 | 狀態 |
+|---|---|
+| N2-2 明文揭露 | ✅ **已實作**（commit 見下）。`route_seal_payload()` 新增 `binding_scope = PRODUCTION_ROUTE_CODE_ONLY` 與 `binding_disclosure` 兩個欄位，**且在 seal 自己的摘要內**——摘要外的揭露等於註解，事後可改而 id 不動 |
+| N2-3 lineage 綁定 | ⏸ **主線無標的**（見 §4 更正）。轉為 **codex 分支落地時的約束**：那批工作若把 `build_prices_leaf` 擴成讀這兩個資料檔，就必須同時把它們納入 dataset/leaf lineage，否則違反本裁決 |
+
+⚠ 因此 `REQUIRED_DATASET_FLOOR` **本次未被修改**，`route_closure.py` 與 C-71 的
+`FLOOR_CAPTURE_REQUIRED_DATASETS` 皆未動 —— 裁決預期的那個連動代價**尚未發生**，
+它會在 codex 那批落地時才到期。
 
 ### 9.6 由本裁決產生的順序約束
 
