@@ -435,10 +435,19 @@ sealed_file_set()                      = 45
 > ⇒ **owed 清單一旦清空，seal 就取得得出來，而鎖 B 攔不住取得。**
 > **N1-1 的「不得取得」目前純屬紙上裁決，沒有機械實作。**
 >
-> **由此產生的待辦（本裁決要求，尚未授權實作）**：
-> 在 `route_closure.py` 的 owed 清單新增一項「日曆權威腿」，
-> 或於 `assert_route_is_sealable()` 另設一道等效閘門——
-> 否則第一個把 owed 清空的人就能合法取得一枚 N1-1 明文禁止的 seal。
+> **由此產生的待辦** —— ✅ **已於 2026-09-02 實作（commit `cf438c90`）**。
+> 採第二個做法：`l3_route_seal.assert_route_is_sealable()` 新增一道**衍生式**閘門，
+> 由 `unauthoritative_floor_families()` 讀 `build_flat_leaves.FLAT_FAMILIES` 的宣告，
+> 在 owed 清單**之前**檢查，今日恰好命中 `calendar` 一項。
+>
+> ~~在 `route_closure.py` 的 owed 清單新增一項「日曆權威腿」~~ —— **未採用**。
+> 該清單是散文，要靠人記得刪，而本 repo 已示範過它的失效方向：
+> 那份清單長期帶著「MASTER FREEZE 仍記 v1.32」，
+> 而 `master_prereg_freeze.json` 早已是 1.37（見 §1.1）。散文的過期一律偏向寬鬆。
+> 衍生式閘門會在日曆**真的**取得權威腿那天自己開，也會在任何一個 floor family
+> 失去權威腿時自己關。`route_closure.py` 因此未被修改，**未跨 A2 邊界**。
+>
+> ⚠ 此閘門擋的是**取得**。鎖 B 擋的仍是**使用**。兩者都在，這是 §9.4 那張表的完整實作。
 - **Month 1（decision 2026-09-30 / execution 2026-10-01）在日曆權威腿補上之前不會發生。**
   U-2 明文「不得事後補記」⇒ 改期本身需要另一次裁決。
 - **解除條件**：日曆取得可對帳的權威腿。補法尚未裁定（§5.3 列出至少三個分支），
