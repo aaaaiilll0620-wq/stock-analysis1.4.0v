@@ -59,8 +59,25 @@ route_closure.py 的 owed 清單未被改動。
 
 | | 位置 | 擋什麼 | 現況 |
 |---|---|---|---|
-| **鎖 A** | `l3_route_seal.py:207` `assert_route_is_sealable()` | **取**不到 seal | 實跑吐 4 項欠款。其中 2 項（portfolio side、runner 呼叫 `run_decision`）已由 `claude/l3-bline-execution-merge` 供給、1 項（MASTER FREEZE 記 v1.32）是過期文字（實測 `master_prereg_freeze.json` = `1.37` / `NORMATIVE_FROZEN`）⇒ 實為 **1 項**：floor capture。**不是 A-1** |
+| **鎖 A** | `l3_route_seal.py:207` `assert_route_is_sealable()` | **取**不到 seal | 實跑吐 4 項欠款。**不是 A-1**。⚠ 更正見 §1.1 |
 | **鎖 B** | `core/b0_l3_lineage_capture.py:237-242` | **用**不了 seal（`PURPOSE_PRODUCTION` manifest 不受理） | **這才是 A-1** |
+
+### 1.1 ⚠ 鎖 A 的欠款狀態（2026-09-02 更正）
+
+> ~~其中 2 項已由合併供給、1 項是過期文字 ⇒ 實為 1 項：floor capture。~~
+> **該說法已過期，不得引用。** ⟨M⟩ 複驗：
+>
+> - **機器仍宣告 4 項。** `route_closure.py` 的 `still_owed_before_a_seal_may_be_taken`
+>   未被修改（本文件 §7 明列未動它），所以 `assert_route_is_sealable()` 實跑仍吐 4 項。
+>   「實為 1 項」是人為評估，不是閘門狀態，兩者不可混用。
+> - **合併已 commit**（`59167c38`）：portfolio side 與 runner 的 `run_decision` 確已供給，
+>   但清單要被更新才會反映，而那次更新本身要覆核。
+> - **MASTER FREEZE 那一項確為過期文字**（實測 `master_prereg_freeze.json`
+>   = `1.37` / `NORMATIVE_FROZEN`）。
+> - **且清單現在少了一項**：N1-1 裁定的日曆權威腿前提**不在任何 owed 清單裡**（見 §9.4 更正）。
+>
+> ⇒ 正確的現況陳述是：**機械上 4 項；實質上 1 項已供給待更新、1 項過期待刪、
+> 1 項（floor capture）真欠、1 項（日曆權威腿）尚未被寫進任何閘門。**
 
 `assert_route_seal_is_real()`（`:195`）依序跑三道**真檢查**，三道全過之後才到鎖 B：
 
@@ -379,8 +396,19 @@ sealed_file_set()                      = 45
 ⇒ **此項今日為 hash-neutral。** 要裁的不是任何現存檔案，而是一扇門：
 `research/b0_l2` 留在 `MODULE_ROOTS`（`l3_route_seal.py:69`）代表**將來**任何一條
 從 L3 進入 L2 的 import 會**自動**把已封印的回顧線拉進前瞻路由的身分裡，
-使 L2 的任何維護都改變 route seal。移出則該 import 會被 `assert_no_producer_is_unbound`
-一類的邊界回報而非靜默綁定。
+使 L2 的任何維護都改變 route seal。
+
+> ⚠ **更正（2026-09-02，使用者指出）。**
+> ~~移出則該 import 會被 `assert_no_producer_is_unbound` 一類的邊界回報而非靜默綁定。~~
+> **⟨M⟩ 複驗後為誤。** `_module_file()`（`:105-115`）對不在 `MODULE_ROOTS` 的模組回 `None`，
+> 而 `route_closure_files()`（`:163`）是 `if found and ...` ⇒ **靜默略過，不回報也不 raise**。
+> `assert_no_producer_is_unbound` 管的是 producer glob，是另一個盲點
+> （其 docstring 自陳「a check that shares its blind spot with the thing it checks is not a check」）。
+> **正確的說法**：移出後，目前的 closure walker 不會把該模組納入；
+> 若要保證「回報而非靜默忽略」，**還需要另加一道 unresolved-import guard**。
+> ⇒ 這使 A-1c 變成**三選一而非二選一**：留在 roots（靜默綁定 L2）／
+> 移出 roots（靜默漏掉 L2）／移出 roots **並**補 unresolved-import guard。
+> 前兩者都是靜默，只是靜默的方向相反。
 
 ⚠ 因此本項雖「暫緩」，仍**必須在第一枚 seal 之前裁決**——seal 一旦取得，roots 的形狀就固定了。
 
@@ -390,7 +418,27 @@ sealed_file_set()                      = 45
 
 - `ROUTE_SEAL_CONTRACT_STATUS` **維持 `NOT_YET_RATIFIED`**。
   §9.1 與 §9.2 確立的是 seal 的**形式**，不是取得 seal 的**許可**。
-  鎖 B（`core:237-242`）**刻意保留**，它現在正是執行本裁決的機制。
+  鎖 B（`core:237-242`）**刻意保留**。
+
+> ⚠ **更正（2026-09-02，使用者指出）。**
+> ~~鎖 B 現在正是執行本裁決的機制。~~
+> **⟨M⟩ 複驗後為誤：鎖 B 只執行了裁決的一半。** 三件事必須分開：
+>
+> | | 是什麼 | 現況 |
+> |---|---|---|
+> | 鎖 B 實際擋的 | **用** seal 執行 production（掛在 `assert_manifest_binding(PURPOSE_PRODUCTION)` 上） | 有效 |
+> | N1-1 裁定的 | 日曆權威腿補好前**不得取得／不得使用** seal | 裁決已下 |
+> | 真正能擋**取得**的 | 鎖 A（`assert_route_is_sealable()` / `route_closure` 的 owed 機制） | **尚未實作日曆這一項** |
+>
+> `write_route_seal()`（`l3_route_seal.py:266-292`）的唯一閘門是
+> `route_seal_payload()` → `assert_route_is_sealable()`，**不含任何 ratification 或日曆檢查**。
+> ⇒ **owed 清單一旦清空，seal 就取得得出來，而鎖 B 攔不住取得。**
+> **N1-1 的「不得取得」目前純屬紙上裁決，沒有機械實作。**
+>
+> **由此產生的待辦（本裁決要求，尚未授權實作）**：
+> 在 `route_closure.py` 的 owed 清單新增一項「日曆權威腿」，
+> 或於 `assert_route_is_sealable()` 另設一道等效閘門——
+> 否則第一個把 owed 清空的人就能合法取得一枚 N1-1 明文禁止的 seal。
 - **Month 1（decision 2026-09-30 / execution 2026-10-01）在日曆權威腿補上之前不會發生。**
   U-2 明文「不得事後補記」⇒ 改期本身需要另一次裁決。
 - **解除條件**：日曆取得可對帳的權威腿。補法尚未裁定（§5.3 列出至少三個分支），
