@@ -259,3 +259,69 @@ C-4 未提供可在決策時取得的正式**實現**日曆來源 ⇒ **N1-1 維
 - [TWSE 市場開休市日期](https://www.twse.com.tw/zh/trading/holiday.html)
 - [TWSE holidaySchedule 報表端點](https://www.twse.com.tw/holidaySchedule/holidaySchedule?response=html)
 - [臺灣證券交易所 OpenAPI](https://openapi.twse.com.tw/)
+
+---
+
+## 8 · 下一輪的三方對照：C-2 / C-5 / C-3
+
+§7 收斂之後剩下的實質選擇。本節仍不主張，只把決定性的軸攤開。
+
+### 8.0 ⚠ 先更正 §2 對 C-3 的描述
+
+§2 寫 C-3「不必動 §1.1 的守衛，也不必重匯，是唯一不需要新資料的選項」。
+「不需要新資料」對；**「不必動守衛」錯**，而且 C-3 其實是**兩個成本差很多的讀法**。
+
+⟨M⟩ `l3_snapshot._sessions_from_declared_calendar`（`:85-92`）**硬性要求一個 calendar leaf**
+（`load_leaf(LEAF_FILENAME % "calendar")`），且 ⟨M⟩ `calendar` 在 `REQUIRED_DATASET_FLOOR` 內。
+
+- **C-3a · 保留 family 與 leaf，只把它排除在權威分類之外。**
+  leaf 路徑不動。但 `authority` 要填什麼？需要第三個值或一條豁免，
+  而 N1-1 閘門讀的正是 `authority != AUTHORITATIVE` ⇒ **閘門必須被教會這條豁免**，
+  否則它要嘛擋著不放、要嘛因為豁免而失去意義。
+- **C-3b · 日曆不再是 dataset family。**
+  ⇒ `_sessions_from_declared_calendar` 整段要重寫（它讀的 leaf 不再存在），
+  且 `calendar` 要退出 `REQUIRED_DATASET_FLOOR` ⇒ **連動 `route_closure` 與 C-71 的
+  FIXED inventory，跨 A2 邊界**。這是三個選項裡改動面最大的，不是最小的。
+
+### 8.1 決定性的軸
+
+| | **C-2** LIVE 供位元組 ＋ TEJ 回溯對帳 | **C-5** ＋ TWSE 前瞻腿（C-2 的變形） | **C-3a** 排除在權威分類外 | **C-3b** 不再是 family |
+|---|---|---|---|---|
+| 需要新資料 | 需要 TEJ 重匯 | 需要 TEJ 重匯 ＋ TWSE 端點 | ❌ 不需要 | ❌ 不需要 |
+| 涵蓋執行 session | ❌ **結構上不可能**（見 8.2） | ❌ 實現腿同左；**排程腿可以** | — 不對帳 | — 不對帳 |
+| 動 `l3_snapshot:88-91` exactly-one | ✅ 要 | ✅ 要 | ❌ 不用 | ✅ 整段重寫 |
+| 動 `REQUIRED_DATASET_FLOOR` / A2 邊界 | ❌ | ❌ | ❌ | ✅ **要** |
+| 非排程停市（颱風） | 對帳看得見（若落在 TEJ 已涵蓋區） | **變成兩腿的具名分歧** | 看不見 | 看不見 |
+| N1-1 閘門怎麼開 | 需一併裁定 calendar 宣告改成什麼 | 同左 | **靠豁免** ⇒ 開了≠解決了 | **靠標的消失** ⇒ 開了≠解決了 |
+| R-W1-2「TEJ 為權威」 | 語意改為「被 TEJ 對帳過」，**需明文裁定** | 同左，且多一個非 TEJ 來源（TWSE）要定位 | 迴避該問題 | 迴避該問題 |
+
+### 8.2 ⟨M⟩ 一個對 C-2 與 C-5 都成立的結構性限制
+
+TEJ 匯出 `date_max = 2026-08-17`；LIVE 日曆末端 `2026-09-01`；**中間 10 個 session 無腿可對**。
+
+更根本的是：**執行 session 依定義晚於決策日，而回溯匯出取於決策日或之前
+⇒ 執行 session 永遠不在該次匯出內。**
+9/30 決策的執行 session 是第一個晚於 09-30 的 session；即使 TEJ 於 9/30 收盤後重匯、
+涵蓋到 09-30，那個 session 仍在匯出之外。
+
+⇒ **回溯對帳腿永遠比執行 session 少至少一個 session**，除非匯出發生在執行 session **之後**。
+而 `l3_snapshot.py:149-151` 要求執行 session 必須已在日曆裡才 plan 得了
+（「a forecast wearing a receipt」）⇒ 這條線本來就在執行 session 之後才跑得起來，
+所以「匯出發生在執行 session 之後」**並非不可能，但它是一條操作約束，不是資料屬性**：
+它要求每個月的 TEJ 重匯排在執行 session 之後、而非決策日當天。
+
+**⇒ 若採 C-2 或 C-5，重匯時點必須一併裁定。** ⟨I⟩ 目前排程是 9/29-30，
+落在執行 session **之前** —— 與這條約束衝突。
+
+### 8.3 三者各自留下的未答問題
+
+- **C-2**：R-W1-2 的「TEJ 為權威」是否被「被 TEJ 對帳過」滿足？（不能默認）
+- **C-5**：TWSE 是第三個來源家族（非 TEJ、非 LIVE）。`SOURCE_FAMILIES` 只有兩個值
+  ⟨M⟩（`source_ownership_manifest.py:116`），**新增第三個家族是詞彙變更**，
+  而該詞彙是 R-W1-2 的載體。
+- **C-3a / C-3b**：若日曆不受權威分類約束，那麼「什麼時候」這件事**由誰負責**？
+  §0.3 的自陳（`core/market_index.py`：只供顯示，不驅動訊號）在這條路上會變得更難迴避。
+
+### 8.4 本節沒有做的事
+
+沒有裁決；沒有排序；沒有估工期；未查證 TWSE 端點的歷史回溯範圍（僅驗過 `queryYear=115`）。
