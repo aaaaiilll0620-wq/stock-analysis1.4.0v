@@ -12,6 +12,7 @@ What it has to refuse is the point:
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
 import sys
@@ -85,22 +86,42 @@ def test_a_manifest_claiming_a_different_as_of_is_refused(tmp_path):
         S.plan(d, RUN, DECISION)
 
 
+# The declared calendar is the LIVE `~/market_cache/taiex_daily.parquet`, which
+# gains a session every trading day. A literal date on either side of its end is
+# therefore an assertion about the wall clock, not about the guard: `2026-08-31`
+# was beyond the calendar when it was written and was inside it by 2026-09-01,
+# at which point this file stopped testing what it says it tests. Both dates
+# below are DERIVED from the declared calendar so that each names its own input
+# to `l3_snapshot.py`'s coverage guard for good.
+def _last_session(run_dir):
+    return S._sessions_from_declared_calendar(run_dir)[-1]
+
+
 @sources
 def test_a_period_that_is_not_over_is_refused(tmp_path):
     """§6.5 executes at the open of the session AFTER the decision date. If the
-    declared calendar has no such session, the month has not finished."""
+    declared calendar has no such session, the month has not finished.
+
+    The last declared session is INSIDE coverage and still has nothing after it
+    — which is the case this refusal is worded for.
+    """
     d = _run(tmp_path)
     with pytest.raises(S.L3SnapshotError, match="period is not over"):
-        S.plan(d, RUN, "2026-08-31")
+        S.plan(d, RUN, _last_session(d))
 
 
 @sources
 def test_the_future_guard_raises_in_this_exception_class(tmp_path):
     """`resolve_as_of` also refuses it, but as MarketStateError — which a caller
-    guarding L3SnapshotError would not catch."""
+    guarding L3SnapshotError would not catch.
+
+    A day past the last declared session is BEYOND coverage. It reaches the same
+    guard, and what this asserts is the exception CLASS it arrives in.
+    """
     d = _run(tmp_path)
+    beyond = _dt.date.fromisoformat(_last_session(d)) + _dt.timedelta(days=1)
     with pytest.raises(S.L3SnapshotError):
-        S.plan(d, RUN, "2027-01-29")
+        S.plan(d, RUN, beyond.isoformat())
 
 
 # --- the source set must be ready ----------------------------------------------
