@@ -114,6 +114,70 @@ def test_the_producer_set_is_read_from_disk_not_hand_listed(tmp_path,
         in rs.source_producer_files()
 
 
+# --- A-1c · the sealed retrospective line is not a root, and escapes are refused -------
+
+def test_b0_l2_is_not_a_module_root():
+    """A-1c, ruled 2026-09-02. It contributed 0 of the 45 files, so this is not
+    about a file: a root means a FUTURE import into the sealed retrospective
+    line joins the prospective route's identity without anyone deciding it."""
+    assert not any("b0_l2" in r for r in rs.MODULE_ROOTS)
+    assert not any(f.startswith("research/b0_l2") for f in rs.sealed_file_set())
+
+
+def test_a_repo_module_outside_the_roots_is_refused_not_skipped():
+    """Dropping the root alone only reverses which way the silence runs."""
+    entry = os.path.join(REPO, "research", "b0_l3_runner", "run_l3_prospective.py")
+    with pytest.raises(rs.RouteSealError) as exc:
+        rs.assert_no_import_escapes_the_roots(entry, "run_sealed_l2")
+    assert "outside MODULE_ROOTS" in str(exc.value)
+    assert "research/b0_l2/run_sealed_l2.py" in str(exc.value)
+
+
+@pytest.mark.parametrize("module", ["os", "sys", "json", "pandas", "pytest",
+                                    "l3_snapshot", "core.b0_state"])
+def test_the_guard_is_silent_for_everything_it_should_be(module):
+    """Stdlib, third-party and in-roots names all resolve to nothing outside the
+    roots. Refusing every unresolved name would abort on `import os`."""
+    assert rs._resolve_outside_roots(module) is None
+    rs.assert_no_import_escapes_the_roots(__file__, module)
+
+
+def test_the_closure_walk_itself_refuses_an_escaping_import(tmp_path, monkeypatch):
+    """Wired into `route_closure_files`, not merely available beside it.
+
+    Built in a fake repo under `tmp_path`: writing a probe into the real tree is
+    what `test_the_producer_set_is_read_from_disk_not_hand_listed` was fixed for,
+    and here it would change `route_seal_id` while it existed.
+    """
+    root = tmp_path / "repo"
+    (root / "research" / "b0_l3_runner").mkdir(parents=True)
+    (root / "research" / "b0_stray").mkdir(parents=True)
+    (root / "research" / "b0_l3_runner" / "entry.py").write_text(
+        "import stray\n", encoding="utf-8")
+    (root / "research" / "b0_stray" / "stray.py").write_text(
+        "x = 1\n", encoding="utf-8")
+    monkeypatch.setattr(rs, "REPO", str(root))
+
+    entry = os.path.join("research", "b0_l3_runner", "entry.py")
+    with pytest.raises(rs.RouteSealError, match="outside MODULE_ROOTS"):
+        rs.route_closure_files(entry_points=(entry,))
+
+
+def test_the_search_roots_are_derived_from_the_filesystem(tmp_path, monkeypatch):
+    """A hand-listed set of places to look drifts, and drifts permissive: the
+    directory it stops naming is the one that then escapes unnoticed."""
+    root = tmp_path / "repo"
+    (root / "research" / "b0_has_code").mkdir(parents=True)
+    (root / "research" / "b0_has_code" / "m.py").write_text("", encoding="utf-8")
+    (root / "research" / "just_data").mkdir(parents=True)
+    (root / "research" / "just_data" / "x.csv").write_text("", encoding="utf-8")
+    monkeypatch.setattr(rs, "REPO", str(root))
+
+    roots = {r.replace("\\", "/") for r in rs._module_search_roots()}
+    assert "research/b0_has_code" in roots
+    assert "research/just_data" not in roots
+
+
 # --- N1-1 · no seal while a required family has no authoritative leg -------------------
 
 def test_the_calendar_blocks_sealing_because_it_has_no_authoritative_leg():

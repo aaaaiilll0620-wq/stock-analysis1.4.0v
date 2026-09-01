@@ -88,13 +88,25 @@ def placeholder_seal_ids() -> frozenset:
 
 # Where a module named in an import may live. A file outside these roots is not
 # part of this repository's route and is reported rather than silently bound.
+# A-1c, ruled 2026-09-02 (§9.3). `research/b0_l2` was HERE and is not any more.
+#
+# It contributed 0 of the 45 files -- measured, and removing it left the closure
+# identical file for file -- so this is not about a file. It is about a door: a
+# root means a FUTURE import from L3 into the sealed retrospective line joins the
+# prospective route's identity silently, and every later maintenance edit to L2
+# would then move the route seal.
+#
+# Dropping it alone would only reverse which way the silence runs: `_module_file`
+# returns None for anything outside these roots and `route_closure_files` skips
+# it, so the same import would instead be MISSED. The ruling took the third
+# option, so `assert_no_import_escapes_the_roots` exists below and the closure
+# refuses rather than shrugs.
 MODULE_ROOTS = (
     "",
     os.path.join("research", "b0_l3"),
     os.path.join("research", "b0_l3_runner"),
     os.path.join("research", "b0_checkpoint"),
     os.path.join("research", "b0_materializer"),
-    os.path.join("research", "b0_l2"),
 )
 
 # The two files a prospective period actually starts from.
@@ -135,6 +147,98 @@ def _module_file(module: str):
         if os.path.isfile(package):
             return package
     return None
+
+
+# Keyed on REPO so a test that repoints it gets its own answer rather than this
+# process's first one. Without the cache the scan reran for every unresolved
+# import of every file in the closure -- ~900 walks of ~40 directories, which
+# took the route-seal test file from 9 seconds to 128.
+_SEARCH_ROOTS_CACHE: dict = {}
+# Same reason, one level down: the closure walk asks about the same handful of
+# stdlib names once per file, and each miss costs a stat against every search
+# root. Keyed on (REPO, module) so a repointed REPO is a different question.
+_OUTSIDE_ROOTS_CACHE: dict = {}
+
+
+def _module_search_roots() -> tuple:
+    """Repository directories that could host an importable module, DERIVED.
+
+    A directory qualifies if it DIRECTLY holds a `.py` file. Derived from the
+    filesystem rather than listed, for the reason A-1b demonstrated one commit
+    ago: a hand-maintained list of places to look drifts, and a drifting list of
+    places to look drifts permissive -- the module it stops naming is the one
+    that then escapes unnoticed.
+    """
+    cached = _SEARCH_ROOTS_CACHE.get(REPO)
+    if cached is not None:
+        return cached
+
+    out = []
+    for base in ("", "research"):
+        base_dir = os.path.join(REPO, base) if base else REPO
+        if not os.path.isdir(base_dir):
+            continue
+        for name in sorted(os.listdir(base_dir)):
+            rel = os.path.join(base, name) if base else name
+            full = os.path.join(REPO, rel)
+            if not os.path.isdir(full) or name.startswith("."):
+                continue
+            try:
+                with os.scandir(full) as it:
+                    has_py = any(e.name.endswith(".py") for e in it)
+            except OSError:
+                continue
+            if has_py:
+                out.append(rel)
+    result = tuple(out)
+    _SEARCH_ROOTS_CACHE[REPO] = result
+    return result
+
+
+def _resolve_outside_roots(module: str):
+    """The file this module name names in the repo but OUTSIDE `MODULE_ROOTS`.
+
+    None for stdlib and third-party names, which resolve nowhere in the repo and
+    are legitimately outside the route -- refusing every unresolved name would
+    abort on `import os`. What this finds is the only interesting case: repo
+    code the walker would otherwise skip in silence.
+    """
+    key = (REPO, module)
+    if key in _OUTSIDE_ROOTS_CACHE:
+        return _OUTSIDE_ROOTS_CACHE[key]
+
+    declared = {os.path.normpath(r) for r in MODULE_ROOTS}
+    parts = module.split(".")
+    found = None
+    for root in _module_search_roots():
+        if os.path.normpath(root) in declared:
+            continue
+        candidate = os.path.join(REPO, root, *parts) + ".py"
+        if os.path.isfile(candidate):
+            found = candidate
+            break
+        package = os.path.join(REPO, root, *parts, "__init__.py")
+        if os.path.isfile(package):
+            found = package
+            break
+    _OUTSIDE_ROOTS_CACHE[key] = found
+    return found
+
+
+def assert_no_import_escapes_the_roots(path: str, module: str) -> None:
+    """A1-c's guard. Repo code the route reaches must be reachable BY the route."""
+    escaped = _resolve_outside_roots(module)
+    if escaped is None:
+        return
+    raise RouteSealError(
+        "abort: %s imports %r, which resolves to %s -- inside this repository "
+        "but outside MODULE_ROOTS, so the closure would skip it and the seal "
+        "would bind a route that reaches code it does not name.\n"
+        "Silence in either direction is the thing A-1c refused: keeping a root "
+        "binds such a module without anyone deciding to, dropping the root "
+        "misses it without anyone noticing. Declare the root deliberately, or "
+        "do not reach that code from the prospective route."
+        % (_rel(path), module, _rel(escaped)))
 
 
 def _imports(path: str) -> set:
@@ -181,7 +285,10 @@ def route_closure_files(entry_points=ENTRY_POINTS) -> tuple:
         seen.add(rel)
         for module in sorted(_imports(path)):
             found = _module_file(module)
-            if found and _rel(found) not in seen:
+            if found is None:
+                assert_no_import_escapes_the_roots(path, module)
+                continue
+            if _rel(found) not in seen:
                 queue.append(found)
     return tuple(sorted(seen))
 
@@ -470,6 +577,7 @@ def assert_aggregate_names_this_seal(aggregate, seal_id: str) -> str:
 
 __all__ = [
     "N1_RULING",
+    "assert_no_import_escapes_the_roots",
     "SEAL_BINDING_SCOPE",
     "SEAL_BINDING_DISCLOSURE",
     "unauthoritative_floor_families",

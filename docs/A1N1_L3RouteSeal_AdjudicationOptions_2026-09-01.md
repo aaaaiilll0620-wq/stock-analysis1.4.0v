@@ -408,7 +408,27 @@ seal id = payload 的 `canonical_sha256`，並冠上 `L3SEAL-` 前綴。
   而那正是本裁決要移除的狀態。實測確認——比對等值的測試放行了手抄版本，
   改為呼叫時讀取之後才抓得到。
 
-### 9.3 A-1c · 暫緩；先裁定 `research/b0_l2` 是否屬於 L3 route
+### 9.3 A-1c · **已裁決 2026-09-02：移出 roots，並補 unresolved-import guard**
+
+採三選一中的第三項。~~暫緩~~。落地 commit 見版本紀錄。
+
+| 動作 | 狀態 |
+|---|---|
+| `research/b0_l2` 移出 `MODULE_ROOTS` | ✅ |
+| `assert_no_import_escapes_the_roots()` | ✅ 接在 `route_closure_files()` 的走訪上，解析得到 repo 內但在 roots 外的模組即 `RouteSealError` |
+| 搜尋範圍 | **衍生**（目錄直接含 `.py` 才算），非手列。理由同 A-1b |
+| 閉包 | 45 → 45，逐檔相同（`identical: True`） |
+
+⚠ **guard 不能對「所有解析不到的 import」報錯**——`os`、`sys`、`pandas` 全都解析不到，
+那會讓閉包在第一行中止。實作只抓「repo 內、roots 外」這一種，實測 `run_sealed_l2`
+會被攔下，而 stdlib / 第三方 / roots 內模組一律不誤報。
+
+⚠ **落地時引入又修掉的效能缺陷**：guard 初版每遇到一個無法解析的 import 就重掃目錄，
+route-seal 測試檔從 9s 變 128s。加了兩層以 `REPO` 為鍵的快取（搜尋根、模組解析結果）後回到 11s。
+
+（以下為裁決前的選項與量測，保留不刪。）
+
+### 9.3a 原文 · 暫緩；先裁定 `research/b0_l2` 是否屬於 L3 route
 
 **⟨M⟩ 2026-09-02 實測，供該次裁決使用：**
 
