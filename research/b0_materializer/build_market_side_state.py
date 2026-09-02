@@ -42,25 +42,65 @@ sys.path.insert(0, REPO)
 
 from core.b0_canonical_hash import canonical_sha256          # noqa: E402
 from core.b0_features import INDUSTRY_UNRESOLVED             # noqa: E402
-from core.b0_master_prereg import spec as frozen_spec        # noqa: E402
+from core.b0_master_prereg import (                          # noqa: E402
+    FROZEN_B0_LINEAGE, lineage_spec, spec as frozen_spec,
+)
 from core.b0_share_unit_adjustment import (                  # noqa: E402
     ELIGIBLE_KINDS, ShareUnitAdjustmentError, UnreconstructibleAdjustment,
     assert_kind_classified, holder_multiplier,
 )
 from core.b0_state import compute_sigma20d                   # noqa: E402
 
-DATA = os.path.join(REPO, "data", "b0")
+# --- lineage scoping ---------------------------------------------------------
+# Which lineage is being materialized. Frozen B0 remains the default so that
+# every existing caller, receipt and test keeps its exact behaviour; a second
+# lineage must ASK for itself, because a silent fallback to B0 is precisely how
+# a B1 build would overwrite B0's 141 sealed states while every assertion below
+# still passed.
+LINEAGE = os.environ.get("B0_MATERIALIZE_LINEAGE", FROZEN_B0_LINEAGE)
+
+# Frozen B0 keeps `data/b0/...` byte-for-byte. Anything else gets its own root.
+DATA = os.path.join(REPO, "data", "b0" if LINEAGE == FROZEN_B0_LINEAGE
+                    else LINEAGE.lower())
 OUTDIR = os.path.join(DATA, "market_state")
 MANIFEST = os.path.join(DATA, "market_state_manifest.json")
-RECEIPT = os.path.join(HERE, "market_side_state_receipt.json")
+RECEIPT = os.path.join(
+    HERE, "market_side_state_receipt.json" if LINEAGE == FROZEN_B0_LINEAGE
+    else "market_side_state_receipt_%s.json" % LINEAGE.lower())
+
+FROZEN_B0_STATE_DIR = os.path.join(REPO, "data", "b0", "market_state")
+
+
+def assert_not_writing_into_frozen_b0(path: str) -> None:
+    """A NON-B0 lineage may not write anywhere under data/b0/market_state.
+
+    This is a guard, not a convention. Frozen B0's 141 market-side state hashes
+    are its sealed identity; the run that would destroy them is not a malicious
+    one, it is an ordinary `python build_market_side_state.py` with the wrong
+    environment variable set. The check is on the resolved absolute path so that
+    a relative path, a symlink or a `..` cannot walk into it.
+    """
+    if LINEAGE == FROZEN_B0_LINEAGE:
+        return
+    target = os.path.realpath(path)
+    protected = os.path.realpath(FROZEN_B0_STATE_DIR)
+    if target == protected or target.startswith(protected + os.sep):
+        raise SystemExit(
+            "REFUSING TO WRITE: lineage %s resolved an output path inside "
+            "Frozen B0's sealed state directory (%s). B0's 141 state hashes are "
+            "its identity and this build would rewrite them." % (LINEAGE, target))
 
 # B-09 / §2.1. Read, never restated: a frozen parameter written out a
 # second time is a second source of truth, and it agrees right up until the
 # day it does not — the C-55 shape. `spec()` has no default, so a window
 # that ever stops being specified aborts here instead of resolving to a
 # literal someone typed while the window was a different length.
-WINDOW_START, WINDOW_END = frozen_spec("window_start"), frozen_spec("window_end")
-WINDOW_MONTHS = frozen_spec("window_months")
+# Read, never restated - and now read FOR A NAMED LINEAGE. `lineage_spec`
+# delegates to `frozen_spec` when the lineage is Frozen B0, so B0's three
+# numbers still have exactly one home.
+WINDOW_START = lineage_spec(LINEAGE, "window_start")
+WINDOW_END = lineage_spec(LINEAGE, "window_end")
+WINDOW_MONTHS = lineage_spec(LINEAGE, "window_months")
 ADV_SESSIONS = 20
 SIGMA_SESSIONS = 20            # 20 log returns -> 21 closes
 
@@ -685,6 +725,10 @@ def assert_market_state_is_portfolio_free(payload):
 
 
 def main() -> int:
+    assert_not_writing_into_frozen_b0(OUTDIR)
+    assert_not_writing_into_frozen_b0(MANIFEST)
+    _log("lineage: %s  window %s .. %s (%d periods)"
+         % (LINEAGE, WINDOW_START, WINDOW_END, WINDOW_MONTHS))
     os.makedirs(OUTDIR, exist_ok=True)
     _log("loading sealed sources ...")
     cal, px, ledger, status, bonus, val, fin, rev, ind = load_sources()
@@ -724,6 +768,7 @@ def main() -> int:
         assert_market_state_is_portfolio_free(payload)
         sha = canonical_sha256(payload)
         out = os.path.join(OUTDIR, "%s.parquet" % p["decision_month"])
+        assert_not_writing_into_frozen_b0(out)
         pd.DataFrame(rows).to_parquet(out, index=False)
         manifest.append({
             "decision_month": p["decision_month"],
@@ -752,10 +797,13 @@ def main() -> int:
     import hashlib
     composed_sha = hashlib.sha256(composed.encode()).hexdigest()
     receipt = {
-        "artefact": "data/b0/market_state/<decision_month>.parquet",
-        "manifest": "data/b0/market_state_manifest.json",
+        "lineage": LINEAGE,
+        "artefact": os.path.relpath(OUTDIR, REPO).replace("\\", "/")
+                    + "/<decision_month>.parquet",
+        "manifest": os.path.relpath(MANIFEST, REPO).replace("\\", "/"),
         "builder": "research/b0_materializer/build_market_side_state.py",
-        "clause": "definition A · 141 market-side canonical states, pre-L2",
+        "clause": "definition A · %d market-side canonical states, pre-L2"
+                  % WINDOW_MONTHS,
         "periods_built": built,
         "periods_required": WINDOW_MONTHS,
         "window": [WINDOW_START, WINDOW_END],

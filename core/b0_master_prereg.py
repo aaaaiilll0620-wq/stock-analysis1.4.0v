@@ -1012,6 +1012,81 @@ def assert_l2_reopening_reachable(lineage: str = FROZEN_B0_LINEAGE) -> None:
         )
 
 
+# --- lineage-scoped window parameters (B1 registration groundwork) -----------
+#
+# `spec()` answers for Frozen B0 and only for Frozen B0. A second lineage needs
+# its own window, and the two must not be reachable through the same unqualified
+# call - that is how a caller ends up materializing B1 into B0's artefacts.
+#
+# Frozen B0's values are NOT restated here. They are read back out of `spec()`,
+# for the same reason `build_market_side_state.py` refuses to restate them: a
+# frozen parameter written down twice is a second source of truth, and it agrees
+# right up until the day it does not (the C-55 shape).
+#
+# ⚠ DECLARING a window is NOT registering the lineage. `REGISTERED_L2_LINEAGES`
+# governs whether a lineage may open/replay at all and still requires a Baseline
+# Seal and a named authority; this table only says what the window WOULD be. The
+# separation is deliberate and it is what makes the declaration admissible: the
+# v1.33 rejection turns on a window being changed AFTER its lineage had been
+# opened and had seen outcomes, so B1's window must be frozen BEFORE B1 can run,
+# which is only possible if the two acts are separable.
+LINEAGE_WINDOW_KEYS: tuple[str, ...] = (
+    "window_start", "window_end", "window_months")
+
+# lineage -> its own window. Frozen B0 is deliberately ABSENT: it delegates.
+_LINEAGE_WINDOWS: Mapping[str, Mapping[str, Any]] = {
+    # B1 · retrospective leg. Endpoints are DERIVED from corpus coverage, not
+    # chosen: `trading_calendar.csv` ends 2026-08-17, 2026-07-31 is the last
+    # month-end session in it, and 2026-08-03 is that decision's execution
+    # session. 2026-08-31 is not in the calendar at all, so the month after is
+    # unreachable by construction rather than by preference.
+    #
+    # ⚠⚠ 145 IS THE NUMBER v1.33 WAS REJECTED FOR, and a reviewer will see that
+    # first. The distinction is not cosmetic: v1.33 EXTENDED the window of a
+    # lineage that had already opened and already scored a non-empty population
+    # (§9.6a-R2 condition 2 fails for it). B1 has no run, no NAV and no
+    # period_progress, so this is a FIRST SETTING, and §2.1 governs the thawing
+    # of a frozen window, not its initial definition. The artefacts left at
+    # C:/dev/b0_ext145_noncanonical_20260826 were built under B0's identity and
+    # against the pre-SD-SKIP ledger; they are NON-CANONICAL and must not be
+    # reused for B1 under any standing.
+    "B1": {
+        "window_start": "2014-07-31",
+        "window_end": "2026-07-31",
+        "window_months": 145,
+    },
+}
+
+
+def lineage_spec(lineage: str, key: str) -> Any:
+    """A window parameter for `lineage`. Fails closed on both arguments.
+
+    Frozen B0 delegates to `spec()` so that its numbers keep exactly one home.
+    An unknown lineage raises rather than falling back to B0 - a silent fallback
+    is precisely how a B1 build would overwrite B0's artefacts while every
+    assertion still passed.
+    """
+    if key not in LINEAGE_WINDOW_KEYS:
+        raise UnspecifiedBehaviour(
+            f"M-3: {key!r} is not a lineage-scoped window parameter. "
+            f"Lineage-scoped keys are {LINEAGE_WINDOW_KEYS}; everything else is "
+            f"asked of spec(), which answers for Frozen B0.")
+    if lineage == FROZEN_B0_LINEAGE:
+        return spec(key)
+    if lineage not in _LINEAGE_WINDOWS:
+        raise UnregisteredLineage(
+            f"M-3: no window is declared for lineage {lineage!r}. Declared "
+            f"lineages are {(FROZEN_B0_LINEAGE,) + tuple(_LINEAGE_WINDOWS)}. "
+            f"Declaring one is a specification change, not a caller's choice, "
+            f"and it must happen BEFORE that lineage's first strategy-route "
+            f"execution.")
+    return _LINEAGE_WINDOWS[lineage][key]
+
+
+def declared_window_lineages() -> tuple[str, ...]:
+    return (FROZEN_B0_LINEAGE,) + tuple(sorted(_LINEAGE_WINDOWS))
+
+
 # §9.6e-R4 · the accounting is bound to the seven conditions, not to the label.
 # A terminal that is later re-classified is re-assessed against what the run
 # ACTUALLY did; re-classification can move condition 3 and nothing else. This is
