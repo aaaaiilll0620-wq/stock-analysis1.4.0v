@@ -26,6 +26,10 @@ W-1  missing credit date  -> per-event NOT_RECONSTRUCTIBLE, abort on exposure.
      the bonus-share leg is dropped and the event is NOT_APPLICABLE. W-1's
      two constants are untouched; its disposition sentence is not.
      No interpolation. No missing-rate threshold anywhere in this module.
+     ⚠ SEPARATELY, capitalisation rows with no ex-right flag are NOT_APPLICABLE
+     by CA-1 (pre-registered 2026-09-02). That is a different rule with a
+     different reason: SD-SKIP drops a real holder leg whose credit date is
+     unobservable, CA-1 says the event was never a holder leg. Do not merge them.
 W-2  credit == ex-right   -> legal zero-day receivable. Only credit < ex fails.
 W-3  every share-changing event enters the ledger, each with its own verifier.
 W-4  B0 never subscribes to a cash capital increase. Fixed False.
@@ -484,10 +488,35 @@ def handle_stock_dividend(rec: Mapping[str, object]) -> CorporateActionEvent:
         # 配股(Y/N)='N' rows carry new shares but no 配股率 and no credit date,
         # and their 年月日 is a month-end registration stamp, not an ex-right day.
         # Treating them as ex-right stock dividends would invent an event date.
+        #
+        # CA-1 (pre-registered 2026-09-02, docs/預註冊_配股不可重建事件處置):
+        # these are NOT holder events at all, so the disposition is NOT_APPLICABLE
+        # rather than a block. holder_multiplier is 1.0, the existing share count
+        # is unchanged and no SecurityReceivable is issued. This is a reading, not
+        # an approximation, and it rests on three independent facts:
+        #   1. all 312 in-window rows were matched against the official TWSE/TPEx
+        #      ex-right collection (transport failures 0) and NOT ONE carries a
+        #      positive distribution ratio. A pro-rata distribution to existing
+        #      holders would appear there.
+        #   2. all 312 do carry a share quantity, so the shares were really
+        #      issued - to subscribers (cash increase), converting bondholders or
+        #      employees. That is dilution of the holder, not a distribution to
+        #      the holder.
+        #   3. the module already agrees: `FORBIDDEN_MULTIPLIER_SOURCES` in
+        #      core/b0_bonus_share_source.py names paid_capital_increase_shares
+        #      and employee_bonus_shares as sources a multiplier may NOT be
+        #      derived from. Treating these as holder stock dividends is the very
+        #      thing C-51 forbids.
+        # Falsifier, frozen with the rule: if any 'no ex-right flag' event is ever
+        # found carrying a positive distribution ratio in an official
+        # announcement, the rule fails FOR THAT EVENT and the whole rule is
+        # re-examined - it is not patched.
         return CorporateActionEvent(
-            sid, "stock_dividend", ex, NOT_RECONSTRUCTIBLE,
-            "capitalisation recorded without an ex-right flag: no distribution "
-            "rate and no credit date; 年月日 is a registration stamp",
+            sid, "stock_dividend", ex, NOT_APPLICABLE,
+            "CA-1: capitalisation recorded without an ex-right flag: no "
+            "distribution rate and no credit date; 年月日 is a registration "
+            "stamp. Not a holder-side distribution — multiplier 1.0, no "
+            "receivable issued",
             new_shares_thousands=new_shares)
 
     order = classify_receivable_ordering(ex, credit)

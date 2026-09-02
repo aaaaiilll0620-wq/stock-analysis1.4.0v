@@ -156,12 +156,46 @@ def test_W1_a_threshold_would_be_rejected_if_reintroduced(monkeypatch):
 def test_unflagged_capitalisation_is_not_treated_as_an_ex_right_event():
     """312 in-window rows carry new shares with no 配股率 and no credit date;
     their 年月日 is a registration stamp. Calling them ex-right stock dividends
-    would invent an event date."""
+    would invent an event date.
+
+    CA-1 (pre-registered 2026-09-02) changed the DISPOSITION from a block to
+    NOT_APPLICABLE: the shares were issued to subscribers, converting
+    bondholders or employees, so there is no holder leg to reconstruct. The
+    claim this test defends is unchanged and is asserted more strictly than
+    before - not merely "does not block", but that the event carries no
+    multiplier and issues no receivable.
+    """
     e = classify("stock_dividend", _sd(is_ex_right_event=False,
                                        distribution_ratio_pct=None,
                                        credit_tradable_date=None))
-    assert e.reconstructibility == NOT_RECONSTRUCTIBLE
+    assert e.reconstructibility == NOT_APPLICABLE
+    assert e.reason.startswith("CA-1:")
     assert "registration stamp" in e.reason
+    # The substance of CA-1: no holder-side effect whatsoever. A future edit that
+    # keeps the label but starts issuing a receivable would fail here.
+    assert getattr(e, "share_multiplier", None) in (None, 1.0)
+    assert getattr(e, "credit_tradable_date", "") in ("", None)
+
+
+def test_ca1_and_sd_skip_are_distinct_rules_and_must_not_be_merged():
+    """Both end in NOT_APPLICABLE, for opposite reasons, and the reason strings
+    are the only thing separating them downstream.
+
+    SD-SKIP drops a REAL holder leg whose credit date is unobservable (the
+    holder is understated by design). CA-1 says the event was never a holder
+    leg at all. Collapsing them would let a genuinely missing credit date be
+    excused as "not a holder event".
+    """
+    sd_skip = classify("stock_dividend", _sd(is_ex_right_event=True,
+                                             distribution_ratio_pct=10.0,
+                                             credit_tradable_date=None))
+    ca_1 = classify("stock_dividend", _sd(is_ex_right_event=False,
+                                          distribution_ratio_pct=None,
+                                          credit_tradable_date=None))
+    assert sd_skip.reconstructibility == ca_1.reconstructibility == NOT_APPLICABLE
+    assert sd_skip.reason.startswith("SD-SKIP:")
+    assert ca_1.reason.startswith("CA-1:")
+    assert sd_skip.reason != ca_1.reason
 
 
 # --- exposure gate: existence does not abort, exposure does ------------------

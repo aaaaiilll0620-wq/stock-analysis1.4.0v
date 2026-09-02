@@ -21,14 +21,12 @@
   "other_share_change|NOT_APPLICABLE": 84,
   "par_value_change|NOT_RECONSTRUCTIBLE": 1,
   "par_value_change|RECONSTRUCTIBLE": 22,
-  "stock_dividend|NOT_APPLICABLE": 65,
-  "stock_dividend|NOT_RECONSTRUCTIBLE": 312,
+  "stock_dividend|NOT_APPLICABLE": 377,
   "stock_dividend|RECONSTRUCTIBLE": 2423,
   "transfer_in|NOT_APPLICABLE": 72,
   "treasury_cancellation|NOT_APPLICABLE": 1374
  },
  "not_reconstructible_reasons": {
-  "capitalisation recorded without an ex-right flag: no distribution rate and no credit date; 年月日 is a registration stamp": 312,
   "authoritative status reason '併入控股公司下市' establishes that this listed security ceased trading through a reorganization; it does not establish the successor security, conversion ratio, cash consideration or credit date, so the holder outcome is not reconstructible from it": 61,
   "authoritative status reason '合併下市' establishes that this listed security ceased trading through a reorganization; it does not establish the successor security, conversion ratio, cash consideration or credit date, so the holder outcome is not reconstructible from it": 29,
   "no reduction rate and it could not be derived from share counts on this row": 11,
