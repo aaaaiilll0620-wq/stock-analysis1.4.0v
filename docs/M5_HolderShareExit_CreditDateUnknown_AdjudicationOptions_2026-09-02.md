@@ -201,8 +201,9 @@ M-3 的選項 C／D 把未知結算日的現金編碼為「owned、計入 NAV、
 | 動到封閉三態 | 否 | 否 | **是** | 否 | 否 |
 | 被鎖部位是否漂移 | — | — | **是** | **是** | 否 |
 | 這 9 筆可完成 | **否** | 是 | 是 | 是 | 是 |
+| 後手須永久可 mark | — | 否 | **是** | **是** | 否 |
 | 與 M-3 機制一致 | — | — | 否 | **是** | 否 |
-| 變更幅度 | 僅理由句 | 中 | 大 | 小 | 小 |
+| 變更幅度 | 僅理由句 | 中 | 大 | 小 | **中～大**（見 §3.3） |
 
 **撰稿者事前意見（量測前）：D > A > C > E > B。**
 D 與 M-3 選項 D 共用同一機制，是兩份裁決一致性的最短路徑；
@@ -215,15 +216,60 @@ A 是安全但代價明確的退路；B 與 E 應明文否決並保留為 reject
 
 ## 3 · 尚待量測（**必須以非績效方式**，裁決前完成）
 
-1. **NAV 路徑是否真的評價 `security_receivables`。** ⟨M⟩ 本 session 未能在
-   `core/` 內找到 NAV 彙總函式；`security_receivables` 是宣告登錄中的 state dimension
-   （`core/b0_master_prereg.py:1298-1301`），但「被宣告」不等於「被計入淨值」。
-   **選項 D 與 E 的差別在這個答案未知之前都是空談。**
+1. ~~**NAV 路徑是否真的評價 `security_receivables`。**~~ **已答（見 §3.1）。**
 2. **被鎖部位的規模上界。** 以舊股數 × 換股比例 × 後手股價，逐月計算這 9 筆
    在窗口內各月的名目金額。**不得引用任何投組實際持股或 NAV** ——
    以「若全額持有」的上界計算即可。
 3. **這 9 筆的實際暴露月數。** B0 是否真的在基準日持有該證券，是暴露的前提。
    此項需讀取投組狀態，**因此必須在裁決之後、或以不可見於撰稿者的方式進行**。
+
+### 3.1 · ⚠ 第 1 項已答：會，而且逐期以後手股價評價
+
+⟨M⟩ `core/b0_state.py:658` `mark_portfolio` 是 §6.2 的評價路徑，其 `:704-706`：
+
+```python
+for r in sorted(portfolio.security_receivables, ...):
+    receivable += float(r.shares) * snapshot.mark_price(r.security_id)
+```
+
+而 `:722` `port_value = cash + Σposition_values + receivable`。
+
+⇒ **`security_receivables` 每一期都以後手證券的 `mark_price` 計入 NAV。**
+
+對照 `cash_receivables`（`:708-711`）：`receivable += float(r.amount)`，
+現場註解「Face value: a fixed cash claim is not re-priced」。
+
+⇒ **§2 的不對稱不是推論，是實測**：現金腿是常數，股份腿逐期漂移。
+
+### 3.2 · 由此得到選項 D 的一個新硬性條件（原稿未載）
+
+`mark_price`（`core/b0_state.py:239`）對無 mark 的證券**fail loud**：
+「a held name with no mark fails loud. It is never worth zero.」
+而 `:701-703` 的註解明說：merger 收到的後手證券若無 canonical mark，
+**「aborts here rather than being valued at zero」**。
+
+⇒ 選項 D 一旦採用，該請求權**永不到期**，因此
+**後手證券必須自基準日起、直到窗口結束的每一期都可 mark**。
+任何一期缺 mark ⇒ run 中止。**這是 D 的隱含成本，且它把一個外部實體的
+存續狀態變成本回測可完成性的前提。**
+
+⟨M⟩ 該條件已逐檔驗證：
+
+- 9/9 後手證券自基準日至 `2026-03-31` **每個月都有價格**。
+  唯一表面缺口 `5317 → 2375` 的 2019-09 係因**基準日 2019-09-30 當天全市場無交易**，
+  首次 mark 落在次一 session 2019-10-01，該日 2375 有價 ⇒ 非缺口。
+- 9 檔後手在 `security_status.csv` 中**皆無 `delisted` 紀錄**；
+  其 `suspended` 紀錄多為**本批併購案自身**的公告停牌，未中斷價格序列。
+
+⇒ **選項 D 在資料面可行。** 但 §3.2 的依賴關係必須寫進裁決理由：
+若某後手證券日後自身消滅，該筆請求權將使 run 中止，
+而屆時**不會有任何規則可以救它** —— 這正是 §2 所稱「不可控暴露」的具體形式。
+
+### 3.3 · 這同時提高了選項 E 的變更幅度（更正交叉比較表）
+
+E 的「凍結評價」不是只改一個數字：它必須讓該請求權**繞過 `mark_portfolio` 的
+`mark_price` 呼叫**，而該呼叫是 §6.2 規範路徑的一部分。
+⇒ **E 的變更幅度應由「小」改判為「中～大」**，交叉比較表末列據此修正。
 
 ---
 
