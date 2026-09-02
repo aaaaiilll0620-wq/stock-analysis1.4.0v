@@ -59,6 +59,28 @@ def _run(state, events, as_of):
 
 # --- stock dividend -----------------------------------------------------------
 
+
+def test_SD_SKIP_dropped_leg_does_not_block_an_exposed_holder():
+    """Operator ruling 2026-09-03, second half.
+
+    Reclassifying the event alone would have moved the abort from §6.1.12 to the
+    §6.1.7 field check, which still wants the credit date the ruling decided not
+    to have -- `stock_dividend` is holder-affecting, so a dropped event still
+    reaches the loop. This pins the skip, and pins that no bonus shares appear:
+    the understatement is the ruling's declared cost, not an accident.
+    """
+    from core.b0_corporate_actions import NOT_APPLICABLE
+
+    ev = CorporateActionEvent("1101", "stock_dividend", "2020-01-05",
+                              NOT_APPLICABLE, "SD-SKIP: no 股票股利上市日/發放日",
+                              new_shares_thousands=100.0,
+                              knowledge_ts="2019-12-01")
+    out = _run(_p(), [ev], "2020-01-05")
+    assert ev.canonical_event_id() in out.skipped_unexposed
+    assert ev.canonical_event_id() not in out.applied_event_ids
+    assert int(out.state.shares["1101"]) == 1000
+    assert out.state.security_receivables == ()
+
 def test_stock_dividend_normal_credit_is_owned_before_it_is_tradable():
     ev = _ev("stock_dividend", "2020-01-06", stock_ratio=Fraction(1, 10),
              credit_tradable_date="2020-01-09")

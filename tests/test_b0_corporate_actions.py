@@ -124,10 +124,20 @@ def test_W2_credit_before_ex_right_is_not_reconstructible():
 
 # --- W-1: missing credit date ------------------------------------------------
 
-def test_W1_missing_credit_date_is_per_event_not_a_source_failure():
+def test_SD_SKIP_missing_credit_date_drops_the_leg_instead_of_blocking():
+    """Operator ruling 2026-09-03 overrides W-1's disposition for this branch.
+
+    W-1's two constants are deliberately NOT part of what changed: nothing is
+    interpolated here, the receivable is simply never issued. The event still
+    carries the share count it does know, because the ruling drops a leg -- it
+    does not pretend the source said nothing.
+    """
     e = classify("stock_dividend", _sd(credit_tradable_date=None))
-    assert e.reconstructibility == NOT_RECONSTRUCTIBLE
+    assert e.reconstructibility == NOT_APPLICABLE
+    assert e.reason.startswith("SD-SKIP")
     assert e.new_shares_thousands == 1000.0        # what IS known is preserved
+    assert e.credit_tradable_date is None          # nothing was invented
+    assert INTERPOLATION_ALLOWED is False          # W-1's constants untouched
 
 
 def test_W1_no_threshold_and_no_interpolation_exist():

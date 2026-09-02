@@ -22,6 +22,9 @@ Two ideas make that enforceable and they are deliberately separated:
      no missing-rate threshold" affordable.
 
 W-1  missing credit date  -> per-event NOT_RECONSTRUCTIBLE, abort on exposure.
+     ⚠ OVERRIDDEN for stock_dividend by SD-SKIP (operator ruling 2026-09-03):
+     the bonus-share leg is dropped and the event is NOT_APPLICABLE. W-1's
+     two constants are untouched; its disposition sentence is not.
      No interpolation. No missing-rate threshold anywhere in this module.
 W-2  credit == ex-right   -> legal zero-day receivable. Only credit < ex fails.
 W-3  every share-changing event enters the ledger, each with its own verifier.
@@ -492,10 +495,24 @@ def handle_stock_dividend(rec: Mapping[str, object]) -> CorporateActionEvent:
         return CorporateActionEvent(sid, "stock_dividend", ex, NOT_RECONSTRUCTIBLE,
                                     f"credit date {credit} precedes ex-right {ex}")
     if order == "missing":
-        # W-1: per event, no interpolation, no threshold.
-        return CorporateActionEvent(sid, "stock_dividend", ex, NOT_RECONSTRUCTIBLE,
-                                    "no 股票股利上市日/發放日 — the receivable has no "
-                                    "observable credit date",
+        # SD-SKIP (operator ruling 2026-09-03): the bonus-share leg is DROPPED
+        # rather than blocking. Still no interpolation and no threshold - the
+        # credit date is not reconstructed, it is that the receivable is never
+        # issued, so `INTERPOLATION_ALLOWED` stays False and W-1's two constants
+        # are untouched. What IS overridden is W-1's disposition sentence
+        # ("missing credit date -> per-event NOT_RECONSTRUCTIBLE"), which is why
+        # this carries its own tag rather than reusing an existing reason.
+        #
+        # Direction of the resulting bias is one-sided and known: the holder
+        # absorbs the ex-right price dilution and never receives the shares, so
+        # the strategy can only be understated by this rule, never flattered.
+        # That is the whole defence - there is no parameter here to be wrong
+        # about, which is precisely what sank the 59-day imputation.
+        return CorporateActionEvent(sid, "stock_dividend", ex, NOT_APPLICABLE,
+                                    "SD-SKIP: no 股票股利上市日/發放日 — the receivable "
+                                    "has no observable credit date, and the "
+                                    "bonus-share leg is dropped rather than "
+                                    "blocking; share count understated by design",
                                     new_shares_thousands=new_shares)
     if new_shares is None and ratio is None:
         return CorporateActionEvent(sid, "stock_dividend", ex, NOT_RECONSTRUCTIBLE,
@@ -1480,6 +1497,15 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
                         "missing_fields": [ev.reason],
                         "pre_state_hash": pre_hash,
                         "last_valid_state_hash": _state_hash(work)})
+        if ev.reconstructibility == NOT_APPLICABLE:
+            # SD-SKIP: a dropped leg must be skipped BEFORE the §6.1.7 field
+            # check, not after. `stock_dividend` is holder-affecting, so a
+            # dropped event still reaches this loop, and REQUIRED_FIELDS still
+            # wants `credit_tradable_date` - the field the ruling just decided
+            # not to have. Left to fall through, the block would simply move
+            # from §6.1.12 to §6.1.7 and the ruling would do nothing.
+            skipped.append(ev.canonical_event_id())
+            continue
         if not exposed:
             skipped.append(ev.canonical_event_id())
             continue

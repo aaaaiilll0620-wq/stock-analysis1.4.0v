@@ -6,9 +6,9 @@
   "TPEx": 1120,
   "TWSE": 1279
  },
- "bytes": 160903,
+ "bytes": 161015,
  "clause": "C-51 R1-R5 · official exchange bonus-share holder multiplier",
- "content_sha256": "3b311238f121247572d84e5d1eb915d5b3538972509581fcedaffdfaa17155bb",
+ "content_sha256": "349d92969cf8e87a4ec11e89376ef938057735c88d079dac50cbe4d314b648bd",
  "conversion": "holder_multiplier = 1 + bonus_shares_per_1000 / 1000",
  "coverage": {
   "date_max": "2025-12-10",
@@ -22,11 +22,12 @@
  },
  "date_normalized_events": 23,
  "disposition_by_ledger_reconstructibility": {
-  "NOT_APPLICABLE_TO_B0_MARKET_HISTORY|NOT_RECONSTRUCTIBLE": 403,
+  "NOT_APPLICABLE_TO_B0_MARKET_HISTORY|NOT_APPLICABLE": 55,
+  "NOT_APPLICABLE_TO_B0_MARKET_HISTORY|NOT_RECONSTRUCTIBLE": 348,
   "NOT_APPLICABLE_TO_B0_MARKET_HISTORY|RECONSTRUCTIBLE": 381,
-  "OFFICIAL_BONUS_RATE|NOT_RECONSTRUCTIBLE": 1,
+  "OFFICIAL_BONUS_RATE|NOT_APPLICABLE": 1,
   "OFFICIAL_BONUS_RATE|RECONSTRUCTIBLE": 2398,
-  "UNRESOLVED|NOT_RECONSTRUCTIBLE": 19,
+  "UNRESOLVED|NOT_APPLICABLE": 19,
   "UNRESOLVED|RECONSTRUCTIBLE": 13
  },
  "endpoints": {
