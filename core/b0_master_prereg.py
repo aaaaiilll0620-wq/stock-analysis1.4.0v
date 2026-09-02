@@ -39,6 +39,17 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MASTER_PREREG_DOC = "docs/FrozenB0_MasterPreregistration.md"
 
+# A lineage's own preregistration document. Frozen B0's entry is the constant
+# above and its BYTES ARE IMMUTABLE: B0.1-B0.7's diagnostic runners pin
+# `spec_document_sha256()` into their run records (`EXPECT["spec_sha256"]`), so
+# an edit there would leave those records pointing at a document that no longer
+# exists. A second lineage therefore gets its OWN file and records only its
+# differences, inheriting the rest of B0's document by reference.
+MASTER_PREREG_DOCS: Mapping[str, str] = {
+    "FROZEN_B0": MASTER_PREREG_DOC,
+    "B1": "docs/B1_MasterPreregistration.md",
+}
+
 # F0-R3 · implementation identity = commit SHA + EXPLICIT normative-module
 # hashes. The list lives here rather than in the freeze script because which
 # modules are normative is part of the specification, not part of a reporting
@@ -93,11 +104,24 @@ def normative_module_hashes() -> dict:
     return {m: file_sha256(os.path.join(REPO_ROOT, m)) for m in NORMATIVE_MODULES}
 
 
-def spec_document_sha256() -> str:
-    """F0-R2: raw-byte identity of the frozen master preregistration."""
+def spec_document_sha256(lineage: str = "FROZEN_B0") -> str:
+    """F0-R2: raw-byte identity of a lineage's master preregistration.
+
+    The default is Frozen B0, so every existing caller keeps its exact value -
+    including the diagnostic runners that pin this number. A lineage with no
+    document of its own fails closed rather than silently reporting B0's hash,
+    which would let a B1 run attest to a specification it does not follow.
+    """
     from core.b0_canonical_hash import file_sha256
 
-    return file_sha256(os.path.join(REPO_ROOT, MASTER_PREREG_DOC))
+    try:
+        doc = MASTER_PREREG_DOCS[lineage]
+    except KeyError:
+        raise UnregisteredLineage(
+            f"M-3: no preregistration document is declared for lineage "
+            f"{lineage!r}. Declared: {tuple(MASTER_PREREG_DOCS)}."
+        ) from None
+    return file_sha256(os.path.join(REPO_ROOT, doc))
 
 # Precedence order, most authoritative first. Recorded so that a future reader
 # resolving a conflict does not have to reconstruct the intent.
