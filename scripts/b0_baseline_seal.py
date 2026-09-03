@@ -40,7 +40,8 @@ sys.path.insert(0, REPO)
 
 from core.b0_canonical_hash import CANONICAL_HASH_VERSION, canonical_sha256  # noqa: E402
 from core.b0_l2_run_layout import (                                 # noqa: E402
-    attempted_opening_count, lineage_opening_claims_root, opening_claims,
+    lineage_attempted_opening_count, lineage_opening_claims_root,
+    opening_claims,
 )
 from core.b0_master_prereg import (                                          # noqa: E402
     FROZEN_B0_LINEAGE, L2ReopeningUnreachable, NORMATIVE_MODULES,
@@ -359,8 +360,11 @@ def build_l2_opening_protocol() -> dict:
         # reads as a budget already spent. B1 has spent none.
         "lineage": LINEAGE,
         "opening_registry": os.path.relpath(_REGISTRY, REPO).replace("\\", "/"),
-        "attempted_openings_recorded": attempted_opening_count(
-            _CLAIMS_ROOT, include_legacy=(LINEAGE == FROZEN_B0_LINEAGE)),
+        # The root and the legacy question are answered together, by one
+        # helper: two arguments that must be set consistently are two arguments
+        # that will eventually be set inconsistently.
+        "attempted_openings_recorded":
+            lineage_attempted_opening_count(LINEAGE),
         "terminal_registry_rows": len(read_registry(_REGISTRY)),
         "open_baselines": [c["baseline_seal_sha256"][:16]
                            for c in opening_claims(_CLAIMS_ROOT)],
