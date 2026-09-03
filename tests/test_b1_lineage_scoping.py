@@ -322,3 +322,323 @@ def test_the_seal_names_the_document_it_hashes():
 def test_an_unregistered_lineage_cannot_have_its_document_hashed():
     with pytest.raises(UnregisteredLineage):
         spec_document_sha256("B2")
+
+
+# =============================================================================
+# The rest of the build chain: opener, runner, period-1 builder.
+#
+# Materialize -> freeze -> seal was made lineage-aware first. Everything AFTER
+# the seal was not, and the gap was not cosmetic: the opener bound B0's seal
+# archive, B0's freeze record and B0's period-1 receipt whatever lineage was
+# being opened, and the runner would then have executed B0's `data/b0` panels
+# and appended B1's terminal row to B0's opening registry.
+# =============================================================================
+
+OPENER = os.path.join(REPO, "scripts", "b0_open_l2.py")
+RUNNER = os.path.join(REPO, "research", "b0_l2", "run_sealed_l2.py")
+PERIOD1 = os.path.join(REPO, "research", "b0_materializer",
+                       "build_period1_full_input.py")
+
+
+def _rel(path):
+    return os.path.relpath(path, REPO).replace("\\", "/")
+
+
+# --- one reader for the whole chain ------------------------------------------
+
+def test_only_the_specification_module_reads_the_lineage_environment():
+    """Five stages, one reader.
+
+    Each stage used to call `os.environ.get` with its own default and its own
+    idea of how a lineage becomes a path suffix. Separate readers that must
+    agree are readers that eventually will not, and the failure is not a crash:
+    it is a seal binding one lineage's artefacts under another's name.
+    """
+    import re
+    import subprocess
+
+    # Naming the variable in a usage string is fine; READING it is what may
+    # only happen once, so the probe looks for the read rather than the name.
+    read = re.compile(r"(environ\b[^\n]*(B0_MATERIALIZE_LINEAGE|LINEAGE_ENV_VAR)"
+                      r"|(B0_MATERIALIZE_LINEAGE|LINEAGE_ENV_VAR)[^\n]*environ\b)")
+    proc = subprocess.run(["git", "ls-files", "--", "*.py"], cwd=REPO,
+                          capture_output=True, text=True)
+    hits = set()
+    for rel in proc.stdout.splitlines():
+        rel = rel.strip()
+        if not rel or rel.startswith("tests/"):
+            continue
+        with open(os.path.join(REPO, rel), encoding="utf-8-sig") as fh:
+            if read.search(fh.read()):
+                hits.add(rel)
+    assert hits == {"core/b0_master_prereg.py"}, (
+        "the lineage environment variable must be read in exactly one place; "
+        "these also read it: %s" % sorted(hits - {"core/b0_master_prereg.py"}))
+
+
+def test_an_unregistered_lineage_is_refused_rather_than_defaulted():
+    """In BOTH directions.
+
+    Defaulting a mistyped `B1` to Frozen B0 would let a B1 build write over B0's
+    sealed artefacts; accepting the string would build, freeze and seal a
+    lineage with no registration behind it.
+    """
+    from core.b0_master_prereg import active_lineage
+
+    assert active_lineage({}) == FROZEN_B0_LINEAGE
+    assert active_lineage({"B0_MATERIALIZE_LINEAGE": ""}) == FROZEN_B0_LINEAGE
+    assert active_lineage({"B0_MATERIALIZE_LINEAGE": " B1 "}) == "B1"
+    for bad in ("FROZEN_BO", "b1", "B2", "../b0"):
+        with pytest.raises(UnregisteredLineage):
+            active_lineage({"B0_MATERIALIZE_LINEAGE": bad})
+
+
+def test_frozen_b0s_paths_are_the_historical_ones_byte_for_byte():
+    """Every helper must reproduce B0's existing paths exactly.
+
+    They are quoted in the Master, in the attestation ledger and in seventeen
+    archived seals. A helper that "tidied" one of them would invalidate evidence
+    to gain symmetry.
+    """
+    from core import b0_l2_run_layout as layout
+    from core.b0_master_prereg import (
+        DEFAULT_REGISTRY_PATH, lineage_data_root, lineage_freeze_path,
+        lineage_market_state_manifest, lineage_period1_receipt_path,
+        lineage_registry_path, lineage_seal_archive_root, lineage_suffix,
+    )
+
+    b0 = FROZEN_B0_LINEAGE
+    assert lineage_suffix(b0) == ""
+    assert _rel(lineage_data_root(b0)) == "data/b0"
+    assert _rel(lineage_freeze_path(b0)) == \
+        "research/b0_registry/master_prereg_freeze.json"
+    assert lineage_registry_path(b0) == DEFAULT_REGISTRY_PATH
+    assert _rel(layout.lineage_run_root(b0)) == "artifacts/l2_run"
+    assert layout.lineage_opening_claims_root(b0) == layout.OPENING_CLAIMS_ROOT
+    assert layout.lineage_runs_root(b0) == layout.RUNS_ROOT
+
+    # The R5 admission constants and the helpers must resolve to the same
+    # strings. `assert_runner_admissible` reads the constants for B0 so that the
+    # opening-protocol tests can substitute a whole fake repository and drive
+    # the real code; this is the assertion that stops the two from drifting.
+    assert layout.FREEZE_PATH == lineage_freeze_path(b0)
+    assert layout.MANIFEST_PATH == lineage_market_state_manifest(b0)
+    assert layout.PERIOD1_RECEIPT == lineage_period1_receipt_path(b0)
+    assert layout.SEAL_ARCHIVE_ROOT == lineage_seal_archive_root(b0)
+
+
+def test_every_b1_path_is_disjoint_from_every_b0_path():
+    from core import b0_l2_run_layout as layout
+    from core.b0_master_prereg import (
+        lineage_data_root, lineage_freeze_path, lineage_market_state_manifest,
+        lineage_nonconsumption_path, lineage_period1_receipt_path,
+        lineage_registry_path, lineage_seal_archive_root, lineage_seal_dir,
+    )
+
+    resolvers = (lineage_data_root, lineage_freeze_path,
+                 lineage_market_state_manifest, lineage_nonconsumption_path,
+                 lineage_period1_receipt_path, lineage_registry_path,
+                 lineage_seal_archive_root, lineage_seal_dir,
+                 layout.lineage_run_root, layout.lineage_runs_root,
+                 layout.lineage_opening_claims_root)
+    for resolve in resolvers:
+        b0, b1 = resolve(FROZEN_B0_LINEAGE), resolve("B1")
+        assert b0 != b1, "%s does not separate the lineages" % resolve.__name__
+        assert not os.path.realpath(b1).startswith(
+            os.path.realpath(b0) + os.sep), (
+            "%s puts B1 inside B0's tree" % resolve.__name__)
+
+
+# --- the opening accounting --------------------------------------------------
+
+def test_b1_does_not_inherit_b0s_spent_observation_budget():
+    """The defect this replaced was silent and terminal.
+
+    The accounting counted claim FILES IN A GLOBAL DIRECTORY, so B1 would have
+    reported `attempted_openings 2 / effective_observations 1` against
+    `openings_permitted 1` - a budget already exhausted, for a lineage that has
+    opened nothing.
+    """
+    from core.b0_l2_run_layout import (
+        LEGACY_ATTEMPTED_OPENING, lineage_attempted_opening_count,
+    )
+    from core.b0_master_prereg import (
+        effective_observation_count, lineage_registry_path, read_registry,
+    )
+
+    assert lineage_attempted_opening_count(FROZEN_B0_LINEAGE) >= 1
+    assert lineage_attempted_opening_count("B1") == 0
+    assert effective_observation_count(lineage_registry_path("B1")) == 0
+    assert read_registry(lineage_registry_path("B1")) == []
+    # B0's own pre-C-59 first attempt is B0's. It is pinned in the module
+    # rather than reconstructed, so it enters the count by a DEFAULT rather
+    # than by a file on disk - and counting it for B1 would be the mirror image
+    # of the fault above: recording an attempt B1 never made.
+    from core.b0_l2_run_layout import (
+        attempted_openings, lineage_opening_claims_root,
+    )
+
+    b1_root = lineage_opening_claims_root("B1")
+    assert attempted_openings(b1_root, include_legacy=False) == []
+    leaked = attempted_openings(b1_root, include_legacy=True)
+    assert [c["run_id"] for c in leaked] == [LEGACY_ATTEMPTED_OPENING["run_id"]]
+
+
+def test_the_legacy_run_identity_belongs_to_frozen_b0_alone():
+    from core.b0_l2_run_layout import LEGACY_RUN_ID, LegacyRunProtected, run_dir
+
+    assert run_dir(LEGACY_RUN_ID) == run_dir(LEGACY_RUN_ID, FROZEN_B0_LINEAGE)
+    with pytest.raises(LegacyRunProtected):
+        run_dir(LEGACY_RUN_ID, "B1")
+
+
+def test_the_run_directory_guard_knows_about_every_lineage(tmp_path):
+    """A guard that knows one run root stops being a guard when a second exists.
+
+    `assert_not_creating_run_dir` compared against Frozen B0's runs root only,
+    so a generic provenance writer pointed inside B1's run tree would have been
+    waved through and created the directory the opener is the sole creator of.
+    """
+    from core import b0_l2_run_layout as layout
+
+    for lineage in (FROZEN_B0_LINEAGE, "B1"):
+        inside = os.path.join(layout.lineage_runs_root(lineage), "L2-nope")
+        with pytest.raises(layout.PreOpeningOrphan):
+            layout.assert_not_creating_run_dir(inside)
+    layout.assert_not_creating_run_dir(str(tmp_path))      # outside: allowed
+
+
+# --- opener / runner / period-1 builder --------------------------------------
+
+def test_the_opener_binds_the_seal_archive_of_the_lineage_it_opens():
+    b0 = _load_script(OPENER, "_open_probe_b0")
+    b1 = _load_script(OPENER, "_open_probe_b1", "B1")
+    assert _rel(b0.SEAL_ARCHIVE) == "artifacts/baseline_seal/seals"
+    assert _rel(b1.SEAL_ARCHIVE) == "artifacts/baseline_seal_b1/seals"
+    assert _rel(b0.FREEZE) == "research/b0_registry/master_prereg_freeze.json"
+    assert _rel(b1.FREEZE) == "research/b0_registry/master_prereg_freeze_b1.json"
+    assert _rel(b0.MANIFEST) == "data/b0/market_state_manifest.json"
+    assert _rel(b1.MANIFEST) == "data/b1/market_state_manifest.json"
+    assert _rel(b0.PERIOD1_RECEIPT) == \
+        "research/b0_materializer/period1_full_input_receipt.json"
+    assert _rel(b1.PERIOD1_RECEIPT) == \
+        "research/b0_materializer/period1_full_input_receipt_b1.json"
+    assert _rel(b0.REGISTRY) == "research/b0_registry/l2_opening_registry.jsonl"
+    assert _rel(b1.REGISTRY) == \
+        "research/b0_registry/l2_opening_registry_b1.jsonl"
+
+
+def test_the_opener_still_asks_the_reopening_gate_itself():
+    """Resolving the lineage dynamically makes this MORE load-bearing, not less.
+
+    C-72's finding was that the guard living in `assert_reopening_admissible`
+    was not enough, because this entry point never consulted it. That must not
+    quietly regress into "the environment decides".
+    """
+    src = open(OPENER, encoding="utf-8").read()
+    assert "assert_l2_reopening_reachable(LINEAGE)" in src
+    b0 = _load_script(OPENER, "_open_probe_gate")
+    assert b0.LINEAGE == FROZEN_B0_LINEAGE
+    with pytest.raises(b0.L2ReopeningUnreachable):
+        b0.assert_l2_reopening_reachable(FROZEN_B0_LINEAGE)
+
+
+def test_the_runner_reads_the_panels_and_registry_of_its_own_lineage():
+    b0 = _load_script(RUNNER, "_run_probe_b0")
+    b1 = _load_script(RUNNER, "_run_probe_b1", "B1")
+    assert _rel(b0.DATA) == "data/b0"
+    assert _rel(b1.DATA) == "data/b1"
+    assert _rel(b0.FREEZE) == "research/b0_registry/master_prereg_freeze.json"
+    assert _rel(b1.FREEZE) == "research/b0_registry/master_prereg_freeze_b1.json"
+    # A B1 terminal row appended to B0's opening registry would move B0's
+    # once-only accounting, which is the one number C-72 closed.
+    assert _rel(b0.REGISTRY) == "research/b0_registry/l2_opening_registry.jsonl"
+    assert _rel(b1.REGISTRY) == \
+        "research/b0_registry/l2_opening_registry_b1.jsonl"
+
+
+def test_the_runner_takes_its_window_length_from_the_specification():
+    """C-55: 141 was written as a literal in four places in the runner.
+
+    That was correct for exactly as long as one lineage existed. A window length
+    with two homes agrees right up until the day it does not.
+    """
+    b1 = _load_script(RUNNER, "_run_probe_periods", "B1")
+    assert b1.PERIODS == lineage_spec("B1", "window_months")
+    body = open(RUNNER, encoding="utf-8").read()
+    code = [l for l in body.splitlines()
+            if "141" in l and not l.lstrip().startswith("#")]
+    assert code == [], "the window length is hard-coded again: %s" % code
+
+
+def test_the_attestation_names_the_dataset_it_actually_read():
+    """An attestation is a claim about which bytes were read.
+
+    B1 attesting to `b0_market_side_state_20260819` would be a false one that
+    hashes perfectly cleanly, which is this project's most expensive bug shape.
+    """
+    from core.b0_master_prereg import lineage_market_state_dataset_id
+
+    assert lineage_market_state_dataset_id(FROZEN_B0_LINEAGE) == \
+        "b0_market_side_state_20260819"
+    assert lineage_market_state_dataset_id("B1") != \
+        lineage_market_state_dataset_id(FROZEN_B0_LINEAGE)
+    with pytest.raises(UnregisteredLineage):
+        lineage_market_state_dataset_id("B2")
+
+
+def test_the_period_1_builder_writes_its_receipt_under_its_own_lineage():
+    """The opener pins this receipt as `period1_full_input_sha256`.
+
+    A receipt written under the wrong name is not an untidy file: it is one
+    lineage's period-1 decision input bound into another's opening claim, and
+    nothing downstream would notice.
+    """
+    b0 = _load_script(PERIOD1, "_p1_probe_b0")
+    b1 = _load_script(PERIOD1, "_p1_probe_b1", "B1")
+    assert _rel(b0.RECEIPT) == \
+        "research/b0_materializer/period1_full_input_receipt.json"
+    assert _rel(b1.RECEIPT) == \
+        "research/b0_materializer/period1_full_input_receipt_b1.json"
+    assert _rel(b0.DATA) == "data/b0"
+    assert _rel(b1.DATA) == "data/b1"
+
+
+# --- the intent check --------------------------------------------------------
+
+def test_a_stated_lineage_is_checked_never_used_to_set_the_lineage():
+    """The failure that produced this was measured, not imagined.
+
+    `B0_MATERIALIZE_LINEAGE=B1 python.exe build_period1_full_input.py` run from
+    WSL builds Frozen B0: the variable does not reach a Windows interpreter
+    unless WSLENV names it as well. Nothing was violated, so nothing fired -
+    every REFUSING TO WRITE guard in this chain protects B0 from a B1 build, and
+    this is the other direction.
+
+    The flag must not become a second way to SET the lineage; two setters are
+    how the readers came to disagree in the first place.
+    """
+    from core.b0_master_prereg import (
+        LineageIntentMismatch, assert_declared_lineage,
+    )
+
+    assert assert_declared_lineage(None, "B1") == "B1"
+    assert assert_declared_lineage("", "B1") == "B1"
+    assert assert_declared_lineage(" B1 ", "B1") == "B1"
+    with pytest.raises(LineageIntentMismatch) as exc:
+        assert_declared_lineage("B1", FROZEN_B0_LINEAGE)
+    assert "WSLENV" in str(exc.value)
+    # and it does not quietly become the answer
+    assert assert_declared_lineage(None, FROZEN_B0_LINEAGE) == FROZEN_B0_LINEAGE
+
+
+def test_every_stage_of_the_chain_checks_the_stated_lineage():
+    stages = (
+        os.path.join(REPO, "research", "b0_materializer",
+                     "build_market_side_state.py"),
+        PERIOD1, FREEZER, SEALER, OPENER, RUNNER,
+    )
+    for path in stages:
+        src = open(path, encoding="utf-8-sig").read()
+        assert "assert_declared_lineage(" in src, \
+            "%s cannot be told which lineage it was meant to build" % _rel(path)

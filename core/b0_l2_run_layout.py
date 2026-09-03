@@ -35,6 +35,28 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEGACY_RUN_ROOT = os.path.join(REPO_ROOT, "artifacts", "l2_run")
 RUNS_ROOT = os.path.join(LEGACY_RUN_ROOT, "runs")
 
+
+def lineage_run_root(lineage: str) -> str:
+    """The artefact root of ONE lineage.
+
+    Frozen B0 keeps `artifacts/l2_run` byte-for-byte: that path is quoted in the
+    Master, in the attestation ledger and in every archived seal, so renaming it
+    for symmetry would invalidate evidence to gain nothing. Every other lineage
+    gets its own root, because the accounting below counts claim FILES IN A
+    DIRECTORY - a shared directory does not mislabel B1's budget, it reports
+    B0's spent one as B1's.
+    """
+    from core.b0_master_prereg import FROZEN_B0_LINEAGE, lineage_suffix
+
+    if lineage == FROZEN_B0_LINEAGE:
+        return LEGACY_RUN_ROOT
+    return os.path.join(REPO_ROOT, "artifacts",
+                        "l2_run%s" % lineage_suffix(lineage))
+
+
+def lineage_runs_root(lineage: str) -> str:
+    return os.path.join(lineage_run_root(lineage), "runs")
+
 # R1. The first attempt stays exactly where it is, under the root, because
 # moving it would break every path already recorded in the Master, in the
 # attestation ledger and in this repository's own governance prose. It is the
@@ -87,17 +109,30 @@ def _valid(run_id: str) -> str:
     return run_id
 
 
-def run_dir(run_id: str) -> str:
-    """Where a run's artefacts live. Pure; creates nothing."""
+def run_dir(run_id: str, lineage: str = "") -> str:
+    """Where a run's artefacts live. Pure; creates nothing.
+
+    `lineage` defaults to Frozen B0 so that every pre-existing caller keeps its
+    exact path. The legacy run id is B0's and only B0's: addressing it under
+    another lineage is not a path, it is a category error, so it raises rather
+    than resolving to a plausible-looking directory that would then be created.
+    """
+    from core.b0_master_prereg import FROZEN_B0_LINEAGE
+
     run_id = _valid(run_id)
+    lineage = lineage or FROZEN_B0_LINEAGE
     if run_id == LEGACY_RUN_ID:
+        if lineage != FROZEN_B0_LINEAGE:
+            raise LegacyRunProtected(
+                f"R1: {LEGACY_RUN_ID} is Frozen B0's first attempt. Lineage "
+                f"{lineage!r} has no run by that identity and may not name one.")
         return LEGACY_RUN_ROOT
-    return os.path.join(RUNS_ROOT, run_id)
+    return os.path.join(lineage_runs_root(lineage), run_id)
 
 
-def resolve_run_dir(run_id: str) -> str:
+def resolve_run_dir(run_id: str, lineage: str = "") -> str:
     """R4: readers bind to the run they are adjudicating, never to `latest`."""
-    path = run_dir(run_id)
+    path = run_dir(run_id, lineage)
     if not os.path.isdir(path):
         raise FileNotFoundError(
             f"no artefact directory for run {run_id!r} at {path}. A verifier "
@@ -106,7 +141,7 @@ def resolve_run_dir(run_id: str) -> str:
     return path
 
 
-def create_run_dir(run_id: str) -> str:
+def create_run_dir(run_id: str, lineage: str = "") -> str:
     """R3: exclusive creation. Fails BEFORE any artefact byte is written.
 
     `os.makedirs` without `exist_ok` is the whole mechanism, and that is the
@@ -118,8 +153,8 @@ def create_run_dir(run_id: str) -> str:
         raise LegacyRunProtected(
             f"R1/R3: {LEGACY_RUN_ID} is the first attempt's immutable identity. "
             f"A new run may not claim it.")
-    path = run_dir(run_id)
-    os.makedirs(RUNS_ROOT, exist_ok=True)
+    path = run_dir(run_id, lineage)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     try:
         os.makedirs(path)                      # deliberately NOT exist_ok
     except FileExistsError as exc:
@@ -131,14 +166,14 @@ def create_run_dir(run_id: str) -> str:
     return path
 
 
-def artefact_path(run_id: str, name: str) -> str:
+def artefact_path(run_id: str, name: str, lineage: str = "") -> str:
     """The one place a run's output may go. Refuses to address the legacy run."""
     if run_id != LEGACY_RUN_ID and name not in RUN_ARTEFACTS:
         # Not an allow-list on content -- receipts and post-run provenance are
         # expected too -- only a guard against escaping the run directory.
         if os.path.basename(name) != name:
             raise ValueError(f"artefact name {name!r} must not contain a path")
-    return os.path.join(run_dir(run_id), name)
+    return os.path.join(run_dir(run_id, lineage), name)
 
 
 def sha256_of(path: str) -> tuple[str, int]:
@@ -278,26 +313,27 @@ def _canonical_bytes(payload) -> bytes:
     return (body + "\n").replace("\r\n", "\n").encode("utf-8")
 
 
-def opening_claim_path(baseline_seal_sha256: str) -> str:
+def opening_claim_path(baseline_seal_sha256: str, lineage: str = "") -> str:
     seal = _valid(baseline_seal_sha256)
     if len(seal) != 64 or any(c not in "0123456789abcdef" for c in seal):
         raise ValueError(f"{seal!r} is not a Baseline Seal sha256")
-    return os.path.join(OPENING_CLAIMS_ROOT, seal + ".json")
+    return os.path.join(lineage_opening_claims_root(lineage), seal + ".json")
 
 
-def create_opening_claim(payload: dict) -> str:
+def create_opening_claim(payload: dict, lineage: str = "") -> str:
     """R1: the formal L2 opening boundary. One per Baseline Seal, ever."""
     missing = [f for f in OPENING_CLAIM_FIELDS if not str(payload.get(f, "")).strip()]
     if missing:
         raise ValueError(
             f"an opening claim must bind {missing}; a claim that cannot say "
             f"what it opened is not provenance")
-    path = opening_claim_path(payload["baseline_seal_sha256"])
-    os.makedirs(OPENING_CLAIMS_ROOT, exist_ok=True)
+    path = opening_claim_path(payload["baseline_seal_sha256"], lineage)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     try:
         return _exclusive_write(path, _canonical_bytes(dict(payload)))
     except FileExistsError as exc:
-        existing = read_opening_claim(payload["baseline_seal_sha256"]) or {}
+        existing = read_opening_claim(
+            payload["baseline_seal_sha256"], lineage) or {}
         raise OpeningClaimExists(
             f"R1: baseline {payload['baseline_seal_sha256'][:8]} was already "
             f"opened by run {existing.get('run_id')!r} at "
@@ -306,8 +342,9 @@ def create_opening_claim(payload: dict) -> str:
         ) from exc
 
 
-def read_opening_claim(baseline_seal_sha256: str) -> dict | None:
-    path = opening_claim_path(baseline_seal_sha256)
+def read_opening_claim(baseline_seal_sha256: str,
+                       lineage: str = "") -> dict | None:
+    path = opening_claim_path(baseline_seal_sha256, lineage)
     if not os.path.exists(path):
         return None
     with open(path, encoding="utf-8") as fh:
@@ -325,9 +362,7 @@ def lineage_opening_claims_root(lineage: str) -> str:
     """
     from core.b0_master_prereg import FROZEN_B0_LINEAGE
 
-    if lineage == FROZEN_B0_LINEAGE:
-        return OPENING_CLAIMS_ROOT
-    return os.path.join(REPO_ROOT, "artifacts", "l2_run_%s" % lineage.lower(),
+    return os.path.join(lineage_run_root(lineage or FROZEN_B0_LINEAGE),
                         "opening_claims")
 
 
@@ -378,17 +413,34 @@ def attempted_opening_count(root: str | None = None,
     return len(attempted_openings(root, include_legacy))
 
 
+def lineage_attempted_opening_count(lineage: str) -> int:
+    """The count for ONE lineage, with the legacy question already answered.
+
+    Two arguments that must be set consistently (`root` and `include_legacy`)
+    are two arguments a caller will eventually set inconsistently, and the wrong
+    combination does not fail - it reports B0's spent budget as B1's, which
+    reads as `openings_permitted: 1, effective_observations_to_date: 1` and
+    stops an untouched lineage from ever opening.
+    """
+    from core.b0_master_prereg import FROZEN_B0_LINEAGE
+
+    return attempted_opening_count(
+        lineage_opening_claims_root(lineage),
+        include_legacy=(lineage == FROZEN_B0_LINEAGE))
+
+
 # --- execution claim ---------------------------------------------------------
 
-def execution_claim_path(run_id: str) -> str:
-    return os.path.join(run_dir(run_id), EXECUTION_CLAIM)
+def execution_claim_path(run_id: str, lineage: str = "") -> str:
+    return os.path.join(run_dir(run_id, lineage), EXECUTION_CLAIM)
 
 
-def create_execution_claim(run_id: str, payload: dict) -> str:
+def create_execution_claim(run_id: str, payload: dict,
+                           lineage: str = "") -> str:
     """R6: taken AFTER admission and BEFORE the first execution output."""
-    assert_run_dir_exists(run_id)
+    assert_run_dir_exists(run_id, lineage)
     try:
-        return _exclusive_write(execution_claim_path(run_id),
+        return _exclusive_write(execution_claim_path(run_id, lineage),
                                 _canonical_bytes(dict(payload)))
     except FileExistsError as exc:
         raise ExecutionClaimExists(
@@ -398,8 +450,8 @@ def create_execution_claim(run_id: str, payload: dict) -> str:
         ) from exc
 
 
-def read_execution_claim(run_id: str) -> dict | None:
-    path = execution_claim_path(run_id)
+def read_execution_claim(run_id: str, lineage: str = "") -> dict | None:
+    path = execution_claim_path(run_id, lineage)
     if not os.path.exists(path):
         return None
     with open(path, encoding="utf-8") as fh:
@@ -408,13 +460,14 @@ def read_execution_claim(run_id: str) -> dict | None:
 
 # --- derived state -----------------------------------------------------------
 
-def run_state(run_id: str) -> str | None:
+def run_state(run_id: str, lineage: str = "") -> str | None:
     """R7: read off the immutable events. There is no mutable `state` field."""
-    directory = run_dir(run_id)
+    directory = run_dir(run_id, lineage)
     if run_id == LEGACY_RUN_ID:
         opened = True
     else:
-        opened = any(c["run_id"] == run_id for c in opening_claims())
+        opened = any(c["run_id"] == run_id for c in
+                     opening_claims(lineage_opening_claims_root(lineage)))
     if not opened:
         return None
     if os.path.exists(os.path.join(directory, TERMINAL_RESULT)):
@@ -424,9 +477,9 @@ def run_state(run_id: str) -> str | None:
     return RUN_STATE_OPENED
 
 
-def assert_run_dir_exists(run_id: str) -> str:
+def assert_run_dir_exists(run_id: str, lineage: str = "") -> str:
     """R4: run-scoped writers require the directory; they never create it."""
-    path = run_dir(run_id)
+    path = run_dir(run_id, lineage)
     if not os.path.isdir(path):
         raise PreOpeningOrphan(
             f"R4: {path} does not exist and this writer may not create it. The "
@@ -441,9 +494,15 @@ def assert_not_creating_run_dir(directory: str) -> None:
     first. Order of calls is not a guarantee; this is checked at the write, so
     it holds however the writer is reached.
     """
+    from core.b0_master_prereg import REGISTERED_L2_LINEAGES
+
     directory = os.path.abspath(directory)
-    runs_root = os.path.abspath(RUNS_ROOT)
-    if directory == runs_root or not directory.startswith(runs_root + os.sep):
+    # Every registered lineage's run tree, not only Frozen B0's. A guard that
+    # knows about one root stops being a guard the moment a second root exists,
+    # and it does so silently - which is the failure this whole module is about.
+    roots = [os.path.abspath(lineage_runs_root(n))
+             for n in REGISTERED_L2_LINEAGES]
+    if not any(directory.startswith(r + os.sep) for r in roots):
         return
     if not os.path.isdir(directory):
         raise PreOpeningOrphan(
@@ -482,7 +541,8 @@ def _load(path: str, what: str) -> dict:
 
 
 def assert_runner_admissible(run_id: str, *, head: str = "",
-                             dirty: bool | None = None) -> dict:
+                             dirty: bool | None = None,
+                             lineage: str = "") -> dict:
     """Everything that must hold BEFORE the first execution write.
 
     Failure here is a refusal to start, not a problem to work around: every one
@@ -490,7 +550,28 @@ def assert_runner_admissible(run_id: str, *, head: str = "",
     authorised. `head`/`dirty` are injectable so a test can drive the real code
     path rather than a copy of it.
     """
-    directory = assert_run_dir_exists(run_id)
+    from core.b0_master_prereg import (
+        FROZEN_B0_LINEAGE, lineage_freeze_path, lineage_market_state_manifest,
+        lineage_period1_receipt_path, lineage_seal_archive_root,
+    )
+
+    lineage = lineage or FROZEN_B0_LINEAGE
+    # Frozen B0 keeps reading the module constants. They are not a duplicate of
+    # the lineage helpers so much as this module's B0 configuration - the
+    # helpers resolve to the same strings, and `test_b1_lineage_scoping` asserts
+    # that they do, so the two cannot drift apart silently. Keeping them is what
+    # lets the R5 tests substitute a whole fake repository and drive THIS code
+    # rather than a re-implementation of it.
+    b0 = lineage == FROZEN_B0_LINEAGE
+    freeze_path = FREEZE_PATH if b0 else lineage_freeze_path(lineage)
+    manifest_path = (MANIFEST_PATH if b0
+                     else lineage_market_state_manifest(lineage))
+    receipt_path = (PERIOD1_RECEIPT if b0
+                    else lineage_period1_receipt_path(lineage))
+    seal_archive = (SEAL_ARCHIVE_ROOT if b0
+                    else lineage_seal_archive_root(lineage))
+
+    directory = assert_run_dir_exists(run_id, lineage)
 
     # 1 · the opening record, and it must be THIS run's
     record_path = os.path.join(directory, "opening_record.json")
@@ -506,7 +587,7 @@ def assert_runner_admissible(run_id: str, *, head: str = "",
 
     # 2 · the canonical opening claim. Without it nothing formally opened.
     seal = record["baseline_seal_sha256"]
-    claim = read_opening_claim(seal)
+    claim = read_opening_claim(seal, lineage)
     if claim is None:
         raise PreOpeningOrphan(
             f"R2/R5: {run_id} has a run directory and an opening record but no "
@@ -527,14 +608,14 @@ def assert_runner_admissible(run_id: str, *, head: str = "",
             f"{actual_record_sha[:16]}). An opening record is immutable.")
 
     # 4 · the seal it names must exist and reopen to its own identity
-    seal_path = os.path.join(SEAL_ARCHIVE_ROOT, seal + ".json")
+    seal_path = os.path.join(seal_archive, seal + ".json")
     body = _load(seal_path, f"baseline seal {seal[:8]}")
     if body.get("baseline_seal_sha256") != seal:
         raise OpeningProvenanceMismatch(
             f"R5: {seal_path} does not reopen to the identity it claims")
 
     # 5 · spec, commit and repository identity
-    freeze = _load(FREEZE_PATH, "master preregistration freeze")
+    freeze = _load(freeze_path, "master preregistration freeze")
     if record["spec_sha256"] != freeze["spec_sha256"]:
         raise OpeningProvenanceMismatch(
             f"R5: the opening bound spec {record['spec_sha256'][:16]} and the "
@@ -556,12 +637,15 @@ def assert_runner_admissible(run_id: str, *, head: str = "",
             "from the commit the opening bound")
 
     # 6 · the sealed inputs are still the ones that were opened
-    composed = composed_market_state_sha256()
+    # Called with no argument for B0 so that its default - and the tests'
+    # substitution of the whole function - both keep working exactly as before.
+    composed = (composed_market_state_sha256() if b0
+                else composed_market_state_sha256(manifest_path))
     if record["market_state_composed_sha256"] != composed:
         raise OpeningProvenanceMismatch(
             f"R5: the opening bound 141-state {record['market_state_composed_sha256'][:16]} "
             f"and the manifest now composes to {composed[:16]}")
-    receipt = _load(PERIOD1_RECEIPT, "period-1 full input receipt")
+    receipt = _load(receipt_path, "period-1 full input receipt")
     if claim["period1_full_input_sha256"] != receipt["full_decision_input_sha256"]:
         raise OpeningProvenanceMismatch(
             f"R5: the opening claim pinned period-1 input "
@@ -574,7 +658,7 @@ def assert_runner_admissible(run_id: str, *, head: str = "",
     assert_legacy_run_unmutated()
 
     # 8 · R6/R7 · this run must not already have executed
-    state = run_state(run_id)
+    state = run_state(run_id, lineage)
     if state == RUN_STATE_TERMINAL:
         raise ExecutionClaimExists(
             f"R6: {run_id} already has an immutable terminal result. A run "
@@ -589,6 +673,7 @@ def assert_runner_admissible(run_id: str, *, head: str = "",
             f"gets. This must be ruled before anything continues.")
 
     return {"run_id": run_id, "run_dir": directory, "state": state,
+            "lineage": lineage,
             "opening_record_sha256": actual_record_sha,
             "baseline_seal_sha256": seal, "spec_sha256": freeze["spec_sha256"],
             "commit_sha": record["commit_sha"],

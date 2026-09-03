@@ -39,7 +39,11 @@ from core.b0_canonical_hash import canonical_sha256, file_sha256   # noqa: E402
 from core.b0_features import SecurityPitInputs                # noqa: E402
 from core.b0_listing_spell import ListingSpell                # noqa: E402
 from core.b0_market_state import SourceContract, TradingCalendar   # noqa: E402
-from core.b0_master_prereg import spec                        # noqa: E402
+from core.b0_master_prereg import (                           # noqa: E402
+    active_lineage, assert_declared_lineage, lineage_data_root,
+    lineage_freeze_path, lineage_market_state_dataset_id,
+    lineage_market_state_manifest, lineage_period1_receipt_path, spec,
+)
 from core.b0_opening_state import (                           # noqa: E402
     NORMALIZATION_PERIOD_INDEX, assert_opening_state_normalization,
     canonical_opening_state, registered_opening_state,
@@ -51,9 +55,27 @@ from core.b0_adapter_retrospective import (                   # noqa: E402
 )
 from core.b0_price_universe import PriceSourceContract        # noqa: E402
 
-DATA = os.path.join(REPO, "data", "b0")
-MANIFEST = os.path.join(DATA, "market_state_manifest.json")
-RECEIPT = os.path.join(HERE, "period1_full_input_receipt.json")
+# The lineage is read once, in `core.b0_master_prereg`, and every path below is
+# derived from it. This builder's receipt is what the opener pins as
+# `period1_full_input_sha256`, so a receipt written under the wrong name is not
+# an untidy file: it is one lineage's period-1 input bound into another's
+# opening claim, and nothing downstream would notice.
+LINEAGE = active_lineage()
+DATA = lineage_data_root(LINEAGE)
+MANIFEST = lineage_market_state_manifest(LINEAGE)
+RECEIPT = lineage_period1_receipt_path(LINEAGE)
+FREEZE = lineage_freeze_path(LINEAGE)
+
+# `--lineage X` confirms the resolved lineage; it never sets it. See
+# `assert_declared_lineage` for why (a WSL shell does not pass the variable to a
+# Windows interpreter unless WSLENV names it, and the build then runs as B0).
+_DECLARED = None
+if "--lineage" in sys.argv:
+    _i = sys.argv.index("--lineage")
+    _DECLARED = sys.argv[_i + 1] if _i + 1 < len(sys.argv) else ""
+    del sys.argv[_i:_i + 2]
+assert_declared_lineage(_DECLARED, LINEAGE)
+
 
 
 class PortfolioNotYetGenerated(RuntimeError):
@@ -189,11 +211,9 @@ def build_period_1_full_input():
             pbr_tse=_scalar(r.pbr_tse),
             pit_industry=str(r.pit_industry)))
 
-    freeze = json.load(open(os.path.join(
-        REPO, "research", "b0_registry", "master_prereg_freeze.json"),
-        encoding="utf-8"))
+    freeze = json.load(open(FREEZE, encoding="utf-8"))
     attestation = SourceAttestation(
-        dataset_id="b0_market_side_state_20260819",
+        dataset_id=lineage_market_state_dataset_id(LINEAGE),
         provenance_sha256=freeze["spec_sha256"],
         pit_guard_passed=True,
         universe_guard_passed=True,
@@ -232,6 +252,7 @@ def main() -> int:
 
     receipt = {
         "artefact": "period 1 full CanonicalDecisionInput (in memory, pre-L2)",
+        "lineage": LINEAGE,
         "builder": "research/b0_materializer/build_period1_full_input.py",
         "decision_date": inp.decision_date,
         "as_of": inp.as_of,
@@ -259,7 +280,8 @@ def main() -> int:
                      "the invariant verifies that nothing but the date moved"),
         },
         "periods_with_full_input": 1,
-        "periods_deferred": 140,
+        "periods_deferred": len(json.load(
+            open(MANIFEST, encoding="utf-8"))) - 1,
         "deferral_reason": deferred_reason,
         "decision_layer_invoked": False,
         "performance_computed": False,
@@ -270,6 +292,7 @@ def main() -> int:
               "pit_inputs", "untradable", "full_decision_input_sha256",
               "market_side_only_sha256"):
         print("%-26s %s" % (k, receipt[k]))
+    print("%-26s %s" % ("lineage", LINEAGE))
     print("wrote", os.path.relpath(RECEIPT, REPO))
     return 0
 

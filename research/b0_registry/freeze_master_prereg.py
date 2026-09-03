@@ -18,24 +18,35 @@ sys.path.insert(0, REPO)
 
 from core.b0_provenance import file_sha256          # noqa: E402
 from core.b0_master_prereg import (                   # noqa: E402
-    FROZEN_B0_LINEAGE, MASTER_PREREG_DOC, MASTER_PREREG_DOCS,
+    FROZEN_B0_LINEAGE, MASTER_PREREG_DOC, MASTER_PREREG_DOCS, active_lineage,
+    assert_declared_lineage, lineage_freeze_path, lineage_suffix,
     normative_module_hashes, spec_document_sha256, specified_keys,
 )
 
 # --- lineage scoping ----------------------------------------------------------
-# The SAME environment variable the materializer reads, on purpose. This script
-# and `build_market_side_state.py` must agree about which lineage is being built
-# or the registry ends up binding one lineage's hashes under another's name, and
-# two variables that must agree are two variables that eventually will not. Set
-# it once for the whole build chain.
-LINEAGE = os.environ.get("B0_MATERIALIZE_LINEAGE", FROZEN_B0_LINEAGE)
+# Resolved by `core.b0_master_prereg.active_lineage()` - ONE reader for the whole
+# build chain (materialize -> freeze -> seal -> open -> run). This script and
+# `build_market_side_state.py` must agree about which lineage is being built or
+# the registry ends up binding one lineage's hashes under another's name, and
+# separate readers that must agree are readers that eventually will not. Set the
+# environment variable once; every stage asks the same function.
+LINEAGE = active_lineage()
 DATA_ROOT = "data/b0" if LINEAGE == FROZEN_B0_LINEAGE else "data/%s" % LINEAGE.lower()
 
-OUT = os.path.join(HERE, "master_prereg_freeze.json"
-                   if LINEAGE == FROZEN_B0_LINEAGE
-                   else "master_prereg_freeze_%s.json" % LINEAGE.lower())
+OUT = lineage_freeze_path(LINEAGE)
 
-FROZEN_B0_FREEZE = os.path.join(HERE, "master_prereg_freeze.json")
+FROZEN_B0_FREEZE = lineage_freeze_path(FROZEN_B0_LINEAGE)
+
+# `--lineage X` confirms the resolved lineage; it never sets it. See
+# `assert_declared_lineage` for why (a WSL shell does not pass the variable to a
+# Windows interpreter unless WSLENV names it, and the build then runs as B0).
+_DECLARED = None
+if "--lineage" in sys.argv:
+    _i = sys.argv.index("--lineage")
+    _DECLARED = sys.argv[_i + 1] if _i + 1 < len(sys.argv) else ""
+    del sys.argv[_i:_i + 2]
+assert_declared_lineage(_DECLARED, LINEAGE)
+
 
 
 def assert_not_overwriting_frozen_b0(path: str) -> None:

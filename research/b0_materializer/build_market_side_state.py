@@ -43,7 +43,9 @@ sys.path.insert(0, REPO)
 from core.b0_canonical_hash import canonical_sha256          # noqa: E402
 from core.b0_features import INDUSTRY_UNRESOLVED             # noqa: E402
 from core.b0_master_prereg import (                          # noqa: E402
-    FROZEN_B0_LINEAGE, lineage_spec, spec as frozen_spec,
+    FROZEN_B0_LINEAGE, active_lineage, assert_declared_lineage,
+    lineage_data_root, lineage_market_state_manifest, lineage_spec,
+    lineage_suffix, spec as frozen_spec,
 )
 from core.b0_share_unit_adjustment import (                  # noqa: E402
     ELIGIBLE_KINDS, ShareUnitAdjustmentError, UnreconstructibleAdjustment,
@@ -57,16 +59,31 @@ from core.b0_state import compute_sigma20d                   # noqa: E402
 # lineage must ASK for itself, because a silent fallback to B0 is precisely how
 # a B1 build would overwrite B0's 141 sealed states while every assertion below
 # still passed.
-LINEAGE = os.environ.get("B0_MATERIALIZE_LINEAGE", FROZEN_B0_LINEAGE)
+#
+# The read and the naming rule are `core.b0_master_prereg`'s, not this file's.
+# They were duplicated here, in the freeze builder and in the sealer, and three
+# copies of a rule that must agree are three copies that eventually will not -
+# with a seal binding one lineage's artefacts under another's name as the
+# failure. The resolved paths are unchanged for both lineages.
+LINEAGE = active_lineage()
 
 # Frozen B0 keeps `data/b0/...` byte-for-byte. Anything else gets its own root.
-DATA = os.path.join(REPO, "data", "b0" if LINEAGE == FROZEN_B0_LINEAGE
-                    else LINEAGE.lower())
+DATA = lineage_data_root(LINEAGE)
 OUTDIR = os.path.join(DATA, "market_state")
-MANIFEST = os.path.join(DATA, "market_state_manifest.json")
+MANIFEST = lineage_market_state_manifest(LINEAGE)
 RECEIPT = os.path.join(
-    HERE, "market_side_state_receipt.json" if LINEAGE == FROZEN_B0_LINEAGE
-    else "market_side_state_receipt_%s.json" % LINEAGE.lower())
+    HERE, "market_side_state_receipt%s.json" % lineage_suffix(LINEAGE))
+
+# `--lineage X` confirms the resolved lineage; it never sets it. See
+# `assert_declared_lineage` for why (a WSL shell does not pass the variable to a
+# Windows interpreter unless WSLENV names it, and the build then runs as B0).
+_DECLARED = None
+if "--lineage" in sys.argv:
+    _i = sys.argv.index("--lineage")
+    _DECLARED = sys.argv[_i + 1] if _i + 1 < len(sys.argv) else ""
+    del sys.argv[_i:_i + 2]
+assert_declared_lineage(_DECLARED, LINEAGE)
+
 
 FROZEN_B0_STATE_DIR = os.path.join(REPO, "data", "b0", "market_state")
 

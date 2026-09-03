@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""The sealed 141-period L2 retrospective run. Once-only.
+"""The sealed L2 retrospective run over one lineage's frozen window. Once-only.
 
 Reads the opening record, replays the frozen window through the SHARED core, and
 writes append-only provenance. It contains no strategy semantics: every feature,
@@ -48,7 +48,10 @@ from core.b0_l2_run_layout import (                              # noqa: E402
 )
 from core.b0_master_prereg import (                             # noqa: E402
     L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE, L2Opening,
-    append_provenance_record, record_opening, write_provenance_json,
+    active_lineage, append_provenance_record, lineage_data_root,
+    lineage_freeze_path, lineage_market_state_dataset_id,
+    assert_declared_lineage, lineage_market_state_manifest,
+    lineage_registry_path, lineage_spec, record_opening, write_provenance_json,
 )
 from core.b0_pit_observability import PitPriceObservation        # noqa: E402
 from core.b0_route import ROUTE_KIND_RETROSPECTIVE, run_decision # noqa: E402
@@ -58,8 +61,28 @@ from build_period1_full_input import (                           # noqa: E402
     _clean, _price_contract, _scalar, opening_states,
 )
 
-DATA = os.path.join(REPO, "data", "b0")
-MANIFEST = os.path.join(DATA, "market_state_manifest.json")
+# One reader, in the specification module, shared with the materializer, the
+# freeze builder, the sealer and the opener. A runner that resolved its own data
+# root would be the fifth place the same answer is computed, and the first four
+# agreeing is not what makes the fifth right.
+LINEAGE = active_lineage()
+DATA = lineage_data_root(LINEAGE)
+MANIFEST = lineage_market_state_manifest(LINEAGE)
+FREEZE = lineage_freeze_path(LINEAGE)
+REGISTRY = lineage_registry_path(LINEAGE)
+# C-55: the window length has one home. It was written as the literal 141 in
+# four places here, which was correct for exactly as long as one lineage existed.
+PERIODS = int(lineage_spec(LINEAGE, "window_months"))
+
+# `--lineage X` confirms the resolved lineage; it never sets it. A runner that
+# executed B0's panels because a WSL shell dropped the variable would be a
+# sealed run against inputs nobody authorised.
+_DECLARED = None
+if "--lineage" in sys.argv:
+    _i = sys.argv.index("--lineage")
+    _DECLARED = sys.argv[_i + 1] if _i + 1 < len(sys.argv) else ""
+    del sys.argv[_i:_i + 2]
+assert_declared_lineage(_DECLARED, LINEAGE)
 
 
 def out_dir(run_id):
@@ -70,7 +93,7 @@ def out_dir(run_id):
     resolves to `artifacts/l2_run` would put that back the moment somebody
     forgot to pass a run_id.
     """
-    return resolve_run_dir(run_id)
+    return resolve_run_dir(run_id, LINEAGE)
 
 
 def _jsonl(run_id, name, row):
@@ -248,10 +271,11 @@ def _terminate(run_id, admission, outcome, periods_done, detail):
     An outcome of None means the run reached the end of the window and the
     formal verdict is the evaluation step's to write.
     """
-    out = resolve_run_dir(run_id)
+    out = resolve_run_dir(run_id, LINEAGE)
     record = {
         "record": "B0_L2_TERMINAL_RESULT",
         "run_id": run_id,
+        "lineage": LINEAGE,
         "terminated_at_utc": datetime.now(timezone.utc).isoformat(),
         "baseline_seal_sha256": admission["baseline_seal_sha256"],
         "opening_record_sha256": admission["opening_record_sha256"],
@@ -261,7 +285,7 @@ def _terminate(run_id, admission, outcome, periods_done, detail):
         "period1_full_input_sha256": admission["period1_full_input_sha256"],
         "authorization": admission["authorization"],
         "periods_executed": periods_done,
-        "periods_required": 141,
+        "periods_required": PERIODS,
         "formal_outcome": outcome,
         "performance_computed": False,
         "detail": detail,
@@ -274,10 +298,11 @@ def _terminate(run_id, admission, outcome, periods_done, detail):
             code_commit=admission["commit_sha"],
             data_manifest_sha256=admission["market_state_composed_sha256"],
             outcome=outcome,
-            detail=json.dumps({"run_id": run_id,
+            detail=json.dumps({"run_id": run_id, "lineage": LINEAGE,
                                "baseline_seal": admission["baseline_seal_sha256"]},
-                              ensure_ascii=False)))
-    print("terminal state: %s" % run_state(run_id))
+                              ensure_ascii=False)),
+            path=REGISTRY)
+    print("terminal state: %s" % run_state(run_id, LINEAGE))
 
 
 def main() -> int:
@@ -296,7 +321,8 @@ def main() -> int:
     dirty = bool(subprocess.run(["git", "status", "--porcelain"],
                                 capture_output=True, text=True,
                                 cwd=REPO).stdout.strip())
-    admission = assert_runner_admissible(run_id, head=head, dirty=dirty)
+    admission = assert_runner_admissible(run_id, head=head, dirty=dirty,
+                                         lineage=LINEAGE)
     out = admission["run_dir"]
     opening = json.load(open(os.path.join(out, "opening_record.json"),
                              encoding="utf-8"))
@@ -313,11 +339,16 @@ def main() -> int:
             "market_state_composed_sha256":
                 admission["market_state_composed_sha256"],
             "period1_full_input_sha256": admission["period1_full_input_sha256"],
-            "periods_to_execute": 141,
-        })
+            "periods_to_execute": PERIODS,
+        }, LINEAGE)
     except ExecutionClaimExists as exc:
         raise SystemExit("abort: %s" % exc)
     manifest = json.load(open(MANIFEST, encoding="utf-8"))
+    if len(manifest) != PERIODS:
+        raise SystemExit(
+            "abort: %s carries %d periods and %s's frozen window is %d. A "
+            "sealed run may not execute a window it was not sealed against."
+            % (os.path.relpath(MANIFEST, REPO), len(manifest), LINEAGE, PERIODS))
     sessions = tuple(r["session"] for r in csv.DictReader(
         open(os.path.join(DATA, "trading_calendar.csv"), encoding="utf-8")))
     events_by_sid = load_events()
@@ -335,11 +366,9 @@ def main() -> int:
             date_min=sessions[0], date_max=sessions[-1],
             has_effective_dates=True, has_availability_semantics=True,
             is_current_snapshot=False, availability_convention="session_close"))
-    freeze = json.load(open(os.path.join(
-        REPO, "research", "b0_registry", "master_prereg_freeze.json"),
-        encoding="utf-8"))
+    freeze = json.load(open(FREEZE, encoding="utf-8"))
     attestation = SourceAttestation(
-        dataset_id="b0_market_side_state_20260819",
+        dataset_id=lineage_market_state_dataset_id(LINEAGE),
         provenance_sha256=freeze["spec_sha256"], pit_guard_passed=True,
         universe_guard_passed=True,
         satisfied_blocking_requirements=("price_universe_survivorship",),
@@ -424,11 +453,12 @@ def main() -> int:
                 "error_type": type(exc).__name__, "error": str(exc)})
             return 3
         if i % 20 == 0:
-            print("  %d/141  %s  port_value=%.2f" % (i, period["decision_month"],
-                                                     result.port_value), flush=True)
+            print("  %d/%d  %s  port_value=%.2f"
+                  % (i, PERIODS, period["decision_month"], result.port_value),
+                  flush=True)
 
     write_provenance_json(os.path.join(out, "nav_series.json"), nav_series)
-    print("completed %d/141 periods" % done)
+    print("completed %d/%d periods" % (done, PERIODS))
     # The formal outcome of a completed run is decided by the V-4 gate, not by
     # the runner, so the terminal record says the run finished and leaves the
     # verdict to be written by the evaluation step.

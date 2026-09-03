@@ -12,7 +12,11 @@ authorization reference, and it binds the Baseline Seal hash the caller names
 against the seal actually archived. The decision to open L2 is the user's; this
 only makes the recording of it reproducible.
 
-    python scripts/b0_open_l2.py --seal <sha256> --authorization "<reference>"
+    B0_MATERIALIZE_LINEAGE=<lineage> python scripts/b0_open_l2.py \
+        --seal <sha256> --authorization "<reference>" --lineage <lineage>
+
+`--lineage` confirms; the environment variable governs. On WSL driving a Windows
+interpreter the variable does not cross unless `WSLENV` names it too.
 """
 
 from __future__ import annotations
@@ -30,30 +34,41 @@ sys.path.insert(0, REPO)
 
 from core.b0_l2_run_layout import (                                # noqa: E402
     OpeningClaimExists, RunDirectoryExists, assert_legacy_run_unmutated,
-    attempted_opening_count, composed_market_state_sha256, create_opening_claim,
-    create_run_dir, read_opening_claim, sha256_of,
+    composed_market_state_sha256, create_opening_claim, create_run_dir,
+    lineage_attempted_opening_count, read_opening_claim, sha256_of,
 )
 from core.b0_master_prereg import (                                # noqa: E402
-    FROZEN_B0_LINEAGE, L2ReopeningUnreachable, assert_l2_reopening_reachable,
-    effective_observation_count, write_provenance_json,
+    L2ReopeningUnreachable, active_lineage, assert_declared_lineage,
+    assert_l2_reopening_reachable,
+    effective_observation_count, lineage_freeze_path,
+    lineage_market_state_manifest, lineage_period1_receipt_path,
+    lineage_registry_path, lineage_seal_archive_root, write_provenance_json,
 )
 
 # C-72 / §9.6e-R5. This script IS the opening boundary: it claims the run
-# directory and writes the opening claim. Every path in it is Frozen B0 — the
-# seal archive, the market-state manifest and the period-1 receipt below are all
-# that lineage's — so the lineage is a constant here, not an argument.
+# directory and writes the opening claim.
 #
-# The guard being in `assert_reopening_admissible` was not enough. That function
-# is consulted by whoever chooses to consult it, and this script did not: it
-# read `effective_observation_count()` only to COPY the number into the record.
-# A gate the entry point never asks is not a closed gate.
-LINEAGE = FROZEN_B0_LINEAGE
+# The lineage used to be the constant FROZEN_B0, because every path here was
+# B0's. It is now resolved by `active_lineage()` — ONE reader, in the
+# specification module, shared with the materializer, the freeze builder and the
+# sealer, failing closed on any name that is not registered. Every path below is
+# derived from it rather than spelled out, so there is no combination of
+# environment and argument that opens B1 against B0's seal archive.
+#
+# What has NOT changed is the gate. `assert_l2_reopening_reachable(LINEAGE)` is
+# still asked here, first, by this entry point. The guard being in
+# `assert_reopening_admissible` was not enough: that function is consulted by
+# whoever chooses to consult it, and this script did not — it read
+# `effective_observation_count()` only to COPY the number into the record. A
+# gate the entry point never asks is not a closed gate, and resolving the
+# lineage dynamically makes asking it here more load-bearing, not less.
+LINEAGE = active_lineage()
 
-SEAL_ARCHIVE = os.path.join(REPO, "artifacts", "baseline_seal", "seals")
-FREEZE = os.path.join(REPO, "research", "b0_registry", "master_prereg_freeze.json")
-MANIFEST = os.path.join(REPO, "data", "b0", "market_state_manifest.json")
-PERIOD1_RECEIPT = os.path.join(
-    REPO, "research", "b0_materializer", "period1_full_input_receipt.json")
+SEAL_ARCHIVE = lineage_seal_archive_root(LINEAGE)
+FREEZE = lineage_freeze_path(LINEAGE)
+MANIFEST = lineage_market_state_manifest(LINEAGE)
+PERIOD1_RECEIPT = lineage_period1_receipt_path(LINEAGE)
+REGISTRY = lineage_registry_path(LINEAGE)
 
 
 def _sha(path: str) -> str:
@@ -71,8 +86,17 @@ def main() -> int:
                     help="the Baseline Seal sha256 the opening binds")
     ap.add_argument("--authorization", required=True,
                     help="the explicit user authorization this opening rests on")
+    ap.add_argument("--lineage", default="",
+                    help="confirm the lineage being opened; this CHECKS the "
+                         "resolved lineage, it does not set it")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+
+    # Before anything else, including the reachability gate: if the caller
+    # stated which lineage they meant, that statement is checked against the
+    # environment. A gate asked about the wrong lineage answers correctly and
+    # uselessly.
+    assert_declared_lineage(a.lineage, LINEAGE)
 
     if not a.authorization.strip():
         raise SystemExit("abort: an opening requires a named authorization")
@@ -112,7 +136,7 @@ def main() -> int:
 
     # 4 · one Baseline Seal, one opening. Checked here for a clear message and
     # again by O_EXCL below, which is the check that actually holds.
-    existing = read_opening_claim(a.seal)
+    existing = read_opening_claim(a.seal, LINEAGE)
     if existing is not None:
         raise SystemExit(
             "abort: baseline %s was already opened by run %s at %s"
@@ -140,8 +164,11 @@ def main() -> int:
         "authorization": a.authorization,
         "period1_full_input_sha256": period1,
         "openings_permitted": body["l2_opening_protocol"]["openings_permitted"],
-        "attempted_openings_before_this": attempted_opening_count(),
-        "effective_observations_before_this": effective_observation_count(),
+        "lineage": LINEAGE,
+        "attempted_openings_before_this":
+            lineage_attempted_opening_count(LINEAGE),
+        "effective_observations_before_this":
+            effective_observation_count(REGISTRY),
         "window": [manifest[0]["decision_date"], manifest[-1]["decision_date"]],
         "periods": len(manifest),
     }
@@ -153,7 +180,7 @@ def main() -> int:
 
     # 5 · claim the directory. R3: exclusive, and before any byte.
     try:
-        run_dir = create_run_dir(run_id)
+        run_dir = create_run_dir(run_id, LINEAGE)
     except RunDirectoryExists as exc:
         raise SystemExit("abort: %s" % exc)
 
@@ -177,7 +204,7 @@ def main() -> int:
             "period1_full_input_sha256": period1,
             "authorization": a.authorization,
             "opened_at": opened_at,
-        })
+        }, LINEAGE)
     except OpeningClaimExists as exc:
         raise SystemExit(
             "abort: %s\n"
@@ -190,7 +217,8 @@ def main() -> int:
     print("opening record sha: %s" % record_sha)
     print("baseline seal     : %s" % a.seal)
     print("opened_at         : %s" % opened_at)
-    print("attempted openings: %d" % attempted_opening_count())
+    print("lineage           : %s" % LINEAGE)
+    print("attempted openings: %d" % lineage_attempted_opening_count(LINEAGE))
     return 0
 
 

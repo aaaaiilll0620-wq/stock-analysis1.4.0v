@@ -540,6 +540,119 @@ def lineage_nonconsumption_path(lineage: str) -> str:
     return os.path.join(REPO_ROOT, "research", "b0_registry",
                         "l2_nonconsumption_ledger_%s.jsonl" % lineage.lower())
 
+
+# --- one lineage, resolved once ----------------------------------------------
+# The build chain (materialize -> freeze -> seal) each read
+# `B0_MATERIALIZE_LINEAGE` for itself, with its own default and its own idea of
+# how a lineage becomes a path suffix. Three readers that must agree are three
+# readers that eventually will not, and the failure mode is not a crash: it is a
+# seal that binds one lineage's artefacts under another's name. So the read and
+# the naming rule live here, once, and every stage asks.
+#
+# Fails CLOSED on an unregistered name, for the same reason `l2_replay_permitted`
+# does: a typo like `B!` or `FROZEN_BO` must not resolve to a fresh data root
+# that quietly gets built, frozen and sealed under a lineage nobody has ruled on.
+LINEAGE_ENV_VAR = "B0_MATERIALIZE_LINEAGE"
+
+
+def active_lineage(environ: Mapping[str, str] | None = None) -> str:
+    """The lineage this process is operating on. One reader for the chain."""
+    raw = (os.environ if environ is None else environ).get(LINEAGE_ENV_VAR, "")
+    name = str(raw).strip()
+    if not name:
+        return FROZEN_B0_LINEAGE
+    if name not in REGISTERED_L2_LINEAGES:
+        raise UnregisteredLineage(
+            f"M-3: {LINEAGE_ENV_VAR}={name!r} is not a registered L2 lineage. "
+            f"Registered lineages are {tuple(REGISTERED_L2_LINEAGES)}. An "
+            f"unrecognised value is refused rather than defaulted, in both "
+            f"directions: defaulting to Frozen B0 would let a mistyped B1 build "
+            f"write over B0's sealed artefacts, and accepting the string would "
+            f"build, freeze and seal a lineage with no registration behind it.")
+    return name
+
+
+class LineageIntentMismatch(MasterPreregViolation):
+    """A lineage stated on the command line is not the one the environment set."""
+
+
+def assert_declared_lineage(declared: str | None, resolved: str = "") -> str:
+    """Check a stated intent against the resolved lineage. Never sets it.
+
+    MEASURED, not hypothetical: `B0_MATERIALIZE_LINEAGE=B1 python.exe ...` run
+    from WSL does not reach a Windows interpreter unless the name is also listed
+    in `WSLENV`. The build ran, printed, and wrote - as Frozen B0. Nothing was
+    violated, so no guard fired: every REFUSING TO WRITE check in this chain
+    protects B0 from a B1 build, and this is the other direction, where the
+    operator means B1 and gets B0.
+
+    `--lineage` is deliberately a CONFIRMATION rather than a second way to set
+    the lineage. Two setters would put us back to readers that disagree; a
+    stated intent that is checked turns a silent wrong-lineage build into a
+    refusal that names the cause.
+    """
+    resolved = resolved or active_lineage()
+    if declared is None or not str(declared).strip():
+        return resolved
+    declared = str(declared).strip()
+    if declared != resolved:
+        raise LineageIntentMismatch(
+            "abort: --lineage %s was requested and %s=%r resolves to %s. "
+            "This flag does not set the lineage, it checks it. If you are on "
+            "WSL invoking a Windows interpreter, the variable does not cross "
+            "unless WSLENV names it:  "
+            "WSLENV=%s %s=%s python.exe ..."
+            % (declared, LINEAGE_ENV_VAR,
+               os.environ.get(LINEAGE_ENV_VAR, ""), resolved,
+               LINEAGE_ENV_VAR, LINEAGE_ENV_VAR, declared))
+    return resolved
+
+
+def lineage_suffix(lineage: str) -> str:
+    """The filename suffix a lineage's artefacts carry. Frozen B0 carries none.
+
+    B0's paths are quoted verbatim in the Master, in the attestation ledger and
+    in seventeen archived seals. Renaming them to `_frozen_b0` for symmetry
+    would be a cosmetic change that invalidates evidence.
+    """
+    if lineage not in REGISTERED_L2_LINEAGES:
+        raise UnregisteredLineage(
+            f"M-3: {lineage!r} is not a registered L2 lineage; it has no "
+            f"artefact namespace. Registered: {tuple(REGISTERED_L2_LINEAGES)}.")
+    return "" if lineage == FROZEN_B0_LINEAGE else "_%s" % lineage.lower()
+
+
+def lineage_data_root(lineage: str) -> str:
+    """Where this lineage's sealed inputs live."""
+    suffix = lineage_suffix(lineage)
+    return os.path.join(REPO_ROOT, "data",
+                        "b0" if not suffix else lineage.lower())
+
+
+def lineage_market_state_manifest(lineage: str) -> str:
+    return os.path.join(lineage_data_root(lineage), "market_state_manifest.json")
+
+
+def lineage_freeze_path(lineage: str) -> str:
+    return os.path.join(REPO_ROOT, "research", "b0_registry",
+                        "master_prereg_freeze%s.json" % lineage_suffix(lineage))
+
+
+def lineage_seal_dir(lineage: str) -> str:
+    return os.path.join(REPO_ROOT, "artifacts",
+                        "baseline_seal%s" % lineage_suffix(lineage))
+
+
+def lineage_seal_archive_root(lineage: str) -> str:
+    return os.path.join(lineage_seal_dir(lineage), "seals")
+
+
+def lineage_period1_receipt_path(lineage: str) -> str:
+    return os.path.join(REPO_ROOT, "research", "b0_materializer",
+                        "period1_full_input_receipt%s.json"
+                        % lineage_suffix(lineage))
+
+
 # --- R5 (v1.22) - deterministic provenance bytes ------------------------------
 # The registry is a RAW-BYTE provenance record and .gitattributes already freezes
 # LF as the repository canonical representation for exactly that reason. But
@@ -1013,6 +1126,30 @@ REGISTERED_L2_LINEAGES: Mapping[str, bool] = {FROZEN_B0_LINEAGE: False,
                                               "B1": True}
 
 # ASCII on purpose: these travel into a hashed declaration registry.
+# The dataset identity a lineage's market-side attestation carries. It travels
+# into `SourceAttestation` and therefore into the hashed decision input, so it
+# is DECLARED here rather than formatted from the lineage name at the call site:
+# an attestation is a claim about which bytes were read, and B1 attesting to
+# B0's dataset id would be a false one that hashes cleanly. The suffix is the
+# date that lineage's market side was materialized.
+LINEAGE_MARKET_STATE_DATASET_ID: Mapping[str, str] = {
+    FROZEN_B0_LINEAGE: "b0_market_side_state_20260819",
+    "B1": "b1_market_side_state_20260903",
+}
+
+
+def lineage_market_state_dataset_id(lineage: str) -> str:
+    try:
+        return LINEAGE_MARKET_STATE_DATASET_ID[lineage]
+    except KeyError:
+        raise UnregisteredLineage(
+            f"M-3: no market-side dataset identity is declared for lineage "
+            f"{lineage!r}. Declared: "
+            f"{tuple(LINEAGE_MARKET_STATE_DATASET_ID)}. Formatting one from the "
+            f"lineage name would make an attestation that nobody wrote down."
+        ) from None
+
+
 FROZEN_B0_REOPENING_UNREACHABLE_REASONS: tuple[str, ...] = (
     "once_only_effective_observation_consumed_by_L2-af1b4d90c29b3b5f",
     "official_frozen_b0_l2_replay_permitted_is_false_since_master_v1_26",

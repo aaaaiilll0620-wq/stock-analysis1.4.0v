@@ -44,9 +44,11 @@ from core.b0_l2_run_layout import (                                 # noqa: E402
 )
 from core.b0_master_prereg import (                                          # noqa: E402
     FROZEN_B0_LINEAGE, L2ReopeningUnreachable, NORMATIVE_MODULES,
-    assert_l2_reopening_reachable, effective_observation_count,
-    lineage_nonconsumption_path, lineage_registry_path, lineage_spec,
-    normative_module_hashes, read_registry, spec, specified_keys,
+    active_lineage, assert_declared_lineage, assert_l2_reopening_reachable,
+    effective_observation_count,
+    lineage_freeze_path, lineage_nonconsumption_path, lineage_registry_path,
+    lineage_seal_dir, lineage_spec, lineage_suffix, normative_module_hashes,
+    read_registry, spec, specified_keys,
 )
 from core.b0_provenance import (                                             # noqa: E402
     CodeProvenance, ConfigProvenance, DatasetProvenance,
@@ -57,15 +59,14 @@ from core.b0_provenance import (                                             # n
 )
 
 # --- lineage scoping ----------------------------------------------------------
-# The SAME environment variable the materializer and the freeze-registry builder
-# read. One variable for the whole build chain: three that must agree are three
-# that eventually will not, and the failure would be a seal that bound one
-# lineage's artefacts under another's name.
-LINEAGE = os.environ.get("B0_MATERIALIZE_LINEAGE", FROZEN_B0_LINEAGE)
-_SUFFIX = "" if LINEAGE == FROZEN_B0_LINEAGE else "_%s" % LINEAGE.lower()
+# Resolved by `core.b0_master_prereg.active_lineage()`, the one reader the whole
+# build chain shares. One variable, one function: separate readers that must
+# agree are readers that eventually will not, and the failure would be a seal
+# that bound one lineage's artefacts under another's name.
+LINEAGE = active_lineage()
+_SUFFIX = lineage_suffix(LINEAGE)
 
-FREEZE = os.path.join(REPO, "research", "b0_registry",
-                      "master_prereg_freeze%s.json" % _SUFFIX)
+FREEZE = lineage_freeze_path(LINEAGE)
 
 # The data root this lineage's derived artefacts live under. The LINEAGE map in
 # `build_derived` is keyed by artefact PATH, and those paths move with the
@@ -79,11 +80,23 @@ MARKET_CONTRACTS = os.path.join(REPO, "research", "p1a_o_e_market_state",
 CA_PROVENANCE = os.path.join(REPO, "research", "p0_v1b_stock_dividend",
                              "corporate_action_provenance.json")
 
-OUT_DIR = os.path.join(os.environ.get("B0_ARTIFACT_DIR") or
-                       os.path.join(REPO, "artifacts"),
-                       "baseline_seal%s" % _SUFFIX)
+OUT_DIR = (os.path.join(os.environ["B0_ARTIFACT_DIR"],
+                        "baseline_seal%s" % _SUFFIX)
+           if os.environ.get("B0_ARTIFACT_DIR")
+           else lineage_seal_dir(LINEAGE))
 
-FROZEN_B0_SEAL_DIR = os.path.join(REPO, "artifacts", "baseline_seal")
+FROZEN_B0_SEAL_DIR = lineage_seal_dir(FROZEN_B0_LINEAGE)
+
+# `--lineage X` confirms the resolved lineage; it never sets it. See
+# `assert_declared_lineage` for why (a WSL shell does not pass the variable to a
+# Windows interpreter unless WSLENV names it, and the build then runs as B0).
+_DECLARED = None
+if "--lineage" in sys.argv:
+    _i = sys.argv.index("--lineage")
+    _DECLARED = sys.argv[_i + 1] if _i + 1 < len(sys.argv) else ""
+    del sys.argv[_i:_i + 2]
+assert_declared_lineage(_DECLARED, LINEAGE)
+
 
 
 def assert_not_writing_into_frozen_b0_seals(path: str) -> None:
