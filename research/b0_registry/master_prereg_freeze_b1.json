@@ -1,10 +1,10 @@
 {
  "lineage": "B1",
  "document": "docs/B1_MasterPreregistration.md",
- "version": "1.0",
+ "version": "1.1",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "9489d50655b3df04645d01028c9a86f0d3a3a9e28c66df49206c01d660198b69",
- "spec_bytes": 13670,
+ "spec_sha256": "40587a9cf9252154670e78e1243d1fd39fe000f0f80a9a89ec764ec3f6873c7f",
+ "spec_bytes": 15989,
  "normative_modules": {
   "core/b0_master_prereg.py": "158dc2df0c554d36879574019c14834b0641e304baf83831cace6f1fd598edd5",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
