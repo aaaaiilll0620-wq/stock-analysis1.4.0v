@@ -1,14 +1,14 @@
 {
  "lineage": "B1",
  "document": "docs/B1_MasterPreregistration.md",
- "version": "1.1",
+ "version": "1.2",
  "status": "NORMATIVE_FROZEN",
- "spec_sha256": "40587a9cf9252154670e78e1243d1fd39fe000f0f80a9a89ec764ec3f6873c7f",
- "spec_bytes": 15989,
+ "spec_sha256": "ebb886b4b5aead5c04b0eff5a4e2c5dc995a90c32babc67b340b939b8453cf34",
+ "spec_bytes": 19290,
  "normative_modules": {
   "core/b0_master_prereg.py": "158dc2df0c554d36879574019c14834b0641e304baf83831cace6f1fd598edd5",
   "core/b0_canonical_hash.py": "4820ef0e52170a904710ab8bf9cc4bb6459d0a6d64b0296a33671fbe69dd02d2",
-  "core/b0_corporate_actions.py": "741bb50a6261dd8770f2be047ff07f186e478e763695f299563e3615841e0086",
+  "core/b0_corporate_actions.py": "90e992c0c6277063f33fbfe4fb7215b6ef2a24dbd96e6f1cec992a92b5fd18fe",
   "core/b0_pit_observability.py": "4a599370822d8d38b42e3fbc0361b5a9676aa1061a30ec42b3fd08b4923945ab",
   "core/b0_market_state.py": "1603c00034dfb9976fa5338d2829bf452aadb11e6d3a5f9588232d2e9e88d7d5",
   "core/b0_listing_spell.py": "81d9f0ae02e3b4401c9864ad19526a5425c09ca7b6d647c8a228da93c8253f88",
