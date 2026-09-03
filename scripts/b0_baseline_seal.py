@@ -66,6 +66,12 @@ _SUFFIX = "" if LINEAGE == FROZEN_B0_LINEAGE else "_%s" % LINEAGE.lower()
 
 FREEZE = os.path.join(REPO, "research", "b0_registry",
                       "master_prereg_freeze%s.json" % _SUFFIX)
+
+# The data root this lineage's derived artefacts live under. The LINEAGE map in
+# `build_derived` is keyed by artefact PATH, and those paths move with the
+# lineage - a map still keyed on data/b0 would abort on every B1 artefact
+# (which is what it did) rather than silently seal B0's.
+DATA_ROOT = "data/b0" if LINEAGE == FROZEN_B0_LINEAGE else "data/%s" % LINEAGE.lower()
 PRICE_CONTRACT = os.path.join(REPO, "research", "d1_price_universe",
                               "price_source_contract.json")
 MARKET_CONTRACTS = os.path.join(REPO, "research", "p1a_o_e_market_state",
@@ -239,43 +245,45 @@ def build_derived(freeze: dict) -> tuple[DerivedArtifactProvenance, ...]:
     # Which upstream corpus each derived artefact actually descends from. An
     # artefact whose lineage is not stated here is not sealed: `derived`
     # validation rejects an empty `upstream_sha256`.
-    LINEAGE = {
-        "data/b0/corporate_actions_ledger.csv": ca_upstream,
-        "data/b0/stock_dividend_pit.csv": ca_upstream,
-        "data/b0/trading_calendar.csv": price_upstream,
-        "data/b0/security_status.csv": status_upstream,
-        "data/b0/price_universe_churn.csv": price_upstream,
-        "data/b0/price_universe_audit.csv": price_upstream,
-        "data/b0/price_universe_clusters.csv": price_upstream,
-        "data/b0/price_2019plus_new.parquet": price_upstream,
-        "data/b0/price_presence.parquet": price_upstream,
-        "data/b0/s3b_guard_fixture.csv": status_upstream,
+    # Local name shadows the module-level `LINEAGE`; this map is about
+    # artefact ancestry, not about which lineage is being sealed.
+    UPSTREAM_OF = {
+        DATA_ROOT + "/corporate_actions_ledger.csv": ca_upstream,
+        DATA_ROOT + "/stock_dividend_pit.csv": ca_upstream,
+        DATA_ROOT + "/trading_calendar.csv": price_upstream,
+        DATA_ROOT + "/security_status.csv": status_upstream,
+        DATA_ROOT + "/price_universe_churn.csv": price_upstream,
+        DATA_ROOT + "/price_universe_audit.csv": price_upstream,
+        DATA_ROOT + "/price_universe_clusters.csv": price_upstream,
+        DATA_ROOT + "/price_2019plus_new.parquet": price_upstream,
+        DATA_ROOT + "/price_presence.parquet": price_upstream,
+        DATA_ROOT + "/s3b_guard_fixture.csv": status_upstream,
         # The L2 sealed inputs. Each lineage is READ from that artefact's own
         # receipt rather than restated here: a hash typed twice is a hash that
         # can disagree with itself, and the receipt is what the builder actually
         # wrote.
-        "data/b0/financials_pit.parquet": _receipt_upstream(
+        DATA_ROOT + "/financials_pit.parquet": _receipt_upstream(
             "financials_pit", "sources"),
-        "data/b0/monthly_revenue_pit.parquet": _receipt_upstream(
+        DATA_ROOT + "/monthly_revenue_pit.parquet": _receipt_upstream(
             "monthly_revenue_pit", "upstream_sources"),
-        "data/b0/industry_pit.parquet": _receipt_upstream(
+        DATA_ROOT + "/industry_pit.parquet": _receipt_upstream(
             "industry_pit", "upstream_sources"),
-        "data/b0/valuation_panel.parquet": _valuation_upstream(),
-        "data/b0/price_panel.parquet": price_upstream,
-        "data/b0/bonus_share_panel.parquet": _bonus_upstream(),
+        DATA_ROOT + "/valuation_panel.parquet": _valuation_upstream(),
+        DATA_ROOT + "/price_panel.parquet": price_upstream,
+        DATA_ROOT + "/bonus_share_panel.parquet": _bonus_upstream(),
         # Definition A. The manifest is the artefact that says all 141 exist;
         # its upstream is exactly the six sealed panels it was assembled from.
-        "data/b0/market_state_manifest.json": _market_state_upstream(),
+        DATA_ROOT + "/market_state_manifest.json": _market_state_upstream(),
         # B0.2 §13.4. Evaluation-only, and their lineage is read from the
         # benchmark receipts for the same reason as the L2 sealed inputs: a
         # hash typed twice is a hash that can disagree with itself.
-        "data/b0/benchmark_0050_panel.parquet": _benchmark_upstream(),
-        "data/b0/benchmark_0050_distributions.csv": _benchmark_upstream(),
-        "data/b0/benchmark_0050_share_unit_events.parquet": _benchmark_upstream(),
+        DATA_ROOT + "/benchmark_0050_panel.parquet": _benchmark_upstream(),
+        DATA_ROOT + "/benchmark_0050_distributions.csv": _benchmark_upstream(),
+        DATA_ROOT + "/benchmark_0050_share_unit_events.parquet": _benchmark_upstream(),
     }
     out = []
     for path, meta in freeze["derived_artefacts"].items():
-        upstream = LINEAGE.get(path)
+        upstream = UPSTREAM_OF.get(path)
         if not upstream:
             raise SystemExit(
                 f"abort: derived artefact {path} has no declared upstream lineage. "
