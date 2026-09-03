@@ -1,6 +1,12 @@
 # B1 · Master Preregistration
 
-**版本：** 1.1（生效；1.0 → 1.1 為不改變語意之勘誤，見 §2.3(3) 勘誤記錄）
+**版本：** 1.2（生效）
+**⚠ 1.1 → 1.2 是**改變語意**的修訂，不是勘誤。** 見 §2.3(4)。
+1.0 原文寫「本文件於生效後的修改僅限於不改變語意之勘誤」——**該限制已被使用者
+於 2026-09-03 明示推翻**（裁決三項：6514 用 53.80 口徑／B1 吃下語義變更／撤回
+D7.2.1）。推翻本身記錄於此，不靜默執行。B1 至此仍未產出任何 outcome，
+基底 no-post-hoc-rescue（綁在「產出 outcome」）因此尚未觸發；被推翻的是本文件
+自訂的、比基底更嚴的那一條。
 **lineage id：** `B1`
 **授權者：** `aaaai`
 **授權依據：** 2026-09-03 於 session 之決定，並以
@@ -254,6 +260,59 @@ ledger 重建後重新點算，本文件不得被引為 B1 之射程。
 實作：`core/b0_corporate_actions.py`（`HXA_CASH_SCOPE`、`hxa_cash_quantity`、
 `_hxa_cash_exit`、`transition_portfolio(hxa_anchor=...)`），commit `73b6502f`；
 **anchor 供給端** `research/b0_l2/hxa_anchor.py` 與其接線，1.1（見上方勘誤）。
+
+---
+
+**(4) HX-A/DOC ＋ 6514 —— 語義變更（1.2，2026-09-03，使用者裁決）**
+
+**射程由 22 筆增為 23 筆，新增 `6514`。** 這不是勘誤：(3) 明文把
+`STOCK_ONLY / MIXED / UNKNOWN` 排除在射程外，而 6514 在 d8_1 記為 `UNKNOWN`。
+
+**為什麼改：實測。** B1 一致性診斷 `B1CONF-389ab823` 停在 123/141，
+blocker 正是 `6514|holder_side_reorganization_exit|2024-10-09`。加入後的
+探索性重跑 `B1EXPL-1437f2dd` 達 **141/141**，且兩條規則各只觸發一次
+（seq 67 = 8913、seq 124 = 6514）。**窗內 holder-side 阻塞總共只有兩筆**，
+(3) 當初寫的「不得被讀為 holder-side 阻塞已解決」到此可以收束了。
+
+**對價語義與金額有第一手出處，不是使用者口述。** 使用者自行研究提出
+NT$53.80（昇達科／UMT 反式三角合併）；覆核發現該金額**逐字存在於語料**：
+
+```
+artifacts/b0_8_holder_terms/d7_6_docs_raw/2024_6514_20240619F05.pdf
+sha256 778f048d5633f8ab3580a106...      5,302,156 bytes
+6514 自身 2024-06-19 股東常會議事手冊所附雙語合併契約暨合併計畫
+```
+
+> 「本合併案將由UMT按每一股本公司普通股股份新台幣 53.80元支付合併對價」
+>
+> *"…cancelled and cease to exist in consideration and exchange for the right to
+> receive … **NTD53.80 in cash, without interest, per share** (the 'Per-Share
+> Merger Consideration')."*
+
+`in cash, without interest` 且無股票腿 ⇒ `CASH_ONLY` 確立。語料另有
+2024-03-13「董事會通過反式三角合併案」與 2024-10-16「合併對價發放通知」
+（classed `CASH_CONSIDERATION_PAYMENT`）佐證交易結構。
+
+**新增 HX-A/DOC 口徑。** 有第一手文件載明每股對價者，以**該對價**結算，
+不以邊界前收盤價近似：
+
+```
+6514   邊界前收盤 50.80   文件對價 53.80   ratio 1.0591
+       (3) 已量的 19 筆現金腿   min 1.0008 / median 1.0052 / max 1.0075
+       ⇒ 用收盤價會低估 5.91%，是該區間最差值的 7.9 倍
+```
+
+`hxa_price_basis` 記錄是 `PRE_BOUNDARY_CLOSE` 還是 `DOCUMENTED_CONSIDERATION`，
+後者一併綁 `hxa_consideration_source_sha256`。**兩者的 provenance 與誤差性質
+不同，讀者不得被迫從數字反推是哪一種。** HX-A/DOC 不需要 anchor resolver：
+一個已載明的條款不該因為價格查不到而被壓抑——那正是 (3) 失效的形狀。
+
+⚠ **HX-A/CASH §2.6 的「modelled liquidation, never an observed exit
+consideration」只適用於 `PRE_BOUNDARY_CLOSE`。** HX-A/DOC 記的就是實際收到的
+對價，故其 note 前綴為 `HX-A/DOC:` 而非 `HX-A:`。
+
+**未變更：** 其餘 22 筆射程、10-session 陳舊上限、`Q_total` 精確不取整、
+(3) 的偏誤量測與其兩筆明文排除（`4152`、`6514` 的排除理由見 §2.3(5) 撤回記錄）。
 
 不可重建之 holder-side exit ＋ 有曝險 ＋ **對價語義經 B0.8 確立為 `CASH_ONLY`**
 ⇒ 於停止交易日、mark 之前，全部曝險以邊界前最後一個 observed session 之

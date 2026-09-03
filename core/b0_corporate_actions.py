@@ -883,6 +883,11 @@ class TransitionRecord:
     hxa_sessions_between: int | None = None
     hxa_q_total: str | None = None
     hxa_cash_proceeds: float | None = None
+    # Which of the two bases priced the exit. A reader must never have to infer
+    # whether a number is a modelled liquidation or the consideration the holder
+    # actually received; those have different provenance and different error.
+    hxa_price_basis: str | None = None
+    hxa_consideration_source_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -1535,6 +1540,40 @@ HXA_CASH_SCOPE: frozenset = frozenset({
 })
 
 
+# --- HX-A/DOC - the exit consideration, where a primary document states it ----
+# Ruled by the user 2026-09-03. HX-A/CASH prices a forced exit at the
+# pre-boundary close because the terms were not established; where they ARE
+# established by a primary document, the close is a worse answer for no reason.
+# Measured on 6514: close 50.80 vs documented 53.80, an understatement of 5.91%
+# against a rule whose 19 measured cash legs spanned 1.0008 .. 1.0075.
+#
+# Enumerated, and every entry binds the DOCUMENT that states it. A consideration
+# with no source is not a consideration; R7 forbids inferring one, and an
+# unbound number here would be exactly that with extra decimal places.
+HXA_PRICE_BASIS_CLOSE = "PRE_BOUNDARY_CLOSE"
+HXA_PRICE_BASIS_DOCUMENTED = "DOCUMENTED_CONSIDERATION"
+
+HXA_DOCUMENTED_CONSIDERATION: Mapping[tuple, Mapping[str, object]] = {
+    ("6514", "2024-10-09"): {
+        "cash_per_share": 53.80,
+        "source": "artifacts/b0_8_holder_terms/d7_6_docs_raw/"
+                  "2024_6514_20240619F05.pdf",
+        "source_sha256":
+            "778f048d5633f8ab3580a106",   # 24-hex prefix; full file is 5,302,156 bytes
+        "clause": "NTD53.80 in cash, without interest, per share "
+                  "(the Per-Share Merger Consideration)",
+        "instrument": "bilingual merger agreement annexed to 6514's own "
+                      "2024-06-19 shareholder-meeting circular",
+    },
+}
+
+
+def hxa_documented_consideration(ev: "CorporateActionEvent"):
+    """The stated per-share consideration for this exit, or None."""
+    return HXA_DOCUMENTED_CONSIDERATION.get(
+        (str(ev.stock_id), str(ev.ex_or_effective_date)))
+
+
 class HxaCashAnchorUnavailable(CorporateActionError):
     """In scope, but no admissible P_anchor. Fails closed - never a fallback."""
 
@@ -1566,6 +1605,59 @@ def hxa_cash_applies(ev: "CorporateActionEvent") -> bool:
     return (ev.kind == "holder_side_reorganization_exit"
             and ev.reconstructibility == NOT_RECONSTRUCTIBLE
             and str(ev.stock_id) in HXA_CASH_SCOPE)
+
+
+def _hxa_documented_cash_exit(state, ev, doc, as_of, period=""):
+    """The holder received a stated amount. No anchor, no staleness question.
+
+    Deliberately NOT routed through `_hxa_cash_exit`: that function's checks
+    (strictly-before, staleness cap) exist to police an APPROXIMATION, and
+    applying them to a documented term would be theatre. What must be checked
+    here instead is that the term is bound to a document, which the table's
+    shape enforces.
+    """
+    import dataclasses as _dc
+
+    price = float(doc["cash_per_share"])
+    q = hxa_cash_quantity(state, ev.stock_id)
+    proceeds = float(q) * price
+
+    shares = {k: v for k, v in state.shares.items() if k != ev.stock_id}
+    pending = {k: v for k, v in state.pending_exit.items() if k != ev.stock_id}
+    kept = tuple(r for r in state.security_receivables
+                 if r.security_id != ev.stock_id)
+    on_recv = tuple(x for x in state.pending_exit_on_receivable
+                    if x != ev.stock_id)
+    new = _dc.replace(state, cash=float(state.cash) + proceeds, shares=shares,
+                      pending_exit=pending, security_receivables=kept,
+                      pending_exit_on_receivable=on_recv)
+
+    record = TransitionRecord(
+        period=str(period), event_id=ev.canonical_event_id(), event_kind=ev.kind,
+        security_id=ev.stock_id, successor_security_id=None,
+        knowledge_ts=ev.knowledge_ts,
+        effective_date=str(ev.ex_or_effective_date),
+        credit_tradable_date=None, cash_available_date=None,
+        pre_tradable_shares=int(state.shares.get(ev.stock_id, 0)),
+        post_tradable_shares=0,
+        created_security_receivables=(), released_security_receivables=(),
+        created_cash_receivables=(), released_cash=0.0,
+        pending_exit_before=int(state.pending_exit.get(ev.stock_id, 0)),
+        pending_exit_after=0,
+        reconstructibility=ev.reconstructibility,
+        blocking_reason=None,
+        pre_state_hash=_state_hash(state), post_state_hash=_state_hash(new),
+        event_source_hash=_event_hash(ev),
+        hxa_applied=True,
+        hxa_note="HX-A/DOC: cash exit at the per-share consideration stated in "
+                 "a primary document (%s). This is the stated exit "
+                 "consideration, NOT a modelled liquidation -- which is the "
+                 "whole difference from HX-A/CASH." % doc["instrument"],
+        hxa_anchor_price=None, hxa_anchor_session=None, hxa_sessions_between=None,
+        hxa_q_total=str(q), hxa_cash_proceeds=proceeds,
+        hxa_price_basis=HXA_PRICE_BASIS_DOCUMENTED,
+        hxa_consideration_source_sha256=str(doc["source_sha256"]))
+    return new, record
 
 
 def _hxa_cash_exit(state, ev, anchor_price, anchor_session, sessions, as_of,
@@ -1633,7 +1725,9 @@ def _hxa_cash_exit(state, ev, anchor_price, anchor_session, sessions, as_of,
         hxa_anchor_session=str(anchor_session),
         hxa_sessions_between=gap,
         hxa_q_total=str(q),
-        hxa_cash_proceeds=proceeds)
+        hxa_cash_proceeds=proceeds,
+        hxa_price_basis=HXA_PRICE_BASIS_CLOSE,
+        hxa_consideration_source_sha256=None)
     return new, record
 
 
@@ -1693,16 +1787,28 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
             # the position becomes cash instead of blocking. No resolver,
             # or no anchor for this security, is NOT a licence to guess:
             # it falls through to the block below exactly as before.
-            if hxa_anchor is not None and hxa_cash_applies(ev):
-                got = hxa_anchor(ev.stock_id,
-                                 str(ev.ex_or_effective_date))
-                if got is not None:
-                    price, session = got
-                    work, rec = _hxa_cash_exit(work, ev, price, session,
-                                               sessions, as_of, period)
+            if hxa_cash_applies(ev):
+                # Documented consideration first, and WITHOUT needing a
+                # resolver: a stated term does not depend on a price lookup, so
+                # making it wait for one would let a missing anchor suppress a
+                # fact the corpus establishes.
+                doc = hxa_documented_consideration(ev)
+                if doc is not None:
+                    work, rec = _hxa_documented_cash_exit(work, ev, doc,
+                                                          as_of, period)
                     ledger.append(rec)
                     applied.append(ev.canonical_event_id())
                     continue
+                if hxa_anchor is not None:
+                    got = hxa_anchor(ev.stock_id,
+                                     str(ev.ex_or_effective_date))
+                    if got is not None:
+                        price, session = got
+                        work, rec = _hxa_cash_exit(work, ev, price, session,
+                                                   sessions, as_of, period)
+                        ledger.append(rec)
+                        applied.append(ev.canonical_event_id())
+                        continue
             raise CorporateActionReconstructionBlock(
                 "§6.1.12: %s/%s on %s is NOT_RECONSTRUCTIBLE and B0 is exposed "
                 "(%s)" % (ev.stock_id, ev.kind, ev.ex_or_effective_date, ev.reason),

@@ -10,7 +10,9 @@ from fractions import Fraction
 import pytest
 
 from core.b0_corporate_actions import (
-    HXA_CASH_SCOPE, HXA_CASH_STALENESS_CAP_SESSIONS, NOT_RECONSTRUCTIBLE,
+    HXA_CASH_SCOPE, HXA_CASH_STALENESS_CAP_SESSIONS,
+    HXA_DOCUMENTED_CONSIDERATION, HXA_PRICE_BASIS_CLOSE,
+    HXA_PRICE_BASIS_DOCUMENTED, NOT_RECONSTRUCTIBLE,
     CorporateActionEvent, CorporateActionReconstructionBlock,
     HxaCashAnchorUnavailable, hxa_cash_applies, hxa_cash_quantity,
     transition_portfolio,
@@ -204,3 +206,83 @@ def test_an_anchor_at_or_after_the_boundary_is_refused_as_post_event_data():
                 st, [_event()], as_of=BOUNDARY,
                 sessions=SESSIONS + ["2020-01-20"], period="2020-01",
                 hxa_anchor=_anchor(session=bad_session))
+
+
+
+# --- HX-A/DOC: the stated consideration, where a document states it ----------
+
+D6514 = ("6514", "2024-10-09")
+
+
+def _doc_event(sid="6514", boundary="2024-10-09"):
+    kind = "holder_side_reorganization_exit"
+    return CorporateActionEvent(
+        sid, kind, boundary, NOT_RECONSTRUCTIBLE,
+        "authoritative status reason establishes a reorganization exit; the "
+        "holder outcome is not reconstructible from it",
+        event_id="%s|%s|%s" % (sid, kind, boundary), knowledge_ts=boundary)
+
+
+def _doc_state(claim="0.4", sid="6514"):
+    return PortfolioState(
+        as_of="2024-10-09", cash=1000.0, shares={},
+        security_receivables=(SecurityReceivable(
+            security_id=sid, shares=Fraction(claim),
+            credit_tradable_date="2017-07-28", event_id="seed",
+            origin_effective_date="2017-07-28"),))
+
+
+def test_the_documented_consideration_binds_the_document_that_states_it():
+    """A consideration with no source is not a consideration.
+
+    R7 forbids inferring terms; an unbound number in this table would be exactly
+    that with extra decimal places. So the table's shape carries the document.
+    """
+    entry = HXA_DOCUMENTED_CONSIDERATION[D6514]
+    assert entry["cash_per_share"] == 53.80
+    assert entry["source"].endswith("2024_6514_20240619F05.pdf")
+    assert entry["source_sha256"]
+    assert "without interest" in entry["clause"]
+
+
+def test_a_documented_exit_pays_the_stated_amount_not_the_close():
+    """The measured reason this ruling exists: 50.80 vs 53.80 is -5.91%."""
+    st = _doc_state(claim="0.4")
+    res = transition_portfolio(st, [_doc_event()], as_of="2024-10-09",
+                               sessions=["2024-10-0%d" % d for d in (7, 8)],
+                               period="2024-10",
+                               hxa_anchor=_anchor(price=50.80,
+                                                  session="2024-10-08"))
+    rec = [r for r in res.ledger if r.hxa_applied][0]
+    assert rec.hxa_price_basis == HXA_PRICE_BASIS_DOCUMENTED
+    assert rec.hxa_anchor_price is None, (
+        "a documented exit has no anchor; recording one would describe a "
+        "modelled liquidation that did not happen")
+    assert rec.hxa_consideration_source_sha256
+    assert rec.hxa_cash_proceeds == pytest.approx(0.4 * 53.80)
+    assert "HX-A/DOC:" in rec.hxa_note
+
+
+def test_a_documented_exit_needs_no_anchor_resolver_at_all():
+    """A stated term does not depend on a price lookup.
+
+    Making it wait for one would let a missing resolver suppress a fact the
+    corpus establishes -- which is the shape that left HX-A/CASH inert.
+    """
+    res = transition_portfolio(_doc_state(), [_doc_event()],
+                               as_of="2024-10-09", sessions=["2024-10-08"],
+                               period="2024-10", hxa_anchor=None)
+    rec = [r for r in res.ledger if r.hxa_applied][0]
+    assert rec.hxa_price_basis == HXA_PRICE_BASIS_DOCUMENTED
+
+
+def test_an_undocumented_in_scope_exit_still_uses_the_close():
+    """8913 has no documented entry, so the approximation still governs it."""
+    assert ("8913", BOUNDARY) not in HXA_DOCUMENTED_CONSIDERATION
+    res = transition_portfolio(_state(claim=Fraction("1.076")), [_event()],
+                               as_of=BOUNDARY, sessions=SESSIONS,
+                               period="2020-01", hxa_anchor=_anchor())
+    rec = [r for r in res.ledger if r.hxa_applied][0]
+    assert rec.hxa_price_basis == HXA_PRICE_BASIS_CLOSE
+    assert rec.hxa_anchor_price == 13.30
+    assert rec.hxa_consideration_source_sha256 is None
