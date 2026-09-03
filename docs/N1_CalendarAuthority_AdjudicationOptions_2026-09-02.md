@@ -3,7 +3,8 @@
 **狀態（寫定於 2026-09-02，狀態行不隨時間變動）**
 
 ```
-PRE-RULING · OPTIONS ONLY
+ADJUDICATED 2026-09-03 — C-5。DOCUMENT ONLY；IMPLEMENTATION NOT AUTHORIZED
+裁決見 §9。五個選項全部保留，未刪除。
 本文件之外未變更任何 code / master prereg / data。
 未取 seal。ROUTE_SEAL_CONTRACT_STATUS 未動，仍為 NOT_YET_RATIFIED。
 N1-1 的取得閘門未動。route_closure.py 未動。
@@ -325,3 +326,62 @@ TEJ 匯出 `date_max = 2026-08-17`；LIVE 日曆末端 `2026-09-01`；**中間 1
 ### 8.4 本節沒有做的事
 
 沒有裁決；沒有排序；沒有估工期；未查證 TWSE 端點的歷史回溯範圍（僅驗過 `queryYear=115`）。
+
+---
+
+## 9 · 裁決（2026-09-03，第二輪 — 本體）
+
+> 裁決人：使用者。記錄人：本 session。
+> **本節是裁決本體，不是筆記。** §2 與 §7.4 的五個選項全部保留於上，未刪除。
+> 裁決確立「是什麼」，**不授權實作** —— 每一項的落地各自需要另一次授權。
+
+### 9.1 採 **C-5 · 兩腿分工**
+
+TWSE `holidaySchedule` 為**前瞻（排程）**腿，TEJ 價格族為**實現（回溯）**腿。
+兩腿不一致即為一個**具名事件**（非排程停市／補行交易），而非靜默差異。
+
+**裁決理由（單一）**：§8.1 表格第一列。L3 在決策日問的問題是
+「§6.5 的執行 session 存不存在」，而**回溯腿依定義答不出來**——§8.2 的結構性限制
+對 C-2 與 C-5 的實現腿一樣成立。C-3a／C-3b 是把標的移走而非解掉
+（§4 自陳「開了 ≠ 解決了」），C-3b 另需跨 A2 邊界。
+C-5 是四者中唯一讓「決定 WHEN 的那個家族」在決策時有腿可站的。
+
+**承受的代價（裁決明知並接受）**：
+`SOURCE_FAMILIES` ⟨M⟩ 目前只有兩個值（`research/b0_materializer/source_ownership_manifest.py:115`：
+`("TEJ", "LIVE")`），而該詞彙正是 R-W1-2 的載體。C-5 需要第三個家族。
+**這是詞彙變更，不是設定變更。**
+
+### 9.2 ⚠ 本裁決**不**解除 N-1，也**不**開閘
+
+- `ROUTE_SEAL_CONTRACT_STATUS` 維持 `NOT_YET_RATIFIED`。
+- `l3_route_seal.unauthoritative_floor_families()` ⟨M⟩（`:356-362`，讀
+  `REQUIRED_DATASET_FLOOR` × `FLAT_FAMILIES[ds]["authority"]`）**未被改動**，今日仍命中 `calendar`。
+- `build_flat_leaves.FLAT_FAMILIES["calendar"]` 的 `LIVE / SUPPLEMENTARY` 宣告**未被改動**。
+- 因此 **9/30 的 Month 1 仍然不會發生**。改期仍受 U-2「不得事後補記」約束，需另一次裁決。
+
+### 9.3 由本裁決產生、且**必須在落地前各自裁決**的五項
+
+裁 C-5 沒有把這五項一併裁掉。逐項列出，不預設答案：
+
+| # | 待裁 | 為什麼不能默認 |
+|---|---|---|
+| **C5-a** | 第三個 source family 叫什麼、它與 R-W1-2 的關係 | ⟨M⟩ `SOURCE_FAMILIES` 是 R-W1-2 的載體（`source_ownership_manifest.py:115`）；新增一個值等於改寫該規則的適用範圍 |
+| **C5-b** | `calendar` 的 `authority` 宣告改成什麼，以及**閘門憑什麼開** | §4 已警告：兩個選項會讓閘門「因標的消失而開」。C-5 若讓閘門靠豁免開，就退化成 C-3a。**應同時要求一條正向檢查**：日曆的推導來源必須出自 AUTHORITATIVE 家族 |
+| **C5-c** | R-W1-2 的「TEJ 為權威」是否被「**被 TEJ 對帳過**」滿足 | §8.3 原列。這是語意裁定，不是實作細節 |
+| **C5-d** | **TEJ 重匯時點** | ⟨I⟩ 現排 9/29-30，落在執行 session **之前**；§8.2 證明回溯腿要覆蓋執行 session，重匯必須排在執行 session **之後**。**現行排程與本裁決衝突** |
+| **C5-e** | `l3_snapshot._sessions_from_declared_calendar` 的 exactly-one 守衛改成什麼 | ⟨M⟩ `research/b0_l3/l3_snapshot.py:88-91` 硬性要求 calendar leaf 恰有一個 `consumed`。兩腿分工與該守衛直接衝突，而它是「exactly one series defines the sessions」這句話的機械實作 |
+
+### 9.4 落地前必補的量測（⚠ 這一項不是選項，是本裁決的可稽核前提）
+
+⟨I⟩ §8.4 自陳：**TWSE 端點的歷史回溯範圍未查證，只驗過 `queryYear=115`。**
+前瞻腿只驗過一年就綁進 route，等於把一個未量測的來源寫進身分。
+⇒ **C-5 落地前必須量到該端點的可回溯範圍與各年 `stat` 回應**，
+並以已實現日曆對比至少三個含非排程停市的年度（2024 已量，見 §7.2）。
+
+### 9.5 本 session 未做的事
+
+- 未改任何 code、宣告、閘門、owed 清單、`REQUIRED_DATASET_FLOOR`、master prereg、data。
+- 未取 seal（`write_route_seal()` 未被呼叫）。
+- 未查 TWSE 端點（§9.4 仍未量，本節不假裝它已量）。
+- 未估任何工期，未排序 C5-a…C5-e。
+- 未處理「9/29-30 重匯與 C5-d 衝突該怎麼辦」——那是 U-2 範圍，另案。
