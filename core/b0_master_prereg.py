@@ -519,6 +519,27 @@ class L2Opening:
 DEFAULT_REGISTRY_PATH = os.path.join(
     REPO_ROOT, "research", "b0_registry", "l2_opening_registry.jsonl")
 
+
+def lineage_registry_path(lineage: str) -> str:
+    """The opening registry of ONE lineage.
+
+    Frozen B0 keeps the historical filename byte-for-byte; a second lineage gets
+    its own file. Sharing one registry would make B1 inherit B0's terminal rows
+    and B0's consumed observation - and the once-only discipline is per lineage,
+    so a shared count is not a summary, it is a wrong answer.
+    """
+    if lineage == FROZEN_B0_LINEAGE:
+        return DEFAULT_REGISTRY_PATH
+    return os.path.join(REPO_ROOT, "research", "b0_registry",
+                        "l2_opening_registry_%s.jsonl" % lineage.lower())
+
+
+def lineage_nonconsumption_path(lineage: str) -> str:
+    if lineage == FROZEN_B0_LINEAGE:
+        return DEFAULT_NONCONSUMPTION_PATH
+    return os.path.join(REPO_ROOT, "research", "b0_registry",
+                        "l2_nonconsumption_ledger_%s.jsonl" % lineage.lower())
+
 # --- R5 (v1.22) - deterministic provenance bytes ------------------------------
 # The registry is a RAW-BYTE provenance record and .gitattributes already freezes
 # LF as the repository canonical representation for exactly that reason. But
@@ -1057,29 +1078,74 @@ def assert_l2_reopening_reachable(lineage: str = FROZEN_B0_LINEAGE) -> None:
 LINEAGE_WINDOW_KEYS: tuple[str, ...] = (
     "window_start", "window_end", "window_months")
 
-# lineage -> its own window. Frozen B0 is deliberately ABSENT: it delegates.
-_LINEAGE_WINDOWS: Mapping[str, Mapping[str, Any]] = {
-    # B1 · retrospective leg. Endpoints are DERIVED from corpus coverage, not
-    # chosen: `trading_calendar.csv` ends 2026-08-17, 2026-07-31 is the last
-    # month-end session in it, and 2026-08-03 is that decision's execution
-    # session. 2026-08-31 is not in the calendar at all, so the month after is
-    # unreachable by construction rather than by preference.
-    #
-    # ⚠⚠ 145 IS THE NUMBER v1.33 WAS REJECTED FOR, and a reviewer will see that
-    # first. The distinction is not cosmetic: v1.33 EXTENDED the window of a
-    # lineage that had already opened and already scored a non-empty population
-    # (§9.6a-R2 condition 2 fails for it). B1 has no run, no NAV and no
-    # period_progress, so this is a FIRST SETTING, and §2.1 governs the thawing
-    # of a frozen window, not its initial definition. The artefacts left at
-    # C:/dev/b0_ext145_noncanonical_20260826 were built under B0's identity and
-    # against the pre-SD-SKIP ledger; they are NON-CANONICAL and must not be
-    # reused for B1 under any standing.
-    "B1": {
-        "window_start": "2014-07-31",
-        "window_end": "2026-07-31",
-        "window_months": 145,
-    },
-}
+# lineage -> its OWN window, for a lineage that genuinely has one. Frozen B0 is
+# deliberately absent: it delegates. So, now, is B1.
+_LINEAGE_WINDOWS: Mapping[str, Mapping[str, Any]] = {}
+
+# Lineages whose window IS Frozen B0's, by reference rather than by copy.
+#
+# B1 · 2026-09-03. B1 was first declared with its own 145-month window ending
+# 2026-07-31, justified as "DERIVED from corpus coverage, not chosen", citing
+# `trading_calendar.csv` ending 2026-08-17. THAT JUSTIFICATION WAS FALSE, and it
+# is recorded here rather than deleted because the failure mode outlived it.
+#
+# The trading calendar is not the binding corpus. Every sealed input panel is
+# clipped to B0's window_end, which is what the panels' own receipts say:
+#
+#     price_panel            date_max 2026-04-01   (B0's last execution date)
+#     valuation_panel        periods  141
+#     financials_pit         window_end 2026-03-31 (2,954 post-window rows cut)
+#     monthly_revenue_pit    window_end 2026-03-31 (8,446 post-window rows cut)
+#
+# So the four extra months 2026-04 .. 2026-07 have no as-of price, no execution
+# price and no valuation. `build_market_side_state` would have failed loud on
+# 2026-04 - every security `continue`s on a missing as_of, the period yields no
+# rows, and that is a SystemExit - but a window whose own declaration cites the
+# wrong corpus is a defect whether or not a downstream gate happens to catch it.
+# This is the shape recorded for the price leg lagging the calendar, at four
+# months instead of eleven days.
+#
+# The window is therefore INHERITED, not restated: B1's retrospective leg is
+# Frozen B0's window exactly. B1's substance is three corporate-action rulings -
+# SD-SKIP, CA-1, HX-A/CASH - not a longer window.
+#
+# It was drafted here that the rulings live only on the PORTFOLIO side, so B1's
+# market-side state would be B0's byte for byte. MEASURED, THAT IS FALSE, and
+# the correction matters more than the claim did. `build_market_side_state`
+# copies each event's `reconstructibility` out of the ledger into the hashed
+# market state, so a ruling that reclassifies events reaches the market side
+# even though it is never called from there. Rebuilt over the identical window
+# from the identical inputs, 129 of 141 periods differ. The whole difference is
+# one column:
+#
+#     event (kind, date) sets                      identical, 0 differences
+#     reconstructibility changes                   795
+#     NOT_RECONSTRUCTIBLE -> NOT_APPLICABLE        795
+#     every other direction                          0
+#
+# That is CA-1, monotone and in one direction. So B1's sealed inputs are
+# genuinely its own and its Baseline Seal is doing real work rather than
+# restating B0's. Sharing the window is what makes that measurable: the same
+# window over the same corpus isolates the rulings as the only moving part.
+#
+# Inheritance rather than a literal 141 is the C-55 discipline the table below
+# already states: a frozen parameter written down twice is a second source of
+# truth, and it agrees right up until the day it does not.
+#
+# 2026-04 .. 2026-07 are NOT abandoned; they are out-of-sample months and they
+# belong to the L3 prospective route, whose `price_span[1]` is the execution
+# date and which therefore has no fixed window end. §9.6a's own words: a changed
+# specification is a new version whose primary evidence must be L3, not this
+# window.
+#
+# ⚠ If those four months are ever to enter an L2 window, it must be through a
+# window set BEFORE that lineage runs. Once B1 has produced an outcome its
+# window is closed by no-post-hoc-rescue, and the only remaining route is a new
+# lineage spending its own once-only observation.
+#
+# ⛔ `C:/dev/b0_ext145_noncanonical_20260826` was built under B0's identity and
+# against the pre-SD-SKIP ledger. It is NON-CANONICAL and must not be reused.
+_WINDOW_INHERITS_FROZEN_B0: frozenset = frozenset({"B1"})
 
 
 def lineage_spec(lineage: str, key: str) -> Any:
@@ -1095,12 +1161,12 @@ def lineage_spec(lineage: str, key: str) -> Any:
             f"M-3: {key!r} is not a lineage-scoped window parameter. "
             f"Lineage-scoped keys are {LINEAGE_WINDOW_KEYS}; everything else is "
             f"asked of spec(), which answers for Frozen B0.")
-    if lineage == FROZEN_B0_LINEAGE:
+    if lineage == FROZEN_B0_LINEAGE or lineage in _WINDOW_INHERITS_FROZEN_B0:
         return spec(key)
     if lineage not in _LINEAGE_WINDOWS:
         raise UnregisteredLineage(
             f"M-3: no window is declared for lineage {lineage!r}. Declared "
-            f"lineages are {(FROZEN_B0_LINEAGE,) + tuple(_LINEAGE_WINDOWS)}. "
+            f"lineages are {declared_window_lineages()}. "
             f"Declaring one is a specification change, not a caller's choice, "
             f"and it must happen BEFORE that lineage's first strategy-route "
             f"execution.")
@@ -1108,7 +1174,14 @@ def lineage_spec(lineage: str, key: str) -> Any:
 
 
 def declared_window_lineages() -> tuple[str, ...]:
-    return (FROZEN_B0_LINEAGE,) + tuple(sorted(_LINEAGE_WINDOWS))
+    """Every lineage whose window is declared - inherited ones included.
+
+    An inherited window is still a DECLARED window: the point of the register is
+    that a lineage's window is frozen before that lineage may run, and B1's is,
+    whether the numbers were copied or delegated.
+    """
+    return (FROZEN_B0_LINEAGE,) + tuple(sorted(
+        set(_LINEAGE_WINDOWS) | _WINDOW_INHERITS_FROZEN_B0))
 
 
 # §9.6e-R4 · the accounting is bound to the seven conditions, not to the label.

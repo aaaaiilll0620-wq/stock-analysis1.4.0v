@@ -31,38 +31,97 @@ Frozen B0 `period_progress.jsonl` 之 `port_value`（含 seq 66）。
 
 ---
 
-## §1 · 差異一 · 窗口
+## §1 · 差異一 · 窗口 —— 無差異（原宣告已撤回）
 
 | | Frozen B0 | B1 |
 |---|---|---|
 | `window_start` | 2014-07-31 | 2014-07-31（同） |
-| `window_end` | 2026-03-31 | **2026-07-31** |
-| `window_months` | 141 | **145** |
+| `window_end` | 2026-03-31 | 2026-03-31（同） |
+| `window_months` | 141 | 141（同） |
 
-**端點為導出量，非選擇。** ⟨2026-09-03 實測⟩
-`data/b0/trading_calendar.csv` 終於 **2026-08-17**；2026-07-31 為其中最後一個
-月底 session；其執行 session 為 2026-08-03。`2026-08-31` 不在該日曆中，
-其執行日 `2026-09-01` 亦不在。
+**B1 之窗口以引用繼承 Frozen B0，非以複製。**
+`core/b0_master_prereg._WINDOW_INHERITS_FROZEN_B0` 含 `B1`，
+`lineage_spec("B1", ...)` 委派給 `spec()`。三個數字因此仍只有一個家
+—— 寫兩次的凍結參數會一直一致，直到不一致的那一天（C-55）。
 
-⚠ **2026-08 之月底決策無法作成。** B1 回溯腿與 L3 前瞻腿之間存在一個
-**具名缺口**，成因為語料邊界，非窗口設定。本文件不得被讀為兩腿連續。
+### §1.1 · 撤回記錄 · 145 / 2026-07-31
 
-### §1.1 · 145 與 v1.33 之區別
+本文件初稿宣告 B1 窗口為 **145 期、終於 2026-07-31**，
+並稱「端點為導出量，非選擇」，依據是
+`data/b0/trading_calendar.csv` 終於 2026-08-17。
 
-基底之 v1.33（`docs/REJECTED_v1.33_window_forward_extension.md`）曾提出
-141 → 145 並遭 **REJECT_AS_DRAFTED**。B1 之窗口在期數上與之相同，
-**但動作不同**：
+⛔ **該依據不成立。交易日曆不是綁定語料。**⟨2026-09-03 實測⟩
 
-| | v1.33 | B1 |
-|---|---|---|
-| 動作 | **延長**既有窗口 | **首次設定** |
-| lineage 狀態 | 已 performance-sighted（`period_progress` 66 列、NAV 已動；§9.6a-R2 條件 2 不成立） | 無 run、無 NAV、無 `period_progress` |
-| §2.1 | 治理**已凍結窗口之解凍**，唯一條件未滿足 | 首次定義不經該條 |
+每一張封章輸入面板都是照 B0 `window_end` 裁過的，
+這是各 builder 自己的 receipt 寫的：
 
-**可受性之來源是「宣告」與「登錄」之分離**：B1 之窗口已於
-`core/b0_master_prereg._LINEAGE_WINDOWS` 凍結，而 `REGISTERED_L2_LINEAGES`
-**仍不含 B1**。窗口因此是在 B1 能夠執行**之前**凍結的 —— 這正是 v1.33
-所欠缺者。若兩者不可分離，本條即不成立。
+```
+price_panel          date_max   2026-04-01   ← B0 最後一個執行日
+valuation_panel      periods    141
+financials_pit       window_end 2026-03-31   （剔除 2,954 列窗後發布）
+monthly_revenue_pit  window_end 2026-03-31   （剔除 8,446 列）
+market_side_state    periods    141
+```
+
+逐期核對 145 個月的結果：**2026-04 / 05 / 06 / 07 四個月皆無 as_of 價格、
+無執行日價格、無估值。** 材料化會在 2026-04 fail loud
+（每檔於缺 as_of 時 `continue` → rows 空 → `SystemExit`），
+但**宣告引錯語料本身就是缺陷**，不因下游有閘門接住而不是。
+它與「價格腿落後日曆」是同一個形狀，只是差四個月而非十一天。
+
+原宣告因此撤回。因為撤回，**§1.1 原本與 v1.33 的區別論證也隨之失去標的**
+—— B1 不再提出 145，v1.33 的觀感問題一併消失。本節不得被讀為
+「145 曾經可受」：它從來不可受，只是理由不是當時寫的那個。
+
+⚠ **繼承不是妥協，是 B1 的本質。** B1 的實質內容是三條
+corporate-action 裁決（SD-SKIP、CA-1、HX-A/CASH），而非更長的窗口。
+
+### §1.1b · 更正 · 市場側並非不受影響
+
+本節初稿主張：三條裁決全在 `core/b0_corporate_actions.py` 走
+`transition_portfolio`，屬投組側；市場側讀 `core/b0_share_unit_adjustment.py`，
+故 B1 的 market-side state 應與 B0 逐位元相同。
+
+⛔ **實測為假。**⟨2026-09-03⟩`build_market_side_state` 會將每筆事件的
+`reconstructibility` 從 ledger 抄進被雜湊的 market state，所以一條重新分類
+事件的裁決，即使從不在市場側被呼叫，也會到達市場側。
+
+相同窗口、相同輸入重建後，**141 期中 129 期不同**，差異全部集中在一個欄位：
+
+```
+事件 (kind, date) 集合              完全相同，0 筆差異
+reconstructibility 變動           795 筆
+NOT_RECONSTRUCTIBLE -> NOT_APPLICABLE   795
+其他任何方向                        0
+```
+
+**單向、單一方向，沒有意外 —— 這就是 CA-1。**
+故 B1 之封章輸入確實是它自己的，其 Baseline Seal 並非重述 B0。
+**共用窗口正是讓這件事可量測的原因**：同一窗口、同一語料，
+才能把三條裁決孤立成唯一的變項。
+
+⚠ **順帶查出：`data/b0/` 工作樹已內部不一致。**
+`corporate_actions_ledger.csv`、`stock_dividend_pit.csv`、`bonus_share_panel.parquet`
+三份的現行位元組已與 B0 freeze registry 不符，
+而 `data/b0/market_state/` 仍停留在 2026-08-20 的舊 ledger。
+**B0 已封存之識別未受損** —— archived seal 不可變且載有真值
+（`865b2028...` 於 2026-08-19 統封）；漂移的是工作樹，不是記錄。
+上述 B0/B1 差異因此不是「B1 vs B0」，而是「現行 ledger vs B0 states 當時所據之 ledger」；
+B1 的 states 才是對應現行 ledger 的那一份。
+
+### §1.1a · 2026-04 至 2026-07 的去處
+
+這四個月**不是被放棄**，而是回到它們本來的位置：
+**L3 前瞻路線**。`core/b0_l3_price_span.py` 定義
+`price_span[1] = execution_date`，L3 無固定窗口終點，逐月往前走。
+它們是真正的樣本外月份；塞進 L2 回測窗口等於把樣本外變成樣本內。
+基底 §9.6a 自己的語句：a changed specification is a new version
+(B1, B2 ...) whose primary evidence must be **L3, not this window**。
+
+⚠ **代價須明載：**B1 花掉它那一次 once-only 觀察額度時，綁的是 141 期。
+日後若要將 2026-04–07 納入 L2 窗口，**不得修改 B1**（no-post-hoc-rescue），
+只能另開 lineage 並燒掉它自己的觀察額度。若要避免這個代價，
+唯一時機是在 B1 執行**之前**重新設定窗口，而那需要先重建六張上游面板。
 
 ⛔ `C:/dev/b0_ext145_noncanonical_20260826` 之既有 145 期產物**不得用於 B1**。
 其建於 B0 之識別下，且對應 SD-SKIP 之前的 corporate-action ledger。
@@ -143,7 +202,7 @@ NOT_RECONSTRUCTIBLE  AND  portfolio has affected economic exposure
   基底 W-1 之兩個常數（`MISSING_DATA_RATE_THRESHOLD is None`、
   `INTERPOLATION_ALLOWED is False`）未更動；被推翻者為 W-1 之**處置句**。
 
-射程：窗內 65 筆（B0 窗口計）。⚠ B1 窗口為 145 期，該數字須於 B1 之
+射程：窗內 65 筆。B1 窗口繼承 B0（141 期），故該數字直接適用，不須於 B1 之
 ledger 重建後重新點算，本文件不得被引為 B1 之射程。
 
 **(3) HX-A/CASH —— 具名例外，**已凍結並已實作**（2026-09-03）。**
@@ -200,6 +259,6 @@ fail closed。
   未授權任何 run。
 - 未重開 Frozen B0。基底 C-72 之封閉（兩個獨立理由）不受影響。
 - 未修改繼承基底之任何位元組。
-- 未主張 B1 可跑完 145 期 —— 158 筆 holder-side 事件中 **104 筆**之對價語義
+- 未主張 B1 可跑完 141 期 —— 158 筆 holder-side 事件中 **104 筆**之對價語義
   至今未確立，於任何處置下皆維持 `NOT_RECONSTRUCTIBLE`。
 - 未提出 `capital_reduction` / `par_value_change` 之處置。

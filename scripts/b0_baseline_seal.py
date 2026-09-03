@@ -40,13 +40,13 @@ sys.path.insert(0, REPO)
 
 from core.b0_canonical_hash import CANONICAL_HASH_VERSION, canonical_sha256  # noqa: E402
 from core.b0_l2_run_layout import (                                 # noqa: E402
-    attempted_opening_count, opening_claims,
+    attempted_opening_count, lineage_opening_claims_root, opening_claims,
 )
 from core.b0_master_prereg import (                                          # noqa: E402
     FROZEN_B0_LINEAGE, L2ReopeningUnreachable, NORMATIVE_MODULES,
     assert_l2_reopening_reachable, effective_observation_count,
-    normative_module_hashes,
-    read_registry, spec, specified_keys,
+    lineage_nonconsumption_path, lineage_registry_path, lineage_spec,
+    normative_module_hashes, read_registry, spec, specified_keys,
 )
 from core.b0_provenance import (                                             # noqa: E402
     CodeProvenance, ConfigProvenance, DatasetProvenance,
@@ -56,7 +56,16 @@ from core.b0_provenance import (                                             # n
     file_sha256, seal,
 )
 
-FREEZE = os.path.join(REPO, "research", "b0_registry", "master_prereg_freeze.json")
+# --- lineage scoping ----------------------------------------------------------
+# The SAME environment variable the materializer and the freeze-registry builder
+# read. One variable for the whole build chain: three that must agree are three
+# that eventually will not, and the failure would be a seal that bound one
+# lineage's artefacts under another's name.
+LINEAGE = os.environ.get("B0_MATERIALIZE_LINEAGE", FROZEN_B0_LINEAGE)
+_SUFFIX = "" if LINEAGE == FROZEN_B0_LINEAGE else "_%s" % LINEAGE.lower()
+
+FREEZE = os.path.join(REPO, "research", "b0_registry",
+                      "master_prereg_freeze%s.json" % _SUFFIX)
 PRICE_CONTRACT = os.path.join(REPO, "research", "d1_price_universe",
                               "price_source_contract.json")
 MARKET_CONTRACTS = os.path.join(REPO, "research", "p1a_o_e_market_state",
@@ -65,7 +74,27 @@ CA_PROVENANCE = os.path.join(REPO, "research", "p0_v1b_stock_dividend",
                              "corporate_action_provenance.json")
 
 OUT_DIR = os.path.join(os.environ.get("B0_ARTIFACT_DIR") or
-                       os.path.join(REPO, "artifacts"), "baseline_seal")
+                       os.path.join(REPO, "artifacts"),
+                       "baseline_seal%s" % _SUFFIX)
+
+FROZEN_B0_SEAL_DIR = os.path.join(REPO, "artifacts", "baseline_seal")
+
+
+def assert_not_writing_into_frozen_b0_seals(path: str) -> None:
+    """A non-B0 lineage may not write into Frozen B0's seal archive.
+
+    The archive is append-only and content-addressed, so a foreign seal landing
+    in it would not overwrite anything - it would do something worse, which is
+    join B0's lineage ledger and be read later as one of B0's own seals.
+    """
+    if LINEAGE == FROZEN_B0_LINEAGE:
+        return
+    target = os.path.realpath(path)
+    protected = os.path.realpath(FROZEN_B0_SEAL_DIR)
+    if target == protected or target.startswith(protected + os.sep):
+        raise SystemExit(
+            "REFUSING TO WRITE: lineage %s resolved a seal path inside Frozen "
+            "B0's seal archive (%s)." % (LINEAGE, target))
 
 ROUTE_MODULE = "core.b0_route"
 
@@ -263,7 +292,7 @@ def build_execution(datasets: tuple[DatasetProvenance, ...]) -> ExecutionProvena
     # the evaluation window holding nothing but C_ref in cash. This is read from
     # the specification, not produced by running anything.
     opening = {
-        "as_of": spec("window_start"),
+        "as_of": lineage_spec(LINEAGE, "window_start"),
         "cash": spec("C_ref"),
         "shares": {},
         "pending_exit": {},
@@ -277,12 +306,17 @@ def build_execution(datasets: tuple[DatasetProvenance, ...]) -> ExecutionProvena
         route_version=CANONICAL_HASH_VERSION)
 
 
+_CLAIMS_ROOT = lineage_opening_claims_root(LINEAGE)
+_REGISTRY = lineage_registry_path(LINEAGE)
+_NONCONSUMPTION = lineage_nonconsumption_path(LINEAGE)
+
+
 def build_l2_opening_protocol() -> dict:
     """Read from the frozen registry — the gate must predate the numbers."""
     return {
-        "window_start": spec("window_start"),
-        "window_end": spec("window_end"),
-        "window_months": spec("window_months"),
+        "window_start": lineage_spec(LINEAGE, "window_start"),
+        "window_end": lineage_spec(LINEAGE, "window_end"),
+        "window_months": lineage_spec(LINEAGE, "window_months"),
         "first_eligible_decision_month": spec("first_eligible_decision_month"),
         "outcomes": list(spec("l2_outcomes")),
         "sharpe_metric_name": spec("sharpe_metric_name"),
@@ -296,10 +330,21 @@ def build_l2_opening_protocol() -> dict:
         # C-59/R3: attempted openings are derived from immutable OPENING
         # events, not from terminal registry rows. Counting rows meant an
         # opening whose process died was invisible to the very budget it spent.
-        "attempted_openings_recorded": attempted_opening_count(),
-        "terminal_registry_rows": len(read_registry()),
-        "open_baselines": [c["baseline_seal_sha256"][:16] for c in opening_claims()],
-        "effective_observations_to_date": effective_observation_count(),
+        # C-72/R1 as a PER-LINEAGE budget. These four were global reads, which
+        # for a second lineage is not a mislabel but a wrong answer: a B1 seal
+        # would have recorded B0's two attempts, B0's two terminal rows, B0's
+        # open baseline and B0's ONE CONSUMED OBSERVATION - and
+        # `effective_observations_to_date: 1` against `openings_permitted: 1`
+        # reads as a budget already spent. B1 has spent none.
+        "lineage": LINEAGE,
+        "opening_registry": os.path.relpath(_REGISTRY, REPO).replace("\\", "/"),
+        "attempted_openings_recorded": attempted_opening_count(
+            _CLAIMS_ROOT, include_legacy=(LINEAGE == FROZEN_B0_LINEAGE)),
+        "terminal_registry_rows": len(read_registry(_REGISTRY)),
+        "open_baselines": [c["baseline_seal_sha256"][:16]
+                           for c in opening_claims(_CLAIMS_ROOT)],
+        "effective_observations_to_date": effective_observation_count(
+            _REGISTRY, _NONCONSUMPTION),
         "non_consuming_outcomes": list(spec("l2_non_consuming_outcomes")),
         "non_consumption_conditions": list(spec("l2_non_consumption_conditions")),
     }
@@ -309,7 +354,8 @@ def build_manifest() -> ProvenanceManifest:
     freeze = _load(FREEZE, "master preregistration freeze registry")
     datasets = build_data()
     return ProvenanceManifest(
-        specification=SpecificationProvenance.from_frozen_master(freeze["version"]),
+        specification=SpecificationProvenance.from_frozen_master(
+            freeze["version"], lineage=LINEAGE),
         code=build_code(),
         config=build_config(),
         data=datasets,
@@ -348,6 +394,7 @@ def write_immutable(record: dict, seal_hash: str) -> tuple[str, str]:
     pointer at `b0_baseline_seal.json` is a copy; losing it costs nothing,
     whereas the archive is the evidence a later L2 run points back at.
     """
+    assert_not_writing_into_frozen_b0_seals(SEAL_ARCHIVE)
     os.makedirs(SEAL_ARCHIVE, exist_ok=True)
     archive = seal_archive_path(seal_hash)
     if os.path.exists(archive):
@@ -418,8 +465,11 @@ def main() -> None:
     a = ap.parse_args()
 
     print("=" * 78)
-    print("B0 BASELINE SEAL — pre-L2 (Master v1.14, C-47)")
+    print("%s BASELINE SEAL — pre-L2 (Master v1.14, C-47)" % LINEAGE)
     print("=" * 78)
+    print("lineage       : %s" % LINEAGE)
+    print("freeze record : %s" % os.path.relpath(FREEZE, REPO))
+    print("seal archive  : %s" % os.path.relpath(OUT_DIR, REPO))
 
     # C-72 / §9.6e-R5. A Baseline Seal exists to authorise an L2 opening
     # (§13.3). Frozen B0 has no opening left to authorise, so TAKING a new seal
@@ -436,7 +486,7 @@ def main() -> None:
     # that answer is wrong. Closing a reopening path does not license deleting
     # an audit that never opened anything.
     try:
-        assert_l2_reopening_reachable(FROZEN_B0_LINEAGE)
+        assert_l2_reopening_reachable(LINEAGE)
     except L2ReopeningUnreachable as exc:
         if not a.dry_run:
             raise SystemExit(

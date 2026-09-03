@@ -131,11 +131,20 @@ class SpecificationProvenance:
                 f"{self.spec_sha256!r}")
 
     @classmethod
-    def from_frozen_master(cls, version: str) -> "SpecificationProvenance":
-        from core.b0_master_prereg import MASTER_PREREG_DOC, spec_document_sha256
+    def from_frozen_master(cls, version: str,
+                           lineage: str = "FROZEN_B0") -> "SpecificationProvenance":
+        """The named lineage's master preregistration, by raw-byte identity.
 
-        return cls(document=MASTER_PREREG_DOC,
-                   spec_sha256=spec_document_sha256(), version=version)
+        `lineage` defaults to Frozen B0 so every existing caller keeps its exact
+        value. Both the document PATH and its hash come from the same lookup: a
+        seal that named B1's document while hashing B0's would attest to a
+        specification it does not follow, and `spec_document_sha256` fails
+        closed on a lineage with no document rather than answering B0's.
+        """
+        from core.b0_master_prereg import MASTER_PREREG_DOCS, spec_document_sha256
+
+        return cls(document=MASTER_PREREG_DOCS[lineage],
+                   spec_sha256=spec_document_sha256(lineage), version=version)
 
 
 # --- 1. code -----------------------------------------------------------------

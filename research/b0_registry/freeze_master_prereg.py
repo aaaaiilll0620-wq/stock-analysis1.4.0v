@@ -18,17 +18,47 @@ sys.path.insert(0, REPO)
 
 from core.b0_provenance import file_sha256          # noqa: E402
 from core.b0_master_prereg import (                   # noqa: E402
-    MASTER_PREREG_DOC, normative_module_hashes, spec_document_sha256,
-    specified_keys,
+    FROZEN_B0_LINEAGE, MASTER_PREREG_DOC, MASTER_PREREG_DOCS,
+    normative_module_hashes, spec_document_sha256, specified_keys,
 )
 
-OUT = os.path.join(HERE, "master_prereg_freeze.json")
+# --- lineage scoping ----------------------------------------------------------
+# The SAME environment variable the materializer reads, on purpose. This script
+# and `build_market_side_state.py` must agree about which lineage is being built
+# or the registry ends up binding one lineage's hashes under another's name, and
+# two variables that must agree are two variables that eventually will not. Set
+# it once for the whole build chain.
+LINEAGE = os.environ.get("B0_MATERIALIZE_LINEAGE", FROZEN_B0_LINEAGE)
+DATA_ROOT = "data/b0" if LINEAGE == FROZEN_B0_LINEAGE else "data/%s" % LINEAGE.lower()
+
+OUT = os.path.join(HERE, "master_prereg_freeze.json"
+                   if LINEAGE == FROZEN_B0_LINEAGE
+                   else "master_prereg_freeze_%s.json" % LINEAGE.lower())
+
+FROZEN_B0_FREEZE = os.path.join(HERE, "master_prereg_freeze.json")
+
+
+def assert_not_overwriting_frozen_b0(path: str) -> None:
+    """A non-B0 lineage may not write Frozen B0's freeze registry.
+
+    Same guard, same reason, as the materializer's: the run that destroys B0's
+    identity is not a malicious one, it is an ordinary invocation with the wrong
+    environment variable set. Resolved absolute paths, so a relative path, a
+    symlink or a `..` cannot walk into it.
+    """
+    if LINEAGE == FROZEN_B0_LINEAGE:
+        return
+    if os.path.realpath(path) == os.path.realpath(FROZEN_B0_FREEZE):
+        raise SystemExit(
+            "REFUSING TO WRITE: lineage %s resolved its freeze registry onto "
+            "Frozen B0's (%s). That record is B0's sealed identity."
+            % (LINEAGE, FROZEN_B0_FREEZE))
 
 # F0-R3: the list is normative and therefore lives in the specification,
 # not in this reporting tool.
 from core.b0_master_prereg import NORMATIVE_MODULES   # noqa: E402
 
-DERIVED_ARTEFACTS = (
+_DERIVED_ARTEFACTS_B0 = (
     "data/b0/corporate_actions_ledger.csv",
     "data/b0/stock_dividend_pit.csv",
     "data/b0/trading_calendar.csv",
@@ -59,6 +89,12 @@ DERIVED_ARTEFACTS = (
     "data/b0/benchmark_0050_share_unit_events.parquet",
 )
 
+# Re-rooted onto the lineage being frozen. The B0 list stays the single place
+# the SET of artefacts is stated; only the root moves, so a lineage cannot
+# quietly seal a shorter list than B0 did.
+DERIVED_ARTEFACTS = tuple(
+    DATA_ROOT + p[len("data/b0"):] for p in _DERIVED_ARTEFACTS_B0)
+
 CA_EXPORT_DIR = os.path.join(
     REPO, "tej_exports", "DataExport0806", "配股相關2004-20260817")
 STATUS_EXPORT_DIR = os.path.join(
@@ -79,28 +115,40 @@ def _document_version(doc: str) -> str:
 
     with io.open(doc, encoding="utf-8") as fh:
         head = fh.read(4096)
-    m = re.search(r"\*\*版本:\*\*\s*([0-9]+\.[0-9]+)", head)
+    # Both colons. B0's document uses the ASCII one and B1's uses the
+    # full-width one; a regex that silently knows only about B0's would abort on
+    # a perfectly well-formed B1 document and invite someone to "fix" the
+    # document to match the tool.
+    m = re.search(r"\*\*版本[:：]\*\*\s*([0-9]+\.[0-9]+)", head)
     if not m:
         raise SystemExit(
             "abort: no '**版本:** <n.n>' line in the first 4096 bytes of %s; the "
             "freeze record may not invent a version the document does not state"
-            % MASTER_PREREG_DOC)
+            % doc)
     return m.group(1)
 
 
 def main():
-    doc = os.path.join(REPO, MASTER_PREREG_DOC)
+    assert_not_overwriting_frozen_b0(OUT)
+    doc_rel = MASTER_PREREG_DOCS[LINEAGE]
+    doc = os.path.join(REPO, doc_rel)
+    print("lineage     :", LINEAGE)
+    print("data root   :", DATA_ROOT)
     record = {
-        "document": MASTER_PREREG_DOC,
+        "lineage": LINEAGE,
+        "document": doc_rel,
         "version": _document_version(doc),
         "status": "NORMATIVE_FROZEN",
-        "spec_sha256": spec_document_sha256(),
+        "spec_sha256": spec_document_sha256(LINEAGE),
         "spec_bytes": os.path.getsize(doc),
         "normative_modules": normative_module_hashes(),
         "derived_artefacts": {
             p: {"sha256": file_sha256(os.path.join(REPO, p)),
                 "bytes": os.path.getsize(os.path.join(REPO, p))}
             for p in DERIVED_ARTEFACTS if os.path.exists(os.path.join(REPO, p))},
+        "derived_artefacts_absent": [
+            p for p in DERIVED_ARTEFACTS
+            if not os.path.exists(os.path.join(REPO, p))],
         "upstream_corporate_action_zips": {
             os.path.basename(z): file_sha256(z)
             for z in sorted(glob.glob(os.path.join(CA_EXPORT_DIR, "*.zip")))},
@@ -135,6 +183,14 @@ def main():
     print("spec_bytes  :", record["spec_bytes"])
     print("specified keys:", len(record["specified_keys"]))
     print("derived artefacts:", len(record["derived_artefacts"]))
+    # An artefact that is simply absent used to vanish from the record without
+    # a word, which for a second lineage means sealing a SHORTER list than B0
+    # did and calling it the same baseline. Say so, loudly.
+    if record["derived_artefacts_absent"]:
+        print("ABSENT DERIVED ARTEFACTS (%d):"
+              % len(record["derived_artefacts_absent"]))
+        for p in record["derived_artefacts_absent"]:
+            print("   ", p)
     print("upstream CA zips:", len(record["upstream_corporate_action_zips"]))
     print("upstream status zips:", len(record["upstream_security_status_zips"]))
     print("UNMET BLOCKING:", record["unmet_blocking_requirements"])

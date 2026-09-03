@@ -314,14 +314,32 @@ def read_opening_claim(baseline_seal_sha256: str) -> dict | None:
         return json.load(fh)
 
 
-def opening_claims() -> list[dict]:
-    if not os.path.isdir(OPENING_CLAIMS_ROOT):
+def lineage_opening_claims_root(lineage: str) -> str:
+    """Where THIS lineage's opening claims live.
+
+    Frozen B0 keeps the historical path byte-for-byte. Everything else gets its
+    own root, because the accounting below counts files in a directory and a
+    shared directory means B1 inherits B0's spent budget - which is not a
+    cosmetic mislabel: `effective_observations_to_date: 1` against
+    `openings_permitted: 1` reads as a budget already exhausted.
+    """
+    from core.b0_master_prereg import FROZEN_B0_LINEAGE
+
+    if lineage == FROZEN_B0_LINEAGE:
+        return OPENING_CLAIMS_ROOT
+    return os.path.join(REPO_ROOT, "artifacts", "l2_run_%s" % lineage.lower(),
+                        "opening_claims")
+
+
+def opening_claims(root: str | None = None) -> list[dict]:
+    root = OPENING_CLAIMS_ROOT if root is None else root
+    if not os.path.isdir(root):
         return []
     out = []
-    for name in sorted(os.listdir(OPENING_CLAIMS_ROOT)):
+    for name in sorted(os.listdir(root)):
         if not name.endswith(".json"):
             continue
-        with open(os.path.join(OPENING_CLAIMS_ROOT, name), encoding="utf-8") as fh:
+        with open(os.path.join(root, name), encoding="utf-8") as fh:
             claim = json.load(fh)
         if os.path.basename(name)[:-5] != claim.get("baseline_seal_sha256"):
             raise OpeningProvenanceMismatch(
@@ -332,14 +350,22 @@ def opening_claims() -> list[dict]:
     return out
 
 
-def attempted_openings() -> list[dict]:
+def attempted_openings(root: str | None = None,
+                       include_legacy: bool = True) -> list[dict]:
     """R3: derived from immutable OPENING events, never from terminal rows.
 
     An opening whose process died one second later is still an attempt; that is
     the whole reason the count may not wait for a terminal result.
+
+    `include_legacy` exists for the second lineage. `LEGACY_ATTEMPTED_OPENING`
+    is Frozen B0's own pre-C-59 first attempt, pinned because fabricating a
+    claim for it would mean writing an opening event that never happened. Adding
+    it to B1's count would be the mirror-image fault: recording an attempt B1
+    never made. Both defaults keep every existing caller exact.
     """
     seen, out = set(), []
-    for record in [LEGACY_ATTEMPTED_OPENING, *opening_claims()]:
+    prior = [LEGACY_ATTEMPTED_OPENING] if include_legacy else []
+    for record in [*prior, *opening_claims(root)]:
         if record["run_id"] in seen:
             continue
         seen.add(record["run_id"])
@@ -347,8 +373,9 @@ def attempted_openings() -> list[dict]:
     return out
 
 
-def attempted_opening_count() -> int:
-    return len(attempted_openings())
+def attempted_opening_count(root: str | None = None,
+                            include_legacy: bool = True) -> int:
+    return len(attempted_openings(root, include_legacy))
 
 
 # --- execution claim ---------------------------------------------------------
