@@ -146,23 +146,45 @@ NOT_RECONSTRUCTIBLE  AND  portfolio has affected economic exposure
 射程：窗內 65 筆（B0 窗口計）。⚠ B1 窗口為 145 期，該數字須於 B1 之
 ledger 重建後重新點算，本文件不得被引為 B1 之射程。
 
-**(3) HX-A —— 具名例外（依 §2.2），且尚未實作。**
+**(3) HX-A/CASH —— 具名例外，**已凍結並已實作**（2026-09-03）。**
 
-`docs/DRAFT_HXA_HolderSideExitForcedCashAtPreBoundaryPrice_2026-09-03.md`（未凍結）。
-不可重建之 holder-side exit ＋ 有曝險 ⇒ 於停止交易日、mark 之前，
-全部曝險以邊界前最後一個 observed session 之 `close` 轉現金。
+規則本體：`_handoff/HXA_CASH_FreezableRule_2026-09-03.md`。
+實作：`core/b0_corporate_actions.py`（`HXA_CASH_SCOPE`、`hxa_cash_quantity`、
+`_hxa_cash_exit`、`transition_portfolio(hxa_anchor=...)`），commit `73b6502f`。
 
-⚠ **與禁止清單正面相撞**：字面即「把 holding 設為 zero」。
+不可重建之 holder-side exit ＋ 有曝險 ＋ **對價語義經 B0.8 確立為 `CASH_ONLY`**
+⇒ 於停止交易日、mark 之前，全部曝險以邊界前最後一個 observed session 之
+`close` 轉現金。`Q_total` 精確不取整。
 
-- **(a) 凍結時點**：⛔ **尚未凍結。** 本文件僅**預先宣告其為需具名例外之項目**，
-  不構成 (a) 之滿足。實作前必須另以本文件之修訂凍結其完整規則。
-- **(b) 偏誤方向**：⛔ **尚未確立。** 草稿 §2.3a 已具名兩項假設
-  （邊界用停止交易日而非持股人邊界，持股人因此**提早**離場）。
-- **(c) 判準**：可行性已量 —— 窗內 90 筆 **100%** 有邊界前價格，
-  缺口中位數 1 日曆天、p90 3 天、最大 5 天，未觸及 10-session 上限。
-  **但可行性不是偏誤方向。**
+⚠ **與禁止清單正面相撞**：字面即「把 holding 設為 zero」。故依 §2.2 具名為例外。
 
-⇒ **HX-A 在 (b) 補齊之前不得實作。**
+- **(a) 凍結時點**：✅ 本文件，且 B1 尚未執行任何 strategy route。
+- **(b) 偏誤方向**：✅ **單向低估，已量測。**
+  射程內現金腿 n=19，`UNDERSTATES 19 / FLATTERS 0`，
+  ratio `min 1.0008 / median 1.0052 / max 1.0075`。
+  非績效量測：只比對每股價格與每股文件對價。
+  成因有經濟解釋 —— 現金併購宣告後市價以套利價差小幅折價交易。
+- **(c) 判準**：✅ 方向單向。
+
+**射程限縮的理由 —— 股票腿量測失敗：** n=8，`UNDERSTATES 6 / FLATTERS 2`，
+其一實質美化（4944，ratio 0.7974）。⇒ `STOCK_ONLY` / `MIXED` / `UNKNOWN`
+**不在射程，且不得實作**，一律依 §6.1.12 fail closed。
+
+**射程 22 筆中 20 筆可套用**：`3426`（gap 40）與 `4987`（gap 32）觸及 10-session
+陳舊上限而 fail closed。二者之 anchor 皆為價格語料終點 2026-04-01，屬**語料
+vintage 造成的假陳舊**，上限存在即為攔下它們。
+
+**兩筆明文排除，皆為偽陰性（安全方向）：**
+`4152` —— d7_1a 判 MIXED 且 d7_2_1 從未修復，與 pass-2 抽取表矛盾，未經裁決；
+`6514` —— d7_2_1 將其**向下修復**為 `CONSIDERATION_NOT_ESTABLISHED`。
+
+⚠ **實際解除之阻塞：1 筆（8913）。** 依 B0.7 CA ledger，窗內 holder-side 事件中
+證券曾被 B0 觸及者僅 `8913`（殘餘 1.076 股）與 `6514`（殘餘 0.348 股），
+後者不在射程。本條**不得**被讀為 holder-side 阻塞已解決。
+
+⚠ **§2.3a 的時點假設未被消除**：規則以停止交易日代替持股人基準日，
+該區間長度依定義不可觀測。上述量測**只涵蓋對價落差，不涵蓋時點落差**。
+每一次套用皆須逐筆揭露。
 
 ### §2.4 · 未涵蓋者
 
