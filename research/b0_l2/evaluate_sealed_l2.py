@@ -174,7 +174,7 @@ def main() -> int:
         stock_dividend_receivable=canonical_open["stock_dividend_receivable"])
     opening_cash = float(canonical_open["cash"])
 
-    periods, ca_kind_status = [], Counter()
+    periods, eligible_names, ca_kind_status = [], [], Counter()
     exposed_not_reconstructible = []
 
     for i, period in enumerate(manifest, 1):
@@ -227,6 +227,11 @@ def main() -> int:
                 % (pname, post[:16], recorded[1][:16]))
 
         elig = result.eligibility
+        # Row ① needs the NAMES, not the count. Stage 1 recorded only counts,
+        # which is why testing "the skipped events are a small share" required
+        # this second pass rather than a lookup.
+        eligible_names.append({"period": pname, "as_of": as_of,
+                               "eligible": list(elig.eligible)})
         periods.append({
             "seq": i, "period": pname, "as_of": as_of,
             "execution_date": period["execution_date"],
@@ -275,6 +280,8 @@ def main() -> int:
         "per_period": periods,
     }
     write_provenance_json(os.path.join(out_dir, "evaluation_stage1.json"), detail)
+    write_provenance_json(os.path.join(out_dir, "eligible_names.json"),
+                          eligible_names)
 
     print()
     print("=" * 78)
