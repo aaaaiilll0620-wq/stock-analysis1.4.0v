@@ -1499,10 +1499,39 @@ HXA_CASH_STALENESS_CAP_SESSIONS = 10
 # Both exclusions are false NEGATIVES, which is the safe direction: the rule
 # declines and §6.1.12 fails closed. A false POSITIVE - cash treatment on a
 # share exchange - is the dangerous one and the measured overlap has none.
+#
+# ⚠ 6514 · ADDED 2026-09-03, PENDING LINEAGE ADJUDICATION. It is NOT part of the
+# 22 that B1 §2.3(3) froze, and adding it is a SEMANTIC change to a frozen scope,
+# not an erratum. B1's own document permits only non-semantic errata after it
+# became effective, so this either needs the user to rule that B1 may take it, or
+# it belongs to a new lineage. Nothing has been run on it: it is here so the
+# conformance diagnostic can see what lies BEYOND period 124, and that
+# exploration binds no lineage.
+#
+# Two disclosures that must travel with it:
+#
+#   1. SEMANTICS ARE USER_ATTESTED, NOT CORPUS-SOURCED. d8_1 records 6514 as
+#      `UNKNOWN / NOT_READY_SOURCE_ACQUISITION (missing: consideration
+#      semantics)` and d8_2b_r1 as `NO_CACHED_PDFS_FOR_THIS_EVENT`. The
+#      CASH_ONLY reading and the NT$53.80 figure (昇達科 3491 reverse triangular
+#      merger) come from the user's own research, stated in session on
+#      2026-09-03. That is an attribution, not a laundering: it must not be read
+#      later as though the corpus established it.
+#
+#   2. THE PRICE THIS RULE WOULD USE IS 5.91% BELOW THE STATED CONSIDERATION.
+#      documented 53.80 vs pre-boundary close 50.80 (2024-10-08, the last traded
+#      session; 10-09 onward carry stale prices at volume 0). The direction
+#      matches the 19 measured cash legs (UNDERSTATES 19 / FLATTERS 0) but the
+#      magnitude is 7.9x their worst case (max 1.0075). So HX-A/CASH prices this
+#      event materially below what the holder actually received, and a real run
+#      should carry the documented consideration instead of the close. The
+#      conformance diagnostic computes no performance, so this does not affect
+#      what it establishes.
 HXA_CASH_SCOPE: frozenset = frozenset({
     "1787", "2928", "3144", "3426", "3553", "3658", "4103", "4947", "4987",
     "5102", "5480", "5820", "6022", "6105", "6247", "6554", "6747", "8079",
     "8266", "8406", "8418", "8913",
+    "6514",                     # pending adjudication -- see the block above
 })
 
 

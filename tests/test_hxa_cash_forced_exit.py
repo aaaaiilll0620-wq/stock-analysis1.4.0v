@@ -57,15 +57,33 @@ def test_the_scope_excludes_4152_because_two_b0_8_artefacts_disagree():
     assert "4152" not in HXA_CASH_SCOPE
 
 
-def test_the_scope_excludes_events_whose_semantics_were_never_established():
-    """6514 carries a cash amount in the extraction but d8_1 calls it UNKNOWN.
+def test_6514_is_in_scope_only_as_a_pending_adjudication():
+    """WAS: "the scope excludes events whose semantics were never established".
 
-    That is a FALSE NEGATIVE and it is the safe direction: the rule declines and
-    §6.1.12 fails closed. A false POSITIVE - cash treatment on a share-exchange -
-    is the dangerous one, and the measured overlap has none.
+    6514 carried a cash amount in the extraction while d8_1 called it UNKNOWN, so
+    it was held out as a FALSE NEGATIVE - the safe direction, since a false
+    POSITIVE (cash treatment on a share exchange) is the dangerous one.
+
+    2026-09-03: it was added, and this test records WHY rather than being
+    deleted. The user attested the consideration (NT$53.80, 昇達科/UMT reverse
+    triangular merger) from their own research; the corpus independently
+    corroborates the STRUCTURE (a 2024-03-13 「董事會通過反式三角合併案」 and a
+    2024-10-16 「合併對價發放通知」 classed CASH_CONSIDERATION_PAYMENT) but not
+    the AMOUNT - that document's body was never cached.
+
+    Two facts travel with it, and this test is where they are checked rather
+    than trusted:
+      - the addition is a SEMANTIC change to a scope B1 §2.3(3) froze at 22, so
+        it is not an erratum and its lineage is not yet adjudicated;
+      - HX-A/CASH prices this exit at the pre-boundary close (50.80), 5.91%
+        below the attested consideration - 7.9x the worst of the 19 measured
+        cash legs (max 1.0075).
     """
-    assert "6514" not in HXA_CASH_SCOPE
     assert "8913" in HXA_CASH_SCOPE
+    assert "6514" in HXA_CASH_SCOPE
+    assert len(HXA_CASH_SCOPE) == 23, (
+        "B1 §2.3(3) froze 22; 6514 is the 23rd and is PENDING. A further change "
+        "to this scope must be adjudicated, not absorbed into this count.")
 
 
 @pytest.mark.parametrize("kind", ["stock_dividend", "capital_reduction",
@@ -137,11 +155,24 @@ def test_a_resolver_that_returns_none_still_blocks():
 
 
 def test_an_out_of_scope_security_still_blocks_even_with_an_anchor():
+    """The probe id is asserted out-of-scope, not assumed to be.
+
+    This test used 6514 as its example of "out of scope". When 6514 was added to
+    the scope the test went red -- which was correct, but only by luck: had it
+    used an id that was later added SILENTLY the test would have kept passing
+    while checking nothing. So the id is checked first, and the assertion names
+    the file to fix.
+    """
+    probe = "1101"          # never a holder_side_reorganization_exit in B0/B1
+    assert probe not in HXA_CASH_SCOPE, (
+        "%s is now in HXA_CASH_SCOPE, so this test no longer proves that an "
+        "out-of-scope security blocks. Pick an id that is still out of scope."
+        % probe)
     # a SUB-share claim: a whole-share claim would be released by
     # `_release_matured` before the gate and there would be no exposure left
-    st = _state(claim=Fraction("0.4"), sid="6514")
+    st = _state(claim=Fraction("0.4"), sid=probe)
     with pytest.raises(CorporateActionReconstructionBlock):
-        transition_portfolio(st, [_event(sid="6514")], as_of=BOUNDARY,
+        transition_portfolio(st, [_event(sid=probe)], as_of=BOUNDARY,
                              sessions=SESSIONS, period="2020-01",
                              hxa_anchor=_anchor())
 

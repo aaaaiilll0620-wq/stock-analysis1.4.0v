@@ -234,9 +234,23 @@ def lineage_snapshot() -> dict:
     }
 
 
-def preflight() -> tuple[dict, list]:
-    """Everything that must hold before the first byte. Abort, never repair."""
-    print("\npreflight", flush=True)
+def preflight(exploratory: bool = False) -> tuple[dict, list]:
+    """Everything that must hold before the first byte. Abort, never repair.
+
+    `exploratory` drops exactly TWO checks -- HEAD == the sealed commit, and a
+    clean tree -- and nothing else. Its purpose is to answer "what lies beyond
+    the current wall" WITHOUT first having to seal the change that clears the
+    wall, because sealing it would decide the lineage question (does B1 take
+    this, or does it belong to B2) that the exploration exists to inform.
+
+    An exploratory result is NOT lineage-bound and is stamped as such in the
+    terminal record. It establishes where the window stops and nothing else --
+    which is all any run of this file establishes anyway, since none of them
+    compute performance. Every safety property is untouched: no performance, no
+    gate, no benchmark, own namespace, both lineages' accounting asserted
+    unchanged before and after.
+    """
+    print("\npreflight%s" % ("  [EXPLORATORY]" if exploratory else ""), flush=True)
     checks = []
 
     checks.append(_require(LINEAGE != FROZEN_B0_LINEAGE,
@@ -269,10 +283,14 @@ def preflight() -> tuple[dict, list]:
         "sealed spec identity == frozen spec identity"))
 
     head = _git("rev-parse", "HEAD")
-    checks.append(_require(head == seal.get("commit_sha"),
-                           "HEAD is the sealed commit", head[:8]))
-    checks.append(_require(not _git("status", "--porcelain"),
-                           "working tree is clean"))
+    if exploratory:
+        print("  %-58s %s" % ("HEAD is the sealed commit", "SKIPPED (exploratory)"))
+        print("  %-58s %s" % ("working tree is clean", "SKIPPED (exploratory)"))
+    else:
+        checks.append(_require(head == seal.get("commit_sha"),
+                               "HEAD is the sealed commit", head[:8]))
+        checks.append(_require(not _git("status", "--porcelain"),
+                               "working tree is clean"))
 
     manifest = _load(MANIFEST)
     periods = int(lineage_spec(LINEAGE, "window_months"))
@@ -304,9 +322,16 @@ def preflight() -> tuple[dict, list]:
         json.dumps(acct, sort_keys=True)))
 
     mods = normative_module_hashes()
-    checks.append(_require(
-        all(mods.get(m) == h for m, h in freeze["normative_modules"].items()),
-        "all normative modules match the freeze registry"))
+    drifted = [m for m, h in freeze["normative_modules"].items()
+               if mods.get(m) != h]
+    if exploratory:
+        print("  %-58s %s" % ("normative modules match the freeze registry",
+                              "DRIFTED %d (exploratory)" % len(drifted)
+                              if drifted else "OK"))
+    else:
+        checks.append(_require(not drifted,
+                               "all normative modules match the freeze registry",
+                               str(drifted)))
 
     # The property this whole file exists to guarantee.
     checks.append(_require(PERFORMANCE_COMPUTED is False
@@ -320,7 +345,8 @@ def preflight() -> tuple[dict, list]:
             "preflight failed: %s" % [c["check"] for c in failed])
     return {"seal": current["baseline_seal_sha256"], "freeze": freeze,
             "head": head, "manifest": manifest, "composed": composed,
-            "periods": periods}, checks
+            "periods": periods, "exploratory": exploratory,
+            "normative_drift": drifted}, checks
 
 
 def claim_run(run_id: str, payload: dict) -> str:
@@ -343,6 +369,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--lineage", default="",
                     help="confirm the lineage; this CHECKS, it does not set")
+    ap.add_argument("--exploratory", action="store_true",
+                    help="run against an unsealed tree to find the next wall; "
+                         "the result is NOT lineage-bound")
     a = ap.parse_args()
     assert_declared_lineage(a.lineage, LINEAGE)
 
@@ -355,13 +384,19 @@ def main() -> int:
     print("deepest prior   : %d / 141 (six replays, none reached the end)"
           % DEEPEST_PRIOR_REPLAY)
 
-    bound, checks = preflight()
+    bound, checks = preflight(a.exploratory)
+    if a.exploratory:
+        # ASCII on purpose. A console message that arrives as mojibake -- or,
+        # as here, kills the run with a cp950 UnicodeEncodeError -- is one more
+        # reason for a reader to skim past the sentence meant to stop them.
+        print("\n[EXPLORATORY] this result is NOT bound to any lineage. It says "
+              "where the window stops and nothing more.", flush=True)
     manifest, periods = bound["manifest"], bound["periods"]
     snap_before = lineage_snapshot()
     modules_before = normative_module_hashes()
 
     started = datetime.now(timezone.utc).isoformat()
-    run_id = "B1CONF-" + canonical_sha256(
+    run_id = ("B1EXPL-" if a.exploratory else "B1CONF-") + canonical_sha256(
         [RUN_KIND, LINEAGE, bound["seal"], bound["head"], bound["composed"],
          started])[:16]
     claim_path = claim_run(run_id, {
@@ -438,7 +473,10 @@ def main() -> int:
         record = {
             "record": "B1_CONFORMANCE_DIAGNOSTIC_TERMINAL_RESULT",
             "run_id": run_id, "run_kind": RUN_KIND, "lineage": LINEAGE,
-            "evidence_class": EVIDENCE_CLASS,
+            "evidence_class": ("EXPLORATORY_NOT_LINEAGE_BOUND"
+                               if bound["exploratory"] else EVIDENCE_CLASS),
+            "exploratory": bound["exploratory"],
+            "normative_drift_from_freeze": bound["normative_drift"],
             "terminated_at_utc": datetime.now(timezone.utc).isoformat(),
             "baseline_seal_sha256": bound["seal"],
             "commit_sha": bound["head"],
