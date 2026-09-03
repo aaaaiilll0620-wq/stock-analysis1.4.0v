@@ -1,6 +1,6 @@
 # B1 · Master Preregistration
 
-**版本：** 1.0（生效）
+**版本：** 1.1（生效；1.0 → 1.1 為不改變語意之勘誤，見 §2.3(3) 勘誤記錄）
 **lineage id：** `B1`
 **授權者：** `aaaai`
 **授權依據：** 2026-09-03 於 session 之決定，並以
@@ -214,11 +214,46 @@ NOT_RECONSTRUCTIBLE  AND  portfolio has affected economic exposure
 射程：窗內 65 筆。B1 窗口繼承 B0（141 期），故該數字直接適用，不須於 B1 之
 ledger 重建後重新點算，本文件不得被引為 B1 之射程。
 
-**(3) HX-A/CASH —— 具名例外，**已凍結並已實作**（2026-09-03）。**
+**(3) HX-A/CASH —— 具名例外，已凍結（2026-09-03）。**
+
+> ### ⚠ 勘誤記錄（1.0 → 1.1，2026-09-03）—— 「已實作」是錯的
+>
+> 本節 1.0 版原文為「具名例外，**已凍結並已實作**（2026-09-03）」，並列
+> `transition_portfolio(hxa_anchor=...)` 為實作證據。**該陳述經量測為偽。**
+> 原文保留於此，不刪除。
+>
+> `hxa_anchor` 是 `transition_portfolio()` 的**呼叫端參數**，預設 `None`。
+> 全 repo 只有 `tests/test_hxa_cash_forced_exit.py` 傳它（5 處，各自
+> 建構自己的 `_anchor()`）；**生產路徑一處都沒有**。因此本規則自凍結起
+> 到 1.1 為止，**在任何真實執行中都不可能觸發**。
+>
+> 量測證據：B1 一致性診斷 `B1CONF-cbcc3367cb9d5845` 停在 **66/141**，
+> blocker 為 `8913|holder_side_reorganization_exit|2020-01-14` ——
+> 即本節下方明列的「實際解除之阻塞：1 筆（8913）」那一筆。B0.6 與 B0.7
+> 撞的是同一道牆、同一期。
+>
+> **五個測試全綠而規則全程無效**，因為每個測試都自帶被測依賴。一個自帶
+> 依賴的測試證明的是引擎會不會遵守 anchor，不是有沒有人遞給它。
+>
+> **1.1 的修補（不改變本規則語意）**
+> - `research/b0_l2/hxa_anchor.py` —— 依本節既有規則解析 `P_anchor`：
+>   邊界前最後一個 observed session 的 `close`。零價視為未定義而拒絕
+>   （比照 `valuation_sentinel_zero_is_undefined`），解析不到即回 `None`
+>   而 §6.1.12 照舊 fail closed。**拒絕永遠安全，猜測不是。**
+> - `run_sealed_l2.py` 與 B1 一致性診斷改為傳入該 resolver；
+>   Frozen B0 明文傳 `None`（「B1 only」原本只寫在註解裡，註解不是射程）。
+> - `tests/test_hxa_anchor_wiring.py` —— 不建構任何 anchor，改為向生產碼
+>   要一個，並以 AST 斷言每一處 `transition_portfolio` 呼叫都帶
+>   `hxa_anchor`。這是原本會抓到本缺陷的那個測試。
+>
+> **未變更：** 規則語意、`HXA_CASH_SCOPE` 的 22 筆射程、10-session 陳舊
+> 上限、`Q_total` 精確不取整、偏誤方向與其量測、兩筆明文排除。
+> 本勘誤不新增、不移除、不放寬任何一項判準。
 
 規則本體：`_handoff/HXA_CASH_FreezableRule_2026-09-03.md`。
 實作：`core/b0_corporate_actions.py`（`HXA_CASH_SCOPE`、`hxa_cash_quantity`、
-`_hxa_cash_exit`、`transition_portfolio(hxa_anchor=...)`），commit `73b6502f`。
+`_hxa_cash_exit`、`transition_portfolio(hxa_anchor=...)`），commit `73b6502f`；
+**anchor 供給端** `research/b0_l2/hxa_anchor.py` 與其接線，1.1（見上方勘誤）。
 
 不可重建之 holder-side exit ＋ 有曝險 ＋ **對價語義經 B0.8 確立為 `CASH_ONLY`**
 ⇒ 於停止交易日、mark 之前，全部曝險以邊界前最後一個 observed session 之

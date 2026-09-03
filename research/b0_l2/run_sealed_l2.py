@@ -47,8 +47,8 @@ from core.b0_l2_run_layout import (                              # noqa: E402
     resolve_run_dir, run_state,
 )
 from core.b0_master_prereg import (                             # noqa: E402
-    L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE, L2Opening,
-    active_lineage, append_provenance_record, lineage_data_root,
+    FROZEN_B0_LINEAGE, L2_NOT_EVALUABLE_CA_BLOCK, L2_RUN_INVALID_CONFORMANCE,
+    L2Opening, active_lineage, append_provenance_record, lineage_data_root,
     lineage_freeze_path, lineage_market_state_dataset_id,
     assert_declared_lineage, lineage_market_state_manifest,
     lineage_registry_path, lineage_spec, record_opening, write_provenance_json,
@@ -83,6 +83,22 @@ if "--lineage" in sys.argv:
     _DECLARED = sys.argv[_i + 1] if _i + 1 < len(sys.argv) else ""
     del sys.argv[_i:_i + 2]
 assert_declared_lineage(_DECLARED, LINEAGE)
+
+
+def hxa_anchor_for_run():
+    """The HX-A/CASH anchor resolver, or None for Frozen B0.
+
+    "B1 only" was a COMMENT at the dispatch site and nothing else. A scope that
+    lives only in a comment is not a scope, so it is a branch here: Frozen B0
+    gets None and therefore the pre-HX-A behaviour exactly, whatever else
+    changes around it. (B0 may not be replayed at all, so this is belt and
+    braces -- but the belt is what stops a shared runner from quietly applying
+    one lineage's ruling to another's window.)
+    """
+    if LINEAGE == FROZEN_B0_LINEAGE:
+        return None
+    from research.b0_l2.hxa_anchor import anchor_for_lineage
+    return anchor_for_lineage(LINEAGE)
 
 
 def out_dir(run_id):
@@ -343,6 +359,7 @@ def main() -> int:
         }, LINEAGE)
     except ExecutionClaimExists as exc:
         raise SystemExit("abort: %s" % exc)
+    hxa_anchor = hxa_anchor_for_run()
     manifest = json.load(open(MANIFEST, encoding="utf-8"))
     if len(manifest) != PERIODS:
         raise SystemExit(
@@ -393,7 +410,8 @@ def main() -> int:
                            for e in events_by_sid.get(sid, ())]
             tr = ca.transition_portfolio(state, held_events, as_of=as_of,
                                          sessions=sessions,
-                                         period=period["decision_month"])
+                                         period=period["decision_month"],
+                                         hxa_anchor=hxa_anchor)
             for rec in tr.ledger:
                 _jsonl(run_id, "ca_transition_ledger.jsonl",
                        {"run_id": run_id, **rec.__dict__})

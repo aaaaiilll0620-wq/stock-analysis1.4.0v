@@ -79,7 +79,9 @@ from core.b0_master_prereg import (                                # noqa: E402
 from core.b0_route import run_decision                             # noqa: E402
 from core.b0_state import PortfolioState                           # noqa: E402
 
-from run_sealed_l2 import build_input, load_events                 # noqa: E402
+from run_sealed_l2 import (                                        # noqa: E402
+    build_input, hxa_anchor_for_run, load_events,
+)
 from build_period1_full_input import _price_contract, opening_states  # noqa: E402
 
 RUN_KIND = "B1_CONFORMANCE_DIAGNOSTIC"
@@ -383,6 +385,13 @@ def main() -> int:
     sessions = tuple(r["session"] for r in csv.DictReader(
         open(os.path.join(DATA, "trading_calendar.csv"), encoding="utf-8")))
     events_by_sid = load_events()
+    # From the SEALED runner, not a copy. The whole value of this diagnostic is
+    # that it exercises the path the L2 run will take; a locally-built anchor
+    # would be the same mistake the tests made.
+    hxa_anchor = hxa_anchor_for_run()
+    print("HX-A/CASH anchor resolver: %s"
+          % ("supplied" if hxa_anchor is not None else "NONE (Frozen B0)"),
+          flush=True)
 
     from core.b0_market_state import SourceContract, TradingCalendar
     from core.b0_provenance import file_sha256
@@ -475,7 +484,8 @@ def main() -> int:
                            for e in events_by_sid.get(sid, ())]
             tr = ca.transition_portfolio(state, held_events, as_of=as_of,
                                          sessions=sessions,
-                                         period=period["decision_month"])
+                                         period=period["decision_month"],
+                                         hxa_anchor=hxa_anchor)
             rows = pd.read_parquet(os.path.join(REPO, period["artefact"]))
             inp = build_input(period, rows, tr.state, sessions, events_by_sid,
                               calendar, attestation, price_source)
