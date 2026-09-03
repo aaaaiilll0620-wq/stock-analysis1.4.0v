@@ -1,11 +1,20 @@
 # B1 · Master Preregistration
 
-**版本：** 0.1（草案，尚未生效）
+**版本：** 1.0（生效）
 **lineage id：** `B1`
 **授權者：** `aaaai`
 **授權依據：** 2026-09-03 於 session 之決定，並以
 `_handoff/HANDOFF_2026-09-03_CA_blockers_and_seam.md` §0 之五項要求為據
-**狀態：`DRAFT — B1 尚未登錄於 REGISTERED_L2_LINEAGES，Baseline Seal 尚未建立`**
+**生效授權：** 2026-09-03，授權者 `aaaai` 於 session 中明示
+「授權：升版 + 登錄 + 封章」。本次升版同時完成三件事：
+本文件生效、B1 登錄於 `REGISTERED_L2_LINEAGES`、取得 B1 Baseline Seal。
+**狀態：`EFFECTIVE — 規格自此凍結`**
+
+⚠ **生效後不得修改。** 依基底 no-post-hoc-rescue，B1 一旦產出 outcome，
+其規格即不可變；任何規格變更只能另開 lineage，並燒掉那個 lineage
+自己的 once-only 觀察額度。本文件於生效後的修改僅限於不改變語意之
+勘誤，且每一次修改都會改變本文件的 sha256，從而與已取得之 Baseline Seal
+不符 —— 而那是一個會被閘門看見的不符，不是一個可以靜默吞掉的不符。
 
 ---
 

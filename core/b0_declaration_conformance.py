@@ -720,7 +720,24 @@ def _conform_frozen_b0_reopening_is_unreachable() -> None:
 
     # An unregistered lineage FAILS CLOSED. Answering "reachable" for an unknown
     # name would make the refusal above bypassable by misspelling FROZEN_B0.
-    for unknown in ("FROZEN_BO", "B1", "", "frozen_b0"):
+    #
+    # This list once contained "B1", as the example of a name nobody had ruled
+    # on. B1 was registered on 2026-09-03 and the probe became a probe of
+    # nothing - it would have kept passing while testing one case fewer, which
+    # is the silent kind of rot. So the probes are checked against the register
+    # first: registering a lineage now BREAKS this check loudly and at the place
+    # that needs updating, instead of quietly hollowing it out.
+    from core.b0_master_prereg import REGISTERED_L2_LINEAGES
+
+    unknowns = ("FROZEN_BO", "B2", "", "frozen_b0", "b1")
+    registered = set(REGISTERED_L2_LINEAGES) & set(unknowns)
+    if registered:
+        raise DeclarationConformanceError(
+            "§9.6e-R5: %s is REGISTERED and can no longer serve as a probe for "
+            "the unregistered-lineage refusal. Replace it with a name nobody "
+            "has ruled on; do not simply delete it, or the refusal loses a case."
+            % sorted(registered))
+    for unknown in unknowns:
         try:
             assert_l2_reopening_reachable(unknown)
         except UnregisteredLineage:

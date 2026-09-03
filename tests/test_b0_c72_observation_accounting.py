@@ -53,7 +53,13 @@ THE_CONSUMING_RUN = "L2-af1b4d90c29b3b5f"
 # Names that are NOT registered lineages. Every one of them must fail loudly.
 # `FROZEN_BO` is the important one: an O for a zero, and under a fail-open
 # register it walks straight past the gate.
-UNREGISTERED = ("FROZEN_BO", "B1", "B1_LINEAGE_NOT_YET_OPENED", "frozen_b0", "")
+# Names nobody has ruled on. "B1" was here until 2026-09-03, when B1 was
+# registered; a registered name in this tuple is a probe of nothing, and the
+# test below would have kept passing while silently testing one case fewer.
+# `test_the_unregistered_probes_are_actually_unregistered` now makes that
+# impossible to miss.
+UNREGISTERED = ("FROZEN_BO", "B2", "B1_LINEAGE_NOT_YET_OPENED", "frozen_b0",
+                "b1", "")
 
 OLD_SEAL = "7faad84ab88c972474780d406cb3504e039d26d416c21c62a1cd1ed7ae1c3289"
 NEW_SEAL = "aea938248ef8bdee4fdb3b6fb5cade7bd58e0219a7c9dab2dda51c076dc52cee"
@@ -120,8 +126,31 @@ def test_an_unregistered_lineage_fails_loudly_rather_than_being_admitted(name):
         assert_l2_reopening_reachable(name)
 
 
-def test_the_register_is_exhaustive_and_currently_holds_only_frozen_b0():
-    assert dict(REGISTERED_L2_LINEAGES) == {FROZEN_B0_LINEAGE: False}
+def test_the_register_is_exhaustive_and_says_which_budgets_are_spent():
+    """The register is a statement about BUDGETS, not about permissions.
+
+    Frozen B0 is False because its one effective observation is spent. B1,
+    registered 2026-09-03 under authority `aaaai`, is True because it has opened
+    nothing, run nothing and scored nothing. Pinned exhaustively: a lineage that
+    appears here without a ruling is exactly what the register exists to
+    prevent.
+    """
+    assert dict(REGISTERED_L2_LINEAGES) == {FROZEN_B0_LINEAGE: False,
+                                            "B1": True}
+
+
+def test_the_unregistered_probes_are_actually_unregistered():
+    """Registering a lineage must BREAK this, loudly, at the line to edit.
+
+    "B1" sat in UNREGISTERED after B1 was registered and turned a refusal probe
+    into a no-op. The failure mode is not that a test goes red; it is that a
+    test stays green while checking less than it says.
+    """
+    overlap = set(REGISTERED_L2_LINEAGES) & set(UNREGISTERED)
+    assert not overlap, (
+        "%s is registered and can no longer probe the unregistered-lineage "
+        "refusal. Replace it with a name nobody has ruled on - do not just "
+        "delete it, or the refusal loses a case." % sorted(overlap))
 
 
 def test_the_c56_mechanism_is_reached_by_calling_it_not_by_naming_a_lineage():

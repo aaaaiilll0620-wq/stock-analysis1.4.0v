@@ -110,16 +110,37 @@ def test_a_non_window_key_is_not_answerable_per_lineage():
         lineage_spec("B1", "concepts")
 
 
-def test_declaring_a_window_is_not_registering_the_lineage():
-    """B1 may have a window declared and STILL have no reopening path.
+def test_the_window_was_declared_before_the_lineage_was_registered():
+    """The separation is what makes B1's window admissible at all.
 
-    The separation is what makes the declaration admissible: v1.33 was rejected
-    because a window moved after its lineage had opened, so B1's window has to
-    be frozen BEFORE B1 can run.
+    v1.33 was rejected because a window moved AFTER its lineage had opened and
+    scored. B1's window was frozen while B1 was still unregistered and could not
+    run; registration came afterwards, on 2026-09-03. Both facts are now true at
+    once, and the ORDER is the whole argument - so what is pinned here is that
+    the window register and the lineage register are separate mechanisms, not
+    that B1 is absent from one of them.
     """
     from core.b0_master_prereg import REGISTERED_L2_LINEAGES
+
     assert "B1" in declared_window_lineages()
-    assert "B1" not in REGISTERED_L2_LINEAGES
+    assert "B1" in REGISTERED_L2_LINEAGES
+    # separable: a lineage may have a window and no registration. B2 has
+    # neither, and asking either register about it fails closed rather than
+    # defaulting to B0's answer.
+    assert "B2" not in declared_window_lineages()
+    assert "B2" not in REGISTERED_L2_LINEAGES
+    with pytest.raises(UnregisteredLineage):
+        lineage_spec("B2", "window_end")
+
+
+def test_b1_is_registered_as_unspent_not_merely_present():
+    """True and False mean different things here, and B1's value is the claim
+    that its once-only observation budget is still intact."""
+    from core.b0_master_prereg import REGISTERED_L2_LINEAGES, l2_replay_permitted
+
+    assert REGISTERED_L2_LINEAGES["B1"] is True
+    assert l2_replay_permitted("B1") is True
+    assert l2_replay_permitted(FROZEN_B0_LINEAGE) is False
 
 
 # --- the write guard --------------------------------------------------------

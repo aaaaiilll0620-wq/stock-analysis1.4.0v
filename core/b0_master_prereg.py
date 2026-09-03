@@ -996,7 +996,21 @@ def effective_observations(
 FROZEN_B0_LINEAGE = "FROZEN_B0"
 
 # lineage -> may its L2 window be replayed / reopened at all.
-REGISTERED_L2_LINEAGES: Mapping[str, bool] = {FROZEN_B0_LINEAGE: False}
+#
+# B1 registered 2026-09-03. Authority `aaaai`, recorded in
+# `docs/B1_MasterPreregistration.md` (version 1.0, EFFECTIVE): "authorized:
+# promote + register + seal". True, not False, and the asymmetry with Frozen B0
+# is the whole content of the entry - B0 is False because its one effective
+# observation is SPENT (af1b4d90c29b3b5f), while B1 has opened nothing, run
+# nothing and scored nothing. The flag is not a permission granted to B1; it is
+# the statement that B1's once-only budget is still intact.
+#
+# Registering is a SPECIFICATION CHANGE and it was made in this order on
+# purpose: the window was frozen first (B1 inherits B0's), the document was made
+# effective second, and this entry third. B1's window therefore could not move
+# after B1 became runnable, which is precisely what v1.33 was rejected for.
+REGISTERED_L2_LINEAGES: Mapping[str, bool] = {FROZEN_B0_LINEAGE: False,
+                                              "B1": True}
 
 # ASCII on purpose: these travel into a hashed declaration registry.
 FROZEN_B0_REOPENING_UNREACHABLE_REASONS: tuple[str, ...] = (
