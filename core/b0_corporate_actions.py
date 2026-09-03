@@ -871,6 +871,18 @@ class TransitionRecord:
     pre_state_hash: str
     post_state_hash: str
     event_source_hash: str
+    # HX-A/CASH disclosure (rule §3). Defaulted, so a row that did not go
+    # through the rule is identical to what it was before the rule existed.
+    # `hxa_note` carries the mandatory `HX-A:` prefix (rule §2.6): the proceeds
+    # are a modelled liquidation, never an observed exit consideration, and no
+    # field here may be named `actual`.
+    hxa_applied: bool = False
+    hxa_note: str = ""
+    hxa_anchor_price: float | None = None
+    hxa_anchor_session: str | None = None
+    hxa_sessions_between: int | None = None
+    hxa_q_total: str | None = None
+    hxa_cash_proceeds: float | None = None
 
 
 @dataclass(frozen=True)
@@ -1454,11 +1466,154 @@ def _order_same_day(events: Sequence["CorporateActionEvent"]):
     return tuple(ordered)
 
 
+# --- HX-A/CASH - forced cash exit at the pre-boundary price --------------------
+#
+# Frozen for lineage B1 only (docs/B1_MasterPreregistration.md §2.3). It is a
+# STRATEGY-SEMANTIC rule, not a conformance repair, so it may never be applied
+# to Frozen B0: §1.4 no-post-hoc-rescue.
+#
+# Scope is the enumerated set below and nothing else. STOCK_ONLY, MIXED and
+# UNKNOWN consideration are OUT, because the measured bias is one-sided only for
+# the cash leg (2026-09-03: cash n=21, UNDERSTATES 21 / FLATTERS 0, median ratio
+# 1.0052; stock n=8, FLATTERS 2, one materially at 0.797).
+HXA_CASH_STALENESS_CAP_SESSIONS = 10
+
+# Source: research/b0_8_holder_terms/required_field_dependency_closure_d8_1.json,
+# per_event[].semantics == "CASH_ONLY". Enumerated rather than read at runtime so
+# the scope freezes with the rule instead of moving when a research artefact is
+# regenerated.
+#
+# The scope is what SURVIVED d7_2_1's adjudication, not a raw artefact reading.
+# d7_1a's leg classifier was found defective
+# (`LEXICAL_TRANSACTION_VOCABULARY_OVERINCLUSION_DEFECT`) and d7_2_1 repaired
+# each affected event with a stated reason - eight, including 8913, 8266 and
+# 4103, moved MIXED -> CASH_ONLY as "prior MIXED was lexical over-inclusion;
+# canonical exit pays only cash". Two events are OUT for opposite reasons:
+#   4152 - d7_1a says MIXED and d7_2_1 never repaired it, so MIXED stands, while
+#          the pass-2 extraction reads it C_CASH_ONE_DATE_AWAY. Unadjudicated
+#          disagreement; a rule may not rest on a contested classification.
+#   6514 - d7_2_1 repaired it DOWNWARDS, CASH_LEG_PRESENT ->
+#          CONSIDERATION_NOT_ESTABLISHED, "no authoritative holder-consideration
+#          clause resolved in bundle". Its cash figure in the pass-2 extraction
+#          is therefore not an established term.
+# Both exclusions are false NEGATIVES, which is the safe direction: the rule
+# declines and §6.1.12 fails closed. A false POSITIVE - cash treatment on a
+# share exchange - is the dangerous one and the measured overlap has none.
+HXA_CASH_SCOPE: frozenset = frozenset({
+    "1787", "2928", "3144", "3426", "3553", "3658", "4103", "4947", "4987",
+    "5102", "5480", "5820", "6022", "6105", "6247", "6554", "6747", "8079",
+    "8266", "8406", "8418", "8913",
+})
+
+
+class HxaCashAnchorUnavailable(CorporateActionError):
+    """In scope, but no admissible P_anchor. Fails closed - never a fallback."""
+
+
+def hxa_cash_quantity(state, stock_id: str):
+    """Q_total: tradable shares + every same-security claim, EXACT, unrounded.
+
+    B0.7 stopped on a <1 share claim that int() could never credit (1.076 shares,
+    measured). Rounding here would leave that wall exactly where it was.
+
+    `pending_exit` is deliberately NOT added. The frozen draft lists it as
+    exposure because §6.1.12 lists it as exposure, but in this state model
+    pending_exit[sid] counts shares that are ALREADY in shares[sid]
+    (_release_matured sets it to the full share count), so adding it would double
+    the position. Exposure membership and quantity summation are different
+    questions.
+    """
+    from fractions import Fraction
+
+    q = Fraction(int(state.shares.get(stock_id, 0)))
+    for r in state.security_receivables:
+        if r.security_id == stock_id:
+            q += Fraction(r.shares)
+    return q
+
+
+def hxa_cash_applies(ev: "CorporateActionEvent") -> bool:
+    """Scope test only. Whether an anchor exists is asked separately."""
+    return (ev.kind == "holder_side_reorganization_exit"
+            and ev.reconstructibility == NOT_RECONSTRUCTIBLE
+            and str(ev.stock_id) in HXA_CASH_SCOPE)
+
+
+def _hxa_cash_exit(state, ev, anchor_price, anchor_session, sessions, as_of,
+                   period=""):
+    """Turn the whole exposure into cash at P_anchor."""
+    import dataclasses as _dc
+
+    # R8 / rule §2.3: the anchor is STRICTLY BEFORE the boundary. Checked here
+    # rather than left to `assert_no_look_ahead`, which this branch never
+    # reaches - it `continue`s first. Without this, an anchor at or after the
+    # boundary scores gap 0 (the between-set is empty) and a POST-EVENT price
+    # would be accepted as the liquidation price.
+    if not str(anchor_session) < str(ev.ex_or_effective_date):
+        raise HxaCashAnchorUnavailable(
+            "HX-A/CASH: %s anchor session %s is not strictly before the "
+            "boundary %s. A post-boundary close is post-event data (R8) and is "
+            "never an admissible P_anchor."
+            % (ev.stock_id, anchor_session, ev.ex_or_effective_date))
+
+    gap = len([d for d in sessions
+               if str(anchor_session) < str(d) < str(ev.ex_or_effective_date)])
+    if gap > HXA_CASH_STALENESS_CAP_SESSIONS:
+        raise HxaCashAnchorUnavailable(
+            "HX-A/CASH: %s anchor session %s is %d trading sessions before the "
+            "boundary %s, over the frozen cap of %d. The rule does not apply and "
+            "§6.1.12 fails closed."
+            % (ev.stock_id, anchor_session, gap, ev.ex_or_effective_date,
+               HXA_CASH_STALENESS_CAP_SESSIONS))
+
+    q = hxa_cash_quantity(state, ev.stock_id)
+    proceeds = float(q) * float(anchor_price)
+
+    shares = {k: v for k, v in state.shares.items() if k != ev.stock_id}
+    pending = {k: v for k, v in state.pending_exit.items() if k != ev.stock_id}
+    kept = tuple(r for r in state.security_receivables
+                 if r.security_id != ev.stock_id)
+    on_recv = tuple(x for x in state.pending_exit_on_receivable
+                    if x != ev.stock_id)
+    new = _dc.replace(state, cash=float(state.cash) + proceeds, shares=shares,
+                      pending_exit=pending, security_receivables=kept,
+                      pending_exit_on_receivable=on_recv)
+
+    record = TransitionRecord(
+        period=str(period), event_id=ev.canonical_event_id(), event_kind=ev.kind,
+        security_id=ev.stock_id, successor_security_id=None,
+        knowledge_ts=ev.knowledge_ts,
+        effective_date=str(ev.ex_or_effective_date),
+        credit_tradable_date=None, cash_available_date=None,
+        pre_tradable_shares=int(state.shares.get(ev.stock_id, 0)),
+        post_tradable_shares=0,
+        created_security_receivables=(), released_security_receivables=(),
+        created_cash_receivables=(), released_cash=0.0,
+        pending_exit_before=int(state.pending_exit.get(ev.stock_id, 0)),
+        pending_exit_after=0,
+        reconstructibility=ev.reconstructibility,
+        # NOT a block: the rule disposed of it. `blocking_reason` keeps its own
+        # meaning and stays empty.
+        blocking_reason=None,
+        pre_state_hash=_state_hash(state), post_state_hash=_state_hash(new),
+        event_source_hash=_event_hash(ev),
+        hxa_applied=True,
+        hxa_note="HX-A: forced cash exit at the pre-boundary close; a modelled "
+                 "liquidation, not an observed exit consideration",
+        hxa_anchor_price=float(anchor_price),
+        hxa_anchor_session=str(anchor_session),
+        hxa_sessions_between=gap,
+        hxa_q_total=str(q),
+        hxa_cash_proceeds=proceeds)
+    return new, record
+
+
 # --- §6.1.6 - the canonical intra-period transition ----------------------------
 
 def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
                          as_of: str, sessions: Sequence[str],
-                         period: str = "") -> "CorporateActionTransitionResult":
+                         period: str = "",
+                         hxa_anchor=None) -> "CorporateActionTransitionResult":
     """PortfolioState[t-1] + today's events -> validated PortfolioState[t].
 
     The order in §6.1.6 is not a style choice. Releasing matured claims first is
@@ -1505,6 +1660,20 @@ def transition_portfolio(state, events: Sequence["CorporateActionEvent"], *,
             if not exposed:
                 skipped.append(ev.canonical_event_id())
                 continue
+            # HX-A/CASH (B1 only). In scope AND an anchor was supplied ->
+            # the position becomes cash instead of blocking. No resolver,
+            # or no anchor for this security, is NOT a licence to guess:
+            # it falls through to the block below exactly as before.
+            if hxa_anchor is not None and hxa_cash_applies(ev):
+                got = hxa_anchor(ev.stock_id,
+                                 str(ev.ex_or_effective_date))
+                if got is not None:
+                    price, session = got
+                    work, rec = _hxa_cash_exit(work, ev, price, session,
+                                               sessions, as_of, period)
+                    ledger.append(rec)
+                    applied.append(ev.canonical_event_id())
+                    continue
             raise CorporateActionReconstructionBlock(
                 "§6.1.12: %s/%s on %s is NOT_RECONSTRUCTIBLE and B0 is exposed "
                 "(%s)" % (ev.stock_id, ev.kind, ev.ex_or_effective_date, ev.reason),
