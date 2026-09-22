@@ -93,12 +93,29 @@ def load_union(con) -> pd.DataFrame:
     return df
 
 
+def revenue_yoy_sql() -> str:
+    """單月營收 YoY 來源 = TEJ revenue_growth 種子 ∪ 收集器 market_cache/monthly_revenue,
+    同 (stock_id, 月) 以 TEJ 為準 (同 core/data_provider._read_tej_monthly_revenue 的規則)。
+    2026-09-22 前只讀 TEJ:種子停在 2026-06 後,C2 營收腳凍在 6 月將近一個月 (8/25 起 WARN)。
+    兩源 2026-06 重疊實測 YoY 一致 (有值者 100% 差 < 0.01pp)。已知時點仍由呼叫端的
+    『月底 + REVENUE_LAG_DAYS』決定,不用收集器的 release_date —— 公告延遲算法不變。"""
+    tej = f"read_parquet('{TEJ_CACHE}/revenue_growth/*.parquet', union_by_name=true)"
+    mc_dir = MARKET_CACHE / "monthly_revenue"
+    if not any(mc_dir.glob("*.parquet")):
+        return f"SELECT stock_id, date, revenue_yoy_pct FROM {tej}"
+    mc = f"read_parquet('{mc_dir}/*.parquet', union_by_name=true)"
+    return f"""
+        SELECT stock_id, date, revenue_yoy_pct FROM {tej}
+        UNION ALL
+        SELECT m.stock_id, m.date, m.revenue_yoy_pct FROM {mc} m
+        WHERE NOT EXISTS (SELECT 1 FROM {tej} t
+                          WHERE t.stock_id = m.stock_id AND t.date = m.date)
+    """
+
+
 def latest_revenue_yoy(con, as_of: str) -> pd.DataFrame:
     """最新『已公佈』單月營收 YoY:期間月底 + 10 天 <= as_of 才算已知 (PIT-safe)。"""
-    rev = con.execute(f"""
-        SELECT stock_id, date, revenue_yoy_pct
-        FROM read_parquet('{TEJ_CACHE}/revenue_growth/*.parquet', union_by_name=true)
-    """).df()
+    rev = con.execute(revenue_yoy_sql()).df()
     rev["known"] = (pd.to_datetime(rev["date"]) + pd.offsets.MonthEnd(0)
                      + pd.Timedelta(days=REVENUE_LAG_DAYS))
     rev = rev[rev["known"] <= pd.Timestamp(as_of)]
@@ -275,10 +292,7 @@ def main():
         return float(s.iloc[-1] / s.max() * 100.0)
 
     # 營收加速度:最新已知單月 YoY − 近3個已知月份平均 YoY (PIT: 月底+10天才算已知)
-    rev_all = con.execute(f"""
-        SELECT stock_id, date, revenue_yoy_pct
-        FROM read_parquet('{TEJ_CACHE}/revenue_growth/*.parquet', union_by_name=true)
-    """).df()
+    rev_all = con.execute(revenue_yoy_sql()).df()
     rev_all["known"] = (pd.to_datetime(rev_all["date"]) + pd.offsets.MonthEnd(0)
                          + pd.Timedelta(days=REVENUE_LAG_DAYS))
     rev_all = rev_all[rev_all["known"] <= pd.Timestamp(as_of)].sort_values("date")

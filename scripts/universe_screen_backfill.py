@@ -19,6 +19,9 @@ import numpy as np
 import pandas as pd
 import duckdb
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from universe_screen_daily import revenue_yoy_sql   # 營收來源與 daily 同一份定義
+
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEJ_CACHE = Path(os.environ.get("TEJ_CACHE", str(Path.home() / "tej_cache")))
 MARKET_CACHE = Path(os.environ.get("MARKET_CACHE", str(Path.home() / "market_cache")))
@@ -75,11 +78,7 @@ def main():
     ref = pd.read_parquet(MARKET_CACHE / "industry_value_ref.parquet")
     px = px.merge(ref, on=["stock_id", "date"], how="left")   # pe_hist_pct/value_mkt_pct/value_ind_pct
 
-    rev = con.execute(f"""
-        SELECT stock_id, date, revenue_yoy_pct
-        FROM read_parquet('{TEJ_CACHE}/revenue_growth/*.parquet', union_by_name=true)
-        ORDER BY stock_id, date
-    """).df()
+    rev = con.execute(f"SELECT * FROM ({revenue_yoy_sql()}) ORDER BY stock_id, date").df()
     rev["known"] = (pd.to_datetime(rev["date"]) + pd.offsets.MonthEnd(0)
                      + pd.Timedelta(days=REVENUE_LAG_DAYS))
     rev["rev_accel"] = rev["revenue_yoy_pct"] - (rev.groupby("stock_id", sort=False)["revenue_yoy_pct"]
